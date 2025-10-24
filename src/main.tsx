@@ -1,15 +1,16 @@
-// src/main.tsx
-
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // 👈 1. Import BrowserRouter
+import { BrowserRouter } from 'react-router-dom';
+import { CartProvider } from './contexts/CartContext';
 import './index.css';
 import App from './App.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter> {/* 👈 2. Bọc App trong BrowserRouter */}
-      <App />
+    <BrowserRouter>
+      <CartProvider>
+        <App />
+      </CartProvider>
     </BrowserRouter>
   </StrictMode>,
-)
+);

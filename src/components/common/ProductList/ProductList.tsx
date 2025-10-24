@@ -1,6 +1,6 @@
 import React from 'react';
-import { type Comic } from '../../../data/mockData.ts';
-import ProductCard from '../ProductCard/ProductCards.tsx';
+import { type Comic } from '../../../data/mockData';
+import ProductCard from '../ProductCard/ProductCards';
 import './ProductList.css';
 
 interface ProductListProps {

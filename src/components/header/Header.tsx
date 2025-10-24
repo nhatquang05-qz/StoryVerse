@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX } from 'react-icons/fi';
 import './Header.css';
+import { useCart } from '../../contexts/CartContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Dữ liệu giả, sau này sẽ thay bằng state thật
-  const cartItemCount = 3; 
+  const { cartCount } = useCart();
   const isLoggedIn = false;
 
   const toggleMenu = () => {
@@ -50,7 +49,7 @@ const Header: React.FC = () => {
           </Link>
           <Link to="/cart" className="action-icon" aria-label="Giỏ hàng">
             <FiShoppingCart />
-            {cartItemCount > 0 && <span className="cart-badge">{cartItemCount}</span>}
+           {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
           {isLoggedIn ? (
             <div className="dropdown">
