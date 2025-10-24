@@ -1,4 +1,3 @@
-/* src/components/common/ProductCard.css - PHIÊN BẢN SỬA LỖI ICON */
 .product-card {
   background-color: #fff;
   border: 1px solid var(--border-color-light);
@@ -105,14 +104,13 @@
   opacity: 1;
 }
 
-/* === PHẦN SỬA LỖI QUAN TRỌNG === */
 .card-action-button svg {
-  width: 24px;  /* Đặt kích thước chiều rộng cố định cho icon */
-  height: 24px; /* Đặt kích thước chiều cao cố định cho icon */
+  width: 24px; 
+  height: 24px;
 }
 .card-image-overlay {
-  display: flex; /* Đảm bảo nút nằm trên cùng một hàng */
-  gap: 10px; /* Khoảng cách giữa các nút */
+  display: flex; 
+  gap: 10px;
 }
 
 .wishlist-btn {
@@ -128,7 +126,7 @@
 }
 
 .wishlist-btn.favorite {
-  background-color: #e63946; /* Màu đỏ khi đã thêm vào yêu thích */
+  background-color: #e63946; 
   border-color: #e63946;
 }
 

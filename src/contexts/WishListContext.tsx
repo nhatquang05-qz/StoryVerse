@@ -20,10 +20,8 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
   const toggleWishlist = (comic: Comic) => {
     setWishlistItems(prevItems => {
       if (isWishlisted(comic.id)) {
-        // Xóa khỏi Wishlist
         return prevItems.filter(item => item.id !== comic.id);
       } else {
-        // Thêm vào Wishlist
         return [...prevItems, comic];
       }
     });
