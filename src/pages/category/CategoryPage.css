@@ -30,3 +30,44 @@
     border-radius: var(--border-radius);
     margin: 0 1.5rem;
 }
+
+.filter-sort-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem 2rem 1.5rem;
+    gap: 1rem;
+}
+
+.filter-sort-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color-dark);
+}
+
+.filter-sort-group select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: white;
+}
+
+@media (max-width: 768px) {
+    .filter-sort-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filter-sort-group {
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .filter-sort-group select {
+        flex-grow: 1;
+        max-width: 70%;
+    }
+}

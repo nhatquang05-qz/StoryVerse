@@ -4,7 +4,7 @@
     max-width: 1536px;
     margin: 0 auto;
     padding: 2rem;
-    min-height: calc(100vh - var(--header-height) - 150px); /* Đảm bảo Footer ở dưới */
+    min-height: calc(100vh - var(--header-height) - 150px);
     align-items: start;
 }
 
@@ -77,6 +77,11 @@
 .status-cancelled {
     background-color: #f8d7da;
     color: #721c24;
+}
+/* NEW STATUS STYLE */
+.status-pending {
+    background-color: #bee5eb;
+    color: #0c5460;
 }
 
 .detail-order-btn {

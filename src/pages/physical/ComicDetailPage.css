@@ -148,3 +148,115 @@
         max-width: none;
     }
 }
+.detail-actions .add-to-cart-btn {
+  max-width: 180px; /* Giảm chiều rộng để chia đều 2 nút */
+  flex-grow: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wishlist-btn-detail {
+  background-color: var(--primary-color-dark);
+}
+.wishlist-btn-detail:hover {
+  background-color: #4a51e6; 
+}
+.wishlist-btn-detail.favorite {
+  background-color: #e63946;
+}
+.wishlist-btn-detail.favorite:hover {
+  background-color: #d82d3b;
+}
+
+.main-cart-btn {
+    flex-grow: 1; 
+    max-width: 300px;
+}
+@keyframes pulse {
+    0% {
+        background-color: rgba(200, 200, 200, 0.5);
+    }
+    50% {
+        background-color: rgba(200, 200, 200, 0.9);
+    }
+    100% {
+        background-color: rgba(200, 200, 200, 0.5);
+    }
+}
+
+.detail-skeleton-wrapper {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) 1.5fr;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.skeleton-block {
+    animation: pulse 1.5s infinite ease-in-out;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.detail-skeleton-image {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.detail-skeleton-author {
+    height: 1rem;
+    width: 30%;
+}
+
+.detail-skeleton-title {
+    height: 2.8rem;
+    width: 90%;
+    margin: 0.5rem 0 1rem 0;
+}
+
+.detail-skeleton-price {
+    height: 2.2rem;
+    width: 40%;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(200, 200, 200, 0.5);
+}
+
+.detail-skeleton-actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.detail-skeleton-quantity {
+    height: 3.5rem;
+    width: 100px;
+}
+
+.detail-skeleton-cart-btn {
+    height: 3.5rem;
+    flex-grow: 1;
+    max-width: 300px;
+}
+
+.detail-skeleton-description-title {
+    height: 1.5rem;
+    width: 20%;
+    margin-bottom: 1rem;
+}
+
+.detail-skeleton-text-line {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive cho Skeleton */
+@media (max-width: 900px) {
+  .detail-skeleton-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
+import { loadOrders, type Order } from '../data/mockData';
 import '../pages/profile/ProfilePage.css'; 
-
-const mockOrders = [
-  { id: 1001, date: '2025-09-15', total: 120000, status: 'Hoàn thành', items: 4 },
-  { id: 1002, date: '2025-10-01', total: 58000, status: 'Đang giao hàng', items: 2 },
-  { id: 1003, date: '2025-10-18', total: 25000, status: 'Đã hủy', items: 1 },
-];
 
 const OrdersPage: React.FC = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (currentUser) {
+        setIsLoading(true);
+        // Giả lập tải đơn hàng
+        setTimeout(() => {
+            const userOrders = loadOrders(currentUser.id);
+            setOrders(userOrders);
+            setIsLoading(false);
+        }, 500); 
+    }
+  }, [currentUser]);
 
   if (!currentUser) {
     return (
@@ -32,9 +43,15 @@ const OrdersPage: React.FC = () => {
         return 'status-shipping';
       case 'Đã hủy':
         return 'status-cancelled';
+      case 'Đang chờ':
+        return 'status-pending'; 
       default:
         return '';
     }
+  };
+
+  const handleViewDetail = (orderId: string) => {
+    navigate(`/orders/${orderId}`);
   };
 
   return (
@@ -43,7 +60,9 @@ const OrdersPage: React.FC = () => {
       <div className="profile-content">
         <h1>Lịch Sử Mua Hàng</h1>
         
-        {mockOrders.length > 0 ? (
+        {isLoading ? (
+            <p>Đang tải lịch sử đơn hàng...</p>
+        ) : orders.length > 0 ? (
           <table className="orders-table">
             <thead>
               <tr>
@@ -56,11 +75,11 @@ const OrdersPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {mockOrders.map(order => (
+              {orders.map(order => (
                 <tr key={order.id}>
                   <td data-label="Mã Đơn Hàng">#{order.id}</td>
                   <td data-label="Ngày Đặt">{order.date}</td>
-                  <td data-label="Số Lượng SP">{order.items}</td>
+                  <td data-label="Số Lượng SP">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
                   <td data-label="Tổng Cộng">{formatPrice(order.total)}</td>
                   <td data-label="Trạng Thái">
                     <span className={`status-badge ${getStatusClass(order.status)}`}>
@@ -68,7 +87,7 @@ const OrdersPage: React.FC = () => {
                     </span>
                   </td>
                   <td>
-                    <button className="detail-order-btn">Xem chi tiết</button>
+                    <button className="detail-order-btn" onClick={() => handleViewDetail(order.id)}>Xem chi tiết</button>
                   </td>
                 </tr>
               ))}

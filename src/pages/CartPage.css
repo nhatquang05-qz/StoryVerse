@@ -18,6 +18,20 @@
 .summary-total { font-weight: bold; font-size: 1.2rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color-light); }
 .total-price { color: var(--primary-color); }
 .checkout-btn { width: 100%; background-color: var(--primary-color); color: white; padding: 1rem; border: none; border-radius: var(--border-radius); font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-.cart-empty { text-align: center; padding: 4rem 0; }
+.cart-empty { 
+    text-align: center; 
+    padding: 4rem 0; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+.cart-empty h2 {
+    margin-bottom: 0.5rem;
+}
+.cart-empty-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+}
 .continue-shopping-btn { background-color: var(--primary-color); color: white; padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: bold; }
 @media (max-width: 900px) { .cart-container { grid-template-columns: 1fr; } }

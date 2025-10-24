@@ -1,19 +1,46 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiPlus, FiMinus, FiTrash2, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../contexts/NotificationContext';
 import './CartPage.css';
 
 const CartPage: React.FC = () => {
-  const { cartItems, updateQuantity, removeFromCart, totalPrice } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, totalPrice, checkout } = useCart();
+  const { currentUser } = useAuth();
+  const { showNotification } = useNotification();
+  const navigate = useNavigate();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
+  const handleCheckout = async () => {
+    if (!currentUser) {
+        showNotification('Vui lòng đăng nhập để tiến hành thanh toán.', 'warning');
+        navigate('/login');
+        return;
+    }
+
+    if (cartItems.length === 0) {
+        showNotification('Giỏ hàng trống. Vui lòng thêm sản phẩm.', 'warning');
+        return;
+    }
+    
+    try {
+        await checkout();
+        navigate('/orders');
+    } catch (error) {
+        console.error('Lỗi khi thanh toán:', error);
+        showNotification('Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.', 'error');
+    }
+  };
+
   if (cartItems.length === 0) {
     return (
       <div className="cart-empty">
+        <FiShoppingCart className="cart-empty-icon" />
         <h2>Giỏ hàng của bạn đang trống</h2>
         <Link to="/" className="continue-shopping-btn">Tiếp tục mua sắm</Link>
       </div>
@@ -59,7 +86,7 @@ const CartPage: React.FC = () => {
             <span>Tổng Cộng</span>
             <span className="total-price">{formatPrice(totalPrice)}</span>
           </div>
-          <button className="checkout-btn">Tiến hành thanh toán</button>
+          <button className="checkout-btn" onClick={handleCheckout}>Tiến hành thanh toán</button>
         </div>
       </div>
     </div>

@@ -1,0 +1,60 @@
+/* src/components/common/LoadingSkeleton/LoadingSkeleton.css */
+@keyframes pulse {
+    0% {
+        background-color: rgba(200, 200, 200, 0.5);
+    }
+    50% {
+        background-color: rgba(200, 200, 200, 0.9);
+    }
+    100% {
+        background-color: rgba(200, 200, 200, 0.5);
+    }
+}
+
+.skeleton-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.skeleton-card {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color-light);
+}
+
+.skeleton-image {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    animation: pulse 1.5s infinite ease-in-out;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-title {
+    height: 1.2rem;
+    width: 80%;
+    margin-bottom: 0.5rem;
+    animation: pulse 1.5s infinite ease-in-out;
+    border-radius: 4px;
+}
+
+.skeleton-author {
+    height: 0.9rem;
+    width: 50%;
+    margin-bottom: 1rem;
+    animation: pulse 1.5s infinite ease-in-out;
+    border-radius: 4px;
+}
+
+.skeleton-price {
+    height: 1.5rem;
+    width: 40%;
+    margin-top: auto;
+    animation: pulse 1.5s infinite ease-in-out;
+    border-radius: 4px;
+}

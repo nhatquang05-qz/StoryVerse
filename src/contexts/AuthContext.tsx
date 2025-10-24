@@ -1,64 +1,156 @@
 // src/contexts/AuthContext.tsx
-import React, { createContext, useState, useContext, type ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, type ReactNode } from 'react';
+import { useNotification } from './NotificationContext';
+import { saveNewOrder, loadOrders, comics } from '../data/mockData'; // Import loadOrders, comics
 
-interface User {
+export interface User {
   id: string;
   email: string;
-  // Thêm các thông tin khác nếu cần: name, avatarUrl,...
+  fullName: string;
+  phone: string;
+  address: string;
 }
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (email: string, pass: string) => Promise<void>; // Giả lập async
-  register: (email: string, pass: string) => Promise<void>; // Giả lập async
-  logout: () => Promise<void>; // Giả lập async
+  login: (email: string, pass: string) => Promise<void>;
+  register: (email: string, pass: string) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (profileData: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const USER_STORAGE_KEY = 'storyverse_user';
+const PROFILE_DATA_KEY = 'storyverse_user_profile';
+
+const loadProfileData = (baseUser: { id: string, email: string }): User => {
+    try {
+        const storedProfile = localStorage.getItem(PROFILE_DATA_KEY);
+        const profile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
+        
+        const defaultProfile = {
+            fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
+            phone: '0000000000',
+            address: 'Chưa cập nhật',
+        };
+
+        return {
+            ...baseUser,
+            ...defaultProfile,
+            ...profile,
+        };
+    } catch (e) {
+        console.error("Failed to load profile data", e);
+        return {
+            ...baseUser,
+            fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
+            phone: '0000000000',
+            address: 'Chưa cập nhật',
+        };
+    }
+};
+
+const saveProfileData = (profileData: Partial<User>): void => {
+    try {
+        localStorage.setItem(PROFILE_DATA_KEY, JSON.stringify(profileData));
+    } catch (e) {
+        console.error("Failed to save profile data", e);
+    }
+};
+
+// Hàm mới: Tạo đơn hàng mẫu cho truyện số
+const createMockDigitalOrder = (userId: string, comicId: number, _title: string) => {
+    const digitalComic = comics.find(c => c.id === comicId);
+    if (!digitalComic) return;
+
+    const existingOrders = loadOrders(userId);
+    // Chỉ tạo nếu chưa có đơn hàng mẫu này
+    if (existingOrders.some(order => order.id === 'MOCK-DIGITAL-1')) return;
+
+    const mockOrder = {
+        id: 'MOCK-DIGITAL-1',
+        userId: userId,
+        date: new Date().toLocaleDateString('vi-VN'),
+        total: digitalComic.price,
+        status: 'Hoàn thành' as const, // Trạng thái hoàn thành để truyện có thể đọc
+        items: [{ 
+            ...digitalComic, 
+            quantity: 1,
+        }],
+    };
+    saveNewOrder(mockOrder);
+};
+
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    try {
+      const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+      const baseUser = storedUser ? JSON.parse(storedUser) : null;
+      if (baseUser) {
+        return loadProfileData(baseUser);
+      }
+      return null;
+    } catch (error) {
+      console.error("Could not load user from local storage", error);
+      return null;
+    }
+  });
 
-  // Hàm đăng nhập giả
+  const { showNotification } = useNotification();
+
   const login = async (email: string, pass: string) => {
     console.log('Attempting login (mock):', email, pass);
-    // Trong thực tế, bạn sẽ gọi API ở đây
-    // Giả sử đăng nhập thành công nếu email và pass không rỗng
     if (email && pass) {
-        const mockUser: User = { id: 'user-' + Date.now(), email: email };
+        const baseUser = { id: 'user-' + Date.now(), email: email };
+        const mockUser: User = loadProfileData(baseUser);
         setCurrentUser(mockUser);
-        // Lưu trạng thái đăng nhập (ví dụ: localStorage) - Sẽ làm sau
-        console.log('Mock login successful:', mockUser);
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(baseUser));
+        showNotification('Đăng nhập thành công!', 'success');
+        
+        // GỌI HÀM TẠO ĐƠN HÀNG MẪU Ở ĐÂY
+        createMockDigitalOrder(mockUser.id, 1, 'Chú Thuật Hồi Chiến - Tập 10'); 
+
     } else {
         throw new Error('Invalid credentials (mock)');
     }
   };
 
-  // Hàm đăng ký giả
   const register = async (email: string, pass: string) => {
     console.log('Attempting register (mock):', email, pass);
-    // Trong thực tế, bạn sẽ gọi API ở đây
-    // Giả sử đăng ký luôn thành công
     if (!email || !pass) throw new Error("Email/Pass required (mock)");
-    console.log('Mock register successful for:', email);
-    // Không tự động đăng nhập sau khi đăng ký ở bản giả lập này
+    showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
   };
 
-  // Hàm đăng xuất giả
   const logout = async () => {
     console.log('Attempting logout (mock)');
     setCurrentUser(null);
-    // Xóa trạng thái đăng nhập đã lưu (ví dụ: localStorage) - Sẽ làm sau
-    console.log('Mock logout successful');
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(PROFILE_DATA_KEY);
+    showNotification('Đã đăng xuất.', 'info');
   };
 
-  // (Tùy chọn) Kiểm tra trạng thái đăng nhập đã lưu khi app khởi động - Sẽ làm sau
-  // useEffect(() => {
-  //   // Code kiểm tra localStorage/sessionStorage
-  // }, []);
+  const updateProfile = async (profileData: Partial<User>) => {
+    if (!currentUser) {
+        throw new Error('User not logged in.');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+
+    saveProfileData(profileData);
+    
+    setCurrentUser(prevUser => {
+        if (!prevUser) return null;
+        return {
+            ...prevUser,
+            ...profileData,
+        };
+    });
+    showNotification('Cập nhật hồ sơ thành công!', 'success');
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout }}>
+    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

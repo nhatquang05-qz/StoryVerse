@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'; 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext'; 
 import { useAuth } from '../../contexts/AuthContext'; 
@@ -7,9 +7,11 @@ import './Header.css';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { cartCount, setCartIconRect } = useCart(); 
   const { currentUser, logout } = useAuth(); 
   const cartIconRef = useRef<HTMLAnchorElement>(null); 
+  const navigate = useNavigate();
 
   const toggleMenu = () => { setIsMenuOpen(!isMenuOpen); };
 
@@ -26,6 +28,15 @@ const Header: React.FC = () => {
           console.error("Lỗi đăng xuất:", error);
       }
   }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm(''); 
+      setIsMenuOpen(false);
+    }
+  };
 
   return (
     <header className="header">
@@ -48,10 +59,16 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="header-actions">
-          <div className="search-bar">
-            <input type="text" placeholder="Tìm kiếm truyện..." />
-            <button className="search-btn"><FiSearch /></button>
-          </div>
+          <form onSubmit={handleSearch} className="search-bar">
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm truyện..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit" className="search-btn"><FiSearch /></button>
+          </form>
+          
           <Link to="/wishlist" className="action-icon" aria-label="Danh sách yêu thích">
             <FiHeart />
           </Link>
@@ -84,6 +101,16 @@ const Header: React.FC = () => {
       
       {isMenuOpen && (
         <nav className="nav-mobile">
+          <form onSubmit={handleSearch} className="search-bar mobile-search-bar">
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm truyện..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit" className="search-btn"><FiSearch /></button>
+          </form>
+
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
           <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>

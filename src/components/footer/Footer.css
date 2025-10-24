@@ -1,4 +1,4 @@
-/* src/components/Footer.css */
+/* src/components/footer/Footer.css */
 .footer {
   background-color: #f8f9fa;
   color: #6c757d;
@@ -82,4 +82,28 @@
   border-top: 1px solid var(--border-color-light);
   font-size: 0.9rem;
   color: #adb5bd;
+}
+
+@media (max-width: 600px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+  }
+
+  .footer-section {
+    text-align: center;
+  }
+
+  .footer-description {
+    max-width: none;
+    margin: 0 auto 1rem auto;
+  }
+
+  .footer-links {
+    text-align: center;
+  }
+  .social-icons {
+    justify-content: center;
+    margin-top: 1rem;
+  }
 }

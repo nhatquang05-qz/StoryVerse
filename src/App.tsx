@@ -9,8 +9,11 @@ import RegisterPage from './pages/register/RegisterPage';
 import ProfilePage from './pages/profile/ProfilePage'; 
 import MyLibraryPage from './pages/MyLibraryPage'; 
 import OrdersPage from './pages/OrdersPage';     
+import OrderDetailPage from './pages/OrderDetailPage';
 import CategoryPage from './pages/category/CategoryPage';
+import SearchPage from './pages/SearchPage';
 import WishlistPage from './pages/wishlist/WishlistPage';
+import ReaderPage from './pages/ReaderPage'; // Import mới
 import ScrollToTop from './components/common/ScrollToTop';
 import FlyingImage from './components/common/FlyingImage/FlyingImage'; 
 import { useCart } from './contexts/CartContext';       
@@ -34,7 +37,10 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} /> 
           <Route path="/my-library" element={<MyLibraryPage />} />
           <Route path="/orders" element={<OrdersPage />} />
-                    <Route path="/physical-comics" element={<CategoryPage />} />
+          <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/read/:comicId" element={<ReaderPage />} /> {/* Route mới */}
+          <Route path="/physical-comics" element={<CategoryPage />} />
           <Route path="/digital-comics" element={<CategoryPage />} />
           <Route path="/new-releases" element={<CategoryPage />} />
           <Route path="/genres/:categorySlug" element={<CategoryPage />} />

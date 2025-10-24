@@ -1,0 +1,137 @@
+/* src/pages/ReaderPage.css */
+
+.reader-page-container {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    background-color: #f4f4f4; /* Nền nhẹ nhàng cho trải nghiệm đọc */
+    color: var(--text-color-dark);
+    display: flex;
+    flex-direction: column;
+}
+
+.reader-header {
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.reader-header h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.reader-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.page-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.reader-content {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+}
+
+.comic-page-display {
+    max-width: 800px;
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    padding: 2rem; /* Thêm padding để hiển thị nội dung mock */
+    text-align: center;
+}
+.page-text-mock {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+.page-mock-image {
+    max-width: 80%;
+    height: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+.reader-footer {
+    background-color: var(--text-color-dark);
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+}
+
+.page-nav-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+}
+.page-nav-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reader-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+    .reader-header h1 {
+        order: 1;
+    }
+    .reader-back-btn {
+        order: 0;
+        align-self: flex-start;
+    }
+    .page-info {
+        order: 2;
+        align-self: flex-end;
+    }
+    .reader-footer {
+        padding: 1rem;
+    }
+    .page-nav-btn {
+        padding: 0.75rem 1rem;
+    }
+    .reader-header h1 {
+        font-size: 1rem;
+    }
+}

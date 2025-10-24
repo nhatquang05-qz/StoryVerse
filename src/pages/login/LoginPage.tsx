@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; 
+import { useNotification } from '../../contexts/NotificationContext'; 
 import '../AuthPage.css'; 
 
 const LoginPage: React.FC = () => {
@@ -8,18 +9,18 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth(); 
+  const { showNotification } = useNotification();
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     try {
-      // 👇 Bỏ comment dòng này để sử dụng hàm login
       await login(email, password); 
-      alert('Đăng nhập thành công! (Giả lập)'); // Có thể xóa dòng này
       navigate('/'); 
     } catch (err) {
       setError('Email hoặc mật khẩu không đúng.');
+      showNotification('Đăng nhập thất bại. Kiểm tra lại thông tin.', 'error');
       console.error('Lỗi đăng nhập:', err);
     }
   };

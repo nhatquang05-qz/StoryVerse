@@ -1,0 +1,103 @@
+/* src/components/common/Review/ReviewSection.css */
+.review-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color-light);
+}
+
+.review-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color-dark);
+    font-weight: 600;
+}
+
+.rating-summary {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.average-rating {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-right: 1.5rem;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.2rem;
+    font-size: 1.5rem;
+    color: #ffc107; /* Vàng cho sao */
+}
+
+.star-rating.empty .star-icon {
+    color: #e0e0e0; /* Xám cho sao chưa được tô */
+}
+
+/* --- Review List --- */
+.review-item {
+    border: 1px solid #f0f0f0;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.review-author {
+    font-weight: bold;
+    color: var(--primary-color-dark);
+}
+
+.review-date {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.review-text {
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    color: #495057;
+}
+
+/* --- Review Form --- */
+.review-form-container h3 {
+    font-size: 1.5rem;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color-dark);
+}
+
+.review-form-container textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+.submit-review-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.submit-review-btn:hover {
+    background-color: var(--primary-color-dark);
+}

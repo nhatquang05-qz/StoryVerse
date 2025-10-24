@@ -1,9 +1,11 @@
+// src/components/common/ProductCard/ProductCards.tsx
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiHeart } from 'react-icons/fi'; 
+import { FiShoppingCart, FiHeart } from 'react-icons/fi';
 import { type Comic } from '../../../data/mockData';
 import { useCart } from '../../../contexts/CartContext';
-import { useWishlist } from '../../../contexts/WishListContext'; 
+import { useWishlist } from '../../../contexts/WishListContext';
+import { useNotification } from '../../../contexts/NotificationContext';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -12,10 +14,11 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ comic }) => {
   const { addToCart } = useCart();
-  const { isWishlisted, toggleWishlist } = useWishlist(); 
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const { showNotification } = useNotification();
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const isFavorite = isWishlisted(comic.id); 
+  const isFavorite = isWishlisted(comic.id);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -30,12 +33,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic }) => {
   const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     toggleWishlist(comic);
+    showNotification(
+        isFavorite ? `Đã xóa ${comic.title} khỏi Yêu thích.` : `Đã thêm ${comic.title} vào Yêu thích.`, 
+        isFavorite ? 'error' : 'success'
+    );
   };
 
   return (
     <div className="product-card">
       <Link to={`/comic/${comic.id}`} className="card-image-container">
         <img ref={imgRef} src={comic.imageUrl} alt={comic.title} className="card-image" />
+        
+        {/* LOGIC HIỂN THỊ DIGITAL BADGE MỚI */}
+        {comic.isDigital && (
+            <span className="digital-badge">DIGITAL</span>
+        )}
+
         <div className="card-image-overlay">
           <button 
             className={`card-action-button wishlist-btn ${isFavorite ? 'favorite' : ''}`} 

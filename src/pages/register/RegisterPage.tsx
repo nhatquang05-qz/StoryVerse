@@ -1,15 +1,16 @@
-// src/pages/RegisterPage.tsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// import { useAuth } from '../contexts/AuthContext';
-import '../AuthPage.css'; // Dùng chung CSS
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import '../AuthPage.css';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-  // const { register } = useAuth(); // Sẽ dùng sau
+  const { register } = useAuth();
+  const { showNotification } = useNotification();
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,13 +22,11 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      // Logic đăng ký giả
-      console.log('Đăng ký với:', email, password);
-      // await register(email, password); // Sẽ gọi hàm register thật
-      alert('Đăng ký thành công! (Giả lập)'); // Thông báo tạm
-      navigate('/login'); // Chuyển đến trang đăng nhập sau khi đăng ký
+      await register(email, password);
+      navigate('/login');
     } catch (err) {
       setError('Không thể tạo tài khoản. Vui lòng thử lại.');
+      showNotification('Đăng ký thất bại.', 'error');
       console.error('Lỗi đăng ký:', err);
     }
   };

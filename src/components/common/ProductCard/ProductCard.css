@@ -1,3 +1,4 @@
+/* src/components/common/ProductCard/ProductCard.css - PHIÊN BẢN SỬA LỖI ICON */
 .product-card {
   background-color: #fff;
   border: 1px solid var(--border-color-light);
@@ -104,12 +105,13 @@
   opacity: 1;
 }
 
+/* === SỬA LỖI ICON VÀ KHOẢNG CÁCH === */
 .card-action-button svg {
-  width: 24px; 
+  width: 24px;
   height: 24px;
 }
 .card-image-overlay {
-  display: flex; 
+  display: flex;
   gap: 10px;
 }
 
@@ -126,11 +128,26 @@
 }
 
 .wishlist-btn.favorite {
-  background-color: #e63946; 
+  background-color: #e63946;
   border-color: #e63946;
 }
 
 .wishlist-btn.favorite:hover {
   background-color: #d82d3b;
   transform: scale(1.1);
+}
+
+/* === DIGITAL BADGE STYLE MỚI === */
+.digital-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--primary-color); /* Màu xanh */
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 10; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }

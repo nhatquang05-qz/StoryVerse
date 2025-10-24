@@ -1,15 +1,62 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import ProfileSidebar from '../../components/common/ProfileSideBar'; 
-import './ProfilePage.css'; 
+import ProfileSidebar from '../../components/common/ProfileSideBar';
+import { useNotification } from '../../contexts/NotificationContext';
+import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, updateProfile } = useAuth();
+  const { showNotification } = useNotification();
+  const [formData, setFormData] = useState({
+    fullName: '',
+    phone: '',
+    address: '',
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setFormData({
+        fullName: currentUser.fullName,
+        phone: currentUser.phone,
+        address: currentUser.address,
+      });
+    }
+  }, [currentUser]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    if (!formData.fullName || !formData.phone || !formData.address) {
+        showNotification('Vui lòng điền đầy đủ các trường.', 'warning');
+        return;
+    }
+
+    setIsSaving(true);
+    try {
+        await updateProfile(formData);
+        setIsEditing(false);
+    } catch (error) {
+        console.error('Lỗi khi cập nhật hồ sơ:', error);
+        showNotification('Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
+    } finally {
+        setIsSaving(false);
+    }
+  };
 
   if (!currentUser) {
     return (
       <div className="profile-page-not-logged">
-        <h2>Bạn cần đăng nhập để xem trang này.</h2>
+        <h2>Bạn cần đăng nhập để xem thông tin hồ sơ.</h2>
       </div>
     );
   }
@@ -18,16 +65,89 @@ const ProfilePage: React.FC = () => {
     <div className="profile-page-container">
       <ProfileSidebar activeLink="/profile" />
       <div className="profile-content">
-        <h1>Xin chào, {currentUser.email}!</h1>
-        <div className="profile-info-card">
-            <h3>Thông tin tài khoản</h3>
-            <p><strong>Email:</strong> {currentUser.email}</p>
-            <p><strong>ID Người dùng:</strong> {currentUser.id}</p>
-            <p>
-                Đây là khu vực hiển thị thông tin cá nhân. Bạn có thể cập nhật tên, địa chỉ 
-                hoặc thay đổi mật khẩu tại đây.
-            </p>
-        </div>
+        <h1>Thông Tin Hồ Sơ</h1>
+        
+        <form onSubmit={handleSave}>
+            <div className="profile-info-card">
+                <h3>Thông Tin Cá Nhân</h3>
+                
+                <div className="form-group">
+                    <label htmlFor="email">Email</label>
+                    <input type="text" id="email" value={currentUser.email} disabled />
+                </div>
+                
+                <div className="form-group">
+                    <label htmlFor="fullName">Họ và Tên</label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        required
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label htmlFor="phone">Số Điện Thoại</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        required
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label htmlFor="address">Địa Chỉ Giao Hàng</label>
+                    <input 
+                        type="text" 
+                        id="address" 
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        required
+                    />
+                </div>
+
+                <div className="profile-actions">
+                    {!isEditing ? (
+                        <button type="button" className="edit-btn" onClick={() => setIsEditing(true)}>Chỉnh Sửa</button>
+                    ) : (
+                        <>
+                            <button 
+                                type="submit" 
+                                className="save-btn" 
+                                disabled={isSaving}
+                            >
+                                {isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                            </button>
+                            <button 
+                                type="button" 
+                                className="cancel-btn" 
+                                onClick={() => {
+                                    setIsEditing(false);
+                                    if(currentUser) {
+                                        setFormData({
+                                            fullName: currentUser.fullName,
+                                            phone: currentUser.phone,
+                                            address: currentUser.address,
+                                        });
+                                    }
+                                }}
+                            >
+                                Hủy
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+        </form>
       </div>
     </div>
   );
