@@ -110,3 +110,29 @@
   width: 24px;  /* Đặt kích thước chiều rộng cố định cho icon */
   height: 24px; /* Đặt kích thước chiều cao cố định cho icon */
 }
+.card-image-overlay {
+  display: flex; /* Đảm bảo nút nằm trên cùng một hàng */
+  gap: 10px; /* Khoảng cách giữa các nút */
+}
+
+.wishlist-btn {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  transition: all 0.3s ease;
+}
+
+.wishlist-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.wishlist-btn.favorite {
+  background-color: #e63946; /* Màu đỏ khi đã thêm vào yêu thích */
+  border-color: #e63946;
+}
+
+.wishlist-btn.favorite:hover {
+  background-color: #d82d3b;
+  transform: scale(1.1);
+}
