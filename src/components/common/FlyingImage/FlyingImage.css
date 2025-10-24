@@ -3,10 +3,11 @@
   z-index: 9999; 
   border-radius: 5px;
   object-fit: cover;
-  transition: left 0.6s cubic-bezier(0.2, 0.8, 0.4, 1), 
-              top 0.6s cubic-bezier(0.6, -0.28, 0.735, 0.045), 
+  transition: left 0.6s cubic-bezier(0.3, 0.27, 0.07, 1), /* Chuyển động ngang (hơi chậm dần) */
+              top 0.6s cubic-bezier(0, .8, .6, 1), /* Chuyển động dọc (cong lên) */
               width 0.6s ease-in-out, 
               height 0.6s ease-in-out,
-              opacity 0.6s ease-out,
+              opacity 0.6s ease-out, 
               transform 0.6s ease; 
 }
+
