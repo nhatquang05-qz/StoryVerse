@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // import { useAuth } from '../contexts/AuthContext';
-import './AuthPage.css'; // Dùng chung CSS
+import '../AuthPage.css'; // Dùng chung CSS
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');

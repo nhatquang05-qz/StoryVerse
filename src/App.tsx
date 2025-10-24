@@ -10,6 +10,12 @@ import FlyingImage from '../src/components/common/FlyingImage/FlyingImage';
 import { useCart } from './contexts/CartContext';      
 import './App.css';
 
+// --- BẮT ĐẦU THAY ĐỔI ---
+// 1. Import trang đăng nhập và đăng ký
+import LoginPage from './pages/login/LoginPage';
+import RegisterPage from './pages/register/RegisterPage';
+// --- KẾT THÚC THAY ĐỔI ---
+
 function App() {
   const { animationData, clearAnimation } = useCart(); 
 
@@ -22,6 +28,13 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/comic/:comicId" element={<ComicDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
+          
+          {/* --- BẮT ĐẦU THAY ĐỔI --- */}
+          {/* 2. Thêm Route cho trang đăng nhập và đăng ký */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          {/* --- KẾT THÚC THAY ĐỔI --- */}
+
         </Routes>
       </main>
       <Footer />
