@@ -1,62 +1,132 @@
-/* src/components/common/Hero.css */
-.hero-section {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.alphacoders.com/132/1322308.jpeg');
-  background-size: cover;
-  background-position: center;
-  padding: 6rem 2rem;
-  border-radius: var(--border-radius);
+.hero-slider {
+  background: #0e1624;
+  padding: 5rem 2rem;
   text-align: center;
   color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-info {
   margin-bottom: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.hero-content {
-  max-width: 800px;
+.hero-info h3 {
+  color: #e63946;
+  font-size: 1rem; /* CHỮ NHỎ LẠI */
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
 }
 
-.hero-title {
-  font-size: 3.5rem;
+.hero-info h1 {
+  font-size: 2rem; /* CHỮ NHỎ LẠI */
   font-weight: 800;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
 }
 
-.hero-subtitle {
-  font-size: 1.25rem;
-  margin: 0 0 2.5rem 0;
-  opacity: 0.9;
+.hero-images {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  height: 330px;
 }
 
-.hero-cta-button {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 1rem 2.5rem;
-  border-radius: 50px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 1.1rem;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  display: inline-block;
+.hero-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
 }
 
-.hero-cta-button:hover {
-  background-color: var(--primary-color-dark);
-  transform: translateY(-3px);
-  color: black;
+.hero-img {
+  width: 400px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  transform-origin: center;
+  transition: transform 0.4s ease;
 }
 
-/* Responsive cho màn hình nhỏ */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
+.hero-img:hover {
+  transform: scale(1.05);
+}
+
+/* Nghiêng 3 ảnh giống Nettruyen */
+.img-0 {
+  transform: perspective(600px) rotateY(15deg);
+}
+.img-1 {
+  transform: scale(1.05);
+  z-index: 2;
+}
+.img-2 {
+  transform: perspective(600px) rotateY(-15deg);
+}
+
+/* Khi hover giữa các ảnh, tạo chiều sâu */
+.hero-group:hover .img-0 {
+  transform: perspective(600px) rotateY(20deg) translateX(-10px);
+}
+.hero-group:hover .img-2 {
+  transform: perspective(600px) rotateY(-20deg) translateX(10px);
+}
+
+/* NAVIGATION BUTTONS */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.prev-btn {
+    left: 20px;
+}
+
+.next-btn {
+    right: 20px;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .hero-img {
+    width: 300px;
+    height: 200px;
   }
-  .hero-subtitle {
-    font-size: 1.1rem;
+}
+
+@media (max-width: 700px) {
+  .hero-img {
+    width: 240px;
+    height: 160px;
   }
-  .hero-section {
-    padding: 4rem 1rem;
+  .hero-info h1 {
+    font-size: 1.8rem;
+  }
+  .nav-btn {
+      padding: 0.75rem;
+      font-size: 1.2rem;
+  }
+  .prev-btn {
+      left: 10px;
+  }
+  .next-btn {
+      right: 10px;
   }
 }

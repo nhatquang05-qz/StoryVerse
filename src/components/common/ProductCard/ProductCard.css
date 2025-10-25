@@ -1,6 +1,5 @@
-/* src/components/common/ProductCard/ProductCard.css - PHIÊN BẢN SỬA LỖI ICON */
 .product-card {
-  background-color: #fff;
+  background-color: transparent;
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius);
   overflow: hidden;
@@ -48,13 +47,13 @@
 }
 
 .card-title a {
-  color: var(--text-color-dark);
+  color: white;
   text-decoration: none;
 }
 
 .card-author {
   font-size: 0.9rem;
-  color: #6c757d;
+  color: #ffffff;
   margin: 0 0 1rem 0;
 }
 
@@ -105,7 +104,6 @@
   opacity: 1;
 }
 
-/* === SỬA LỖI ICON VÀ KHOẢNG CÁCH === */
 .card-action-button svg {
   width: 24px;
   height: 24px;
@@ -137,12 +135,11 @@
   transform: scale(1.1);
 }
 
-/* === DIGITAL BADGE STYLE MỚI === */
 .digital-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: var(--primary-color); /* Màu xanh */
+  background-color: var(--primary-color); 
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
