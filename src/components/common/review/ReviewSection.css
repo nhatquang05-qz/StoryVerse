@@ -99,5 +99,8 @@
     transition: background-color 0.3s ease;
 }
 .submit-review-btn:hover {
-    background-color: var(--primary-color-dark);
+    background-color: whitesmoke;
+}
+.comment-box{
+    background-color: #e0e0e0;
 }

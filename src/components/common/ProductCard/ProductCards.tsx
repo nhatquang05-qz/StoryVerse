@@ -1,4 +1,3 @@
-// src/components/common/ProductCard/ProductCards.tsx
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart } from 'react-icons/fi';
@@ -10,9 +9,10 @@ import './ProductCard.css';
 
 interface ProductCardProps {
   comic: Comic;
+  isCarousel?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ comic }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) => {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
@@ -40,15 +40,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic }) => {
   };
 
   return (
-    <div className="product-card">
+    <div 
+        className={`product-card ${isCarousel ? 'carousel-item' : ''}`}
+    >
       <Link to={`/comic/${comic.id}`} className="card-image-container">
         <img ref={imgRef} src={comic.imageUrl} alt={comic.title} className="card-image" />
         
-        {/* LOGIC HIỂN THỊ DIGITAL BADGE MỚI */}
         {comic.isDigital && (
             <span className="digital-badge">DIGITAL</span>
         )}
-
+        
         <div className="card-image-overlay">
           <button 
             className={`card-action-button wishlist-btn ${isFavorite ? 'favorite' : ''}`} 

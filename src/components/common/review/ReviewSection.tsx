@@ -1,39 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FiStar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { saveNewReview, loadReviews, type Review } from '../../../data/mockData';
 import './ReviewSection.css';
-
-interface Review {
-    id: number;
-    author: string;
-    rating: number;
-    date: string;
-    comment: string;
-}
 
 interface ReviewSectionProps {
     comicId: number;
     comicTitle: string;
 }
 
-const mockReviews: Review[] = [
-    { id: 1, author: 'Nguyễn Văn A', rating: 5, date: '2024-05-10', comment: 'Cốt truyện hấp dẫn, hình ảnh sắc nét. Rất đáng để sưu tầm!' },
-    { id: 2, author: 'Lê Thị B', rating: 4, date: '2024-04-20', comment: 'Truyện hay nhưng giao hàng hơi chậm. Nội dung rất ý nghĩa.' },
-];
+const MIN_COMMENT_LENGTH = 3; 
 
 const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) => {
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
-    const [reviews, setReviews] = useState(mockReviews);
+    const [reviews, setReviews] = useState<Review[]>([]);
     const [newComment, setNewComment] = useState('');
     const [newRating, setNewRating] = useState(5);
+    
+    useEffect(() => {
+        const storedReviews = loadReviews(comicId);
+        setReviews(storedReviews);
+    }, [comicId]);
 
-    const averageRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+    const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
     const roundedRating = Math.round(averageRating * 2) / 2;
 
-    const renderStars = (rating: number) => {
+    const renderStars = useCallback((rating: number) => {
         return Array.from({ length: 5 }, (_, index) => {
             const starValue = index + 1;
             return (
@@ -42,12 +38,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                     className="star-icon"
                     fill={starValue <= rating ? '#ffc107' : 'none'}
                     stroke={starValue <= rating ? '#ffc107' : '#e0e0e0'}
-                    onClick={() => currentUser && setNewRating(starValue)}
-                    style={{ cursor: currentUser ? 'pointer' : 'default' }}
                 />
             );
         });
-    };
+    }, []);
 
     const handleSubmitReview = (e: React.FormEvent) => {
         e.preventDefault();
@@ -55,20 +49,24 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
             showNotification('Vui lòng đăng nhập để gửi đánh giá.', 'warning');
             return;
         }
-        if (newComment.trim().length < 10) {
-            showNotification('Bình luận phải có ít nhất 10 ký tự.', 'warning');
+        if (newComment.trim().length < MIN_COMMENT_LENGTH) {
+            showNotification(`Bình luận phải có ít nhất ${MIN_COMMENT_LENGTH} ký tự.`, 'warning');
             return;
         }
 
         const newReview: Review = {
             id: Date.now(),
-            author: currentUser.email.split('@')[0] || 'Guest',
+            comicId: comicId,
+            author: currentUser.fullName || currentUser.email.split('@')[0] || 'Khách Hàng',
             rating: newRating,
             date: new Date().toLocaleDateString('vi-VN'),
             comment: newComment.trim(),
         };
 
-        setReviews([newReview, ...reviews]);
+        saveNewReview(newReview);
+        
+        setReviews(prevReviews => [newReview, ...prevReviews]);
+        
         setNewComment('');
         setNewRating(5);
         showNotification('Đánh giá của bạn đã được gửi thành công!', 'success');
@@ -110,12 +108,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                             <div className="star-rating">
                                 {Array.from({ length: 5 }, (_, index) => {
                                     const starValue = index + 1;
+                                    const ratingToRender = newRating; 
                                     return (
                                         <FiStar
                                             key={index}
                                             className="star-icon"
-                                            fill={starValue <= newRating ? '#ffc107' : 'none'}
-                                            stroke={starValue <= newRating ? '#ffc107' : '#e0e0e0'}
+                                            fill={starValue <= ratingToRender ? '#ffc107' : 'none'}
+                                            stroke={starValue <= ratingToRender ? '#ffc107' : '#e0e0e0'}
                                             onClick={() => setNewRating(starValue)}
                                             style={{ cursor: 'pointer', margin: '0 0.1rem' }}
                                         />
@@ -123,13 +122,19 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                                 })}
                             </div>
                         </div>
-                        <textarea
+                        <textarea className='comment-box'
                             placeholder="Viết bình luận của bạn về sản phẩm..."
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             required
                         />
-                        <button type="submit" className="submit-review-btn">Gửi Đánh Giá</button>
+                        <button 
+                            type="submit" 
+                            className="submit-review-btn"
+                            disabled={newComment.trim().length < MIN_COMMENT_LENGTH} 
+                        >
+                            Gửi Đánh Giá
+                        </button>
                     </form>
                 ) : (
                     <p>Vui lòng <Link to="/login" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>đăng nhập</Link> để gửi đánh giá.</p>

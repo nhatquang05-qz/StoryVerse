@@ -1,76 +1,93 @@
-// src/pages/Home.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
 import Hero from '../components/common/Hero/Hero';
 import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton';
-import Pagination from '../components/common/Pagination'; 
-import { comics, type Comic } from '../data/mockData'; 
+import { type Comic, trendingComics, newReleasesComics, recommendedDigitalComics } from '../data/mockData'; 
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; 
 
-// Hàm giả lập fetch data với độ trễ 1 giây
-const fetchComics = (): Promise<Comic[]> => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve(comics);
-        }, 1000); 
-    });
+const ITEMS_PER_SECTION_PAGE = 10; 
+
+const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean }> = ({ title, comics, isLoading }) => {
+    const [pageIndex, setPageIndex] = useState(0); 
+
+    const totalItems = comics.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_SECTION_PAGE);
+
+    const startIndex = pageIndex * ITEMS_PER_SECTION_PAGE;
+    const endIndex = startIndex + ITEMS_PER_SECTION_PAGE;
+    
+    const currentComics = comics.slice(startIndex, endIndex);
+
+    const handlePrev = () => {
+        setPageIndex(prev => Math.max(0, prev - 1));
+    };
+
+    const handleNext = () => {
+        setPageIndex(prev => Math.min(totalPages - 1, prev + 1));
+    };
+
+    return (
+        <div style={{ marginBottom: '4rem' }}>
+            <h2 style={{ marginBottom: '1.5rem', fontSize: '2rem', fontWeight: 'bold' }}>{title}</h2>
+            
+            {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '0.9rem', color: '#6c757d' }}>
+                        Trang {pageIndex + 1}/{totalPages}
+                    </span>
+                    <div>
+                        <button onClick={handlePrev} disabled={pageIndex === 0} className="detail-order-btn" style={{ padding: '0.5rem', marginRight: '0.5rem', width: '40px' }}>
+                            <FiChevronLeft style={{ verticalAlign: 'middle' }} />
+                        </button>
+                        <button onClick={handleNext} disabled={pageIndex === totalPages - 1} className="detail-order-btn" style={{ padding: '0.5rem', width: '40px' }}>
+                            <FiChevronRight style={{ verticalAlign: 'middle' }} />
+                        </button>
+                    </div>
+                </div>
+            )}
+            
+            {isLoading ? (
+                <LoadingSkeleton count={ITEMS_PER_SECTION_PAGE} />
+            ) : (
+                <ProductList comics={currentComics} />
+            )}
+        </div>
+    );
 };
 
-const ITEMS_PER_PAGE = 30; // 30 cuốn mỗi trang
 
 const HomePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
-    const [allComics, setAllComics] = useState<Comic[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        setIsLoading(true);
-        fetchComics()
-            .then(data => {
-                setAllComics(data);
-                if (currentPage > Math.ceil(data.length / ITEMS_PER_PAGE)) {
-                    setCurrentPage(1);
-                }
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 800); 
+        return () => clearTimeout(timer);
     }, []);
-    
-    // Logic Pagination
-    const totalPages = useMemo(() => {
-        return Math.ceil(allComics.length / ITEMS_PER_PAGE);
-    }, [allComics.length]);
-    
-    const currentComics = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        return allComics.slice(startIndex, endIndex);
-    }, [allComics, currentPage]);
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-        window.scrollTo(0, 0); 
-    };
 
     return (
         <div>
             <Hero />
-            <h1 style={{ marginBottom: '2rem', fontSize: 30, fontWeight: 'bold' }}>Truyện Mới Nhất</h1>
             
-            {isLoading ? (
-                <LoadingSkeleton count={ITEMS_PER_PAGE} />
-            ) : (
-                <>
-                    <ProductList comics={currentComics} />
-                    {totalPages > 1 && (
-                        <Pagination 
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    )}
-                </>
-            )}
+            <HomeSection 
+                title="Mới Phát Hành (Tất Cả)" 
+                comics={newReleasesComics} 
+                isLoading={isLoading} 
+            />
+
+            <HomeSection 
+                title="Truyện In Bán Chạy" 
+                comics={trendingComics} 
+                isLoading={isLoading} 
+            />
+
+            <HomeSection 
+                title="Truyện Digital Đề Xuất" 
+                comics={recommendedDigitalComics} 
+                isLoading={isLoading} 
+            />
+            
         </div>
     );
 };

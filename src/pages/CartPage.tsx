@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiTrash2, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
@@ -7,7 +7,8 @@ import { useNotification } from '../contexts/NotificationContext';
 import './CartPage.css';
 
 const CartPage: React.FC = () => {
-  const { cartItems, updateQuantity, removeFromCart, totalPrice, checkout } = useCart();
+  const [couponCode, setCouponCode] = useState('');
+  const { cartItems, updateQuantity, removeFromCart, totalPrice, discount, applyDiscountCode } = useCart();
   const { currentUser } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
@@ -16,7 +17,12 @@ const CartPage: React.FC = () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
-  const handleCheckout = async () => {
+  const handleApplyCoupon = (e: React.FormEvent) => {
+      e.preventDefault();
+      applyDiscountCode(couponCode);
+  };
+
+  const handleCheckout = () => {
     if (!currentUser) {
         showNotification('Vui lòng đăng nhập để tiến hành thanh toán.', 'warning');
         navigate('/login');
@@ -28,14 +34,11 @@ const CartPage: React.FC = () => {
         return;
     }
     
-    try {
-        await checkout();
-        navigate('/orders');
-    } catch (error) {
-        console.error('Lỗi khi thanh toán:', error);
-        showNotification('Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại.', 'error');
-    }
+    navigate('/checkout'); 
   };
+  
+  const finalTotal = totalPrice - discount;
+
 
   if (cartItems.length === 0) {
     return (
@@ -74,17 +77,43 @@ const CartPage: React.FC = () => {
 
         <div className="cart-summary">
           <h2>Tổng Quan Đơn Hàng</h2>
+          
+          <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <input 
+                  type="text" 
+                  placeholder="Mã giảm giá"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  style={{ flexGrow: 1, padding: '0.5rem', border: '1px solid #ccc', borderRadius: '6px' }}
+              />
+              <button 
+                  type="submit"
+                  className="detail-order-btn" 
+                  style={{ flexShrink: 0, padding: '0.5rem 1rem' }}
+              >
+                  Áp dụng
+              </button>
+          </form>
+          
           <div className="summary-row">
             <span>Tổng tiền hàng</span>
             <span>{formatPrice(totalPrice)}</span>
           </div>
+          
+          {discount > 0 && (
+              <div className="summary-row" style={{ color: '#e63946', fontWeight: 'bold' }}>
+                  <span>Giảm giá</span>
+                  <span>- {formatPrice(discount)}</span>
+              </div>
+          )}
+          
           <div className="summary-row">
             <span>Phí vận chuyển</span>
             <span>Miễn phí</span>
           </div>
           <div className="summary-total">
             <span>Tổng Cộng</span>
-            <span className="total-price">{formatPrice(totalPrice)}</span>
+            <span className="total-price">{formatPrice(finalTotal)}</span>
           </div>
           <button className="checkout-btn" onClick={handleCheckout}>Tiến hành thanh toán</button>
         </div>

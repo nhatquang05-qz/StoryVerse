@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiUser, FiBook, FiList } from 'react-icons/fi';
+import { FiUser, FiBook, FiList, FiMapPin } from 'react-icons/fi';
 import './ProfileSidebar.css';
 
 interface ProfileSidebarProps {
@@ -10,6 +10,7 @@ interface ProfileSidebarProps {
 const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ activeLink }) => {
   const links = [
     { path: '/profile', icon: <FiUser />, label: 'Thông tin cá nhân' },
+    { path: '/addresses', icon: <FiMapPin />, label: 'Quản lý Địa chỉ' },
     { path: '/my-library', icon: <FiBook />, label: 'Thư viện số của tôi' },
     { path: '/orders', icon: <FiList />, label: 'Lịch sử mua hàng' },
   ];

@@ -4,15 +4,18 @@ import Footer from './components/footer/Footer';
 import HomePage from './pages/HomePage';
 import ComicDetailPage from './pages/physical/ComicDetailPage'; 
 import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage'; 
 import LoginPage from './pages/login/LoginPage';
 import RegisterPage from './pages/register/RegisterPage';
 import ProfilePage from './pages/profile/ProfilePage'; 
+import AddressManagementPage from './pages/AddressManagementPage';
 import MyLibraryPage from './pages/MyLibraryPage'; 
 import OrdersPage from './pages/OrdersPage';     
 import OrderDetailPage from './pages/OrderDetailPage';
+import OrderSuccessPage from './pages/OrderSuccessPage'; 
 import CategoryPage from './pages/category/CategoryPage';
-import PhysicalComicsPage from './pages/PhysicalComicsPage'; // Import MỚI
-import DigitalComicsPage from './pages/DigitalComicsPage'; // Import MỚI
+import PhysicalComicsPage from './pages/PhysicalComicsPage';
+import DigitalComicsPage from './pages/DigitalComicsPage';
 import SearchPage from './pages/SearchPage';
 import WishlistPage from './pages/wishlist/WishlistPage';
 import ReaderPage from './pages/ReaderPage'; 
@@ -33,13 +36,16 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/comic/:comicId" element={<ComicDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile" element={<ProfilePage />} /> 
+          <Route path="/addresses" element={<AddressManagementPage />} /> 
           <Route path="/my-library" element={<MyLibraryPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/read/:comicId" element={<ReaderPage />} /> 
           <Route path="/physical-comics" element={<PhysicalComicsPage />} />

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
-import { getUniqueAuthors, digitalComics, type Comic } from '../data/mockData';
+import { getUniqueAuthors, digitalComics, type Comic, getUniqueGenres } from '../data/mockData';
 import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton';
 import Pagination from '../components/common/Pagination';
 import './category/CategoryPage.css';
@@ -8,8 +8,7 @@ import './category/CategoryPage.css';
 const fetchDigitalComics = (): Promise<Comic[]> => {
   return new Promise(resolve => {
     setTimeout(() => {
-      // Chỉ lấy truyện digital
-      const sourceComics = digitalComics.filter(c => c.isDigital === true); 
+      const sourceComics = digitalComics.filter(c => c.isDigital === true);
       resolve(sourceComics);
     }, 800);
   });
@@ -24,16 +23,20 @@ const DigitalComicsPage: React.FC = () => {
 
   const [sortBy, setSortBy] = useState('newest');
   const [filterAuthor, setFilterAuthor] = useState('all');
+  const [filterGenre, setFilterGenre] = useState('all'); 
   
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const uniqueAuthors = useMemo(() => getUniqueAuthors(), []); 
+  const uniqueAuthors = useMemo(() => getUniqueAuthors(), []);
+  const uniqueGenres = useMemo(() => getUniqueGenres(), []);
+
 
   useEffect(() => {
     setIsLoading(true);
     setCurrentPage(1); 
     setFilterAuthor('all'); 
     setSortBy('newest'); 
+    setFilterGenre('all');
     
     fetchDigitalComics()
       .then(data => {
@@ -50,6 +53,11 @@ const DigitalComicsPage: React.FC = () => {
     if (filterAuthor !== 'all') {
         currentComics = currentComics.filter(comic => comic.author === filterAuthor);
     }
+
+    if (filterGenre !== 'all') {
+        currentComics = currentComics.filter(comic => comic.genres.includes(filterGenre));
+    }
+
 
     currentComics.sort((a, b) => {
       switch (sortBy) {
@@ -68,7 +76,7 @@ const DigitalComicsPage: React.FC = () => {
     });
     
     return currentComics;
-  }, [allComics, filterAuthor, sortBy]);
+  }, [allComics, filterAuthor, filterGenre, sortBy]);
 
   const totalItems = processedComics.length;
   const totalPages = useMemo(() => {
@@ -107,6 +115,11 @@ const DigitalComicsPage: React.FC = () => {
       setCurrentPage(1); 
   };
 
+  const handleFilterGenreChange = (value: string) => {
+      setFilterGenre(value);
+      setCurrentPage(1); 
+  };
+
   const handleSortByChange = (value: string) => {
       setSortBy(value);
       setCurrentPage(1); 
@@ -127,6 +140,16 @@ const DigitalComicsPage: React.FC = () => {
       ) : (
           <>
             <div className="filter-sort-bar">
+                <div className="filter-sort-group">
+                    <span>Lọc theo Thể loại:</span>
+                    <select value={filterGenre} onChange={(e) => handleFilterGenreChange(e.target.value)}>
+                        <option value="all">Tất cả</option>
+                        {uniqueGenres.map(genre => (
+                            <option key={genre} value={genre}>{genre}</option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className="filter-sort-group">
                     <span>Lọc theo Tác giả:</span>
                     <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>

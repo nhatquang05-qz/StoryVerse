@@ -1,3 +1,4 @@
+/* src/components/header/Header.css */
 :root {
   --primary-color: #646cff; 
   --primary-color-dark: #535bf2;
@@ -159,6 +160,11 @@
   gap: 1.5rem; 
 }
 
+/* SEARCH BAR VÀ SUGGESTIONS WRAPPER */
+.search-wrapper {
+    position: relative;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -185,6 +191,71 @@
   cursor: pointer;
   display: flex;
 }
+
+/* SUGGESTIONS DROPDOWN STYLE */
+.search-suggestions-dropdown {
+    position: absolute;
+    top: 45px; /* Ngay bên dưới thanh tìm kiếm */
+    left: 0;
+    width: 300px; /* Chiều rộng lớn hơn để hiển thị nội dung */
+    background-color: var(--header-bg);
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1001; /* Đảm bảo nằm trên header */
+    padding: 0.5rem 0;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.suggestion-item img {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+.suggestion-item div {
+    flex-grow: 1;
+    text-align: left;
+}
+.suggestion-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin: 0;
+    line-height: 1.2;
+}
+.suggestion-author {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+.suggestion-view-all {
+    display: block;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 0.5rem;
+}
+.suggestion-view-all:hover {
+    color: var(--primary-color-dark);
+    text-decoration: underline;
+}
+
 
 .action-icon {
   color: var(--text-color-dark);
@@ -236,7 +307,7 @@
 
 @media (max-width: 1150px) {
   .nav-desktop,
-  .search-bar,
+  .search-wrapper, /* ẨN SEARCH WRAPPER TRÊN MOBILE */
   .header-actions .action-icon,
   .header-actions .dropdown,
   .header-actions .login-btn {
@@ -306,7 +377,6 @@
     font-size: 1rem;
    }
 
-   /* RESPONSIVE SEARCH BAR IMPROVEMENT */
   .search-bar.mobile-search-bar {
     display: flex;
     border: 1px solid var(--border-color-light);
@@ -366,4 +436,48 @@
 }
 .user-icon {
   background-color: #Fff;
+}
+
+.dropdown.mega-dropdown .dropdown-content {
+  min-width: 400px; 
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+}
+.dropdown.mega-dropdown:hover .dropdown-content {
+    transform: translateX(-50%) translateY(0);
+}
+
+.dropdown-content.mega-content {
+  display: flex;
+  flex-direction: row; 
+  padding: 1rem;
+}
+
+.dropdown-column {
+  flex: 1;
+  padding: 0 1rem;
+  border-right: 1px solid var(--border-color-light);
+}
+
+.dropdown-column:last-child {
+  border-right: none;
+}
+
+.dropdown-column h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-color-dark);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-column a {
+  padding: 8px 0; 
+}
+
+@media (max-width: 900px) {
+  .dropdown.mega-dropdown .dropdown-content {
+    display: none; 
+  }
 }

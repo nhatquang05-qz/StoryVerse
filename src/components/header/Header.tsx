@@ -3,15 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext'; 
 import { useAuth } from '../../contexts/AuthContext'; 
+import { comics } from '../../data/mockData'; // IMPORT DỮ LIỆU MOCK
 import './Header.css';
+
+// Tối đa 5 gợi ý tìm kiếm
+const MAX_SUGGESTIONS = 5;
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestions, setSuggestions] = useState<typeof comics>([]); // STATE MỚI
   const { cartCount, setCartIconRect } = useCart(); 
   const { currentUser, logout } = useAuth(); 
   const cartIconRef = useRef<HTMLAnchorElement>(null); 
   const navigate = useNavigate();
+  const searchBarRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => { setIsMenuOpen(!isMenuOpen); };
 
@@ -24,19 +30,56 @@ const Header: React.FC = () => {
   const handleLogout = async () => {
       try {
           await logout();
+          setIsMenuOpen(false);
       } catch (error) {
           console.error("Lỗi đăng xuất:", error);
       }
   }
+  
+  const handleSearchTermChange = (value: string) => {
+    setSearchTerm(value);
+    
+    if (value.trim().length > 1) {
+      const normalizedValue = value.toLowerCase().trim();
+      const filtered = comics
+        .filter(
+          (c) =>
+            c.title.toLowerCase().includes(normalizedValue) ||
+            c.author.toLowerCase().includes(normalizedValue)
+        )
+        .slice(0, MAX_SUGGESTIONS); 
+      setSuggestions(filtered);
+    } else {
+      setSuggestions([]);
+    }
+  };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setSearchTerm(''); 
+      setSuggestions([]); // XÓA GỢI Ý KHI SUBMIT
       setIsMenuOpen(false);
     }
   };
+
+  const handleSuggestionClick = (comicId: number) => {
+    setSearchTerm('');
+    setSuggestions([]);
+    navigate(`/comic/${comicId}`);
+  };
+
+  // Ẩn gợi ý khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchBarRef.current && !searchBarRef.current.contains(event.target as Node)) {
+        setSuggestions([]);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [searchBarRef]);
 
   return (
     <header className="header">
@@ -46,28 +89,66 @@ const Header: React.FC = () => {
         <nav className="nav-desktop">
           <Link to="/physical-comics">Truyện In</Link>
           <Link to="/digital-comics">Đọc Online</Link>
-          <div className="dropdown">
+          
+          <div className="dropdown mega-dropdown"> 
             <button className="dropdown-btn">Thể Loại</button>
-            <div className="dropdown-content">
-              <Link to="/genres/action">Hành Động</Link>
-              <Link to="/genres/romance">Tình Cảm</Link>
-              <Link to="/genres/fantasy">Fantasy</Link>
-              <Link to="/genres/sci-fi">Khoa Học Viễn Tưởng</Link>
+            <div className="dropdown-content mega-content">
+              
+              <div className="dropdown-column">
+                <h4>Truyện In (Vật Lý)</h4>
+                <Link to="/genres/action">Hành Động</Link>
+                <Link to="/genres/fantasy">Fantasy</Link>
+                <Link to="/genres/sci-fi">Khoa Học Viễn Tưởng</Link>
+                <Link to="/genres/trinh-tham">Trinh Thám</Link>
+              </div>
+              
+              <div className="dropdown-column">
+                <h4>Đọc Online (Digital)</h4>
+                <Link to="/genres/romance">Tình Cảm</Link>
+                <Link to="/genres/huyen-bi">Huyền Bí</Link>
+                <Link to="/genres/the-thao">Thể Thao</Link>
+                <Link to="/genres/sieu-anh-hung">Siêu Anh Hùng</Link>
+              </div>
+
             </div>
           </div>
           <Link to="/new-releases">Mới Phát Hành</Link>
         </nav>
 
         <div className="header-actions">
-          <form onSubmit={handleSearch} className="search-bar">
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm truyện..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button type="submit" className="search-btn"><FiSearch /></button>
-          </form>
+          {/* KHỐI TÌM KIẾM CÓ GỢI Ý */}
+          <div className="search-wrapper" ref={searchBarRef}>
+            <form onSubmit={handleSearchSubmit} className="search-bar">
+              <input 
+                type="text" 
+                placeholder="Tìm kiếm truyện..." 
+                value={searchTerm}
+                onChange={(e) => handleSearchTermChange(e.target.value)}
+              />
+              <button type="submit" className="search-btn"><FiSearch /></button>
+            </form>
+
+            {suggestions.length > 0 && (
+                <div className="search-suggestions-dropdown">
+                    {suggestions.map((comic) => (
+                        <div 
+                            key={comic.id} 
+                            className="suggestion-item"
+                            onClick={() => handleSuggestionClick(comic.id)}
+                        >
+                            <img src={comic.imageUrl} alt={comic.title} />
+                            <div>
+                                <p className="suggestion-title">{comic.title}</p>
+                                <p className="suggestion-author">{comic.author}</p>
+                            </div>
+                        </div>
+                    ))}
+                    <Link to={`/search?q=${encodeURIComponent(searchTerm)}`} onClick={() => setSuggestions([])} className="suggestion-view-all">
+                        Xem tất cả kết quả cho "{searchTerm}"
+                    </Link>
+                </div>
+            )}
+          </div>
           
           <Link to="/wishlist" className="action-icon" aria-label="Danh sách yêu thích">
             <FiHeart />
@@ -101,12 +182,12 @@ const Header: React.FC = () => {
       
       {isMenuOpen && (
         <nav className="nav-mobile">
-          <form onSubmit={handleSearch} className="search-bar mobile-search-bar">
+          <form onSubmit={handleSearchSubmit} className="search-bar mobile-search-bar">
             <input 
               type="text" 
               placeholder="Tìm kiếm truyện..." 
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchTermChange(e.target.value)}
             />
             <button type="submit" className="search-btn"><FiSearch /></button>
           </form>

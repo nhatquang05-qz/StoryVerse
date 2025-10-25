@@ -10,7 +10,6 @@ const ProfilePage: React.FC = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    address: '',
   });
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -20,7 +19,6 @@ const ProfilePage: React.FC = () => {
       setFormData({
         fullName: currentUser.fullName,
         phone: currentUser.phone,
-        address: currentUser.address,
       });
     }
   }, [currentUser]);
@@ -36,8 +34,8 @@ const ProfilePage: React.FC = () => {
     e.preventDefault();
     if (!currentUser) return;
 
-    if (!formData.fullName || !formData.phone || !formData.address) {
-        showNotification('Vui lòng điền đầy đủ các trường.', 'warning');
+    if (!formData.fullName || !formData.phone) {
+        showNotification('Vui lòng điền đầy đủ Họ tên và Số điện thoại.', 'warning');
         return;
     }
 
@@ -102,18 +100,7 @@ const ProfilePage: React.FC = () => {
                     />
                 </div>
                 
-                <div className="form-group">
-                    <label htmlFor="address">Địa Chỉ Giao Hàng</label>
-                    <input 
-                        type="text" 
-                        id="address" 
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                        required
-                    />
-                </div>
+                {/* Địa chỉ được quản lý tại trang /addresses */}
 
                 <div className="profile-actions">
                     {!isEditing ? (
@@ -136,7 +123,6 @@ const ProfilePage: React.FC = () => {
                                         setFormData({
                                             fullName: currentUser.fullName,
                                             phone: currentUser.phone,
-                                            address: currentUser.address,
                                         });
                                     }
                                 }}

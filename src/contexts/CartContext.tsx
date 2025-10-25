@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, type ReactNode, useMemo, useEffect } from 'react';
-import { type Comic } from '../data/mockData';
+import { type Comic, type Order } from '../data/mockData';
 import { useAuth } from './AuthContext';
 import { saveNewOrder, type OrderItem } from '../data/mockData';
 import { useNotification } from './NotificationContext';
@@ -21,14 +21,18 @@ interface CartContextType {
   removeFromCart: (comicId: number) => void;
   cartCount: number;
   totalPrice: number;
+  discount: number;
+  applyDiscountCode: (code: string) => void;
   animationData: AnimationData;
   setCartIconRect: (rect: DOMRect | null) => void;
   clearAnimation: () => void;
-  checkout: () => Promise<void>;
+  checkout: () => Promise<Order>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = 'storyverse_cart';
+const VALID_COUPON = 'STORY20';
+const DISCOUNT_PERCENTAGE = 0.20;
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
@@ -44,6 +48,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   });
 
+  const [discount, setDiscount] = useState(0);
+
   const [cartIconRect, setCartIconRect] = useState<DOMRect | null>(null);
   const [animationData, setAnimationData] = useState<AnimationData>({
     src: null,
@@ -58,6 +64,22 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error("Could not save cart to local storage", error);
     }
   }, [cartItems]);
+
+  const totalPrice = useMemo(() => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [cartItems]);
+  
+  const applyDiscountCode = (code: string) => {
+    if (code.toUpperCase() === VALID_COUPON) {
+        const calculatedDiscount = totalPrice * DISCOUNT_PERCENTAGE;
+        setDiscount(calculatedDiscount);
+        showNotification(`Áp dụng mã ${VALID_COUPON} thành công! Giảm ${DISCOUNT_PERCENTAGE * 100}% tổng đơn hàng.`, 'success');
+    } else {
+        setDiscount(0);
+        showNotification('Mã giảm giá không hợp lệ.', 'error');
+    }
+  };
+
 
   const addToCart = (comic: Comic, quantity: number, startElementRect: DOMRect | null) => {
     if (startElementRect && cartIconRect && comic.imageUrl) {
@@ -107,7 +129,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
   
-  const checkout = async () => {
+  const checkout = async (): Promise<Order> => {
     if (!currentUser) {
         throw new Error('User must be logged in to checkout.');
     }
@@ -127,28 +149,30 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         quantity: item.quantity,
     }));
     
-    const newOrder = {
+    const finalTotal = totalPrice - discount;
+
+    const newOrder: Order = {
         id: `ORDER-${Date.now()}`,
         userId: currentUser.id,
         date: new Date().toLocaleDateString('vi-VN'),
-        total: totalPrice,
+        total: finalTotal,
         status: 'Đang chờ' as const,
         items: orderItems,
     };
     
     saveNewOrder(newOrder);
     setCartItems([]);
+    setDiscount(0);
     
     showNotification('Đặt hàng thành công! Đơn hàng đang được xử lý.', 'success');
+    return newOrder;
   };
+
 
   const cartCount = useMemo(() => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   }, [cartItems]);
 
-  const totalPrice = useMemo(() => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  }, [cartItems]);
 
   return (
     <CartContext.Provider 
@@ -159,6 +183,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         removeFromCart, 
         cartCount, 
         totalPrice,
+        discount,
+        applyDiscountCode,
         animationData, 
         setCartIconRect,
         clearAnimation,

@@ -1,14 +1,22 @@
-// src/contexts/AuthContext.tsx
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import { useNotification } from './NotificationContext';
-import { saveNewOrder, loadOrders, comics } from '../data/mockData'; // Import loadOrders, comics
+import { saveNewOrder, loadOrders, comics } from '../data/mockData';
+
+export interface Address {
+    id: string;
+    street: string;
+    ward: string;
+    district: string;
+    city: string;
+    isDefault: boolean;
+}
 
 export interface User {
   id: string;
   email: string;
   fullName: string;
   phone: string;
-  address: string;
+  addresses: Address[]; 
 }
 
 interface AuthContextType {
@@ -17,27 +25,59 @@ interface AuthContextType {
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<void>;
+  updateAddresses: (addresses: Address[]) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USER_STORAGE_KEY = 'storyverse_user';
 const PROFILE_DATA_KEY = 'storyverse_user_profile';
+const ADDRESSES_DATA_KEY = 'storyverse_user_addresses';
+
+const mockDefaultAddress: Address = {
+    id: 'default-1',
+    street: '123 Đường Nguyễn Huệ',
+    ward: 'Phường 1',
+    district: 'Quận 1',
+    city: 'TP. Hồ Chí Minh',
+    isDefault: true,
+};
+
+const loadAddresses = (userId: string): Address[] => {
+    try {
+        const storedAddresses = localStorage.getItem(ADDRESSES_DATA_KEY + userId);
+        const addresses: Address[] = storedAddresses ? JSON.parse(storedAddresses) : [];
+        if (addresses.length === 0) {
+            return [mockDefaultAddress];
+        }
+        return addresses;
+    } catch (e) {
+        return [mockDefaultAddress];
+    }
+};
+
+const saveAddresses = (userId: string, addresses: Address[]): void => {
+    try {
+        localStorage.setItem(ADDRESSES_DATA_KEY + userId, JSON.stringify(addresses));
+    } catch (e) {
+        console.error("Failed to save addresses", e);
+    }
+};
 
 const loadProfileData = (baseUser: { id: string, email: string }): User => {
     try {
-        const storedProfile = localStorage.getItem(PROFILE_DATA_KEY);
+        const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + baseUser.id);
         const profile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
         
         const defaultProfile = {
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
             phone: '0000000000',
-            address: 'Chưa cập nhật',
         };
 
         return {
             ...baseUser,
             ...defaultProfile,
             ...profile,
+            addresses: loadAddresses(baseUser.id),
         };
     } catch (e) {
         console.error("Failed to load profile data", e);
@@ -45,26 +85,30 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
             ...baseUser,
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
             phone: '0000000000',
-            address: 'Chưa cập nhật',
+            addresses: loadAddresses(baseUser.id),
         };
     }
 };
 
-const saveProfileData = (profileData: Partial<User>): void => {
+const saveProfileData = (userId: string, profileData: Partial<User>): void => {
     try {
-        localStorage.setItem(PROFILE_DATA_KEY, JSON.stringify(profileData));
+        const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + userId);
+        const currentProfile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
+        const newProfile = { ...currentProfile, ...profileData };
+        
+        delete newProfile.addresses; 
+        
+        localStorage.setItem(PROFILE_DATA_KEY + userId, JSON.stringify(newProfile));
     } catch (e) {
         console.error("Failed to save profile data", e);
     }
 };
 
-// Hàm mới: Tạo đơn hàng mẫu cho truyện số
-const createMockDigitalOrder = (userId: string, comicId: number, _title: string) => {
+const createMockDigitalOrder = (userId: string, comicId: number) => {
     const digitalComic = comics.find(c => c.id === comicId);
     if (!digitalComic) return;
 
     const existingOrders = loadOrders(userId);
-    // Chỉ tạo nếu chưa có đơn hàng mẫu này
     if (existingOrders.some(order => order.id === 'MOCK-DIGITAL-1')) return;
 
     const mockOrder = {
@@ -72,7 +116,7 @@ const createMockDigitalOrder = (userId: string, comicId: number, _title: string)
         userId: userId,
         date: new Date().toLocaleDateString('vi-VN'),
         total: digitalComic.price,
-        status: 'Hoàn thành' as const, // Trạng thái hoàn thành để truyện có thể đọc
+        status: 'Hoàn thành' as const, 
         items: [{ 
             ...digitalComic, 
             quantity: 1,
@@ -92,7 +136,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       return null;
     } catch (error) {
-      console.error("Could not load user from local storage", error);
       return null;
     }
   });
@@ -100,33 +143,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { showNotification } = useNotification();
 
   const login = async (email: string, pass: string) => {
-    console.log('Attempting login (mock):', email, pass);
-    if (email && pass) {
-        const baseUser = { id: 'user-' + Date.now(), email: email };
-        const mockUser: User = loadProfileData(baseUser);
-        setCurrentUser(mockUser);
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(baseUser));
-        showNotification('Đăng nhập thành công!', 'success');
-        
-        // GỌI HÀM TẠO ĐƠN HÀNG MẪU Ở ĐÂY
-        createMockDigitalOrder(mockUser.id, 1, 'Chú Thuật Hồi Chiến - Tập 10'); 
-
-    } else {
-        throw new Error('Invalid credentials (mock)');
-    }
+    const baseUser = { id: 'user-' + Date.now(), email: email };
+    const mockUser: User = loadProfileData(baseUser);
+    
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(baseUser));
+    
+    saveProfileData(baseUser.id, mockUser);
+    saveAddresses(baseUser.id, mockUser.addresses);
+    
+    setCurrentUser(mockUser);
+    showNotification('Đăng nhập thành công!', 'success');
+    createMockDigitalOrder(mockUser.id, 1); 
   };
 
   const register = async (email: string, pass: string) => {
-    console.log('Attempting register (mock):', email, pass);
     if (!email || !pass) throw new Error("Email/Pass required (mock)");
     showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
   };
 
   const logout = async () => {
-    console.log('Attempting logout (mock)');
     setCurrentUser(null);
     localStorage.removeItem(USER_STORAGE_KEY);
-    localStorage.removeItem(PROFILE_DATA_KEY);
     showNotification('Đã đăng xuất.', 'info');
   };
 
@@ -137,7 +174,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     await new Promise(resolve => setTimeout(resolve, 500)); 
 
-    saveProfileData(profileData);
+    saveProfileData(currentUser.id, profileData);
     
     setCurrentUser(prevUser => {
         if (!prevUser) return null;
@@ -148,9 +185,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
     showNotification('Cập nhật hồ sơ thành công!', 'success');
   };
+  
+  const updateAddresses = async (addresses: Address[]) => {
+    if (!currentUser) {
+        throw new Error('User not logged in.');
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+    
+    saveAddresses(currentUser.id, addresses);
+
+    setCurrentUser(prevUser => {
+        if (!prevUser) return null;
+        return {
+            ...prevUser,
+            addresses: addresses,
+        };
+    });
+    showNotification('Cập nhật địa chỉ thành công!', 'success');
+  };
+
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile, updateAddresses }}>
       {children}
     </AuthContext.Provider>
   );
