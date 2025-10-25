@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { FiPlus, FiMinus, FiHeart } from 'react-icons/fi';
-import { comics, type Comic } from '../../data/mockData';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FiPlus, FiMinus, FiHeart, FiBookOpen } from 'react-icons/fi'; // Thêm FiBookOpen
+import { comics, type Comic, loadOrders } from '../../data/mockData'; // Import loadOrders
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
 import ReviewSection from '../../components/common/review/ReviewSection';
 import { useNotification } from '../../contexts/NotificationContext';
+import { useAuth } from '../../contexts/AuthContext'; // Thêm useAuth
 import './ComicDetailPage.css';
 
 // Component Skeleton
@@ -45,12 +46,27 @@ const fetchComicDetail = (id: number): Promise<Comic | undefined> => {
     });
 };
 
+// LOGIC MỚI: Kiểm tra xem truyện digital đã được mua chưa
+const isDigitalComicPurchased = (comicId: number, userId: string | undefined): boolean => {
+    if (!userId) return false;
+    
+    const userOrders = loadOrders(userId);
+    const validStatuses = ['Hoàn thành', 'Đang giao hàng']; // 'Hoàn thành' cho digital
+    
+    return userOrders
+        .filter(order => validStatuses.includes(order.status))
+        .flatMap(order => order.items)
+        .some(item => item.id === comicId);
+};
+
 
 const ComicDetailPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
+  const { currentUser } = useAuth(); // Sử dụng useAuth
+  const navigate = useNavigate(); // Sử dụng useNavigate
   const { comicId } = useParams<{ comicId: string }>();
   const id = Number(comicId);
 
@@ -72,6 +88,19 @@ const ComicDetailPage: React.FC = () => {
   }, [id]);
 
   const isFavorite = comic ? isWishlisted(comic.id) : false;
+  
+  // LOGIC MỚI: Kiểm tra trạng thái đã mua cho truyện digital
+  const isPurchased = comic && comic.isDigital 
+    ? isDigitalComicPurchased(comic.id, currentUser?.id) 
+    : false;
+    
+  // Xử lý nút "Đọc Ngay"
+  const handleReadNow = () => {
+      if (comic) {
+          navigate(`/read/${comic.id}`);
+      }
+  };
+
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -83,6 +112,10 @@ const ComicDetailPage: React.FC = () => {
   
   const handleAddToCart = () => {
     if (comic) {
+      if(comic.isDigital && currentUser && isPurchased) {
+          showNotification("Truyện này đã được mua. Vui lòng vào Thư viện số để đọc.", 'warning');
+          return;
+      }
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
       addToCart(comic, quantity, rect);
     }
@@ -94,6 +127,64 @@ const ComicDetailPage: React.FC = () => {
         showNotification(isFavorite ? `Đã xóa ${comic.title} khỏi Yêu thích.` : `Đã thêm ${comic.title} vào Yêu thích.`, isFavorite ? 'error' : 'success');
     }
   };
+  
+  // HÀM MỚI: Hiển thị các nút hành động tùy theo loại truyện
+  const renderActions = () => {
+    // Nút Yêu thích chung cho cả hai loại
+    const wishlistButton = (
+        <button 
+            className={`add-to-cart-btn wishlist-btn-detail ${isFavorite ? 'favorite' : ''}`} 
+            onClick={handleToggleWishlist}
+            aria-label={isFavorite ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
+            style={{ maxWidth: '180px', flexGrow: 0 }}
+        >
+            <FiHeart style={{ marginRight: '0.5rem' }} /> 
+            {isFavorite ? 'Đã yêu thích' : 'Thêm vào Yêu thích'}
+        </button>
+    );
+    
+    if (comic!.isDigital) {
+        if (currentUser && isPurchased) {
+            // Truyện digital đã mua: Đọc ngay
+            return (
+                <div className="detail-actions">
+                    <button className="add-to-cart-btn main-cart-btn" onClick={handleReadNow}>
+                        <FiBookOpen style={{ marginRight: '0.5rem' }} /> Đọc Ngay
+                    </button>
+                    {wishlistButton}
+                </div>
+            );
+        } else {
+            // Truyện digital chưa mua: Mua truyện số
+            return (
+                <div className="detail-actions">
+                    <button className="add-to-cart-btn main-cart-btn" onClick={handleAddToCart} 
+                        style={{ maxWidth: '300px' }}>
+                        Mua Truyện Số
+                    </button>
+                    {wishlistButton}
+                </div>
+            );
+        }
+    } 
+    // Truyện vật lý: Thêm vào giỏ hàng (bao gồm bộ chọn số lượng)
+    return (
+        <div className="detail-actions">
+            <div className="quantity-selector">
+              <button onClick={() => handleQuantityChange(-1)} className="quantity-btn" aria-label="Giảm số lượng">
+                <FiMinus />
+              </button>
+              <input type="text" value={quantity} readOnly className="quantity-input" />
+              <button onClick={() => handleQuantityChange(1)} className="quantity-btn" aria-label="Tăng số lượng">
+                <FiPlus />
+              </button>
+            </div>
+            {wishlistButton}
+            <button className="add-to-cart-btn main-cart-btn" onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
+        </div>
+    );
+  };
+
 
   if (isLoading) {
       return (
@@ -112,33 +203,19 @@ const ComicDetailPage: React.FC = () => {
       <div className="detail-main-card">
         <div className="detail-image-wrapper">
           <img ref={imgRef} src={comic.imageUrl} alt={comic.title} className="detail-image" /> 
+          {/* LOGIC HIỂN THỊ DIGITAL BADGE TRÊN TRANG CHI TIẾT */}
+          {comic.isDigital && (
+              <span className="digital-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>DIGITAL</span>
+          )}
         </div>
         <div className="detail-info-wrapper">
           <p className="detail-author">Tác giả: {comic.author}</p>
           <h1 className="detail-title">{comic.title}</h1>
           <p className="detail-price">{formatPrice(comic.price)}</p>
           
-          <div className="detail-actions">
-            <div className="quantity-selector">
-              <button onClick={() => handleQuantityChange(-1)} className="quantity-btn" aria-label="Giảm số lượng">
-                <FiMinus />
-              </button>
-              <input type="text" value={quantity} readOnly className="quantity-input" />
-              <button onClick={() => handleQuantityChange(1)} className="quantity-btn" aria-label="Tăng số lượng">
-                <FiPlus />
-              </button>
-            </div>
-            <button 
-                className={`add-to-cart-btn wishlist-btn-detail ${isFavorite ? 'favorite' : ''}`} 
-                onClick={handleToggleWishlist}
-                aria-label={isFavorite ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
-            >
-                <FiHeart style={{ marginRight: '0.5rem' }} /> 
-                {isFavorite ? 'Đã yêu thích' : 'Thêm vào Yêu thích'}
-            </button>
-            <button className="add-to-cart-btn main-cart-btn" onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
-          </div>
-          
+          {/* SỬ DỤNG HÀM RENDER MỚI */}
+          {renderActions()}
+
           <div className="detail-description">
             <h3>Mô tả</h3>
             <p>

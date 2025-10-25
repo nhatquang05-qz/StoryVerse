@@ -1,58 +1,25 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import ProductList from '../../components/common/ProductList/ProductList';
-import { comics, getUniqueAuthors, physicalComics, digitalComics, type Comic } from '../../data/mockData';
-import LoadingSkeleton from '../../components/common/LoadingSkeleton/LoadingSkeleton';
-import Pagination from '../../components/common/Pagination';
-import './CategoryPage.css';
+import ProductList from '../components/common/ProductList/ProductList';
+import { getUniqueAuthors, physicalComics, type Comic } from '../data/mockData';
+import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton';
+import Pagination from '../components/common/Pagination';
+import './category/CategoryPage.css';
 
-interface CategoryData {
-  title: string;
-  description: string;
-  sourceComics: Comic[];
-}
-
-const fetchCategoryData = (slug: string): Promise<CategoryData> => {
+const fetchPhysicalComics = (): Promise<Comic[]> => {
   return new Promise(resolve => {
     setTimeout(() => {
-      let sourceComics: Comic[] = comics; 
-      let title: string;
-      let description: string;
-
-      switch (slug) {
-        case 'new-releases':
-          title = 'Mới Phát Hành';
-          description = 'Cập nhật những tập truyện mới nhất vừa ra mắt.';
-          sourceComics = comics.slice(0, 30);
-          break;
-        case 'action':
-          title = 'Thể loại: Hành Động';
-          description = 'Những trận chiến mãn nhãn và kịch tính.';
-          sourceComics = physicalComics.filter(c => c.id % 2 === 0); 
-          break;
-        case 'romance':
-          title = 'Thể loại: Tình Cảm';
-          description = 'Những câu chuyện tình yêu lãng mạn và cảm động.';
-          sourceComics = digitalComics.filter(c => c.id % 2 !== 0); 
-          break;
-        default:
-          title = 'Danh Mục Truyện';
-          description = 'Khám phá tất cả các bộ truyện hiện có.';
-          sourceComics = comics;
-          break;
-      }
-      resolve({ title, description, sourceComics });
+      // Chỉ lấy truyện vật lý
+      const sourceComics = physicalComics.filter(c => c.isDigital === false);
+      resolve(sourceComics);
     }, 800);
   });
 };
 
 const ITEMS_PER_PAGE = 25; 
 
-const CategoryPage: React.FC = () => {
-  const { categorySlug } = useParams<{ categorySlug: string }>();
-  
-  const [categoryTitle, setCategoryTitle] = useState('Đang tải...');
-  const [categoryDescription, setCategoryDescription] = useState('');
+const PhysicalComicsPage: React.FC = () => {
+  const [categoryTitle] = useState('Truyện In - Sưu Tầm');
+  const [categoryDescription] = useState('Sở hữu những ấn phẩm giấy chất lượng cao nhất.');
   const [allComics, setAllComics] = useState<Comic[]>([]);
 
   const [sortBy, setSortBy] = useState('newest');
@@ -60,7 +27,7 @@ const CategoryPage: React.FC = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const uniqueAuthors = useMemo(() => getUniqueAuthors(), []);
+  const uniqueAuthors = useMemo(() => getUniqueAuthors(), []); 
 
   useEffect(() => {
     setIsLoading(true);
@@ -68,18 +35,14 @@ const CategoryPage: React.FC = () => {
     setFilterAuthor('all'); 
     setSortBy('newest'); 
     
-    const slug = categorySlug || 'all'; 
-
-    fetchCategoryData(slug)
+    fetchPhysicalComics()
       .then(data => {
-        setCategoryTitle(data.title);
-        setCategoryDescription(data.description);
-        setAllComics(data.sourceComics);
+        setAllComics(data);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [categorySlug]);
+  }, []);
   
   const processedComics = useMemo(() => {
     let currentComics = [...allComics];
@@ -208,4 +171,4 @@ const CategoryPage: React.FC = () => {
   );
 };
 
-export default CategoryPage;
+export default PhysicalComicsPage;

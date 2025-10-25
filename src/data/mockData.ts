@@ -1,4 +1,3 @@
-// src/data/mockData.ts
 export interface Comic {
   id: number;
   title: string;
@@ -8,7 +7,6 @@ export interface Comic {
   isDigital: boolean;
 }
 
-// 30 PHYSICAL COMICS (ID 1-30)
 export const physicalComics: Comic[] = [
   { id: 1, title: 'Chú Thuật Hồi Chiến - Tập 10', author: 'Gege Akutami', price: 30000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/c/h/chu-thuat-hoi-chien---tap-10.jpg', isDigital: false },
   { id: 2, title: 'Thanh Gươm Diệt Quỷ - Tập 23', author: 'Koyoharu Gotouge', price: 28000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/i/m/image_195509_1_36793.jpg', isDigital: false },
@@ -42,7 +40,6 @@ export const physicalComics: Comic[] = [
   { id: 30, title: 'Kingdom - Tập 61', author: 'Yasuhisa Hara', price: 40000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/8/9/8935244847128.jpg', isDigital: false },
 ];
 
-// 30 DIGITAL COMICS (ID 31-60)
 export const digitalComics: Comic[] = [
   { id: 31, title: 'One Punch Man - Tập 24 (Digital)', author: 'Yusuke Murata', price: 40000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/8/9/8935244849610.jpg', isDigital: true },
   { id: 32, title: 'Demon Slayer - Tập 15 (Digital)', author: 'Koyoharu Gotouge', price: 28000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/8/9/8935244849306.jpg', isDigital: true },
@@ -76,7 +73,6 @@ export const digitalComics: Comic[] = [
   { id: 60, title: 'Black Clover - Tập 5 (Digital)', author: 'Yūki Tabata', price: 28000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/8/9/8935244848910.jpg', isDigital: true },
 ];
 
-// Mảng chung (Total 60)
 export const comics: Comic[] = [...physicalComics, ...digitalComics];
 
 export const getUniqueAuthors = (): string[] => {
@@ -123,6 +119,7 @@ export const saveNewOrder = (order: Order): void => {
         localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(allOrders));
     } catch (e) {
         console.error("Failed to save new order to localStorage", e);
+        // ... (Giữ nguyên các hàm khác) ...
     }
 };
 
