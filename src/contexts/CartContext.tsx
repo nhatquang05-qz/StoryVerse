@@ -59,14 +59,19 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   useEffect(() => {
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+      // Chỉ lưu trữ truyện vật lý, bỏ qua truyện digital trong giỏ hàng
+      const physicalCartItems = cartItems.filter(item => !item.isDigital);
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(physicalCartItems));
     } catch (error) {
       console.error("Could not save cart to local storage", error);
     }
   }, [cartItems]);
 
   const totalPrice = useMemo(() => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    // Chỉ tính tổng giá trị của truyện vật lý
+    return cartItems
+        .filter(item => !item.isDigital)
+        .reduce((total, item) => total + item.price * item.quantity, 0);
   }, [cartItems]);
   
   const applyDiscountCode = (code: string) => {
@@ -82,6 +87,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   const addToCart = (comic: Comic, quantity: number, startElementRect: DOMRect | null) => {
+    // BỎ QUA truyện Digital
+    if (comic.isDigital) {
+        showNotification(`Truyện Digital không được thêm vào giỏ hàng. Vui lòng mở khóa bằng Xu.`, 'info');
+        return;
+    }
+    
     if (startElementRect && cartIconRect && comic.imageUrl) {
       setAnimationData({
         src: comic.imageUrl,
@@ -134,13 +145,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('User must be logged in to checkout.');
     }
     
-    if (cartItems.length === 0) {
-        throw new Error('Cart is empty.');
+    const physicalItems = cartItems.filter(item => !item.isDigital);
+
+    if (physicalItems.length === 0) {
+        throw new Error('Cart is empty or contains only digital comics.');
     }
 
     await new Promise(resolve => setTimeout(resolve, 500)); 
     
-    const orderItems: OrderItem[] = cartItems.map(item => ({
+    const orderItems: OrderItem[] = physicalItems.map(item => ({
         id: item.id,
         title: item.title,
         author: item.author,
@@ -170,7 +183,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   const cartCount = useMemo(() => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
+    return cartItems.filter(item => !item.isDigital).reduce((count, item) => count + item.quantity, 0);
   }, [cartItems]);
 
 

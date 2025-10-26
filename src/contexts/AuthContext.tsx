@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import { useNotification } from './NotificationContext';
-import { saveNewOrder, loadOrders, comics } from '../data/mockData';
+import { saveNewOrder, loadOrders } from '../data/mockData';
+import { type OrderItem } from '../data/mockData';
 
 export interface Address {
     id: string;
@@ -16,7 +17,8 @@ export interface User {
   email: string;
   fullName: string;
   phone: string;
-  addresses: Address[]; 
+  addresses: Address[];
+  coinBalance: number; // ĐÃ THÊM
 }
 
 interface AuthContextType {
@@ -67,10 +69,11 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
     try {
         const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + baseUser.id);
         const profile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
-        
+
         const defaultProfile = {
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
             phone: '0000000000',
+            coinBalance: 1000, // GIẢ LẬP SỐ DƯ XU
         };
 
         return {
@@ -86,6 +89,7 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
             phone: '0000000000',
             addresses: loadAddresses(baseUser.id),
+            coinBalance: 1000, // GIẢ LẬP SỐ DƯ XU
         };
     }
 };
@@ -95,34 +99,17 @@ const saveProfileData = (userId: string, profileData: Partial<User>): void => {
         const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + userId);
         const currentProfile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
         const newProfile = { ...currentProfile, ...profileData };
-        
-        delete newProfile.addresses; 
-        
+
+        delete newProfile.addresses;
+
         localStorage.setItem(PROFILE_DATA_KEY + userId, JSON.stringify(newProfile));
     } catch (e) {
         console.error("Failed to save profile data", e);
     }
 };
 
-const createMockDigitalOrder = (userId: string, comicId: number) => {
-    const digitalComic = comics.find(c => c.id === comicId);
-    if (!digitalComic) return;
-
-    const existingOrders = loadOrders(userId);
-    if (existingOrders.some(order => order.id === 'MOCK-DIGITAL-1')) return;
-
-    const mockOrder = {
-        id: 'MOCK-DIGITAL-1',
-        userId: userId,
-        date: new Date().toLocaleDateString('vi-VN'),
-        total: digitalComic.price,
-        status: 'Hoàn thành' as const, 
-        items: [{ 
-            ...digitalComic, 
-            quantity: 1,
-        }],
-    };
-    saveNewOrder(mockOrder);
+const createMockDigitalOrder = () => {
+    return;
 };
 
 
@@ -145,15 +132,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, pass: string) => {
     const baseUser = { id: 'user-' + Date.now(), email: email };
     const mockUser: User = loadProfileData(baseUser);
-    
+
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(baseUser));
-    
+
     saveProfileData(baseUser.id, mockUser);
     saveAddresses(baseUser.id, mockUser.addresses);
-    
+
     setCurrentUser(mockUser);
     showNotification('Đăng nhập thành công!', 'success');
-    createMockDigitalOrder(mockUser.id, 1); 
+    createMockDigitalOrder();
   };
 
   const register = async (email: string, pass: string) => {
@@ -172,10 +159,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('User not logged in.');
     }
 
-    await new Promise(resolve => setTimeout(resolve, 500)); 
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     saveProfileData(currentUser.id, profileData);
-    
+
     setCurrentUser(prevUser => {
         if (!prevUser) return null;
         return {
@@ -185,14 +172,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
     showNotification('Cập nhật hồ sơ thành công!', 'success');
   };
-  
+
   const updateAddresses = async (addresses: Address[]) => {
     if (!currentUser) {
         throw new Error('User not logged in.');
     }
-    
-    await new Promise(resolve => setTimeout(resolve, 500)); 
-    
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     saveAddresses(currentUser.id, addresses);
 
     setCurrentUser(prevUser => {

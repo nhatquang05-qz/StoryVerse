@@ -5,7 +5,7 @@ import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleto
 import { type Comic, trendingComics, newReleasesComics, recommendedDigitalComics } from '../data/mockData'; 
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; 
 
-const ITEMS_PER_SECTION_PAGE = 10; 
+const ITEMS_PER_SECTION_PAGE = 14; 
 
 const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean }> = ({ title, comics, isLoading }) => {
     const [pageIndex, setPageIndex] = useState(0); 

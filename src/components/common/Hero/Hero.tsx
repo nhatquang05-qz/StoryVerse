@@ -20,7 +20,7 @@ import mb53 from './mb-53.png';
 
 const sections = [
   {
-    title: "TRUYỆN NHẬT BẢN",
+    title: "NHẬT BẢN",
     images: [
       mb11,
       mb12,

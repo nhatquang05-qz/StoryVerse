@@ -19,9 +19,9 @@
   border-radius: var(--border-radius);
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  align-self: start; /* Giữ ảnh ở trên cùng */
+  align-self: start;
   position: sticky;
-  top: 100px; /* Vị trí khi cuộn trang */
+  top: 100px;
 }
 
 .detail-image {
@@ -63,6 +63,28 @@
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
+/* CUSTOM STYLES CHO DIGITAL ACTIONS */
+.digital-actions-group {
+    /* Container chính cho tất cả các nút digital: căn giữa toàn bộ khối */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 500px; 
+    margin: 0 auto 2rem auto; /* Căn giữa và đẩy xuống */
+}
+.digital-main-buttons {
+    /* Nhóm Đọc Free và Mở khóa */
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px; /* Giới hạn kích thước tối đa cho 2 nút chính */
+}
+.digital-main-buttons .add-to-cart-btn {
+    flex-grow: 1;
+    max-width: none;
+}
+
 
 .quantity-selector {
   display: flex;
@@ -105,7 +127,7 @@
   font-size: 1rem;
   border: none;
   cursor: pointer;
-  flex-grow: 1; /* Cho nút chiếm không gian còn lại */
+  flex-grow: 1; 
   max-width: 300px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
@@ -130,12 +152,15 @@
     gap: 2rem;
   }
   .detail-image-wrapper {
-    position: static; /* Bỏ sticky trên mobile */
+    position: static; 
     max-width: 400px;
     margin: 0 auto;
   }
   .detail-title {
     font-size: 2.2rem;
+  }
+  .digital-actions-group, .digital-main-buttons {
+      max-width: none;
   }
 }
 
@@ -147,9 +172,12 @@
     .add-to-cart-btn {
         max-width: none;
     }
+    .digital-main-buttons {
+        flex-direction: column;
+    }
 }
 .detail-actions .add-to-cart-btn {
-  max-width: 180px; /* Giảm chiều rộng để chia đều 2 nút */
+  max-width: 180px; 
   flex-grow: 0;
   display: flex;
   align-items: center;
@@ -158,6 +186,7 @@
 
 .wishlist-btn-detail {
   background-color: var(--primary-color-dark);
+  width: 250px; /* Cố định chiều rộng cho nút Yêu thích */
 }
 .wishlist-btn-detail:hover {
   background-color: #4a51e6; 

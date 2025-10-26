@@ -1,7 +1,7 @@
 .hero-slider {
-  height: 15%; /* Đã giảm từ 20% xuống 15% */
+  height: 15%; 
   background: #0e1624;
-  padding: 3rem 2rem; /* Đã giảm padding trên và dưới */
+  padding: 3rem 2rem; 
   text-align: center;
   color: #fff;
   position: relative;

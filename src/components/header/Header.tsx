@@ -1,21 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react'; 
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX } from 'react-icons/fi';
-import { useCart } from '../../contexts/CartContext'; 
-import { useAuth } from '../../contexts/AuthContext'; 
-import { comics } from '../../data/mockData'; // IMPORT DỮ LIỆU MOCK
+import { useCart } from '../../contexts/CartContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { comics } from '../../data/mockData';
 import './Header.css';
 
-// Tối đa 5 gợi ý tìm kiếm
 const MAX_SUGGESTIONS = 5;
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [suggestions, setSuggestions] = useState<typeof comics>([]); // STATE MỚI
-  const { cartCount, setCartIconRect } = useCart(); 
-  const { currentUser, logout } = useAuth(); 
-  const cartIconRef = useRef<HTMLAnchorElement>(null); 
+  const [suggestions, setSuggestions] = useState<typeof comics>([]);
+  const { cartCount, setCartIconRect } = useCart();
+  const { currentUser, logout } = useAuth();
+  const cartIconRef = useRef<HTMLAnchorElement>(null);
   const navigate = useNavigate();
   const searchBarRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +24,7 @@ const Header: React.FC = () => {
     if (cartIconRef.current) {
       setCartIconRect(cartIconRef.current.getBoundingClientRect());
     }
-  }, [setCartIconRect]); 
+  }, [setCartIconRect]);
 
   const handleLogout = async () => {
       try {
@@ -35,10 +34,10 @@ const Header: React.FC = () => {
           console.error("Lỗi đăng xuất:", error);
       }
   }
-  
+
   const handleSearchTermChange = (value: string) => {
     setSearchTerm(value);
-    
+
     if (value.trim().length > 1) {
       const normalizedValue = value.toLowerCase().trim();
       const filtered = comics
@@ -47,7 +46,7 @@ const Header: React.FC = () => {
             c.title.toLowerCase().includes(normalizedValue) ||
             c.author.toLowerCase().includes(normalizedValue)
         )
-        .slice(0, MAX_SUGGESTIONS); 
+        .slice(0, MAX_SUGGESTIONS);
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
@@ -58,8 +57,8 @@ const Header: React.FC = () => {
     e.preventDefault();
     if (searchTerm.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm(''); 
-      setSuggestions([]); // XÓA GỢI Ý KHI SUBMIT
+      setSearchTerm('');
+      setSuggestions([]);
       setIsMenuOpen(false);
     }
   };
@@ -70,7 +69,6 @@ const Header: React.FC = () => {
     navigate(`/comic/${comicId}`);
   };
 
-  // Ẩn gợi ý khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchBarRef.current && !searchBarRef.current.contains(event.target as Node)) {
@@ -89,11 +87,11 @@ const Header: React.FC = () => {
         <nav className="nav-desktop">
           <Link to="/physical-comics">Truyện In</Link>
           <Link to="/digital-comics">Đọc Online</Link>
-          
-          <div className="dropdown mega-dropdown"> 
+
+          <div className="dropdown mega-dropdown">
             <button className="dropdown-btn">Thể Loại</button>
             <div className="dropdown-content mega-content">
-              
+
               <div className="dropdown-column">
                 <h4>Truyện In (Vật Lý)</h4>
                 <Link to="/genres/action">Hành Động</Link>
@@ -101,7 +99,7 @@ const Header: React.FC = () => {
                 <Link to="/genres/sci-fi">Khoa Học Viễn Tưởng</Link>
                 <Link to="/genres/trinh-tham">Trinh Thám</Link>
               </div>
-              
+
               <div className="dropdown-column">
                 <h4>Đọc Online (Digital)</h4>
                 <Link to="/genres/romance">Tình Cảm</Link>
@@ -116,12 +114,11 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="header-actions">
-          {/* KHỐI TÌM KIẾM CÓ GỢI Ý */}
           <div className="search-wrapper" ref={searchBarRef}>
             <form onSubmit={handleSearchSubmit} className="search-bar">
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm truyện..." 
+              <input
+                type="text"
+                placeholder="Tìm kiếm truyện..."
                 value={searchTerm}
                 onChange={(e) => handleSearchTermChange(e.target.value)}
               />
@@ -131,8 +128,8 @@ const Header: React.FC = () => {
             {suggestions.length > 0 && (
                 <div className="search-suggestions-dropdown">
                     {suggestions.map((comic) => (
-                        <div 
-                            key={comic.id} 
+                        <div
+                            key={comic.id}
                             className="suggestion-item"
                             onClick={() => handleSuggestionClick(comic.id)}
                         >
@@ -149,7 +146,7 @@ const Header: React.FC = () => {
                 </div>
             )}
           </div>
-          
+
           <Link to="/wishlist" className="action-icon" aria-label="Danh sách yêu thích">
             <FiHeart />
           </Link>
@@ -157,19 +154,25 @@ const Header: React.FC = () => {
             <FiShoppingCart />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
-          
+
           {currentUser ? (
-            <div className="dropdown">
-              <button className="action-icon user-icon" aria-label="Tài khoản">
-                <FiUser />
-              </button>
-              <div className="dropdown-content user-dropdown">
-                <Link to="/profile">Tài Khoản Của Tôi</Link>
-                <Link to="/my-library">Thư Viện Số</Link>
-                <Link to="/orders">Lịch Sử Mua Hàng</Link>
-                <button onClick={handleLogout} className="logout-btn">Đăng Xuất</button>
+            <>
+              <div className="dropdown">
+                <button className="action-icon user-icon" aria-label="Tài khoản">
+                  <FiUser />
+                </button>
+                <div className="dropdown-content user-dropdown">
+                  <Link to="/profile">Tài Khoản Của Tôi</Link>
+                  <Link to="/my-library">Thư Viện Số</Link>
+                  <Link to="/orders">Lịch Sử Mua Hàng</Link>
+                  <button onClick={handleLogout} className="logout-btn">Đăng Xuất</button>
+                </div>
               </div>
-            </div>
+              <div className="coin-balance-display">
+                  <img src="../src/assets/images/coin.png" alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
+                  <span className="coin-amount">{currentUser.coinBalance}</span>
+              </div>
+            </>
           ) : (
             <Link to="/login" className="login-btn">Đăng Nhập</Link>
           )}
@@ -179,13 +182,13 @@ const Header: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       {isMenuOpen && (
         <nav className="nav-mobile">
           <form onSubmit={handleSearchSubmit} className="search-bar mobile-search-bar">
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm truyện..." 
+            <input
+              type="text"
+              placeholder="Tìm kiếm truyện..."
               value={searchTerm}
               onChange={(e) => handleSearchTermChange(e.target.value)}
             />
@@ -203,6 +206,14 @@ const Header: React.FC = () => {
           <Link to="/cart" onClick={toggleMenu} className="nav-mobile-action">
             <FiShoppingCart /> <span>Giỏ Hàng ({cartCount})</span>
           </Link>
+
+          {currentUser && (
+            <div className="coin-balance-display mobile-coin-balance">
+                {/* SỬA ĐƯỜNG DẪN ẢNH */}
+                <img src="/coin-icon.png" alt="Xu" className="coin-icon" />
+                <span className="coin-amount">{currentUser.coinBalance} Xu</span>
+            </div>
+           )}
           <div className="nav-mobile-separator"></div>
           {currentUser ? (
             <div className="nav-mobile-user-section">

@@ -5,6 +5,7 @@ import { type Comic } from '../../../data/mockData';
 import { useCart } from '../../../contexts/CartContext';
 import { useWishlist } from '../../../contexts/WishListContext';
 import { useNotification } from '../../../contexts/NotificationContext';
+import StarRating from '../StarRating';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -22,6 +23,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+  
+  const formatViewCount = (count: number) => {
+    if (count >= 1000000) {
+      return (count / 1000000).toFixed(1) + 'M lượt xem';
+    }
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'K lượt xem';
+    }
+    return count + ' lượt xem';
   };
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -58,9 +69,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
           >
             <FiHeart />
           </button>
-          <button className="card-action-button" onClick={handleAddToCart} aria-label="Thêm vào giỏ hàng">
-            <FiShoppingCart />
-          </button>
+          
+          {/* ẨN NÚT GIỎ HÀNG NẾU LÀ TRUYỆN DIGITAL */}
+          {!comic.isDigital && (
+            <button className="card-action-button" onClick={handleAddToCart} aria-label="Thêm vào giỏ hàng">
+              <FiShoppingCart />
+            </button>
+          )}
+
         </div>
       </Link>
       <div className="card-info">
@@ -68,7 +84,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
           <Link to={`/comic/${comic.id}`}>{comic.title}</Link>
         </h3>
         <p className="card-author">{comic.author}</p>
-        <p className="card-price">{formatPrice(comic.price)}</p>
+        
+        <div className="card-rating-section">
+          <StarRating rating={comic.rating} />
+        </div>
+        
+        {comic.isDigital && comic.viewCount > 0 && (
+          <div className="card-view-count-section">
+            <span className="card-view-count">{formatViewCount(comic.viewCount)}</span>
+          </div>
+        )}
+        
+        {!comic.isDigital && (
+            <p className="card-price">{formatPrice(comic.price)}</p>
+        )}
+        
       </div>
     </div>
   );
