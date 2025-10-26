@@ -82,11 +82,9 @@ const AddressManagementPage: React.FC = () => {
             isDefault: addresses.length === 0,
         };
         
-        // Đặt tất cả về false nếu có địa chỉ mới
         const updated = addresses.map(a => ({ ...a, isDefault: false }));
         updated.push(newAddress);
         
-        // Nếu đây là địa chỉ đầu tiên, nó sẽ là mặc định
         if (addresses.length === 0) {
             updated[0].isDefault = true;
         }

@@ -1,0 +1,171 @@
+.recharge-page-container {
+    padding: 2rem 1rem;
+    max-width: 1536px;
+    margin: 0 auto;
+    min-height: calc(100vh - var(--header-height) - 100px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.recharge-card-wrapper {
+    width: 100%;
+    max-width: 600px;
+    background-color: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.recharge-card-wrapper h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--text-color-dark);
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.current-balance-info {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0.8rem;
+    border: 2px solid var(--border-color-light); 
+    border-radius: 8px;
+    background: #f8f9fa; 
+}
+.current-balance-info p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-color-dark);
+}
+.coin-amount-display {
+    color: var(--text-color-dark); 
+    margin-left: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    font-weight: bold;
+}
+.coin-text {
+    color: #ffc107; 
+    font-size: 1.1em;
+}
+
+.coin-icon-small {
+    width: 30px;
+    height: 20px;
+    margin-left: 0.5rem;
+}
+
+.recharge-coin-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+.coin-amount-large {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color-dark);
+    margin-right: 0.4rem;
+}
+.coin-icon-large {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.pack-selection-title {
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--text-color-dark);
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+}
+
+.recharge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.recharge-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    
+    border: 1px solid var(--primary-color);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    background-color: #ffffff;
+}
+
+.recharge-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    border-color: var(--primary-color-dark);
+}
+
+.recharge-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    margin-bottom: 0.5rem;
+}
+
+.recharge-bonus {
+    margin: 0.2rem 0 0.5rem 0; 
+    color: #e63946;
+    font-weight: bold;
+    font-size: 0.9rem;
+    line-height: 1;
+    min-height: 1.1rem; 
+}
+
+.recharge-bonus-placeholder {
+    height: 1.1rem; 
+    margin: 0.2rem 0 0.5rem 0; 
+}
+
+.recharge-price {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color-dark);
+}
+
+.recharge-info-note {
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-align: center;
+}
+
+.auth-button {
+    padding: 0.7rem 1rem !important;
+    font-size: 1rem !important;
+}
+
+@media (max-width: 600px) {
+    .recharge-card-wrapper {
+        padding: 1.5rem 1rem;
+        max-width: 100%;
+    }
+    .recharge-grid {
+        gap: 0.75rem;
+    }
+    .recharge-card {
+        padding: 0.75rem;
+    }
+    .coin-amount-large {
+        font-size: 1.8rem;
+    }
+}

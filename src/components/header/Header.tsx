@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { comics } from '../../data/mockData';
@@ -163,6 +163,7 @@ const Header: React.FC = () => {
                 </button>
                 <div className="dropdown-content user-dropdown">
                   <Link to="/profile">Tài Khoản Của Tôi</Link>
+                  <Link to="/recharge">Nạp Xu</Link>
                   <Link to="/my-library">Thư Viện Số</Link>
                   <Link to="/orders">Lịch Sử Mua Hàng</Link>
                   <button onClick={handleLogout} className="logout-btn">Đăng Xuất</button>
@@ -209,7 +210,6 @@ const Header: React.FC = () => {
 
           {currentUser && (
             <div className="coin-balance-display mobile-coin-balance">
-                {/* SỬA ĐƯỜNG DẪN ẢNH */}
                 <img src="/coin-icon.png" alt="Xu" className="coin-icon" />
                 <span className="coin-amount">{currentUser.coinBalance} Xu</span>
             </div>
@@ -219,6 +219,9 @@ const Header: React.FC = () => {
             <div className="nav-mobile-user-section">
               <Link to="/profile" onClick={toggleMenu} className="nav-mobile-action">
                 <FiUser /> <span>Tài Khoản Của Tôi</span>
+              </Link>
+              <Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
+                <FiDollarSign /> <span>Nạp Xu</span>
               </Link>
               <button onClick={() => { handleLogout(); toggleMenu(); }} className="logout-btn-mobile">Đăng Xuất</button>
             </div>

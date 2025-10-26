@@ -21,7 +21,6 @@ const ReaderPage: React.FC = () => {
 
     useEffect(() => {
         if (!currentUser) {
-            // alert('Bạn cần đăng nhập để đọc truyện.'); // Đã thay bằng NotificationContext ở các bước trước
         }
     }, [currentUser]);
 

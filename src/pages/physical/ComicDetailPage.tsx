@@ -35,7 +35,6 @@ const ComicDetailSkeleton: React.FC = () => (
     </div>
 );
 
-// Hàm giả lập fetch data chi tiết
 const fetchComicDetail = (id: number): Promise<Comic | undefined> => {
     return new Promise(resolve => {
         setTimeout(() => {
@@ -45,7 +44,6 @@ const fetchComicDetail = (id: number): Promise<Comic | undefined> => {
     });
 };
 
-// Kiểm tra xem truyện digital đã được mua chưa
 const isDigitalComicPurchased = (comicId: number, userId: string | undefined): boolean => {
     if (!userId) return false;
     
@@ -120,7 +118,6 @@ const ComicDetailPage: React.FC = () => {
     }
   };
   
-  // Logic giả lập mở khóa bằng Xu và ghi nhận vào lịch sử mua hàng
   const handleUnlockByCoin = () => {
       if (!currentUser) {
           showNotification('Vui lòng đăng nhập để mở khóa truyện.', 'warning');
@@ -129,10 +126,8 @@ const ComicDetailPage: React.FC = () => {
       
       if (!comic || !comic.isDigital) return;
 
-      // Giả lập giao dịch thành công (trừ xu)
       showNotification(`Đã mở khóa "${comic.title}" với ${comic.unlockCoinPrice} Xu! Vui lòng vào Thư viện số.`, 'success');
       
-      // Ghi nhận vào lịch sử mua hàng/thư viện số
       const newOrder = {
           id: `COIN-${Date.now()}`,
           userId: currentUser.id,
@@ -150,7 +145,7 @@ const ComicDetailPage: React.FC = () => {
       };
       saveNewOrder(newOrder);
       
-      navigate(0); // Dùng navigate(0) để refresh trang (vì logic isPurchased dựa vào loadOrders từ localStorage)
+      navigate(0); 
   };
   
   const renderActions = () => {
@@ -170,7 +165,6 @@ const ComicDetailPage: React.FC = () => {
         const isFullyFree = comic!.unlockCoinPrice === 0;
 
         if (currentUser && isPurchased) {
-            // Đã mua/mở khóa: Đọc ngay + Yêu thích (2 nút cạnh nhau)
             return (
                 <div className="detail-actions digital-actions-group" style={{ flexDirection: 'row', gap: '1rem', flexWrap: 'wrap' }}>
                     <button className="add-to-cart-btn main-cart-btn" onClick={handleReadNow} style={{ maxWidth: '250px' }}>
@@ -180,7 +174,6 @@ const ComicDetailPage: React.FC = () => {
                 </div>
             );
         } else if (isFullyFree) {
-            // Miễn phí: Đọc miễn phí (Toàn bộ) + Yêu thích (2 nút cạnh nhau)
             return (
                  <div className="detail-actions digital-actions-group" style={{ flexDirection: 'row', gap: '1rem', flexWrap: 'wrap' }}>
                     <button className="add-to-cart-btn main-cart-btn" onClick={handleReadNow} style={{ backgroundColor: '#28a745', maxWidth: '250px' }}>
@@ -190,31 +183,26 @@ const ComicDetailPage: React.FC = () => {
                 </div>
             );
         } else {
-            // Trả phí bằng Xu: Đọc giới hạn + Mở khóa bằng Xu + Yêu thích (3 nút)
             return (
                 <div className="digital-actions-group">
                     <p className="coin-warning-text" style={{ margin: '0', textAlign: 'center', color: 'var(--primary-color-dark)', fontWeight: 'bold' }}>Truyện có giới hạn chương đọc thử.</p>
                     
                     <div className="digital-main-buttons">
-                        {/* Đọc Free (Giới hạn) */}
                         <button className="add-to-cart-btn" onClick={handleReadNow} style={{ backgroundColor: '#17a2b8' }}>
                             Đọc Free (Giới hạn)
                         </button>
                         
-                        {/* Mở khóa bằng Xu */}
                         <button className="add-to-cart-btn" onClick={handleUnlockByCoin} style={{ background: '#ffc107', color: '#333', fontWeight: 'bold' }}>
                             <img src="/src/assets/images/coin.png" alt="Coin" style={{ width: '50px', height: '30px', marginRight: '0.5rem' }} />
                             Mở khóa ({comic!.unlockCoinPrice})
                         </button>
                     </div>
                     
-                    {/* Nút Yêu thích nằm dưới, căn giữa */}
                     {wishlistButton}
                 </div>
             );
         }
     } 
-    // Truyện vật lý: Thêm vào giỏ hàng (bao gồm bộ chọn số lượng)
     return (
         <div className="detail-actions">
             <div className="quantity-selector">
@@ -252,7 +240,6 @@ const ComicDetailPage: React.FC = () => {
       <div className="detail-main-card">
         <div className="detail-image-wrapper">
           <img ref={imgRef} src={comic.imageUrl} alt={comic.title} className="detail-image" /> 
-          {/* LOGIC HIỂN THỊ DIGITAL BADGE TRÊN TRANG CHI TIẾT */}
           {isDigital && (
               <span className="digital-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>DIGITAL</span>
           )}
@@ -261,10 +248,8 @@ const ComicDetailPage: React.FC = () => {
           <p className="detail-author">Tác giả: {comic.author}</p>
           <h1 className="detail-title">{comic.title}</h1>
           
-          {/* Ẩn giá nếu là truyện digital */}
           {!isDigital && <p className="detail-price">{formatPrice(comic.price)}</p>}
           
-          {/* Hiển thị giá xu hoặc trạng thái free */}
           {isDigital && (
               <div className="digital-price-info" style={{ marginBottom: '2rem' }}>
                   {isPurchased ? (

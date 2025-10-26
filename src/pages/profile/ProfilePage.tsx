@@ -100,8 +100,6 @@ const ProfilePage: React.FC = () => {
                     />
                 </div>
                 
-                {/* Địa chỉ được quản lý tại trang /addresses */}
-
                 <div className="profile-actions">
                     {!isEditing ? (
                         <button type="button" className="edit-btn" onClick={() => setIsEditing(true)}>Chỉnh Sửa</button>

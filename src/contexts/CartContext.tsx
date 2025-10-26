@@ -59,7 +59,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   useEffect(() => {
     try {
-      // Chỉ lưu trữ truyện vật lý, bỏ qua truyện digital trong giỏ hàng
       const physicalCartItems = cartItems.filter(item => !item.isDigital);
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(physicalCartItems));
     } catch (error) {
@@ -68,7 +67,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [cartItems]);
 
   const totalPrice = useMemo(() => {
-    // Chỉ tính tổng giá trị của truyện vật lý
     return cartItems
         .filter(item => !item.isDigital)
         .reduce((total, item) => total + item.price * item.quantity, 0);
@@ -87,7 +85,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   const addToCart = (comic: Comic, quantity: number, startElementRect: DOMRect | null) => {
-    // BỎ QUA truyện Digital
     if (comic.isDigital) {
         showNotification(`Truyện Digital không được thêm vào giỏ hàng. Vui lòng mở khóa bằng Xu.`, 'info');
         return;

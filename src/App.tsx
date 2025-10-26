@@ -19,6 +19,7 @@ import DigitalComicsPage from './pages/DigitalComicsPage';
 import SearchPage from './pages/SearchPage';
 import WishlistPage from './pages/wishlist/WishlistPage';
 import ReaderPage from './pages/ReaderPage'; 
+import CoinRechargePage from './pages/CoinRechargePage'; 
 import ScrollToTop from './components/common/ScrollToTop';
 import FlyingImage from './components/common/FlyingImage/FlyingImage'; 
 import { useCart } from './contexts/CartContext';       
@@ -48,6 +49,7 @@ function App() {
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/read/:comicId" element={<ReaderPage />} /> 
+          <Route path="/recharge" element={<CoinRechargePage />} />
           <Route path="/physical-comics" element={<PhysicalComicsPage />} />
           <Route path="/digital-comics" element={<DigitalComicsPage />} />
           <Route path="/new-releases" element={<CategoryPage />} />

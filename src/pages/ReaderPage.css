@@ -1,10 +1,8 @@
-/* src/pages/ReaderPage.css */
-
 .reader-page-container {
     padding: 0;
     margin: 0;
     min-height: 100vh;
-    background-color: #f4f4f4; /* Nền nhẹ nhàng cho trải nghiệm đọc */
+    background-color: #f4f4f4; 
     color: var(--text-color-dark);
     display: flex;
     flex-direction: column;
@@ -61,7 +59,7 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     position: relative;
-    padding: 2rem; /* Thêm padding để hiển thị nội dung mock */
+    padding: 2rem; 
     text-align: center;
 }
 .page-text-mock {
