@@ -1,6 +1,7 @@
 .hero-slider {
+  height: 15%; /* Đã giảm từ 20% xuống 15% */
   background: #0e1624;
-  padding: 5rem 2rem;
+  padding: 3rem 2rem; /* Đã giảm padding trên và dưới */
   text-align: center;
   color: #fff;
   position: relative;
@@ -13,13 +14,14 @@
 
 .hero-info h3 {
   color: #e63946;
-  font-size: 1rem; /* CHỮ NHỎ LẠI */
+  font-size: 1.5rem;
   letter-spacing: 2px;
   margin-bottom: 0.5rem;
+  font-weight: bold;
 }
 
 .hero-info h1 {
-  font-size: 2rem; /* CHỮ NHỎ LẠI */
+  font-size: 2rem;
   font-weight: 800;
 }
 
@@ -27,44 +29,52 @@
   display: flex;
   justify-content: center;
   position: relative;
-  height: 330px;
+  height: 380px;
 }
 
 .hero-group {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 0;
   position: relative;
 }
 
 .hero-img {
   width: 400px;
-  height: 260px;
-  object-fit: cover;
+  height: 280px;
+  object-fit: contain;
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   transform-origin: center;
   transition: transform 0.4s ease;
+  cursor: default;
+  caret-color: transparent;
+  overflow: visible;
 }
 
 .hero-img:hover {
   transform: scale(1.05);
 }
 
-/* Nghiêng 3 ảnh giống Nettruyen */
 .img-0 {
-  transform: perspective(600px) rotateY(15deg);
+  width: 350px;
+  height: 220px;
+  margin-right: -10px; 
+  transform: perspective(600px) rotateY(15deg) scale(0.8);
 }
 .img-1 {
-  transform: scale(1.05);
+  transform: scale(1.25);
   z-index: 2;
+  height: 600px;
+  width: 600px;
 }
 .img-2 {
-  transform: perspective(600px) rotateY(-15deg);
+  width: 500px;
+  height: 400px;
+  margin-left: -50px; 
+  transform: perspective(600px) rotateY(-15deg) scale(1.1);
 }
 
-/* Khi hover giữa các ảnh, tạo chiều sâu */
 .hero-group:hover .img-0 {
   transform: perspective(600px) rotateY(20deg) translateX(-10px);
 }
@@ -72,7 +82,6 @@
   transform: perspective(600px) rotateY(-20deg) translateX(10px);
 }
 
-/* NAVIGATION BUTTONS */
 .nav-btn {
     position: absolute;
     top: 50%;
@@ -103,7 +112,6 @@
     right: 20px;
 }
 
-/* Responsive */
 @media (max-width: 1000px) {
   .hero-img {
     width: 300px;

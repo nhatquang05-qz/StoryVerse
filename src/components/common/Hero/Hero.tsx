@@ -1,68 +1,89 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import "./Hero.css";
+import mb11 from './mb-11.png';
+import mb12 from './mb-12.png';
+import mb13 from './mb-13.png';
+import mb21 from './mb-21.png';
+import mb22 from './mb-22.png';
+import mb23 from './mb-23.png';
+import mb31 from './mb-31.png';
+import mb32 from './mb-32.png';
+import mb33 from './mb-33.png';
+import mb41 from './mb-41.png';
+import mb42 from './mb-42.png';
+import mb43 from './mb-43.png';
+import mb51 from './mb-51.png';
+import mb52 from './mb-52.png';
+import mb53 from './mb-53.png';
 
 const sections = [
   {
-    title: "MARVEL COMICS",
+    title: "TRUYỆN NHẬT BẢN",
     images: [
-      "/mb-11.png",
-      "/mb-12.png",
-      "/mb-13.png",
+      mb11,
+      mb12,
+      mb13,
     ],
   },
   {
     title: "DC COMICS",
     images: [
-      "/mb-21.png",
-      "/mb-22.png",
-      "/mb-23.png",
+      mb21,
+      mb22,
+      mb23,
     ],
   },
   {
-    title: "TRUYỆN HÀN QUỐC",
+    title: "HÀN QUỐC",
     images: [
-      "/mb-31.png",
-      "/mb-32.png",
-      "/mb-33.png",
+      mb31,
+      mb32,
+      mb33,
     ],
   },
   {
-    title: "TRUYỆN TRUNG QUỐC",
+    title: "MARVEL COMICS",
     images: [
-      "/mb-41.png",
-      "/mb-42.png",
-      "/mb-43.png",
+      mb41,
+      mb42,
+      mb43,
     ],
   },
   {
-    title: "TRUYỆN VIỆT NAM",
+    title: "TRUNG QUỐC",
     images: [
-      "/mb-51.png",
-      "/mb-52.png",
-      "/mb-53.png",
+      mb51,
+      mb52,
+      mb53,
     ],
   },
 ];
 
 const Hero: React.FC = () => {
   const [index, setIndex] = useState(0);
+  const [resetTimer, setResetTimer] = useState(0); 
+  
+  const AUTO_SLIDE_TIME = 5000; 
 
-  // LOGIC CHUYỂN SLIDE TỰ ĐỘNG (4 GIÂY)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % sections.length);
-    }, 4000);
-    return () => clearInterval(timer);
+  const nextIndex = useCallback(() => {
+    setIndex((prev) => (prev + 1) % sections.length);
   }, []);
+
+  useEffect(() => {
+    const timer = setInterval(nextIndex, AUTO_SLIDE_TIME);
+    return () => clearInterval(timer);
+  }, [resetTimer, nextIndex]); 
 
   const nextSlide = () => {
     setIndex((prev) => (prev + 1) % sections.length);
+    setResetTimer(prev => prev + 1); 
   };
 
   const prevSlide = () => {
     setIndex((prev) => (prev - 1 + sections.length) % sections.length);
+    setResetTimer(prev => prev + 1); 
   };
 
   const current = sections[index];
@@ -85,7 +106,7 @@ const Hero: React.FC = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={index}
-            className="hero-group"
+            className={`hero-group`}
             initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -40, scale: 0.95 }}
@@ -96,7 +117,7 @@ const Hero: React.FC = () => {
                 key={i}
                 src={src}
                 alt={`slide-${i}`}
-                className={`hero-img img-${i}`}
+                className={`hero-img img-${i}`} 
                 initial={{ opacity: 0, x: i === 0 ? -100 : i === 2 ? 100 : 0 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.2, duration: 0.8 }}
