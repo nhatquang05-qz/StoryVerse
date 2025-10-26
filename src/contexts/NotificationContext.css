@@ -1,9 +1,9 @@
 .toast-notification {
-    visibility: hidden; 
+    visibility: hidden;
     min-width: 250px;
     margin-left: -125px;
-    background-color: #333;
-    color: #fff;
+    background-color: #333; /* Default dark background */
+    color: #fff; /* Default light text */
     text-align: center;
     border-radius: var(--border-radius);
     padding: 16px;
@@ -15,6 +15,7 @@
     opacity: 0;
     transition: opacity 0.5s, bottom 0.5s, background-color 0.2s;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 1px solid transparent;
 }
 
 .toast-notification.show {
@@ -23,19 +24,32 @@
     bottom: 50px;
 }
 
+/* Use theme variables for notification types */
 .toast-notification.success {
-    background-color: #28a745;
+    background-color: var(--clr-success-bg);
+    color: var(--clr-success-text);
+    border-color: var(--clr-success-text);
 }
 
 .toast-notification.error {
-    background-color: #dc3545;
+    background-color: var(--clr-error-bg);
+    color: var(--clr-error-text);
+    border-color: var(--clr-error-text);
 }
 
 .toast-notification.info {
-    background-color: #17a2b8;
+    background-color: var(--clr-info-bg);
+    color: var(--clr-info-text);
+    border-color: var(--clr-info-text);
 }
 
 .toast-notification.warning {
-    background-color: #ffc107;
-    color: #333;
+    background-color: var(--clr-warning-bg);
+    color: var(--clr-warning-text);
+    border-color: var(--clr-warning-text);
+}
+
+/* Specific text color adjustments if needed */
+html[data-theme='light'] .toast-notification.warning {
+     color: #333; /* Keep dark text for light warning */
 }

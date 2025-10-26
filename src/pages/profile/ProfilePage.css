@@ -6,6 +6,7 @@
     padding: 2rem;
     min-height: calc(100vh - var(--header-height) - 150px);
     align-items: start;
+    color: var(--clr-text);
 }
 
 .profile-content {
@@ -17,76 +18,104 @@
     font-size: 2rem;
     margin-top: 0;
     margin-bottom: 2rem;
-    color: var(--text-color-dark);
+    color: var(--clr-text);
 }
 
 .profile-info-card {
-    background-color: #ffffff;
+    background-color: var(--clr-card-bg);
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     line-height: 1.6;
+    border: 1px solid var(--clr-border-light);
 }
 .profile-info-card h3 {
     margin-top: 0;
-    color: var(--primary-color-dark);
+    color: var(--clr-primary-dark);
+}
+.profile-info-card p, .profile-info-card label {
+    color: var(--clr-text);
+}
+.profile-info-card p strong {
+    color: var(--clr-text);
 }
 
-/* --- Table (Lịch sử đơn hàng) --- */
+
 .orders-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #ffffff;
+    background-color: var(--clr-card-bg);
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--clr-border-light);
 }
 
 .orders-table th, .orders-table td {
     padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--clr-border-light);
+    color: var(--clr-text);
 }
 
 .orders-table th {
-    background-color: #f8f9fa;
+    background-color: var(--clr-footer-bg);
     font-weight: 600;
-    color: var(--text-color-dark);
+    color: var(--clr-text);
 }
 
 .orders-table td:last-child {
     text-align: center;
 }
+.orders-table a {
+    color: var(--clr-text) !important; /* Override default link color inside table */
+}
+html[data-theme="dark"] .orders-table a {
+     color: var(--clr-text) !important;
+}
+.orders-table a:hover {
+     color: var(--clr-primary) !important;
+}
+html[data-theme="dark"] .orders-table a:hover {
+     color: var(--clr-primary) !important;
+}
+.orders-table td p {
+    color: var(--clr-text-secondary);
+}
 
-/* Status Badges */
+
 .status-badge {
     display: inline-block;
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
+    border: 1px solid transparent;
 }
 .status-completed {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: var(--clr-success-bg);
+    color: var(--clr-success-text);
+    border-color: var(--clr-success-text);
 }
 .status-shipping {
-    background-color: #fff3cd;
-    color: #856404;
+    background-color: var(--clr-warning-bg);
+    color: var(--clr-warning-text);
+    border-color: var(--clr-warning-text);
 }
 .status-cancelled {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: var(--clr-error-bg);
+    color: var(--clr-error-text);
+    border-color: var(--clr-error-text);
 }
-/* NEW STATUS STYLE */
 .status-pending {
-    background-color: #bee5eb;
-    color: #0c5460;
+    background-color: var(--clr-info-bg);
+    color: var(--clr-info-text);
+    border-color: var(--clr-info-text);
 }
 
-.detail-order-btn {
-    background-color: var(--primary-color);
-    color: white;
+.detail-order-btn, .edit-btn, .save-btn {
+    background-color: var(--clr-primary);
+    color: var(--clr-button-text);
     padding: 0.5rem 1rem;
     border-radius: 5px;
     font-size: 0.9rem;
@@ -94,23 +123,46 @@
     transition: background-color 0.2s;
     border: none;
 }
-.detail-order-btn:hover {
-    background-color: var(--primary-color-dark);
+.detail-order-btn:hover, .edit-btn:hover, .save-btn:hover {
+    background-color: var(--clr-primary-dark);
+}
+.cancel-btn {
+     background-color: var(--clr-text-secondary);
+     color: var(--clr-text);
+     padding: 0.5rem 1rem;
+     border-radius: 5px;
+     font-size: 0.9rem;
+     cursor: pointer;
+     transition: background-color 0.2s;
+     border: none;
+}
+.cancel-btn:hover {
+     background-color: var(--clr-border-light);
 }
 
-/* Empty State */
+
 .empty-state {
     text-align: center;
     padding: 4rem;
-    background-color: #ffffff;
+    background-color: var(--clr-card-bg);
     border-radius: var(--border-radius);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--clr-border-light);
 }
 .empty-state p {
-    color: #6c757d;
+    color: var(--clr-text-secondary);
 }
 
-/* Responsive Table */
+.profile-page-not-logged {
+    text-align: center;
+    padding: 4rem;
+    color: var(--clr-text);
+}
+.profile-page-not-logged h2 {
+    color: var(--clr-text);
+}
+
+
 @media screen and (max-width: 768px) {
   .orders-table, .orders-table thead, .orders-table tbody, .orders-table th, .orders-table td, .orders-table tr {
     display: block;
@@ -120,15 +172,15 @@
     top: -9999px;
     left: -9999px;
   }
-  .orders-table tr { 
-    border: 1px solid #ccc;
+  .orders-table tr {
+    border: 1px solid var(--clr-border-light);
     margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
   }
   .orders-table td {
     border: none;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--clr-border-light);
     position: relative;
     padding-left: 50%;
     text-align: right;
@@ -142,11 +194,39 @@
     white-space: nowrap;
     content: attr(data-label);
     font-weight: bold;
-    color: var(--text-color-dark);
+    color: var(--clr-text);
     text-align: left;
     transform: translateY(-50%);
   }
   .orders-table td:last-child {
     text-align: right;
   }
+}
+
+.address-display-group {
+    padding: 1rem;
+    border: 1px solid var(--clr-primary);
+    border-radius: 6px;
+    background-color: var(--clr-footer-bg);
+    color: var(--clr-text);
+}
+html[data-theme="dark"] .address-display-group {
+     border-color: var(--clr-primary);
+}
+.address-display-group p {
+    color: var(--clr-text);
+}
+.address-display-group[style*="#e63946"] { /* Targeting error state specifically */
+    border-color: var(--clr-error-text);
+}
+.address-display-group p[style*="#e63946"] {
+    color: var(--clr-error-text);
+}
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+.default-address-card {
+    border: 2px solid var(--clr-primary) !important;
 }

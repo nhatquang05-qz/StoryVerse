@@ -11,17 +11,18 @@
 .recharge-card-wrapper {
     width: 100%;
     max-width: 600px;
-    background-color: #fff;
+    background-color: var(--clr-card-bg); /* Use theme variable */
     padding: 2rem 2.5rem;
     border-radius: var(--border-radius);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     text-align: left;
+    color: var(--clr-text); /* Use theme variable */
 }
 
 .recharge-card-wrapper h2 {
     margin-top: 0;
     margin-bottom: 1.5rem;
-    color: var(--text-color-dark);
+    color: var(--clr-text); /* Use theme variable */
     font-size: 1.6rem;
     font-weight: 600;
     text-align: center;
@@ -31,18 +32,18 @@
     text-align: center;
     margin-bottom: 2rem;
     padding: 0.8rem;
-    border: 2px solid var(--border-color-light); 
+    border: 2px solid var(--clr-border-light); 
     border-radius: 8px;
-    background: #f8f9fa; 
+    background: var(--clr-background); /* Use theme variable */
 }
 .current-balance-info p {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 500;
-    color: var(--text-color-dark);
+    color: var(--clr-text); /* Use theme variable */
 }
 .coin-amount-display {
-    color: var(--text-color-dark); 
+    color: var(--clr-text); 
     margin-left: 0.5rem;
     display: inline-flex;
     align-items: center;
@@ -68,7 +69,7 @@
 .coin-amount-large {
     font-size: 2rem;
     font-weight: bold;
-    color: var(--primary-color-dark);
+    color: var(--clr-primary-dark);
     margin-right: 0.4rem;
 }
 .coin-icon-large {
@@ -81,9 +82,9 @@
     font-size: 1.4rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
-    color: var(--text-color-dark);
+    color: var(--clr-text); /* Use theme variable */
     font-weight: 600;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--clr-border-light); /* Use theme variable */
     padding-bottom: 0.5rem;
 }
 
@@ -98,19 +99,19 @@
     flex-direction: column;
     justify-content: space-between; 
     
-    border: 1px solid var(--primary-color);
+    border: 1px solid var(--clr-primary);
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    background-color: #ffffff;
+    background-color: var(--clr-card-bg); /* Use theme variable */
 }
 
 .recharge-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-    border-color: var(--primary-color-dark);
+    border-color: var(--clr-primary-dark);
 }
 
 .recharge-content {
@@ -139,20 +140,27 @@
     margin: 0 0 1rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-color-dark);
+    color: var(--clr-text); /* Use theme variable */
 }
 
 .recharge-info-note {
     margin-top: 2rem;
     font-size: 0.85rem;
-    color: #6c757d;
+    color: var(--clr-text-secondary); /* Use theme variable */
     text-align: center;
 }
 
 .auth-button {
     padding: 0.7rem 1rem !important;
     font-size: 1rem !important;
+    background-color: var(--clr-primary) !important; /* Use theme variable */
+    color: var(--clr-button-text) !important; /* Use theme variable */
 }
+
+.auth-button:hover {
+     background-color: var(--clr-primary-dark) !important; /* Use theme variable */
+}
+
 
 @media (max-width: 600px) {
     .recharge-card-wrapper {

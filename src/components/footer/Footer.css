@@ -1,9 +1,8 @@
-/* src/components/footer/Footer.css */
 .footer {
-  background-color: #f8f9fa;
-  color: #6c757d;
+  background-color: var(--clr-footer-bg);
+  color: var(--clr-footer-text);
   padding-top: 4rem;
-  border-top: 1px solid var(--border-color-light);
+  border-top: 1px solid var(--clr-border-light);
 }
 
 .footer-container {
@@ -23,19 +22,20 @@
 .footer-logo {
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   margin: 0 0 1rem 0;
 }
 
 .footer-description {
   line-height: 1.6;
   max-width: 300px;
+  color: var(--clr-footer-text); /* Ensure description uses footer text color */
 }
 
 .footer-title {
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   margin-bottom: 1.5rem;
 }
 
@@ -50,13 +50,13 @@
 }
 
 .footer-links a {
-  color: #6c757d;
+  color: var(--clr-footer-text);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-links a:hover {
-  color: var(--primary-color);
+  color: var(--clr-footer-link-hover);
 }
 
 .social-icons {
@@ -65,13 +65,13 @@
 }
 
 .social-icons a {
-  color: #6c757d;
+  color: var(--clr-footer-text);
   font-size: 1.5rem;
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .social-icons a:hover {
-  color: var(--primary-color);
+  color: var(--clr-footer-link-hover);
   transform: translateY(-3px);
 }
 
@@ -79,9 +79,9 @@
   text-align: center;
   padding: 1.5rem;
   margin-top: 2rem;
-  border-top: 1px solid var(--border-color-light);
+  border-top: 1px solid var(--clr-border-light);
   font-size: 0.9rem;
-  color: #adb5bd;
+  color: var(--clr-text-secondary); /* Use secondary text color */
 }
 
 @media (max-width: 600px) {

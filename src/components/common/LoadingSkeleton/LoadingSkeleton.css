@@ -1,13 +1,12 @@
-/* src/components/common/LoadingSkeleton/LoadingSkeleton.css */
 @keyframes pulse {
     0% {
-        background-color: rgba(200, 200, 200, 0.5);
+        background-color: var(--clr-skeleton-pulse-start);
     }
     50% {
-        background-color: rgba(200, 200, 200, 0.9);
+        background-color: var(--clr-skeleton-pulse-mid);
     }
     100% {
-        background-color: rgba(200, 200, 200, 0.5);
+        background-color: var(--clr-skeleton-pulse-start);
     }
 }
 
@@ -23,8 +22,8 @@
     display: flex;
     flex-direction: column;
     padding: 1rem;
-    background-color: #ffffff;
-    border: 1px solid var(--border-color-light);
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border-light);
 }
 
 .skeleton-image {

@@ -1,13 +1,14 @@
 .flying-image {
-  position: fixed; 
-  z-index: 9999; 
+  position: fixed;
+  z-index: 9999;
   border-radius: 5px;
   object-fit: cover;
-  transition: left 0.6s cubic-bezier(0.3, 0.27, 0.07, 1), /* Chuyển động ngang (hơi chậm dần) */
-              top 0.6s cubic-bezier(0, .8, .6, 1), /* Chuyển động dọc (cong lên) */
-              width 0.6s ease-in-out, 
+  transition: left 0.6s cubic-bezier(0.3, 0.27, 0.07, 1),
+              top 0.6s cubic-bezier(0, .8, .6, 1),
+              width 0.6s ease-in-out,
               height 0.6s ease-in-out,
-              opacity 0.6s ease-out, 
-              transform 0.6s ease; 
+              opacity 0.6s ease-out,
+              transform 0.6s ease;
+  /* Background color added for dark mode visibility if image has transparency */
+  background-color: var(--clr-card-bg);
 }
-

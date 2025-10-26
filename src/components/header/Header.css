@@ -1,25 +1,13 @@
-/* src/components/header/Header.css */
-:root {
-  --primary-color: #646cff;
-  --primary-color-dark: #535bf2;
-  --header-bg: #ffffff;
-  --text-color-dark: #213547;
-  --text-secondary-color-dark: #888888;
-  --border-color-light: #e0e0e0;
-  --border-radius: 8px;
-  --header-height: 70px;
-}
-
 .header {
-  background-color: var(--header-bg);
-  color: var(--text-color-dark);
+  background-color: var(--clr-header-bg);
+  color: var(--clr-text);
   padding: 0 1.5rem;
   height: var(--header-height);
   position: sticky;
   top: 0;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid var(--border-color-light);
+  border-bottom: 1px solid var(--clr-border-light);
 }
 
 .header-container {
@@ -34,7 +22,7 @@
 .logo {
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   text-decoration: none;
 }
 
@@ -47,7 +35,7 @@
 }
 
 .nav-desktop a {
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
@@ -61,7 +49,7 @@
   position: absolute;
   width: 0;
   height: 2px;
-  background-color: var(--primary-color);
+  background-color: var(--clr-primary);
   bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
@@ -70,7 +58,7 @@
 
 .nav-desktop a:hover {
   transform: translateY(-3px);
-  color: var(--primary-color);
+  color: var(--clr-primary);
 }
 
 .nav-desktop a:hover::after {
@@ -78,7 +66,7 @@
 }
 
 .dropdown-btn {
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
@@ -97,7 +85,7 @@
   position: absolute;
   width: 0;
   height: 2px;
-  background-color: var(--primary-color);
+  background-color: var(--clr-primary);
   bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
@@ -105,7 +93,7 @@
 }
 
 .dropdown-btn:hover {
-  color: var(--primary-color);
+  color: var(--clr-primary);
   transform: translateY(-3px);
 }
 
@@ -127,12 +115,13 @@
   right: 0;
   left: auto;
   padding-top: 1rem;
-  background-color: var(--header-bg);
+  background-color: var(--clr-header-bg);
   min-width: 200px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
   z-index: 1;
   border-radius: var(--border-radius);
   padding-bottom: 0.5rem;
+  border: 1px solid var(--clr-border-light);
 }
 
 .dropdown:hover .dropdown-content {
@@ -142,25 +131,24 @@
 }
 
 .dropdown-content a {
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   padding: 12px 16px;
   display: block;
   text-align: left;
   text-decoration: none;
 }
 .dropdown-content a:hover {
-  background-color: #f6f6f6;
-  color: var(--primary-color);
+  background-color: rgba(128, 128, 128, 0.1);
+  color: var(--clr-primary);
 }
 
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem; /* GIẢM GAP */
+  gap: 1rem;
 }
 
-/* SEARCH BAR VÀ SUGGESTIONS WRAPPER */
 .search-wrapper {
     position: relative;
 }
@@ -168,38 +156,43 @@
 .search-bar {
   display: flex;
   align-items: center;
-  border: 1px solid var(--border-color-light);
+  border: 1px solid var(--clr-border-light);
   border-radius: var(--border-radius);
   padding-left: 0.8rem;
   height: 40px;
+  background-color: var(--clr-card-bg);
 }
 
 .search-bar input {
   background: transparent;
   border: none;
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   outline: none;
   width: 150px;
   padding: 0.5rem 0;
 }
+.search-bar input::placeholder {
+    color: var(--clr-text-secondary);
+    opacity: 0.7;
+}
+
 
 .search-btn {
   background: transparent;
   border: none;
-  color: var(--text-secondary-color-dark);
+  color: var(--clr-text-secondary);
   padding: 0.5rem;
   cursor: pointer;
   display: flex;
 }
 
-/* SUGGESTIONS DROPDOWN STYLE */
 .search-suggestions-dropdown {
     position: absolute;
     top: 45px;
     left: 0;
     width: 300px;
-    background-color: var(--header-bg);
-    border: 1px solid var(--border-color-light);
+    background-color: var(--clr-header-bg);
+    border: 1px solid var(--clr-border-light);
     border-radius: var(--border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     z-index: 1001;
@@ -214,7 +207,7 @@
     transition: background-color 0.2s;
 }
 .suggestion-item:hover {
-    background-color: #f0f0f0;
+    background-color: rgba(128, 128, 128, 0.1);
 }
 
 .suggestion-item img {
@@ -231,13 +224,13 @@
 .suggestion-title {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-color-dark);
+    color: var(--clr-text);
     margin: 0;
     line-height: 1.2;
 }
 .suggestion-author {
     font-size: 0.8rem;
-    color: #6c757d;
+    color: var(--clr-text-secondary);
     margin: 0;
 }
 
@@ -246,19 +239,19 @@
     text-align: center;
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
-    color: var(--primary-color);
+    color: var(--clr-primary);
     font-weight: 500;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--clr-border-light);
     margin-top: 0.5rem;
 }
 .suggestion-view-all:hover {
-    color: var(--primary-color-dark);
+    color: var(--clr-primary-dark);
     text-decoration: underline;
 }
 
 
 .action-icon {
-  color: var(--text-color-dark);
+  color: var(--clr-text);
   font-size: 1.5rem;
   position: relative;
   cursor: pointer;
@@ -277,7 +270,7 @@
   position: absolute;
   top: -5px;
   right: -8px;
-  background-color: #e63946;
+  background-color: var(--clr-error-text);
   color: white;
   border-radius: 50%;
   width: 18px;
@@ -288,19 +281,18 @@
   justify-content: center;
 }
 
-/* STYLE MỚI CHO SỐ DƯ XU */
 .coin-balance-display {
     display: flex;
     align-items: center;
-    gap: 0.3rem; /* GIẢM GAP */
-    background-color: #f0f4f7;
+    gap: 0.3rem;
+    background-color: var(--clr-footer-bg);
     padding: 0.3rem 0.8rem;
     border-radius: 20px;
     font-weight: 600;
-    color: var(--text-color-dark);
+    color: var(--clr-text);
 }
 .coin-icon {
-    width: 18px; /* ĐIỀU CHỈNH KÍCH THƯỚC */
+    width: 18px;
     height: 18px;
 }
 .coin-amount {
@@ -309,21 +301,50 @@
 
 
 .login-btn {
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
   padding: 0.6rem 1.2rem;
   border-radius: var(--border-radius);
   text-decoration: none;
   font-weight: bold;
 }
+.login-btn:hover {
+   background-color: var(--clr-primary-dark);
+}
 
 .menu-toggle {
   display: none;
+  color: var(--clr-text);
 }
 
 .nav-mobile {
   display: none;
+  background-color: var(--clr-header-bg);
+  border-bottom-color: var(--clr-border-light);
 }
+.nav-mobile a {
+  color: var(--clr-text);
+}
+ .coin-balance-display.mobile-coin-balance {
+   color: var(--clr-text);
+ }
+.nav-mobile-separator {
+    background-color: var(--clr-border-light);
+}
+.nav-mobile-login-btn {
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
+}
+.logout-btn-mobile {
+   color: var(--clr-error-text);
+}
+ .search-bar.mobile-search-bar {
+    border-color: var(--clr-border-light);
+ }
+  .search-bar.mobile-search-bar .search-btn {
+    color: var(--clr-primary);
+  }
+
 
 @media (max-width: 1150px) {
   .nav-desktop,
@@ -332,14 +353,15 @@
   .header-actions .action-icon,
   .header-actions .dropdown,
   .header-actions .login-btn {
-    display: none;
+    &:not(.theme-toggle-button-wrapper) {
+        display: none;
+    }
   }
 
   .menu-toggle {
     display: block;
     background: none;
     border: none;
-    color: var(--text-color-dark);
     font-size: 1.8rem;
     cursor: pointer;
   }
@@ -347,36 +369,24 @@
   .nav-mobile {
     display: flex;
     flex-direction: column;
-    background-color: var(--header-bg);
     position: absolute;
     top: var(--header-height);
     left: 0;
     width: 100%;
     padding: 1rem 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border-bottom: 1px solid var(--border-color-light);
   }
 
   .nav-mobile a {
-    color: var(--text-color-dark);
-    text-decoration: none;
     padding: 1rem 2rem;
     text-align: left;
   }
 
-  /* HIỂN THỊ SỐ DƯ XU TRÊN MOBILE */
   .coin-balance-display.mobile-coin-balance {
       display: flex;
       padding: 0.8rem 2rem;
       background: none;
       font-size: 1rem;
-      color: var(--text-color-dark);
-  }
-
-  .nav-mobile-separator {
-    height: 1px;
-    background-color: var(--border-color-light);
-    margin: 0.5rem 2rem;
   }
 
   .nav-mobile-action {
@@ -389,8 +399,6 @@
     margin: 0.5rem 2rem;
     padding: 0.8rem;
     text-align: center;
-    background-color: var(--primary-color);
-    color: white;
     border-radius: var(--border-radius);
     font-weight: bold;
   }
@@ -398,7 +406,6 @@
    .logout-btn-mobile {
     background: none;
     border: none;
-    color: #e63946;
     padding: 1rem 2rem;
     text-align: left;
     width: 100%;
@@ -409,7 +416,6 @@
 
   .search-bar.mobile-search-bar {
     display: flex;
-    border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius);
     margin: 0.5rem 2rem 1rem 2rem;
     padding: 0;
@@ -428,7 +434,6 @@
   .search-bar.mobile-search-bar .search-btn {
     padding: 0.5rem 1rem;
     height: 100%;
-    color: var(--primary-color);
   }
 }
 
@@ -442,7 +447,7 @@
 }
 .user-dropdown a,
 .user-dropdown .logout-btn {
-  color: var(--text-color-dark);
+  color: var(--clr-text);
 }
 
 .logout-btn {
@@ -461,17 +466,19 @@
 }
 
 .logout-btn:hover {
-  color: #e63946;
-  background-color: #fdecec;
+  color: var(--clr-error-text);
+  background-color: var(--clr-error-bg);
 }
 .user-icon {
-  background-color: #Fff;
+  background-color: transparent;
 }
 
 .dropdown.mega-dropdown .dropdown-content {
   min-width: 400px;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
+  border-color: var(--clr-border-light);
+  background-color: var(--clr-header-bg);
 }
 .dropdown.mega-dropdown:hover .dropdown-content {
     transform: translateX(-50%) translateY(0);
@@ -486,7 +493,7 @@
 .dropdown-column {
   flex: 1;
   padding: 0 1rem;
-  border-right: 1px solid var(--border-color-light);
+  border-right: 1px solid var(--clr-border-light);
 }
 
 .dropdown-column:last-child {
@@ -496,15 +503,21 @@
 .dropdown-column h4 {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--primary-color-dark);
+  color: var(--clr-primary-dark);
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--clr-border-light);
 }
 
 .dropdown-column a {
   padding: 8px 0;
+  color: var(--clr-text);
 }
+.dropdown-column a:hover {
+    color: var(--clr-primary);
+    background-color: transparent;
+}
+
 
 @media (max-width: 900px) {
   .dropdown.mega-dropdown .dropdown-content {

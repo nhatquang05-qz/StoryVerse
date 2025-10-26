@@ -13,22 +13,23 @@
 .category-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--primary-color-dark);
+    color: var(--clr-text); /* Use theme variable */
     margin: 0 0 0.5rem 0;
 }
 
 .category-header p {
     font-size: 1.1rem;
-    color: #6c757d;
+    color: var(--clr-text-secondary); /* Use theme variable */
     margin: 0;
 }
 
 .empty-state {
     text-align: center;
     padding: 4rem;
-    background-color: #f8f9fa;
+    background-color: var(--clr-footer-bg); /* Use footer bg */
     border-radius: var(--border-radius);
     margin: 0 1.5rem;
+    color: var(--clr-text); /* Ensure text color */
 }
 
 .filter-sort-bar {
@@ -44,16 +45,17 @@
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
-    color: var(--text-color-dark);
+    color: var(--clr-text); /* Use theme variable */
 }
 
 .filter-sort-group select {
     padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color-light);
+    border: 1px solid var(--clr-border-light); /* Use theme variable */
     border-radius: var(--border-radius);
     font-size: 1rem;
     cursor: pointer;
-    background-color: white;
+    background-color: var(--clr-card-bg); /* Use theme variable */
+    color: var(--clr-text); /* Use theme variable */
 }
 
 @media (max-width: 768px) {
