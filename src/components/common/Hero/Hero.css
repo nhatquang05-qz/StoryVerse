@@ -1,12 +1,14 @@
 .hero-slider {
   height: auto;
   min-height: 400px;
-  background: var(--clr-hero-bg);
+  /* KHÔI PHỤC background color */
+  background: var(--clr-hero-bg); 
   padding: 3rem 2rem;
   text-align: center;
   color: var(--clr-hero-text);
   position: relative;
   overflow: hidden;
+  /* BỎ box-shadow (lớp phủ) */
 }
 
 .hero-info {
@@ -52,6 +54,7 @@
   cursor: default;
   caret-color: transparent;
   overflow: visible;
+  /* Giữ nguyên drop-shadow cho ảnh */
   filter: drop-shadow(2px 4px 6px black);
 }
 
