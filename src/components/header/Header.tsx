@@ -4,6 +4,7 @@ import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign } 
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { comics } from '../../data/mockData';
+import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton'; // Import component mới
 import './Header.css';
 
 const MAX_SUGGESTIONS = 5;
@@ -147,6 +148,8 @@ const Header: React.FC = () => {
             )}
           </div>
 
+          <ThemeToggleButton /> {/* Thêm nút chuyển đổi theme */}
+
           <Link to="/wishlist" className="action-icon" aria-label="Danh sách yêu thích">
             <FiHeart />
           </Link>
@@ -201,6 +204,9 @@ const Header: React.FC = () => {
           <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>
           <Link to="/genres" onClick={toggleMenu}>Thể Loại</Link>
           <div className="nav-mobile-separator"></div>
+           <div style={{ padding: '0 2rem', marginBottom: '1rem' }}> {/* Wrapper cho nút theme mobile */}
+              <ThemeToggleButton />
+           </div>
           <Link to="/wishlist" onClick={toggleMenu} className="nav-mobile-action">
             <FiHeart /> <span>Yêu Thích</span>
           </Link>

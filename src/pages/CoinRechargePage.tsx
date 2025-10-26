@@ -6,10 +6,12 @@ import '../pages/AuthPage.css';
 import './CoinRechargePage.css';
 
 const rechargePacks = [
-    { id: 1, coins: 1000, price: 100000, bonus: 0 },
-    { id: 2, coins: 2500, price: 250000, bonus: 100 },
-    { id: 3, coins: 5000, price: 500000, bonus: 300 },
-    { id: 4, coins: 10000, price: 1000000, bonus: 800 },
+    { id: 1, coins: 500, price: 20000, bonus: 50 },
+    { id: 2, coins: 1500, price: 50000, bonus: 100 },
+    { id: 3, coins: 3100, price: 100000, bonus: 300 },
+    { id: 4, coins: 6500, price: 2000000, bonus: 800 },
+    { id: 5, coins: 20000, price: 500000, bonus: 1200 },
+    { id: 6, coins: 45000, price: 1000000, bonus: 2000 },
 ];
 
 const CoinRechargePage: React.FC = () => {
@@ -81,7 +83,7 @@ const CoinRechargePage: React.FC = () => {
                 <div className="current-balance-info">
                     <p>
                         Số dư hiện tại: <span className="coin-amount-display">
-                            {currentUser.coinBalance} <span className="coin-text">Xu</span>
+                            {currentUser.coinBalance} <pre className="coin-text"> Xu</pre>
                         </span>
                     </p>
                 </div>

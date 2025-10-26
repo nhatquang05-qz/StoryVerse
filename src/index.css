@@ -65,3 +65,122 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+:root {
+  --clr-background: #ffffff; 
+  --clr-text: #213547; 
+  --clr-header-bg: #ffffff;
+  --clr-card-bg: #ffffff;
+  --clr-border-light: #e0e0e0;
+  --clr-text-secondary: #6c757d;
+  --clr-primary: #646cff;
+  --clr-primary-dark: #535bf2;
+  --clr-button-text: white;
+  --clr-footer-bg: #f8f9fa;
+  --clr-footer-text: #6c757d;
+  --clr-footer-link-hover: var(--clr-primary);
+  color-scheme: light; 
+}
+
+html[data-theme="dark"] {
+  --clr-background: #1a1a1a; 
+  --clr-text: rgba(255, 255, 255, 0.87); 
+  --clr-header-bg: #242424;
+  --clr-card-bg: #2a2a2a;
+  --clr-border-light: #3a3a3a;
+  --clr-text-secondary: #888888;
+  --clr-primary: #747bff; 
+  --clr-primary-dark: #535bf2;
+  --clr-button-text: white;
+  --clr-footer-bg: #242424;
+  --clr-footer-text: #adb5bd;
+  --clr-footer-link-hover: var(--clr-primary);
+
+
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--clr-background);
+  color: var(--clr-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.header {
+  background-color: var(--clr-header-bg);
+  color: var(--clr-text);
+  border-bottom-color: var(--clr-border-light);
+}
+.logo, .nav-desktop a, .dropdown-btn, .action-icon, .coin-balance-display, .suggestion-title {
+  color: var(--clr-text);
+}
+.search-bar {
+  border-color: var(--clr-border-light);
+}
+.search-bar input {
+  color: var(--clr-text);
+}
+.search-btn {
+  color: var(--clr-text-secondary);
+}
+.login-btn {
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
+}
+.login-btn:hover {
+   background-color: var(--clr-primary-dark);
+}
+
+.product-card {
+  border-color: var(--clr-border-light);
+  background-color: var(--clr-card-bg); 
+}
+.card-title a {
+  color: var(--clr-text);
+}
+.card-author {
+  color: var(--clr-text-secondary);
+}
+.card-price {
+  color: var(--clr-primary);
+}
+
+.footer {
+  background-color: var(--clr-footer-bg);
+  color: var(--clr-footer-text);
+  border-top-color: var(--clr-border-light);
+}
+.footer-logo, .footer-title {
+  color: var(--clr-text);
+}
+.footer-links a, .social-icons a {
+ color: var(--clr-footer-text);
+}
+.footer-links a:hover, .social-icons a:hover {
+  color: var(--clr-footer-link-hover);
+}
+.footer-bottom {
+  border-top-color: var(--clr-border-light);
+}
+
+.recharge-card-wrapper {
+   background-color: var(--clr-card-bg);
+   color: var(--clr-text);
+}
+.recharge-card-wrapper h2, .pack-selection-title, .recharge-price {
+    color: var(--clr-text);
+}
+.current-balance-info {
+   background: var(--clr-background);
+   border-color: var(--clr-border-light);
+}
+.current-balance-info p, .coin-amount-display {
+   color: var(--clr-text);
+}
+.recharge-card {
+   background-color: var(--clr-card-bg);
+   border-color: var(--clr-primary);
+}
+.recharge-card:hover {
+   border-color: var(--clr-primary-dark);
+}
