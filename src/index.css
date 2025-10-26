@@ -48,7 +48,7 @@
   color-scheme: light;
 }
 
-html[data-theme="dark"] {
+html[data-theme="night"] {
   --clr-background: #1a1a1a;
   --clr-text: rgba(255, 255, 255, 0.87);
   --clr-header-bg: #242424;
@@ -81,7 +81,7 @@ html[data-theme="dark"] {
   --clr-hero-nav-bg: rgba(40, 40, 40, 0.5);
   --clr-hero-nav-hover-bg: rgba(60, 60, 60, 0.7);
 
-  color-scheme: dark;
+  color-scheme: night;
 }
 
 body {
