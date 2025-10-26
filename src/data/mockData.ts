@@ -181,3 +181,18 @@ export const newReleasesComics: Comic[] = [...comics]
 export const recommendedDigitalComics: Comic[] = digitalComics
     .filter(c => c.genres.includes('Fantasy'))
     .slice(0, 10);
+    
+interface FeaturedTag {
+  name: string;
+  count: number;
+  imageUrl: string; 
+  color: string; 
+  link: string; 
+}
+
+const featuredTagsData: FeaturedTag[] = [
+  { name: 'ACTION', count: 5379, imageUrl: '/path/to/action-image.png', color: '#4A90E2', link: '/genres/action' },
+  { name: 'ROMANCE', count: 5364, imageUrl: '/path/to/romance-image.png', color: '#D95C5C', link: '/genres/romance' },
+  { name: 'COMEDY', count: 5078, imageUrl: '/path/to/comedy-image.png', color: '#50E3C2', link: '/genres/comedy' },
+  { name: 'FANTASY', count: 3463, imageUrl: '/path/to/fantasy-image.png', color: '#AE81FF', link: '/genres/fantasy' },
+];
