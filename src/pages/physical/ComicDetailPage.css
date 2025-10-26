@@ -139,7 +139,7 @@
 .detail-description {
   margin-top: 1rem;
   line-height: 1.8;
-  color: var(--clr-text); /* Adjusted from #495057 */
+  color: var(--clr-text);
 }
 .detail-description h3 {
   margin-bottom: 0.5rem;
@@ -189,21 +189,19 @@
   width: 250px;
 }
 .wishlist-btn-detail:hover {
-  background-color: #4a51e6; /* Consider using a variable if this color is reused */
+  background-color: #4a51e6;
 }
 .wishlist-btn-detail.favorite {
   background-color: var(--clr-error-text);
 }
 .wishlist-btn-detail.favorite:hover {
-  background-color: #d82d3b; /* Slightly darker error color */
+  background-color: #d82d3b;
 }
 
 .main-cart-btn {
     flex-grow: 1;
     max-width: 300px;
 }
-
-/* Skeleton styles already use variables from index.css */
 
 .detail-skeleton-wrapper {
     display: grid;
@@ -242,7 +240,7 @@
     width: 40%;
     margin-bottom: 2rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--clr-border-light); /* Use theme variable */
+    border-bottom: 1px solid var(--clr-border-light);
 }
 
 .detail-skeleton-actions {
@@ -281,12 +279,28 @@
 }
 
 .digital-price-info .detail-price {
-    color: var(--clr-text); /* Ensure consistency */
+    color: var(--clr-text);
 }
 .digital-price-info .detail-price span {
-    color: var(--clr-coin-color); /* Coin color for price */
+    color: var(--clr-coin-color);
 }
-
-html[data-theme="dark"] .digital-price-info .detail-price[style*="#28a745"] {
-    color: var(--clr-success-text); /* Use success text color in dark mode */
+.digital-price-info .detail-price[style*="#28a745"] {
+    color: var(--clr-success-text);
+}
+.coin-warning-text {
+    color: var(--clr-primary-dark) !important;
+}
+.add-to-cart-btn[style*="#17a2b8"] {
+    background-color: var(--clr-info-bg) !important;
+    color: var(--clr-info-text) !important;
+    border: 1px solid var(--clr-info-text);
+}
+.add-to-cart-btn[style*="#ffc107"] {
+    background-color: var(--clr-coin-color) !important;
+    color: #333 !important;
+}
+.add-to-cart-btn[style*="#28a745"] {
+    background-color: var(--clr-success-bg) !important;
+    color: var(--clr-success-text) !important;
+    border: 1px solid var(--clr-success-text);
 }

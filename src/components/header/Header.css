@@ -308,9 +308,9 @@
   text-decoration: none;
   font-weight: bold;
 }
-.login-btn:hover {
-   background-color: var(--clr-primary-dark);
-}
+ .login-btn:hover {
+    background-color: var(--clr-primary-dark);
+ }
 
 .menu-toggle {
   display: none;
@@ -327,6 +327,9 @@
 }
  .coin-balance-display.mobile-coin-balance {
    color: var(--clr-text);
+   background: none;
+   padding: 0.8rem 2rem;
+   font-size: 1rem;
  }
 .nav-mobile-separator {
     background-color: var(--clr-border-light);
@@ -336,10 +339,19 @@
   color: var(--clr-button-text);
 }
 .logout-btn-mobile {
+   background: none;
+   border: none;
    color: var(--clr-error-text);
+   padding: 1rem 2rem;
+   text-align: left;
+   width: 100%;
+   cursor: pointer;
+   font-family: inherit;
+   font-size: 1rem;
 }
  .search-bar.mobile-search-bar {
     border-color: var(--clr-border-light);
+    background-color: var(--clr-card-bg);
  }
   .search-bar.mobile-search-bar .search-btn {
     color: var(--clr-primary);
@@ -382,13 +394,6 @@
     text-align: left;
   }
 
-  .coin-balance-display.mobile-coin-balance {
-      display: flex;
-      padding: 0.8rem 2rem;
-      background: none;
-      font-size: 1rem;
-  }
-
   .nav-mobile-action {
     display: flex;
     align-items: center;
@@ -402,17 +407,6 @@
     border-radius: var(--border-radius);
     font-weight: bold;
   }
-
-   .logout-btn-mobile {
-    background: none;
-    border: none;
-    padding: 1rem 2rem;
-    text-align: left;
-    width: 100%;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 1rem;
-   }
 
   .search-bar.mobile-search-bar {
     display: flex;

@@ -16,7 +16,7 @@ const ThemeToggleButton: React.FC = () => {
   const [theme, setTheme] = useState<'day' | 'night'>(() => {
     // Ưu tiên theme đã lưu hoặc theme hệ thống
     const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: night)').matches;
     return (savedTheme as 'day' | 'night') || (prefersDark ? 'night' : 'day');
   });
 

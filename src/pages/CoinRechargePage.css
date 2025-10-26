@@ -11,18 +11,18 @@
 .recharge-card-wrapper {
     width: 100%;
     max-width: 600px;
-    background-color: var(--clr-card-bg); /* Use theme variable */
+    background-color: var(--clr-card-bg);
     padding: 2rem 2.5rem;
     border-radius: var(--border-radius);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     text-align: left;
-    color: var(--clr-text); /* Use theme variable */
+    color: var(--clr-text);
 }
 
 .recharge-card-wrapper h2 {
     margin-top: 0;
     margin-bottom: 1.5rem;
-    color: var(--clr-text); /* Use theme variable */
+    color: var(--clr-text);
     font-size: 1.6rem;
     font-weight: 600;
     text-align: center;
@@ -34,13 +34,13 @@
     padding: 0.8rem;
     border: 2px solid var(--clr-border-light); 
     border-radius: 8px;
-    background: var(--clr-background); /* Use theme variable */
+    background: var(--clr-background);
 }
 .current-balance-info p {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 500;
-    color: var(--clr-text); /* Use theme variable */
+    color: var(--clr-text);
 }
 .coin-amount-display {
     color: var(--clr-text); 
@@ -50,7 +50,7 @@
     font-weight: bold;
 }
 .coin-text {
-    color: #ffc107; 
+    color: var(--clr-coin-color); 
     font-size: 1.1em;
 }
 
@@ -82,9 +82,9 @@
     font-size: 1.4rem;
     margin-top: 0;
     margin-bottom: 1.5rem;
-    color: var(--clr-text); /* Use theme variable */
+    color: var(--clr-text);
     font-weight: 600;
-    border-bottom: 1px solid var(--clr-border-light); /* Use theme variable */
+    border-bottom: 1px solid var(--clr-border-light);
     padding-bottom: 0.5rem;
 }
 
@@ -101,11 +101,11 @@
     
     border: 1px solid var(--clr-primary);
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    background-color: var(--clr-card-bg); /* Use theme variable */
+    background-color: var(--clr-card-bg);
 }
 
 .recharge-card:hover {
@@ -124,7 +124,7 @@
 
 .recharge-bonus {
     margin: 0.2rem 0 0.5rem 0; 
-    color: #e63946;
+    color: var(--clr-error-text);
     font-weight: bold;
     font-size: 0.9rem;
     line-height: 1;
@@ -140,25 +140,25 @@
     margin: 0 0 1rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--clr-text); /* Use theme variable */
+    color: var(--clr-text);
 }
 
 .recharge-info-note {
     margin-top: 2rem;
     font-size: 0.85rem;
-    color: var(--clr-text-secondary); /* Use theme variable */
+    color: var(--clr-text-secondary);
     text-align: center;
 }
 
 .auth-button {
     padding: 0.7rem 1rem !important;
     font-size: 1rem !important;
-    background-color: var(--clr-primary) !important; /* Use theme variable */
-    color: var(--clr-button-text) !important; /* Use theme variable */
+    background-color: var(--clr-primary) !important;
+    color: var(--clr-button-text) !important;
 }
 
 .auth-button:hover {
-     background-color: var(--clr-primary-dark) !important; /* Use theme variable */
+     background-color: var(--clr-primary-dark) !important;
 }
 
 

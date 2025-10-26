@@ -2,8 +2,8 @@
     visibility: hidden;
     min-width: 250px;
     margin-left: -125px;
-    background-color: #333; /* Default dark background */
-    color: #fff; /* Default light text */
+    background-color: #333;
+    color: #fff;
     text-align: center;
     border-radius: var(--border-radius);
     padding: 16px;
@@ -24,7 +24,6 @@
     bottom: 50px;
 }
 
-/* Use theme variables for notification types */
 .toast-notification.success {
     background-color: var(--clr-success-bg);
     color: var(--clr-success-text);
@@ -49,7 +48,6 @@
     border-color: var(--clr-warning-text);
 }
 
-/* Specific text color adjustments if needed */
 html[data-theme='light'] .toast-notification.warning {
-     color: #333; /* Keep dark text for light warning */
+     color: #333;
 }

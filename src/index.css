@@ -75,10 +75,10 @@ html[data-theme="dark"] {
   --clr-link-hover: #747bff;
   --clr-skeleton-pulse-start: rgba(58, 58, 58, 0.5);
   --clr-skeleton-pulse-mid: rgba(58, 58, 58, 0.9);
-  --clr-hero-bg: #0e1624; /* Giữ nguyên hoặc chỉnh tối hơn nếu muốn */
+  --clr-hero-bg: #0e1624;
   --clr-hero-text: #ffffff;
   --clr-hero-highlight: #e63946;
-  --clr-hero-nav-bg: rgba(40, 40, 40, 0.5); /* Đổi màu nút nav tối */
+  --clr-hero-nav-bg: rgba(40, 40, 40, 0.5);
   --clr-hero-nav-hover-bg: rgba(60, 60, 60, 0.7);
 
   color-scheme: dark;
@@ -275,7 +275,7 @@ html[data-theme="dark"] .cancel-btn:hover {
 }
 
 .auth-page {
-    background-color: var(--clr-footer-bg); /* Use footer bg for auth page bg */
+    background-color: var(--clr-footer-bg);
 }
 .auth-container {
     background-color: var(--clr-card-bg);
@@ -297,7 +297,7 @@ html[data-theme="dark"] .cancel-btn:hover {
 }
 
 .cart-summary {
-    background-color: var(--clr-footer-bg); /* Use footer bg for cart summary */
+    background-color: var(--clr-footer-bg);
     color: var(--clr-text);
 }
 .cart-summary h2 {
@@ -308,26 +308,4 @@ html[data-theme="dark"] .cancel-btn:hover {
 }
 .total-price {
     color: var(--clr-primary);
-}
-
-#root {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-.main-content {
-  flex-grow: 1;
-  max-width: 1536px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }

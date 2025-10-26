@@ -54,14 +54,14 @@
     align-items: center;
     border: 1px solid var(--clr-border-light);
     border-radius: var(--border-radius);
-    background-color: var(--clr-card-bg); /* Use card background */
+    background-color: var(--clr-card-bg);
 }
 .quantity-selector button {
     background: none;
     border: none;
     padding: 0.5rem;
     cursor: pointer;
-    color: var(--clr-text); /* Use theme text color */
+    color: var(--clr-text);
 }
 .quantity-selector input {
     width: 40px;
@@ -69,8 +69,8 @@
     border: none;
     border-left: 1px solid var(--clr-border-light);
     border-right: 1px solid var(--clr-border-light);
-    background: transparent; /* Make input transparent */
-    color: var(--clr-text); /* Use theme text color */
+    background: transparent;
+    color: var(--clr-text);
 }
 .remove-btn {
     background: none;
@@ -78,7 +78,7 @@
     color: var(--clr-error-text);
     cursor: pointer;
     font-size: 1.2rem;
-    padding: 0; /* Remove padding */
+    padding: 0;
 }
 .cart-summary {
     background-color: var(--clr-footer-bg);

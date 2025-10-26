@@ -12,12 +12,12 @@
   padding: 2rem;
   width: 100%;
   box-sizing: border-box;
-  background-color: var(--clr-background); /* Ensure main content uses theme background */
+  background-color: var(--clr-background);
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--clr-background); /* Ensure app container uses theme background */
+  background-color: var(--clr-background);
 }

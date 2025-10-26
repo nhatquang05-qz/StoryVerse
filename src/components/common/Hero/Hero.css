@@ -1,6 +1,6 @@
 .hero-slider {
-  height: auto; /* Adjust height based on content */
-  min-height: 400px; /* Minimum height */
+  height: auto;
+  min-height: 400px;
   background: var(--clr-hero-bg);
   padding: 3rem 2rem;
   text-align: center;
@@ -31,7 +31,7 @@
   display: flex;
   justify-content: center;
   position: relative;
-  height: 380px; /* Adjust as needed */
+  height: 380px;
 }
 
 .hero-group {
@@ -52,7 +52,6 @@
   cursor: default;
   caret-color: transparent;
   overflow: visible;
-  /* Add subtle shadow for depth */
   filter: drop-shadow(2px 4px 6px black);
 }
 

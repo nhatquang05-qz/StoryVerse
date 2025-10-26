@@ -68,7 +68,7 @@
     text-align: center;
 }
 .orders-table a {
-    color: var(--clr-text) !important; /* Override default link color inside table */
+    color: var(--clr-text) !important;
 }
 html[data-theme="dark"] .orders-table a {
      color: var(--clr-text) !important;
@@ -216,7 +216,7 @@ html[data-theme="dark"] .address-display-group {
 .address-display-group p {
     color: var(--clr-text);
 }
-.address-display-group[style*="#e63946"] { /* Targeting error state specifically */
+.address-display-group[style*="#e63946"] {
     border-color: var(--clr-error-text);
 }
 .address-display-group p[style*="#e63946"] {

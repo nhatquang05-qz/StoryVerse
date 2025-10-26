@@ -29,7 +29,7 @@
 .footer-description {
   line-height: 1.6;
   max-width: 300px;
-  color: var(--clr-footer-text); /* Ensure description uses footer text color */
+  color: var(--clr-footer-text);
 }
 
 .footer-title {
@@ -81,7 +81,7 @@
   margin-top: 2rem;
   border-top: 1px solid var(--clr-border-light);
   font-size: 0.9rem;
-  color: var(--clr-text-secondary); /* Use secondary text color */
+  color: var(--clr-text-secondary);
 }
 
 @media (max-width: 600px) {

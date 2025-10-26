@@ -42,8 +42,6 @@
   color: var(--clr-text);
 }
 
-/* Input styles already use variables from index.css */
-
 .auth-button {
   background-color: var(--clr-primary);
   color: var(--clr-button-text);
