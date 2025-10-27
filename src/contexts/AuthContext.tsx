@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, type ReactNode } from 'react';
+import React, { createContext, useState, useContext, type ReactNode, useCallback } from 'react';
 import { useNotification } from './NotificationContext';
 import { saveNewOrder, loadOrders } from '../data/mockData';
 import { type OrderItem } from '../data/mockData';
@@ -20,7 +20,9 @@ export interface User {
   addresses: Address[];
   coinBalance: number;
   lastDailyLogin: string;
-  consecutiveLoginDays: number; 
+  consecutiveLoginDays: number;
+  level: number;
+  exp: number; // Percentage 0-100
 }
 
 interface AuthContextType {
@@ -28,9 +30,11 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (profileData: Partial<User>) => Promise<void>;
+  updateProfile: (profileData: Partial<User>) => Promise<User | null>; 
   updateAddresses: (addresses: Address[]) => Promise<void>;
   claimDailyReward: () => Promise<void>;
+  addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<void>; 
+  getLevelColor: (level: number) => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,7 +42,43 @@ const USER_STORAGE_KEY = 'storyverse_user';
 const PROFILE_DATA_KEY = 'storyverse_user_profile';
 const ADDRESSES_DATA_KEY = 'storyverse_user_addresses';
 
-const mockDefaultAddress: Address = {
+
+const BASE_EXP_PER_PAGE = 0.05;
+const BASE_EXP_PER_COIN = 0.2;
+const EXP_RATE_REDUCTION_FACTOR = 0.5;
+
+const LEVEL_COLORS: { [key: number]: string } = {
+    1: '#6c757d',     
+    2: '#007bff',     
+    3: '#28a745',     
+    4: '#ffc107',     
+    5: '#dc3545',     
+    6: '#6f42c1', 
+    7: '#d704d5',
+    8: '#ecdcef',
+    9: '#eb4107',
+    10: '#441498',
+    11: '#306983',
+    12: '#e919a7',
+    13: '#fef750',
+    14: '#1d93f3',
+    15: '#f87b77',
+    16: '#df7ee2',
+    17: '#90037e',
+    18: '#eeb5ea',
+    19: '#16c4b0',
+    20: '#25d2b0'
+};
+const DEFAULT_LEVEL_COLOR = '#6c757d';
+
+const getLevelColor = (level: number): string => {
+    const applicableLevels = Object.keys(LEVEL_COLORS).map(Number).filter(l => l <= level).sort((a, b) => b - a);
+    const highestApplicableLevel = applicableLevels[0];
+    return LEVEL_COLORS[highestApplicableLevel] || DEFAULT_LEVEL_COLOR;
+};
+
+
+const mockDefaultAddress: Address = { 
     id: 'default-1',
     street: '123 Đường Nguyễn Huệ',
     ward: 'Phường 1',
@@ -46,30 +86,27 @@ const mockDefaultAddress: Address = {
     city: 'TP. Hồ Chí Minh',
     isDefault: true,
 };
-
-const loadAddresses = (userId: string): Address[] => {
-    try {
+const loadAddresses = (userId: string): Address[] => { 
+     try {
         const storedAddresses = localStorage.getItem(ADDRESSES_DATA_KEY + userId);
         const addresses: Address[] = storedAddresses ? JSON.parse(storedAddresses) : [];
-        if (addresses.length === 0) {
-            return [mockDefaultAddress];
-        }
-        return addresses;
+        if (addresses.length === 0 && userId) { 
+             return [mockDefaultAddress];
+         }
+        return addresses.sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1));
     } catch (e) {
-        return [mockDefaultAddress];
+        return userId ? [mockDefaultAddress] : []; 
     }
 };
-
-const saveAddresses = (userId: string, addresses: Address[]): void => {
+const saveAddresses = (userId: string, addresses: Address[]): void => { 
     try {
         localStorage.setItem(ADDRESSES_DATA_KEY + userId, JSON.stringify(addresses));
     } catch (e) {
         console.error("Failed to save addresses", e);
     }
 };
-
-const loadProfileData = (baseUser: { id: string, email: string }): User => {
-    try {
+const loadProfileData = (baseUser: { id: string, email: string }): User => { 
+ try {
         const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + baseUser.id);
         const profile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
 
@@ -78,17 +115,27 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
             phone: '0000000000',
             coinBalance: 1000,
             lastDailyLogin: '2000-01-01T00:00:00.000Z',
-            consecutiveLoginDays: 0, // GIÁ TRỊ MẶC ĐỊNH
+            consecutiveLoginDays: 0,
+            level: 1, 
+            exp: 0, 
         };
+
+        
+        const loadedLevel = typeof profile.level === 'number' && profile.level >= 1 ? profile.level : defaultProfile.level;
+        const loadedExp = typeof profile.exp === 'number' && profile.exp >= 0 && profile.exp <= 100 ? profile.exp : defaultProfile.exp;
+
 
         return {
             ...baseUser,
-            ...defaultProfile,
-            ...profile,
+            ...defaultProfile, 
+            ...profile, 
+            level: loadedLevel, 
+            exp: loadedExp,
             addresses: loadAddresses(baseUser.id),
         } as User;
     } catch (e) {
         console.error("Failed to load profile data", e);
+        
         return {
             ...baseUser,
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
@@ -97,32 +144,26 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
             coinBalance: 1000,
             lastDailyLogin: '2000-01-01T00:00:00.000Z',
             consecutiveLoginDays: 0,
+            level: 1,
+            exp: 0,
         } as User;
     }
 };
-
-const saveProfileData = (userId: string, profileData: Partial<User>): void => {
+const saveProfileData = (userId: string, profileData: Partial<User>): void => { 
     try {
         const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + userId);
         const currentProfile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {};
-        const newProfile = { ...currentProfile, ...profileData };
-
-        delete newProfile.addresses;
-
-        localStorage.setItem(PROFILE_DATA_KEY + userId, JSON.stringify(newProfile));
+        const { addresses, ...dataToSave } = { ...currentProfile, ...profileData };
+        localStorage.setItem(PROFILE_DATA_KEY + userId, JSON.stringify(dataToSave));
     } catch (e) {
         console.error("Failed to save profile data", e);
     }
 };
 
-const createMockDigitalOrder = () => {
-    return;
-};
-
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    try {
+  const [currentUser, setCurrentUser] = useState<User | null>(() => { 
+      try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
       const baseUser = storedUser ? JSON.parse(storedUser) : null;
       if (baseUser) {
@@ -130,87 +171,85 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       return null;
     } catch (error) {
+      console.error("Error loading user from storage:", error);
       return null;
     }
   });
-
   const { showNotification } = useNotification();
 
-  const login = async (email: string, pass: string) => {
-    const baseUser = { id: 'user-' + Date.now(), email: email };
-    const mockUser: User = loadProfileData(baseUser);
-
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(baseUser));
-
-    saveProfileData(baseUser.id, mockUser);
-    saveAddresses(baseUser.id, mockUser.addresses);
-
-    setCurrentUser(mockUser);
-    showNotification('Đăng nhập thành công!', 'success');
-    createMockDigitalOrder();
+  const login = async (email: string, pass: string) => { 
+      const baseUser = { id: 'user-' + email, email: email };
+      const fullUser = loadProfileData(baseUser);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ id: fullUser.id, email: fullUser.email }));
+      saveProfileData(fullUser.id, fullUser);
+      saveAddresses(fullUser.id, fullUser.addresses);
+      setCurrentUser(fullUser);
+      showNotification('Đăng nhập thành công!', 'success');
   };
-
-  const register = async (email: string, pass: string) => {
-    if (!email || !pass) throw new Error("Email/Pass required (mock)");
-    showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+  const register = async (email: string, pass: string) => { 
+       if (!email || !pass) throw new Error("Email/Pass required (mock)");
+       const baseUser = { id: 'user-' + email, email: email };
+       const defaultUser = loadProfileData(baseUser);
+       saveProfileData(baseUser.id, defaultUser);
+       saveAddresses(baseUser.id, defaultUser.addresses);
+       showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
   };
-
-  const logout = async () => {
+  const logout = async () => { 
     setCurrentUser(null);
     localStorage.removeItem(USER_STORAGE_KEY);
     showNotification('Đã đăng xuất.', 'info');
   };
 
-  const updateProfile = async (profileData: Partial<User>) => {
-    if (!currentUser) {
-        throw new Error('User not logged in.');
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    saveProfileData(currentUser.id, profileData);
-
-    setCurrentUser(prevUser => {
-        if (!prevUser) return null;
-        return {
-            ...prevUser,
-            ...profileData,
-        } as User;
+  
+  const updateProfile = useCallback(async (profileData: Partial<User>): Promise<User | null> => {
+    return new Promise((resolve) => {
+        setCurrentUser(prevUser => {
+            if (!prevUser) {
+                resolve(null);
+                return null;
+            }
+            
+            const updatedUser = { ...prevUser, ...profileData };
+            
+            saveProfileData(prevUser.id, updatedUser);
+            
+            if (Object.keys(profileData).some(key => !['level', 'exp', 'coinBalance'].includes(key))) {
+                 showNotification('Cập nhật hồ sơ thành công!', 'success');
+             }
+            
+            resolve(updatedUser);
+            return updatedUser;
+        });
     });
-    showNotification('Cập nhật hồ sơ thành công!', 'success');
-  };
+  }, [showNotification]);
 
-  const updateAddresses = async (addresses: Address[]) => {
-    if (!currentUser) {
+
+  const updateAddresses = async (addresses: Address[]) => { 
+     if (!currentUser) {
         throw new Error('User not logged in.');
     }
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    saveAddresses(currentUser.id, addresses);
-
+    await new Promise(resolve => setTimeout(resolve, 100)); 
+    const sortedAddresses = addresses.sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1));
+    saveAddresses(currentUser.id, sortedAddresses);
     setCurrentUser(prevUser => {
         if (!prevUser) return null;
         return {
             ...prevUser,
-            addresses: addresses,
+            addresses: sortedAddresses,
         };
     });
     showNotification('Cập nhật địa chỉ thành công!', 'success');
   };
-  
-  const claimDailyReward = async () => {
-      if (!currentUser) {
+  const claimDailyReward = async () => { 
+     if (!currentUser) {
           showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning');
           return;
       }
-
       const today = new Date();
       const lastLoginDate = new Date(currentUser.lastDailyLogin);
       const oneDay = 24 * 60 * 60 * 1000;
       const diffDays = Math.round(Math.abs((today.getTime() - lastLoginDate.getTime()) / oneDay));
-
-      const isSameDay = 
+      const isSameDay =
           today.getFullYear() === lastLoginDate.getFullYear() &&
           today.getMonth() === lastLoginDate.getMonth() &&
           today.getDate() === lastLoginDate.getDate();
@@ -219,59 +258,101 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           showNotification('Bạn đã nhận thưởng hàng ngày hôm nay rồi!', 'info');
           return;
       }
-      
       let nextLoginDays = currentUser.consecutiveLoginDays + 1;
       let isStreakBroken = false;
-      
       if (diffDays > 1) {
           nextLoginDays = 1;
           isStreakBroken = true;
-      }
-      
-      if (isStreakBroken) {
           showNotification('Chuỗi đăng nhập đã bị đứt! Bắt đầu lại từ Ngày 1.', 'warning');
       }
-
       const currentRewardIndex = (nextLoginDays - 1) % dailyRewardsData.length;
       const reward = dailyRewardsData[currentRewardIndex];
-      
-      if (reward.type !== 'Xu') return; 
-
+      if (reward.type !== 'Xu') return;
       const rewardCoins = reward.amount;
       const newBalance = currentUser.coinBalance + rewardCoins;
       const todayISOString = today.toISOString();
-
       try {
           await updateProfile({ 
-              coinBalance: newBalance, 
+              coinBalance: newBalance,
               lastDailyLogin: todayISOString,
               consecutiveLoginDays: nextLoginDays,
           });
-
           showNotification(`Đã nhận ${rewardCoins} Xu thưởng đăng nhập Ngày ${nextLoginDays}!`, 'success');
-
       } catch (error) {
           showNotification('Lỗi khi nhận thưởng. Vui lòng thử lại.', 'error');
       }
   };
+  
+  const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
+    
+    setCurrentUser(prevUser => {
+        if (!prevUser) return null;
 
+        let baseExpGain = 0;
+        if (source === 'reading') {
+            baseExpGain = BASE_EXP_PER_PAGE * amount;
+        } else if (source === 'recharge') {
+            baseExpGain = BASE_EXP_PER_COIN * amount;
+        }
+
+        const modifier = Math.pow(EXP_RATE_REDUCTION_FACTOR, prevUser.level - 1);
+        const actualExpGain = baseExpGain * modifier;
+
+        let currentBalance = prevUser.coinBalance + coinIncrease; 
+        let newExp = prevUser.exp + actualExpGain;
+        let newLevel = prevUser.level;
+        let levelUpOccurred = false;
+
+        while (newExp >= 100) {
+            newLevel += 1;
+            newExp -= 100;
+            levelUpOccurred = true;
+        }
+
+        const updatedUserData: Partial<User> = {
+            level: newLevel,
+            exp: Math.min(100, Math.max(0, newExp)),
+            coinBalance: currentBalance, 
+        };
+        
+        const updatedUser = { ...prevUser, ...updatedUserData };
+        saveProfileData(prevUser.id, updatedUser);
+
+        if (levelUpOccurred) {
+            showNotification(`Chúc mừng! Bạn đã lên Cấp ${newLevel}!`, 'success');
+        }       
+        return updatedUser;
+    });
+     
+     await new Promise(resolve => setTimeout(resolve, 10)); 
+
+  }, [showNotification]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile, updateAddresses, claimDailyReward }}>
+    <AuthContext.Provider value={{
+        currentUser,
+        login,
+        register,
+        logout,
+        updateProfile,
+        updateAddresses,
+        claimDailyReward,
+        addExp,
+        getLevelColor
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+export const useAuth = () => { 
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };
-
-export const dailyRewardsData = [
+export const dailyRewardsData = [ 
     { day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '../src/assets/images/coin.png' },
     { day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '../src/assets/images/coin.png' },
     { day: 3, type: 'Xu', amount: 60, color: '#e63946', icon: '../src/assets/images/coin.png' },

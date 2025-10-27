@@ -15,11 +15,11 @@ const rechargePacks = [
 ];
 
 const CoinRechargePage: React.FC = () => {
-    const { currentUser, updateProfile } = useAuth();
+    const { currentUser, updateProfile, addExp } = useAuth(); 
     const { showNotification } = useNotification();
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedPack, setSelectedPack] = useState<number | null>(null);
-    
+
     const handleRecharge = async (packId: number) => {
         if (!currentUser) {
             showNotification('Vui lòng đăng nhập để nạp xu.', 'warning');
@@ -28,7 +28,7 @@ const CoinRechargePage: React.FC = () => {
 
         const pack = rechargePacks.find(p => p.id === packId);
         if (!pack) return;
-        
+
         if (isProcessing) return;
 
         setIsProcessing(true);
@@ -36,14 +36,11 @@ const CoinRechargePage: React.FC = () => {
 
         try {
             await new Promise(resolve => setTimeout(resolve, 1500)); 
-
-            const newBalance = currentUser.coinBalance + pack.coins + pack.bonus;
-            
-            const updatedProfile: Partial<User> = { coinBalance: newBalance };
-            await updateProfile(updatedProfile);
-            
-            showNotification(`Nạp thành công ${pack.coins + pack.bonus} Xu! Số dư mới: ${newBalance}`, 'success');
-
+            const totalCoinsAdded = pack.coins + pack.bonus;            
+            const newBalance = currentUser.coinBalance + totalCoinsAdded;
+            await updateProfile({ coinBalance: newBalance });            
+            await addExp(totalCoinsAdded, 'recharge');            
+            showNotification(`Nạp thành công ${totalCoinsAdded} Xu! Số dư mới: ${newBalance}`, 'success');
         } catch (error) {
             console.error('Lỗi khi nạp xu:', error);
             showNotification('Nạp xu thất bại. Vui lòng thử lại.', 'error');
@@ -52,11 +49,10 @@ const CoinRechargePage: React.FC = () => {
             setSelectedPack(null);
         }
     };
-    
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
-
     if (!currentUser) {
         return (
             <div className="auth-page">
@@ -79,7 +75,7 @@ const CoinRechargePage: React.FC = () => {
                 <h2>
                     Nạp Xu Vào Tài Khoản
                 </h2>
-                
+
                 <div className="current-balance-info">
                     <p>
                         Số dư hiện tại: <span className="coin-amount-display">
@@ -92,15 +88,15 @@ const CoinRechargePage: React.FC = () => {
 
                 <div className="recharge-grid">
                     {rechargePacks.map(pack => (
-                        <div 
-                            key={pack.id} 
+                        <div
+                            key={pack.id}
                             className="recharge-card"
                         >
                             <div className="recharge-content">
                                 <div className="recharge-coin-display">
                                     <span className="coin-amount-large">{pack.coins}</span> <CoinIcon className="coin-icon-large" />
                                 </div>
-                                
+
                                 {pack.bonus > 0 ? (
                                     <p className="recharge-bonus">
                                         Tặng {pack.bonus} Xu
@@ -108,12 +104,12 @@ const CoinRechargePage: React.FC = () => {
                                 ) : (
                                     <div className="recharge-bonus-placeholder"></div>
                                 )}
-                                
+
                                 <p className="recharge-price">
                                     {formatPrice(pack.price)}
                                 </p>
                             </div>
-                            <button 
+                            <button
                                 className="auth-button"
                                 onClick={() => handleRecharge(pack.id)}
                                 disabled={isProcessing && selectedPack === pack.id}
@@ -124,13 +120,16 @@ const CoinRechargePage: React.FC = () => {
                         </div>
                     ))}
                 </div>
-                
+
                 <p className="recharge-info-note">
-                    *Đây là chức năng giả lập. Giao dịch sẽ được ghi nhận ngay lập tức vào số dư Xu của bạn.
+                    *Mỗi Xu nạp sẽ tăng {(BASE_EXP_PER_COIN * Math.pow(EXP_RATE_REDUCTION_FACTOR, currentUser.level - 1)).toFixed(4)}% kinh nghiệm (tỉ lệ giảm theo cấp).
                 </p>
             </div>
         </div>
     );
 };
+
+const BASE_EXP_PER_COIN = 0.2;
+const EXP_RATE_REDUCTION_FACTOR = 0.5;
 
 export default CoinRechargePage;

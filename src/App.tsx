@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/header/Header';
@@ -28,10 +29,14 @@ import ScrollToTopButton from './components/common/ScrollToTopButton/ScrollToTop
 import { useCart } from './contexts/CartContext';
 import './App.css';
 
+// Import ChatLog component
+import ChatLog from './components/common/Chat/ChatLog'; // Đường dẫn có thể cần điều chỉnh
+
 function App() {
   const { animationData, clearAnimation } = useCart();
 
   useEffect(() => {
+    // ... (code hiệu ứng click giữ nguyên)
     const handleGlobalClick = (event: MouseEvent) => {
       const targetElement = event.target as Element;
       const interactiveSelector = 'a, button, input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"]), .suggestion-item, .tag-card-link, .cursor-option';
@@ -65,6 +70,7 @@ function App() {
       <Header />
       <main className="main-content">
         <Routes>
+          {/* ... (Các Route khác giữ nguyên) */}
           <Route path="/" element={<HomePage />} />
           <Route path="/comic/:comicId" element={<ComicDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
@@ -87,6 +93,10 @@ function App() {
           <Route path="/new-releases" element={<CategoryPage />} />
           <Route path="/genres/:categorySlug" element={<CategoryPage />} />
         </Routes>
+
+        {/* Render ChatLog mà không cần truyền messages */}
+        <ChatLog />
+
       </main>
       <Footer />
 

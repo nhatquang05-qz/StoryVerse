@@ -28,18 +28,82 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     line-height: 1.6;
     border: 1px solid var(--clr-border-light);
+    margin-bottom: 2rem; 
 }
 .profile-info-card h3 {
     margin-top: 0;
+    margin-bottom: 1.5rem; 
     color: var(--clr-primary-dark);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--clr-border-light);
 }
 .profile-info-card p, .profile-info-card label {
     color: var(--clr-text);
+    margin-bottom: 0.5rem; 
 }
 .profile-info-card p strong {
     color: var(--clr-text);
 }
 
+.level-exp-card {
+    
+}
+
+.level-display {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.level-badge {
+    display: inline-block;
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    
+}
+
+.exp-progress-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: var(--clr-border-light);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.exp-progress-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease-in-out;
+}
+
+.exp-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--clr-text-secondary);
+    margin-bottom: 1rem;
+}
+.exp-info-note {
+    font-size: 0.85rem;
+    color: var(--clr-text-secondary);
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem; 
+}
+
+.form-group input:disabled {
+    background-color: var(--clr-footer-bg); 
+    cursor: not-allowed;
+    opacity: 0.7;
+}
 
 .orders-table {
     width: 100%;
@@ -116,12 +180,13 @@ html[data-theme="dark"] .orders-table a:hover {
 .detail-order-btn, .edit-btn, .save-btn {
     background-color: var(--clr-primary);
     color: var(--clr-button-text);
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem; 
     border-radius: 5px;
-    font-size: 0.9rem;
+    font-size: 0.95rem; 
     cursor: pointer;
     transition: background-color 0.2s;
     border: none;
+    font-weight: 500;
 }
 .detail-order-btn:hover, .edit-btn:hover, .save-btn:hover {
     background-color: var(--clr-primary-dark);
@@ -129,12 +194,13 @@ html[data-theme="dark"] .orders-table a:hover {
 .cancel-btn {
      background-color: var(--clr-text-secondary);
      color: var(--clr-text);
-     padding: 0.5rem 1rem;
+     padding: 0.6rem 1.2rem;
      border-radius: 5px;
-     font-size: 0.9rem;
+     font-size: 0.95rem;
      cursor: pointer;
      transition: background-color 0.2s;
      border: none;
+     font-weight: 500;
 }
 .cancel-btn:hover {
      background-color: var(--clr-border-light);
@@ -161,7 +227,6 @@ html[data-theme="dark"] .orders-table a:hover {
 .profile-page-not-logged h2 {
     color: var(--clr-text);
 }
-
 
 @media screen and (max-width: 768px) {
   .orders-table, .orders-table thead, .orders-table tbody, .orders-table th, .orders-table td, .orders-table tr {
@@ -201,6 +266,15 @@ html[data-theme="dark"] .orders-table a:hover {
   .orders-table td:last-child {
     text-align: right;
   }
+  .profile-page-container {
+      padding: 1rem; 
+  }
+  .profile-content {
+      padding: 0; 
+  }
+  .profile-info-card {
+      padding: 1.5rem; 
+  }
 }
 
 .address-display-group {
@@ -229,4 +303,28 @@ html[data-theme="dark"] .address-display-group {
 }
 .default-address-card {
     border: 2px solid var(--clr-primary) !important;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input:disabled {
+    background-color: var(--clr-footer-bg); 
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+html[data-theme="light"] .form-group input:disabled {
+    color: #6c757d; 
+}
+
+html[data-theme="dark"] .form-group input:disabled {
+    color: #adb5bd; 
+    border-color: #495057; 
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
