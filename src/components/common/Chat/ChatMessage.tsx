@@ -8,6 +8,7 @@ interface ChatMessageProps {
   timestamp: string;
   message: string;
   userLevel?: number;
+  levelTitle: string;
 }
 
 const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
@@ -37,6 +38,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   timestamp,
   message,
   userLevel,
+  levelTitle,
 }) => {
   const { getLevelColor } = useAuth();
   const levelColor = userLevel ? getLevelColor(userLevel) : '#6c757d'; 
@@ -56,7 +58,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 className="user-level"
                 style={{ backgroundColor: levelColor, color: levelTextColor }}
               >
-                Cấp {userLevel}
+                {levelTitle}
               </span>
             )}
           </span>

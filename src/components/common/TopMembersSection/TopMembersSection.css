@@ -1,18 +1,17 @@
-/* src/components/common/TopMembersSection/TopMembersSection.css */
 .top-members-section {
     background-color: var(--clr-card-bg);
     border-radius: var(--border-radius);
     border: 1px solid var(--clr-border-light);
     padding: 1.5rem;
     color: var(--clr-text);
-    margin-bottom: 2rem; /* Thêm khoảng cách dưới nếu cần */
+    margin-bottom: 2rem; 
 }
 
 .top-members-title {
-    font-size: 1.3rem; /* Điều chỉnh kích thước */
+    font-size: 1.3rem; 
     font-weight: 700;
     margin: 0 0 1.5rem 0;
-    color: var(--clr-primary); /* Hoặc màu bạn muốn */
+    color: var(--clr-primary);
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--clr-border-light);
 }
@@ -20,7 +19,7 @@
 .top-members-list {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem; /* Khoảng cách giữa các thành viên */
+    gap: 1.2rem; 
 }
 
 .top-member-item {
@@ -28,7 +27,7 @@
     align-items: center;
     gap: 1rem;
     padding-bottom: 1.2rem;
-    border-bottom: 1px dashed var(--clr-border-light); /* Đường kẻ mờ */
+    border-bottom: 1px dashed var(--clr-border-light); 
 }
 
 .top-member-item:last-child {
@@ -37,18 +36,18 @@
 }
 
 .member-rank {
-    font-size: 1.5rem; /* Kích thước số thứ hạng */
+    font-size: 1.5rem; 
     font-weight: bold;
     color: var(--clr-text-secondary);
-    width: 35px; /* Đảm bảo đủ rộng */
+    width: 35px; 
     text-align: center;
     flex-shrink: 0;
 }
 
 .member-avatar {
-    width: 45px; /* Kích thước avatar */
+    width: 45px; 
     height: 45px;
-    border-radius: 50%; /* Bo tròn avatar */
+    border-radius: 50%; 
     object-fit: cover;
     border: 1px solid var(--clr-border-light);
 }
@@ -57,8 +56,8 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: 0.25rem; /* Khoảng cách giữa tên và stats */
-    overflow: hidden; /* Để xử lý tên dài */
+    gap: 0.25rem;
+    overflow: hidden; 
 }
 
 .member-name {
@@ -66,30 +65,29 @@
     font-size: 0.95rem;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Hiển thị ... nếu tên quá dài */
+    text-overflow: ellipsis; 
 }
 
 .member-stats {
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* Khoảng cách giữa level và score */
+    gap: 0.5rem; 
 }
 
 .member-level-badge {
-    padding: 2px 8px; /* Padding cho badge level */
-    border-radius: 4px; /* Bo góc badge */
+    padding: 2px 8px; 
+    border-radius: 4px; 
     font-size: 0.7rem;
     font-weight: bold;
-    color: white; /* Màu chữ trắng cho dễ đọc */
+    color: white; 
     line-height: 1;
     white-space: nowrap;
 }
 
-/* Đổi màu chữ nếu nền quá sáng */
-.member-level-badge[style*="background-color: rgb(255, 193, 7)"], /* Ví dụ màu vàng */
-.member-level-badge[style*="background-color: rgb(236, 220, 239)"] /* Ví dụ màu sáng */
+.member-level-badge[style*="background-color: rgb(255, 193, 7)"],
+.member-level-badge[style*="background-color: rgb(236, 220, 239)"] 
 {
-    color: #333; /* Đổi thành màu chữ tối */
+    color: #333;
 }
 
 
@@ -98,9 +96,9 @@
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: bold;
-    color: var(--clr-error-text); /* Màu score giống ảnh */
-    border: 1px solid var(--clr-error-text); /* Viền score giống ảnh */
-    background-color: var(--clr-background); /* Nền cho score */
+    color: var(--clr-error-text);
+    border: 1px solid var(--clr-error-text); 
+    background-color: var(--clr-background); 
     line-height: 1;
     white-space: nowrap;
 }

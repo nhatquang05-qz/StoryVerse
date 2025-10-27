@@ -1,7 +1,6 @@
-// src/components/common/TopMembersSection/TopMembersSection.tsx
 import React from 'react';
-import { topMembersData, type TopMember } from '../../../data/mockData'; // Điều chỉnh đường dẫn nếu cần
-import { useAuth } from '../../../contexts/AuthContext'; // Để lấy màu level
+import { topMembersData, type TopMember } from '../../../data/mockData';
+import { useAuth } from '../../../contexts/AuthContext';
 import './TopMembersSection.css';
 
 const TopMembersSection: React.FC = () => {

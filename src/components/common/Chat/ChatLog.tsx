@@ -1,11 +1,10 @@
-import React, { useEffect, useRef } from 'react'; // Thêm useRef
+import React, { useEffect, useRef, useState } from 'react';
 import './ChatLog.css';
 import ChatMessage from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FiSend } from 'react-icons/fi';
 
 const mockMessagesData = [
-    // ... (dữ liệu mock giữ nguyên)
     {
       id: 1,
       userId: 'user-coconut',
@@ -42,21 +41,55 @@ const mockMessagesData = [
       message: "sdsds",
       userLevel: 5
     },
+    {
+      id: 5,
+      userId: 'user-duongnguyennhatquang@gmail.com', 
+      userName: "duongnguyennhatquang",
+      avatarUrl: "https://i.imgur.com/tq9k3Yj.png", 
+      timestamp: "03:48",
+      message: "sdsdsd",
+      userLevel: 13 
+    },
+     {
+      id: 6,
+      userId: 'user-duongnguyennhatquang@gmail.com',
+      userName: "duongnguyennhatquang",
+      avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
+      timestamp: "03:49",
+      message: "sssd",
+      userLevel: 13
+    },
 ];
 
 const ChatLog: React.FC = () => {
-    const { currentUser } = useAuth();
-    const [messages, setMessages] = React.useState(mockMessagesData);
-    const [newMessage, setNewMessage] = React.useState('');
-    // const messagesEndRef = React.useRef<HTMLDivElement>(null); // Không cần dòng này nữa
-    const chatMessagesListRef = useRef<HTMLDivElement>(null); // Thêm ref cho container
+    const { currentUser, getEquivalentLevelTitle } = useAuth();
+    const [messages, setMessages] = useState(() => {
+        if (currentUser && !mockMessagesData.some(m => m.userId === currentUser.id)) {
+             return [
+                 ...mockMessagesData,
+                 {
+                    id: 5, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0],
+                    avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:50", message: "Tin nhắn cũ 1", userLevel: currentUser.level
+                 },
+                 {
+                    id: 6, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0],
+                    avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:51", message: "Tin nhắn cũ 2", userLevel: currentUser.level
+                 }
+             ];
+        }
+        return mockMessagesData;
+    });
+    const [newMessage, setNewMessage] = useState('');
+    const chatMessagesListRef = useRef<HTMLDivElement>(null);
 
-    React.useEffect(() => {
-        // Cuộn container chat xuống dưới cùng
+    const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
+    const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default'; // Thêm level vào key
+
+    useEffect(() => {
         if (chatMessagesListRef.current) {
             chatMessagesListRef.current.scrollTop = chatMessagesListRef.current.scrollHeight;
         }
-    }, [messages]); // Chỉ chạy khi messages thay đổi
+    }, [messages, renderKey]);
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -66,23 +99,31 @@ const ChatLog: React.FC = () => {
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: "https://i.imgur.com/tq9k3Yj.png", // Nên lấy avatar thực tế nếu có
+            avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             message: newMessage,
             userLevel: currentUser.level,
         };
 
-        setMessages([...messages, messageToSend]);
+        setMessages(prev => [...prev, messageToSend]);
         setNewMessage('');
     };
 
+    const getLevelTitleForDisplay = (userId: string, userLevel: number) => {
+        if (currentUser && userId === currentUser.id) {
+            return getEquivalentLevelTitle(userLevel);
+        } else {
+            return `Cấp ${userLevel}`;
+        }
+    };
+
+
     return (
-        <div className="chat-room-container">
+        <div key={renderKey} className="chat-room-container">
             <div className="chat-room-header">
                 Vạn hữu đàm đạo
             </div>
 
-            {/* Gắn ref vào đây */}
             <div className="chat-messages-list" ref={chatMessagesListRef}>
                 {messages.map(msg => (
                     <ChatMessage
@@ -91,10 +132,10 @@ const ChatLog: React.FC = () => {
                         userName={msg.userName}
                         timestamp={msg.timestamp}
                         message={msg.message}
-                        userLevel={currentUser && msg.userId === currentUser.id ? currentUser.level : msg.userLevel}
+                        userLevel={msg.userLevel}
+                        levelTitle={getLevelTitleForDisplay(msg.userId, msg.userLevel)}
                     />
                 ))}
-                {/* Không cần div messagesEndRef nữa */}
             </div>
 
             {currentUser ? (

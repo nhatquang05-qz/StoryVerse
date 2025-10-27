@@ -1,0 +1,196 @@
+/* LevelSystemSelector.css */
+
+.level-system-selector-container {
+    padding: 1.5rem;
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    background-color: var(--clr-card-bg);
+    margin-bottom: 2rem;
+    color: var(--clr-text);
+}
+
+.level-system-selector-container h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--clr-primary-dark);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--clr-border-light);
+}
+
+.level-label {
+    font-weight: 500;
+    color: var(--clr-text-secondary);
+    font-size: 0.95rem;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+/* --- Display Mode --- */
+
+.current-selection-display {
+    line-height: 1.8;
+}
+
+.selection-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.system-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--clr-error-text); /* Tương tự màu Ma Vương trong ảnh */
+}
+
+.change-btn {
+    background-color: transparent;
+    color: var(--clr-primary);
+    border: 1px solid var(--clr-primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.change-btn:hover {
+    background-color: var(--clr-primary);
+    color: var(--clr-button-text);
+}
+
+.equivalent-level {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.level-value {
+    font-weight: bold;
+    color: var(--clr-text);
+}
+
+.base-level-note {
+    font-size: 0.85rem;
+    color: var(--clr-text-secondary);
+    font-weight: normal;
+    margin-left: 0.5rem;
+}
+
+/* --- Editing Mode --- */
+
+.system-selector-form {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.select-wrapper {
+    position: relative;
+    grid-column: 2 / 3;
+    width: 100%;
+}
+
+.system-selector-form select {
+    width: 100%;
+    padding: 0.75rem 2rem 0.75rem 1rem;
+    appearance: none;
+    background-color: var(--clr-background);
+    color: var(--clr-text);
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--clr-text-secondary);
+    pointer-events: none;
+}
+
+.system-selector-form .level-label {
+    grid-column: 1 / 2;
+    margin: 0;
+}
+
+.system-selector-form .cancel-btn {
+    grid-column: 3 / 4;
+    padding: 0.7rem 1.2rem;
+    background-color: var(--clr-text-secondary);
+    color: var(--clr-button-text);
+}
+.system-selector-form .cancel-btn:hover {
+    background-color: var(--clr-border-light);
+}
+
+.system-description {
+    grid-column: 1 / -1;
+    font-size: 0.9rem;
+    color: var(--clr-text-secondary);
+    margin: 0.5rem 0 0 0;
+    padding-left: 1rem;
+    border-left: 3px solid var(--clr-primary-dark);
+}
+
+.equivalent-level-live {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+.level-value-live {
+    font-weight: bold;
+    color: var(--clr-primary);
+    margin-left: 0.5rem;
+}
+
+/* --- System Table --- */
+.system-table {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--clr-border-light);
+}
+
+.system-table h4 {
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
+    color: var(--clr-text);
+}
+
+.table-header, .table-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px dashed var(--clr-border-light);
+    align-items: center;
+}
+
+.table-header {
+    font-weight: bold;
+    color: var(--clr-primary-dark);
+    border-bottom: 2px solid var(--clr-primary-dark);
+}
+
+.table-row:nth-child(even) {
+    background-color: var(--clr-footer-bg);
+}
+
+.base-level-col {
+    font-size: 0.9rem;
+    color: var(--clr-text-secondary);
+}
+
+.system-level-col {
+    font-weight: 600;
+}

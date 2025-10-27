@@ -294,3 +294,72 @@ export const topMembersData: TopMember[] = [
   { rank: 4, avatarUrl: 'https://i.imgur.com/exampleAvatar4.png', name: 'jackngu5', level: 7, score: 142400 },
   { rank: 5, avatarUrl: 'https://i.imgur.com/exampleAvatar5.png', name: 'Lọ Thánh Chí Tôn', level: 7, score: 64582 },
 ];
+// Định nghĩa cấu trúc cho một hệ thống cấp bậc
+interface LevelSystem {
+    key: string;
+    name: string;
+    description: string;
+    levels: string[];
+    minLevels: number[]; 
+}
+
+const LEVEL_SYSTEMS: LevelSystem[] = [
+    {
+        key: 'Phàm Nhân',
+        name: 'Bình Thường',
+        description: 'Cấp độ cơ bản cho người mới bắt đầu.',
+        levels: [
+            'Cấp 0', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Cấp 4', 'Cấp 5', 'Cấp 6', 'Cấp 7', 'Cấp 8', 'Cấp 9', 'Cấp 10', 'Cấp 11', 'Cấp 12', 'Cấp 13', 'Cấp 14', 'Cấp 15+'
+        ],
+        minLevels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] 
+    },
+    {
+        key: 'Tu Tiên',
+        name: 'Tu Tiên',
+        description: 'Thế giới tu luyện linh khí, truy cầu trường sinh bất tử.',
+        levels: ['Phàm nhân', 'Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Hợp Thể', 'Đại Thừa', 'Phi Thăng', 'Tiên Nhân'],
+        minLevels: [0, 1, 2, 4, 6, 7, 8, 10, 12, 15],
+    },
+    {
+        key: 'Game',
+        name: 'Game',
+        description: 'Thế giới trò chơi, nhân vật thăng cấp, săn boss, vượt nhiệm vụ.',
+        levels: ['Vô hạng', 'Đồng', 'Bạc', 'Vàng', 'Bạch Kim', 'Kim Cương', 'Huyền Thoại', 'Cao thủ', 'Thách đấu'],
+        minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15],
+    },
+    {
+        key: 'Ma Vương',
+        name: 'Ma Vương',
+        description: 'Thế giới hắc ám, ma giới, chiến đấu với anh hùng và thần linh.',
+        levels: ['Ma thường', 'Ma Nhân', 'Ma Sĩ', 'Ma Tướng', 'Ma Tôn', 'Ma Đế', 'Ma Thần', 'Ma Vương', 'Hắc Ma Vạn Tôn'],
+        minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15],
+    },
+    {
+        key: 'Pháp Sư',
+        name: 'Pháp Sư',
+        description: 'Thế giới phép thuật, học viện, chiến đấu bằng ma pháp và trí tuệ.',
+        levels: ['Học đồ', 'Pháp sư sơ cấp', 'Pháp sư trung cấp', 'Pháp sư cao cấp', 'Đại Pháp Sư', 'Pháp Thánh', 'Pháp Thần', 'Ma đạo sư'],
+        minLevels: [0, 1, 3, 6, 9, 11, 13, 15],
+    },
+    {
+        key: 'Tinh Không',
+        name: 'Tinh Không',
+        description: 'Thế giới vũ trụ, du hành giữa các hành tinh và hệ sao.',
+        levels: ['Binh lính', 'Chiến Sĩ', 'Vệ Tinh', 'Tinh Vương', 'Tinh Hoàng', 'Tinh Đế', 'Tinh Tôn', 'Vũ Trụ Chi Chủ'],
+        minLevels: [0, 1, 3, 6, 9, 11, 13, 15],
+    }
+];
+
+const getSystemLevelForUser = (userLevel: number, systemKey: string): string => {
+    const system = LEVEL_SYSTEMS.find(s => s.key === systemKey) || LEVEL_SYSTEMS[0];
+    let matchingLevel = system.levels[0]; 
+
+    for (let i = system.minLevels.length - 1; i >= 0; i--) {
+        if (userLevel >= system.minLevels[i]) {
+            matchingLevel = system.levels[i];
+            break;
+        }
+    }
+
+    return matchingLevel;
+};
