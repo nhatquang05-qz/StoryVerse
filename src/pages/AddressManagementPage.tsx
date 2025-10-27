@@ -130,7 +130,7 @@ const AddressManagementPage: React.FC = () => {
                 {addresses.map(addr => (
                     <div key={addr.id} className={`profile-info-card ${addr.isDefault ? 'default-address-card' : ''}`} style={{ marginBottom: '1.5rem', border: addr.isDefault ? '2px solid var(--primary-color)' : '1px solid var(--border-color-light)' }}>
                         <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            {addr.isDefault && <span className="status-badge status-completed" style={{ background: 'var(--primary-color)', color: 'white' }}>Mặc Định</span>}
+                            {addr.isDefault && <span className="status-badge status-completed" style={{ background: 'var(--primary-color)', color: 'var(--clr-text)' }}>Mặc Định</span>}
                             {!addr.isDefault && <span>Địa Chỉ Khác</span>}
                         </h3>
                         <p style={{ marginTop: '0.5rem' }}>

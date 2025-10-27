@@ -1,4 +1,3 @@
-// src/pages/HomePage.tsx
 import React, { useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
 import Hero from '../components/common/Hero/Hero';
@@ -13,8 +12,7 @@ import './HomePage.css';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 
-// HomeSection component (giữ nguyên định nghĩa như trước)
-const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean }> = ({ title, comics, isLoading }) => {
+const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean, addSpacing?: boolean }> = ({ title, comics, isLoading, addSpacing = false }) => {
     const [pageIndex, setPageIndex] = useState(0);
     const totalItems = comics.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_SECTION_PAGE);
@@ -24,8 +22,10 @@ const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean
     const handlePrev = () => setPageIndex(prev => Math.max(0, prev - 1));
     const handleNext = () => setPageIndex(prev => Math.min(totalPages - 1, prev + 1));
 
+    const sectionStyle: React.CSSProperties = addSpacing ? { marginTop: '2rem' } : { marginBottom: '4rem' };
+
     return (
-        <div style={{ marginBottom: '4rem' }}>
+        <div style={sectionStyle}>
             <h2 style={{ marginBottom: '1.5rem', fontSize: '2rem', fontWeight: 'bold' }}>{title}</h2>
             {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -57,7 +57,6 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        // Sử dụng Fragment thay vì div không cần thiết
         <React.Fragment>
             <Hero />
 
@@ -70,21 +69,20 @@ const HomePage: React.FC = () => {
             </div>
 
             <FeaturedTagsSection />
-
-            {/* Bỏ div thừa ở đây */}
-            <HomeSection
-                title="Truyện In Bán Chạy"
-                comics={trendingComics}
-                isLoading={isLoading}
-            />
-
             <div className="top-and-chat-section">
                 <div className="chat-column">
                    {!isLoading && <ChatLog />}
                    {isLoading && (
-                       <div className="skeleton-placeholder-chat" style={{ height: '700px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
+                       <div className="skeleton-placeholder-chat" style={{ height: '700px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out', marginBottom: '2rem' }}></div>
                    )}
+                   <HomeSection
+                        title="Truyện Digital Đề Xuất"
+                        comics={recommendedDigitalComics}
+                        isLoading={isLoading}
+                        addSpacing={true}
+                    />
                 </div>
+
                  <aside className="top-comics-column">
                      {!isLoading && <TopComicsSection />}
                      {!isLoading && <TopMembersSection />}
@@ -93,16 +91,12 @@ const HomePage: React.FC = () => {
                      )}
                 </aside>
             </div>
-
-            <div className="main-content-column" style={{ width: '100%' }}>
-                <HomeSection
-                    title="Truyện Digital Đề Xuất"
-                    comics={recommendedDigitalComics}
-                    isLoading={isLoading}
-                />
-            </div>
-
-        </React.Fragment> // Đóng Fragments
+            <HomeSection
+                title="Truyện In Bán Chạy"
+                comics={trendingComics}
+                isLoading={isLoading}
+            />        
+        </React.Fragment>
     );
 };
 

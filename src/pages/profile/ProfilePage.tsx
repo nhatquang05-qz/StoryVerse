@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import ProfileSidebar from '../../components/common/ProfileSideBar';
 import { useNotification } from '../../contexts/NotificationContext';
-import './ProfilePage.css'; 
+import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, updateProfile, getLevelColor } = useAuth(); 
+  const { currentUser, updateProfile, getLevelColor } = useAuth();
   const { showNotification } = useNotification();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -41,7 +41,7 @@ const ProfilePage: React.FC = () => {
 
     setIsSaving(true);
     try {
-        await updateProfile({ fullName: formData.fullName, phone: formData.phone }); 
+        await updateProfile({ fullName: formData.fullName, phone: formData.phone });
         setIsEditing(false);
     } catch (error) {
         console.error('Lỗi khi cập nhật hồ sơ:', error);
@@ -67,7 +67,7 @@ const ProfilePage: React.FC = () => {
       <div className="profile-content">
         <h1>Thông Tin Hồ Sơ</h1>
 
-        
+
         <div className="profile-info-card level-exp-card">
             <h3>Cấp Độ & Kinh Nghiệm</h3>
             <div className="level-display">
@@ -91,7 +91,7 @@ const ProfilePage: React.FC = () => {
         </div>
 
 
-        
+
         <form onSubmit={handleSave}>
             <div className="profile-info-card">
                 <h3>Thông Tin Cá Nhân</h3>
