@@ -1,0 +1,72 @@
+.top-and-chat-section {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-bottom: 4rem;
+}
+
+.chat-column {
+    flex: 3 1 700px; 
+    min-width: 450px;
+}
+
+.top-comics-column {
+    flex: 1 1 300px; 
+    min-width: 280px;
+    position: sticky;
+    top: calc(var(--header-height, 70px) + 2rem);
+}
+
+
+.chat-column .chat-room-container {
+    max-width: 100%;
+    margin: 0;
+    height: 500px; 
+}
+
+
+@media (max-width: 1024px) {
+    .top-and-chat-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .top-comics-column {
+        position: static;
+        margin-bottom: 2rem;
+        flex-basis: auto;
+    }
+     .chat-column {
+        flex-basis: auto;
+        order: -1; 
+        margin-bottom: 2rem;
+    }
+    .chat-column .chat-room-container {
+       height: 400px; 
+    }
+}
+
+.skeleton-placeholder-sidebar,
+.skeleton-placeholder-chat {
+    height: 500px;
+    background-color: var(--clr-card-bg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--clr-border-light);
+    padding: 1.5rem;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: var(--clr-skeleton-pulse-start);
+    }
+    50% {
+        background-color: var(--clr-skeleton-pulse-mid);
+    }
+    100% {
+        background-color: var(--clr-skeleton-pulse-start);
+    }
+}
+
+.main-content-column {
+    width: 100%;
+}

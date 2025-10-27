@@ -1,3 +1,4 @@
+// src/pages/HomePage.tsx
 import React, { useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
 import Hero from '../components/common/Hero/Hero';
@@ -6,6 +7,8 @@ import { type Comic, trendingComics, newReleasesComics, recommendedDigitalComics
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import FeaturedTagsSection from '../components/common/FeaturedTagsSection/FeaturedTagsSection';
 import TopComicsSection from '../components/common/TopComicSection/TopComicSection';
+import ChatLog from '../components/common/Chat/ChatLog';
+import './HomePage.css';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 
@@ -73,22 +76,29 @@ const HomePage: React.FC = () => {
                  />
             </div>
 
-
-            <div className="digital-and-top-section" style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
-                <div className="main-content-column" style={{ flex: '3 1 600px', minWidth: 0 }}>
-                    <HomeSection
-                        title="Truyện Digital Đề Xuất"
-                        comics={recommendedDigitalComics}
-                        isLoading={isLoading}
-                    />
+            <div className="top-and-chat-section">
+                <div className="chat-column">
+                   {!isLoading && <ChatLog />}
+                   {isLoading && (
+                       <div className="skeleton-placeholder-chat" style={{ height: '500px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
+                   )}
                 </div>
-                <aside className="sidebar-column" style={{ flex: '1 1 300px', position: 'sticky', top: `calc(var(--header-height, 70px) + 2rem)` }}>
+                 <aside className="top-comics-column">
                      {!isLoading && <TopComicsSection />}
                      {isLoading && (
                          <div className="skeleton-placeholder-sidebar" style={{ height: '500px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
                      )}
                 </aside>
             </div>
+
+            <div className="main-content-column" style={{ width: '100%' }}>
+                <HomeSection
+                    title="Truyện Digital Đề Xuất"
+                    comics={recommendedDigitalComics}
+                    isLoading={isLoading}
+                />
+            </div>
+
         </div>
     );
 };

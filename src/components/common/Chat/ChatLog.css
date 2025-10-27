@@ -1,46 +1,61 @@
-/* src/components/ChatLog/ChatLog.css */
-.chat-log-container {
+.chat-room-container {
+  background-color: var(--clr-card-bg);
   border: 1px solid var(--clr-border-light);
-  border-radius: 8px;
-  padding: 15px;
-  background-color: var(--clr-footer-bg);
-  max-width: 600px; /* Giới hạn chiều rộng */
-  margin: 20px auto; /* Canh giữa */
-  display: flex; /* Cho phép co dãn chiều cao */
-  flex-direction: column; /* Sắp xếp dọc */
-}
-
-.chat-log-container h2 {
-  font-size: 1.2em;
-  margin-top: 0;
-  margin-bottom: 15px;
+  border-radius: 4px;
+  padding: 10px 15px;
+  max-width: 600px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   color: var(--clr-text);
+}
+
+html[data-theme="night"] .chat-room-container {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.chat-room-header {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--clr-primary);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
   border-bottom: 1px solid var(--clr-border-light);
-  padding-bottom: 10px;
 }
 
-.messages-list {
-  flex-grow: 1; /* Cho phép danh sách tin nhắn co dãn */
-  max-height: 400px; /* Giới hạn chiều cao và cho phép cuộn */
+.chat-messages-list {
+  flex-grow: 1;
+  max-height: 400px;
   overflow-y: auto;
-  padding-right: 10px; /* Thêm khoảng đệm để thanh cuộn không che nội dung */
-  margin-bottom: 15px; /* Khoảng cách với ô nhập */
+  padding-right: 5px;
+  margin-bottom: 10px;
 }
 
-/* Tùy chỉnh thanh cuộn (cho trình duyệt Webkit như Chrome/Safari) */
-.messages-list::-webkit-scrollbar {
-  width: 8px;
+.chat-messages-list::-webkit-scrollbar {
+  width: 6px;
 }
-
-.messages-list::-webkit-scrollbar-track {
+.chat-messages-list::-webkit-scrollbar-track {
   background: var(--clr-footer-bg);
   border-radius: 10px;
 }
-
-.messages-list::-webkit-scrollbar-thumb {
-  background-color: var(--clr-text-secondary);
+.chat-messages-list::-webkit-scrollbar-thumb {
+  background-color: #ccc;
   border-radius: 10px;
-  border: 2px solid var(--clr-footer-bg);
+}
+.chat-messages-list::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+html[data-theme="night"] .chat-messages-list::-webkit-scrollbar-track {
+  background: var(--clr-header-bg);
+}
+html[data-theme="night"] .chat-messages-list::-webkit-scrollbar-thumb {
+  background-color: var(--clr-text-secondary);
+}
+html[data-theme="night"] .chat-messages-list::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
 }
 
 .no-messages {
@@ -49,52 +64,76 @@
   padding: 20px;
 }
 
-/* CSS cho ô nhập và nút gửi */
-.chat-input-area {
+.chat-input-form {
   display: flex;
+  align-items: center;
   gap: 10px;
-  margin-top: auto; /* Đẩy xuống dưới cùng */
-  padding-top: 15px;
+  margin-top: auto;
+  padding-top: 10px;
   border-top: 1px solid var(--clr-border-light);
 }
 
-.chat-input-area input {
-  flex-grow: 1; /* Ô nhập chiếm phần lớn không gian */
-  padding: 10px 15px;
+.chat-input-form input {
+  flex-grow: 1;
+  padding: 8px 12px;
   border: 1px solid var(--clr-border-light);
-  border-radius: 20px; /* Bo tròn nhiều hơn */
-  background-color: var(--clr-card-bg);
+  border-radius: 15px;
+  background-color: var(--clr-background);
   color: var(--clr-text);
   font-size: 0.9em;
-  outline: none; /* Bỏ viền focus mặc định */
+  outline: none;
   transition: border-color 0.2s;
+  height: 40px; /* Adjust height */
+  box-sizing: border-box;
+}
+.chat-input-form input::placeholder {
+    color: var(--clr-text-secondary);
 }
 
-.chat-input-area input:focus {
-  border-color: var(--clr-primary); /* Đổi màu viền khi focus */
+.chat-input-form input:focus {
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 2px var(--clr-input-focus-shadow);
 }
 
-.send-button {
-  flex-shrink: 0; /* Nút không bị co lại */
+.send-btn {
+  flex-shrink: 0;
   background-color: var(--clr-primary);
   color: white;
   border: none;
-  border-radius: 50%; /* Nút tròn */
+  border-radius: 50%;
   width: 40px;
-  height: 40px;
+  height: 40px; 
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.1em;
-  transition: background-color 0.2s;
+  padding: 0;
+  transition: background-color 0.2s, opacity 0.2s;
 }
 
-.send-button:hover {
+.send-btn svg,
+.send-btn img {
+  width: 20px; 
+  height: 20px;
+}
+
+.send-btn:hover {
   background-color: var(--clr-primary-dark);
+  color: white;
 }
 
-.send-button:disabled {
+.send-btn:disabled {
   background-color: var(--clr-text-secondary);
+  opacity: 0.7;
   cursor: not-allowed;
+}
+
+.chat-login-prompt {
+    text-align: center;
+    color: var(--clr-text-secondary);
+    padding: 10px;
+    font-size: 0.9em;
+    border: 1px dashed var(--clr-border-light);
+    border-radius: 4px;
+    margin-top: 10px;
 }
