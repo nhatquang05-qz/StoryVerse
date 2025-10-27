@@ -1,0 +1,125 @@
+.settings-page-container {
+    padding: 2rem 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    color: var(--clr-text);
+    min-height: calc(100vh - var(--header-height) - 150px);
+}
+
+.settings-content-wrapper {
+    background-color: var(--clr-card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--clr-border-light);
+}
+
+.settings-page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--clr-primary-dark);
+}
+
+.settings-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--clr-text-secondary);
+    margin-bottom: 1rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.settings-back-btn:hover {
+    color: var(--clr-primary);
+}
+
+.settings-card {
+    padding: 1.5rem;
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    background-color: var(--clr-footer-bg);
+}
+.settings-card h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    color: var(--clr-text);
+}
+.settings-card .description {
+    color: var(--clr-text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.cursor-pack-options {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.cursor-option {
+    border: 3px solid transparent;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    text-align: center;
+    cursor: url('/cursors/Mikaela_Hyakuya_Cursor/link.cur'), pointer !important; 
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.cursor-option:hover {
+    transform: translateY(-3px);
+    border-color: rgba(100, 108, 255, 0.5); 
+}
+
+.cursor-option.selected {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 10px var(--clr-input-focus-shadow);
+}
+
+.cursor-option-image {
+    width: 100px; 
+    height: 100px;
+    object-fit: contain; 
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    background-color: var(--clr-card-bg); 
+}
+
+.cursor-option-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 0;
+    color: var(--clr-text);
+}
+
+.control-group {
+   display: none;
+}
+
+.preview-area {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--clr-border-light);
+}
+.preview-area p {
+    font-weight: 600;
+    color: var(--clr-text);
+}
+.cursor-preview {
+    width: 250px;
+    height: 100px;
+    border: 2px solid var(--clr-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--clr-primary);
+    background-color: var(--clr-card-bg);
+    border-radius: 4px;
+    margin-top: 1rem;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { comics } from '../../data/mockData';
@@ -207,6 +207,7 @@ const Header: React.FC = () => {
                   <Link to="/recharge">Nạp Xu</Link>
                   <Link to="/my-library">Thư Viện Số</Link>
                   <Link to="/orders">Lịch Sử Mua Hàng</Link>
+                  <Link to="/settings">Cài Đặt</Link>
                   <button onClick={handleLogout} className="logout-btn">Đăng Xuất</button>
                 </div>
               </div>
@@ -271,6 +272,9 @@ const Header: React.FC = () => {
               </Link>
               <Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
                 <FiDollarSign /> <span>Nạp Xu</span>
+              </Link>
+              <Link to="/settings" onClick={toggleMenu} className="nav-mobile-action">
+                <FiSettings /> <span>Cài Đặt</span>
               </Link>
               <button onClick={() => { handleLogout(); toggleMenu(); }} className="logout-btn-mobile">Đăng Xuất</button>
             </div>

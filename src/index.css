@@ -40,10 +40,10 @@
   --clr-skeleton-pulse-start: rgba(200, 200, 200, 0.5);
   --clr-skeleton-pulse-mid: rgba(200, 200, 200, 0.9);
   --clr-hero-bg: #0e1624;
-  --clr-hero-text: #000000;
+  --clr-hero-text: #ffffff;
   --clr-hero-highlight: #e63946;
-  --clr-hero-nav-bg: rgba(255, 255, 255, 0.2);
-  --clr-hero-nav-hover-bg: rgba(255, 255, 255, 0.4);
+  --clr-hero-nav-bg: rgba(66, 65, 65, 0.2);
+  --clr-hero-nav-hover-bg: rgba(0, 0, 0, 0);
 
   color-scheme: light;
 }
@@ -84,36 +84,81 @@ html[data-theme="night"] {
   color-scheme: night;
 }
 
-body, .default-cursor {
-  cursor: url('../src/cursors/Alternative.cur'), default;
+:root {
+  --cursor-path-default: url('../src/cursors/Mikaela_Hykuya_Cursor/Alternative.cur');
+  --cursor-path-pointer: url('../src/cursors/Mikaela_Hykuya_Cursor/link.cur');
+  --cursor-path-text: url('../src/cursors/Mikaela_Hykuya_Cursor/Escritura a Mano.cur');
+  --cursor-path-move: url('../src/cursors/Mikaela_Hykuya_Cursor/movec.cur');
+  --cursor-path-help: url('../src/cursors/Mikaela_Hykuya_Cursor/ayuda.cur');
+  --cursor-path-nwse: url('../src/cursors/Mikaela_Hykuya_Cursor/diagonal resize 1.cur');
+  --cursor-path-nesw: url('../src/cursors/Mikaela_Hykuya_Cursor/diagonal resize 2.cur');
+  --cursor-path-ew: url('../src/cursors/Mikaela_Hykuya_Cursor/horizontal.cur');
 }
 
-a:hover, button:hover, .action-icon, .page-nav-btn, .reader-back-btn, .dropdown-btn {
-  cursor: url('../src/cursors/link.cur'), pointer !important;
+html, body, .app-container {
+  cursor: var(--cursor-path-default), default;
 }
 
-input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, .quantity-input, .comment-box {
-    cursor: url('../src/cursors/Escritura a Mano.cur'), text;
+a, 
+button, 
+.action-icon, 
+.page-nav-btn, 
+.reader-back-btn, 
+.dropdown-btn, 
+.claim-btn, 
+.card-image-container,
+.daily-reward-icon-wrapper,
+.daily-modal-close-btn
+ {
+  cursor: var(--cursor-path-pointer), pointer !important;
+}
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="tel"], 
+textarea, 
+.quantity-input, 
+.comment-box {
+    cursor: var(--cursor-path-text), text !important;
 }
 
 .move-cursor, .hero-group { 
-    cursor: url('../src/cursors/movec.cur'), move;
+    cursor: var(--cursor-path-move), move !important;
 }
 
 .help-cursor {
-    cursor: url('../src/cursors/ayuda.cur'), help;
+    cursor: var(--cursor-path-help), help !important;
 }
 
 .horizontal-resize-cursor {
-    cursor: url('../src/cursors/horizontal.cur'), e-resize;
+    cursor: var(--cursor-path-ew), e-resize !important;
 }
 
 .diagonal-resize-1-cursor {
-    cursor: url('../src/cursors/diagonal resize 1.cur'), nwse-resize;
+    cursor: var(--cursor-path-nwse), nwse-resize !important;
 }
 
 .diagonal-resize-2-cursor {
-    cursor: url('../src/cursors/diagonal resize 2.cur'), nesw-resize;
+    cursor: var(--cursor-path-nesw), nesw-resize !important;
+}
+
+
+html, body, .app-container {
+  -webkit-user-select: none; 
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none; 
+}
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+textarea {
+  -webkit-user-select: text !important;
+     -moz-user-select: text !important;
+      -ms-user-select: text !important;
+          user-select: text !important;
 }
 
 body {
@@ -162,7 +207,6 @@ button {
   font-family: inherit;
   background-color: var(--clr-card-bg);
   color: var(--clr-text);
-  cursor: pointer;
   transition: border-color 0.25s, background-color 0.25s, color 0.25s;
 }
 button:hover {
@@ -358,7 +402,6 @@ html[data-theme="dark"] .cancel-btn:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     transition: background-color 0.3s, transform 0.2s, opacity 0.3s;
     padding: 0;
 }
@@ -387,36 +430,4 @@ html[data-theme="dark"] .cancel-btn:hover {
         width: 60%;
         height: 60%;
     }
-}
-html, body, .app-container {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none; 
-          user-select: none; 
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="tel"],
-textarea {
-  -webkit-user-select: text !important;
-     -moz-user-select: text !important;
-      -ms-user-select: text !important;
-          user-select: text !important;
-}
-button:focus:not(:focus-visible),
-.action-icon:focus:not(:focus-visible),
-.nav-btn:focus:not(:focus-visible) {
-  outline: none !important;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.quantity-btn:focus {
-    outline: none !important;
-    box-shadow: none !important;
 }

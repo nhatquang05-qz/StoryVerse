@@ -12,7 +12,6 @@ const calculateTimeUntilMidnight = () => {
     const now = new Date();
     const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
     const diff = midnight.getTime() - now.getTime();
-    
     return Math.max(0, diff);
 };
 
@@ -23,8 +22,7 @@ const CountdownTimer: React.FC = () => {
         const timer = setInterval(() => {
             const newTimeLeft = calculateTimeUntilMidnight();
             setTimeLeft(newTimeLeft);
-            
-            if (newTimeLeft === 0) {
+            if (newTimeLeft <= 0) { 
                 clearInterval(timer);
                 window.location.reload(); 
             }
@@ -41,9 +39,9 @@ const CountdownTimer: React.FC = () => {
         <div className="countdown-timer">
             Thời gian nhận quà tiếp theo: 
             <span className="time-group">
-                <span className="time-value">{String(hours).padStart(2, '0')}</span>: 
-                <span className="time-value">{String(minutes).padStart(2, '0')}</span>: 
-                <span className="time-value">{String(seconds).padStart(2, '0')}</span>
+                <span className="time-value">{String(hours).padStart(2, '0')}</span>h : 
+                <span className="time-value">{String(minutes).padStart(2, '0')}</span>m : 
+                <span className="time-value">{String(seconds).padStart(2, '0')}</span>s
             </span>
         </div>
     );
@@ -62,7 +60,7 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
     const today = useMemo(() => new Date(), []);
     const lastLoginDate = useMemo(() => new Date(lastDailyLogin), [lastDailyLogin]);
 
-    const isSameDay = useCallback(() => {
+    const isTodayClaimed = useMemo(() => {
         return (
             today.getFullYear() === lastLoginDate.getFullYear() &&
             today.getMonth() === lastLoginDate.getMonth() &&
@@ -70,34 +68,31 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
         );
     }, [today, lastLoginDate]);
     
-    const isTodayClaimed = isSameDay();
-    const currentStreak = consecutiveLoginDays;
+    const currentStreak = consecutiveLoginDays; 
     
-    const nextClaimDay = isTodayClaimed ? (currentStreak % dailyRewardsData.length) + 1 : (currentStreak % dailyRewardsData.length) + 1;
-    
-    const nextDayIndex = currentStreak % dailyRewardsData.length;
-    
+    const todayRewardIndex = isTodayClaimed ? (currentStreak - 1) % dailyRewardsData.length : currentStreak % dailyRewardsData.length;
+    const nextClaimDayDisplay = currentStreak + 1; 
+
 
     const displayedRewards = useMemo(() => {
         return Array(7).fill(0).map((_, index) => {
             const rewardData = dailyRewardsData[index % dailyRewardsData.length];
-            const displayDay = index + 1;
+            const displayDay = index + 1; 
             
             let status: 'claimed' | 'claimable' | 'pending';
-            
-            if (isTodayClaimed) {
-                 status = index === nextDayIndex ? 'claimed' : (index < nextDayIndex ? 'claimed' : 'pending');
+
+            if (index < todayRewardIndex) {
+                status = 'claimed';
+            } else if (index === todayRewardIndex) {
+                status = isTodayClaimed ? 'claimed' : 'claimable';
             } else {
-                 status = index === nextDayIndex ? 'claimable' : (index < nextDayIndex ? 'claimed' : 'pending');
+                status = 'pending';
             }
-            
-            if (currentStreak >= 7 && index === 6 && isTodayClaimed) {
-                 status = 'claimed';
-            }
-            
-            if (currentStreak === 0 && !isTodayClaimed) {
-                if (index === 0) status = 'claimable';
-                if (index > 0) status = 'pending';
+
+            if(currentStreak === 0 && !isTodayClaimed && index === 0) {
+                 status = 'claimable';
+            } else if (currentStreak === 0 && !isTodayClaimed && index > 0) {
+                 status = 'pending';
             }
 
 
@@ -107,7 +102,7 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
                 status
             };
         });
-    }, [currentStreak, isTodayClaimed, nextDayIndex]);
+    }, [currentStreak, isTodayClaimed, todayRewardIndex]);
 
     const handleClaim = async () => {
         if (!isTodayClaimed) {
@@ -160,7 +155,7 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
                         </>
                     ) : (
                         <button onClick={handleClaim} className="auth-button claim-btn" disabled={!currentUser || isTodayClaimed}>
-                            NHẬN THƯỞNG NGÀY {nextClaimDay}
+                            NHẬN THƯỞNG NGÀY {currentStreak + 1} 
                         </button>
                     )}
                 </div>
