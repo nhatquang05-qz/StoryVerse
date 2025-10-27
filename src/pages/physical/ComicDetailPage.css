@@ -132,7 +132,6 @@
   background: none;
   border: none;
   padding: 0.8rem;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +162,6 @@
   font-weight: bold;
   font-size: 1rem;
   border: none;
-  cursor: pointer;
   flex-grow: 1;
   max-width: 300px;
   transition: background-color 0.3s ease, transform 0.2s ease;
@@ -532,7 +530,6 @@
     justify-content: center;
     border: none;
     transition: background-color 0.2s, transform 0.1s;
-    cursor: pointer;
 }
 
 .read-chapter-btn {
@@ -556,7 +553,6 @@
 .unlock-chapter-btn:disabled {
     background-color: var(--clr-text-secondary);
     color: white;
-    cursor: not-allowed;
     opacity: 0.6;
 }
 

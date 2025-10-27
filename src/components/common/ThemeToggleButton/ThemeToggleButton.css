@@ -5,24 +5,23 @@
   --clr-sun: #FCE570;
   --clr-sun-lgt: #ffffe3;
   --clr-moon: hsl(212, 13%, 75%);
-  --button-width: 1.5em; /* Giảm kích thước nút tròn */
-  --button-wrapper-height: 2.2em; /* Giảm chiều cao wrapper */
-  --button-wrapper-width: 4.5em; /* Giảm chiều rộng wrapper */
+  --button-width: 1.5em; 
+  --button-wrapper-height: 2.2em; 
+  --button-wrapper-width: 4.5em; 
 }
 
-/* Các style CSS được điều chỉnh cho phù hợp với React và kích thước nhỏ hơn */
 .theme-toggle-button-wrapper {
-  --x: 3px; /* Giảm shadow */
+  --x: 3px; 
   --y: 5px;
   --spread: 4px;
   --offset: 0px;
 
-  position: relative; /* Đổi thành relative để dễ đặt trong header */
+  position: relative; 
   background-color: var(--clr-background-day);
   width: var(--button-wrapper-width);
   height: var(--button-wrapper-height);
   border-radius: 2em;
-  font-size: 1em; /* Kích thước font cơ sở cho nút */
+  font-size: 1em; 
   border: none;
   overflow: hidden;
   box-shadow:
@@ -31,10 +30,10 @@
     inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35);
   isolation: isolate;
   transition: all 0.75s var(--ease);
-  cursor: pointer; /* Thêm con trỏ */
-  padding: 0; /* Loại bỏ padding mặc định của button */
-  display: inline-flex; /* Để căn chỉnh tốt hơn */
-  vertical-align: middle; /* Căn giữa theo chiều dọc với các icon khác */
+  cursor: pointer; 
+  padding: 0; 
+  display: inline-flex; 
+  vertical-align: middle; 
 }
 
 .theme-toggle-button {
@@ -50,14 +49,14 @@
   background-color: var(--clr-sun);
   cursor: pointer;
   box-shadow:
-    0px 0px 0em 0.5em rgb(255 255 255 / 0.2), /* Giảm shadow */
+    0px 0px 0em 0.5em rgb(255 255 255 / 0.2), 
     0px 0px 0em 1em rgb(255 255 255 / 0.2),
     0px 0px 0em 1.5em rgb(255 255 255 / 0.2),
-    0 0 0.25em 0 #fff; /* Giảm shadow */
+    0 0 0.25em 0 #fff; 
   transition: all 0.75s var(--ease);
 }
 
-.theme-toggle-button::after { /* Moon craters */
+.theme-toggle-button::after { 
   content: '';
   position: absolute;
   left: 50%;
@@ -69,14 +68,14 @@
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow:
-    -0.5em -0.4em 0 0.05em #d5d5d500, /* Giảm shadow */
-    0.05em -0.5em 0 -0.05em #d5d5d500; /* Giảm shadow */
+    -0.5em -0.4em 0 0.05em #d5d5d500, 
+    0.05em -0.5em 0 -0.05em #d5d5d500;
 }
 
-.theme-toggle-button-wrapper::before { /* Clouds layer 1 */
+.theme-toggle-button-wrapper::before {
   content: '';
   position: absolute;
-  width: 1.5em; /* Giảm kích thước */
+  width: 1.5em;
   aspect-ratio: 1 / 1;
   background-color: #fff;
   border-radius: 50%;
@@ -92,8 +91,7 @@
   transition: all 0.75s ease;
 }
 
-.theme-toggle-button-wrapper::after { /* Clouds layer 2 */
-  content: '';
+.theme-toggle-button-wrapper::after {
   position: absolute;
   width: var(--button-width);
   height: var(--button-width);
@@ -150,7 +148,6 @@
   opacity: 1;
 }
 
-/* Canvas for stars */
 .theme-toggle-button-wrapper canvas#stars {
   position: absolute;
   top: 0;
@@ -162,7 +159,6 @@
   transition: all 0.75s ease;
 }
 
-/* Hide the main body background transition from JS, we'll use CSS class */
 body {
-  transition: none; /* Remove JS transition */
+  transition: none; 
 }

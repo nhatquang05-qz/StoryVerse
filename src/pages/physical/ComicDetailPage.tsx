@@ -305,7 +305,7 @@ const toggleSort = () => {
               <h2>Danh Sách Chương ({chapters.length})</h2>
 
               <div className="chapter-search-row">
-                  <div className="chapter-sort-label" onClick={toggleSort} style={{ cursor: 'pointer' }}>
+                  <div className="chapter-sort-label" onClick={toggleSort} >
                       Chap {sortOrder === 'desc' ? <FiArrowDown /> : <FiArrowUp />}
                   </div>
                   <div className="chapter-search-box">
@@ -327,7 +327,6 @@ const toggleSort = () => {
                   </div>
                   
                   <div className="chapter-header-col" style={{ gridColumn: '5 / 6', justifyContent: 'flex-end' }}>
-                      Hành động
                   </div>
               </div>
 

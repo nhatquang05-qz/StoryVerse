@@ -70,7 +70,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
             <FiHeart />
           </button>
           
-          {/* ẨN NÚT GIỎ HÀNG NẾU LÀ TRUYỆN DIGITAL */}
           {!comic.isDigital && (
             <button className="card-action-button" onClick={handleAddToCart} aria-label="Thêm vào giỏ hàng">
               <FiShoppingCart />

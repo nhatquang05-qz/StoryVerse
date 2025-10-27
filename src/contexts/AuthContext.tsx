@@ -1,5 +1,3 @@
-// src/contexts/AuthContext.tsx
-
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import { useNotification } from './NotificationContext';
 import { saveNewOrder, loadOrders } from '../data/mockData';
@@ -22,7 +20,7 @@ export interface User {
   addresses: Address[];
   coinBalance: number;
   lastDailyLogin: string;
-  consecutiveLoginDays: number; // THÊM MỚI
+  consecutiveLoginDays: number; 
 }
 
 interface AuthContextType {
@@ -212,7 +210,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const oneDay = 24 * 60 * 60 * 1000;
       const diffDays = Math.round(Math.abs((today.getTime() - lastLoginDate.getTime()) / oneDay));
 
-      // Kiểm tra xem đã nhận thưởng hôm nay chưa
       const isSameDay = 
           today.getFullYear() === lastLoginDate.getFullYear() &&
           today.getMonth() === lastLoginDate.getMonth() &&
@@ -226,7 +223,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       let nextLoginDays = currentUser.consecutiveLoginDays + 1;
       let isStreakBroken = false;
       
-      // Kiểm tra mất chuỗi (nếu cách nhau hơn 1 ngày)
       if (diffDays > 1) {
           nextLoginDays = 1;
           isStreakBroken = true;
@@ -236,7 +232,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           showNotification('Chuỗi đăng nhập đã bị đứt! Bắt đầu lại từ Ngày 1.', 'warning');
       }
 
-      // Vòng lặp 7 ngày
       const currentRewardIndex = (nextLoginDays - 1) % dailyRewardsData.length;
       const reward = dailyRewardsData[currentRewardIndex];
       
@@ -276,13 +271,12 @@ export const useAuth = () => {
   return context;
 };
 
-// Dữ liệu phần thưởng giả lập 7 ngày
 export const dailyRewardsData = [
     { day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '../src/assets/images/coin.png' },
     { day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '../src/assets/images/coin.png' },
-    { day: 3, type: 'Phiếu giảm giá', amount: 10, color: '#e63946', icon: 'FiTag' },
+    { day: 3, type: 'Xu', amount: 60, color: '#e63946', icon: '../src/assets/images/coin.png' },
     { day: 4, type: 'Xu', amount: 70, color: '#f7b731', icon: '../src/assets/images/coin.png' },
     { day: 5, type: 'Xu', amount: 100, color: '#28a745', icon: '../src/assets/images/coin.png' },
     { day: 6, type: 'Xu', amount: 120, color: '#f7b731', icon: '../src/assets/images/coin.png' },
-    { day: 7, type: 'Xu Đặc Biệt', amount: 200, color: '#747bff', icon: '../src/assets/images/coin.png' },
+    { day: 7, type: 'Xu', amount: 200, color: '#747bff', icon: '../src/assets/images/coin.png' },
 ];

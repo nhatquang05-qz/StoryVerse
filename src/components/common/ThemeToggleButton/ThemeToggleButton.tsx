@@ -14,7 +14,6 @@ interface Star {
 
 const ThemeToggleButton: React.FC = () => {
   const [theme, setTheme] = useState<'day' | 'night'>(() => {
-    // Ưu tiên theme đã lưu hoặc theme hệ thống
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: night)').matches;
     return (savedTheme as 'day' | 'night') || (prefersDark ? 'night' : 'day');
@@ -25,7 +24,6 @@ const ThemeToggleButton: React.FC = () => {
   const animationFrameId = useRef<number | null>(null);
   const starsRef = useRef<Star[]>([]);
 
-  // Cập nhật theme trên <html> và localStorage
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -45,14 +43,13 @@ const ThemeToggleButton: React.FC = () => {
     }
   }, []);
 
-  // Khởi tạo và vẽ sao
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    resizeCanvas(); // Đặt kích thước ban đầu
+    resizeCanvas(); 
 
     const createStar = (x: number, y: number): Star => {
       const star: Star = {
@@ -63,7 +60,7 @@ const ThemeToggleButton: React.FC = () => {
         growth: 0.1,
         isIncreasing: true,
         update(context: CanvasRenderingContext2D) {
-          if (this.size > 2.0) { // Giảm kích thước sao tối đa
+          if (this.size > 2.0) { 
             this.isIncreasing = false;
           }
           if (this.isIncreasing) {
@@ -75,7 +72,7 @@ const ThemeToggleButton: React.FC = () => {
         },
         draw(context: CanvasRenderingContext2D) {
           context.beginPath();
-          context.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2); // Đảm bảo size không âm
+          context.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2); 
           context.fillStyle = `#ffffff`;
           context.fill();
           context.closePath();
@@ -86,20 +83,19 @@ const ThemeToggleButton: React.FC = () => {
 
     const flicker = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      starsRef.current = starsRef.current.filter(star => star.isIncreasing || star.size >= 0.1); // Giữ sao lâu hơn
+      starsRef.current = starsRef.current.filter(star => star.isIncreasing || star.size >= 0.1);
       starsRef.current.forEach(star => star.update(ctx));
       animationFrameId.current = requestAnimationFrame(flicker);
     };
 
-    // Chỉ chạy animation nếu là ban đêm
     if (theme === 'night') {
         const intervalId = setInterval(() => {
-            if (starsRef.current.length < 30) { // Giới hạn số lượng sao
+            if (starsRef.current.length < 30) { 
                 const x = Math.random() * canvas.width;
                 const y = Math.random() * canvas.height;
                 starsRef.current.push(createStar(x, y));
             }
-        }, 250); // Giảm tần suất tạo sao
+        }, 250); 
 
         animationFrameId.current = requestAnimationFrame(flicker);
 
@@ -108,18 +104,17 @@ const ThemeToggleButton: React.FC = () => {
             if (animationFrameId.current) {
                 cancelAnimationFrame(animationFrameId.current);
             }
-            starsRef.current = []; // Xóa sao khi chuyển sang ngày
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
+            starsRef.current = []; 
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         };
     } else {
-         starsRef.current = []; // Xóa sao khi là ban ngày
-         ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa canvas
+         starsRef.current = []; 
+         ctx.clearRect(0, 0, canvas.width, canvas.height); 
     }
 
 
   }, [theme, resizeCanvas]);
 
-  // Resize listener
   useEffect(() => {
     window.addEventListener('resize', resizeCanvas);
     return () => window.removeEventListener('resize', resizeCanvas);

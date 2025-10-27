@@ -40,7 +40,7 @@
   --clr-skeleton-pulse-start: rgba(200, 200, 200, 0.5);
   --clr-skeleton-pulse-mid: rgba(200, 200, 200, 0.9);
   --clr-hero-bg: #0e1624;
-  --clr-hero-text: #ffffff;
+  --clr-hero-text: #000000;
   --clr-hero-highlight: #e63946;
   --clr-hero-nav-bg: rgba(255, 255, 255, 0.2);
   --clr-hero-nav-hover-bg: rgba(255, 255, 255, 0.4);
@@ -387,4 +387,36 @@ html[data-theme="dark"] .cancel-btn:hover {
         width: 60%;
         height: 60%;
     }
+}
+html, body, .app-container {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none; 
+          user-select: none; 
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+textarea {
+  -webkit-user-select: text !important;
+     -moz-user-select: text !important;
+      -ms-user-select: text !important;
+          user-select: text !important;
+}
+button:focus:not(:focus-visible),
+.action-icon:focus:not(:focus-visible),
+.nav-btn:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.quantity-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
