@@ -27,7 +27,7 @@ html[data-theme="night"] .chat-room-container {
 
 .chat-messages-list {
   flex-grow: 1;
-  max-height: 400px;
+  max-height: 800px; 
   overflow-y: auto;
   padding-right: 5px;
   margin-bottom: 10px;

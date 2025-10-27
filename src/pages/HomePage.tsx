@@ -7,11 +7,13 @@ import { type Comic, trendingComics, newReleasesComics, recommendedDigitalComics
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import FeaturedTagsSection from '../components/common/FeaturedTagsSection/FeaturedTagsSection';
 import TopComicsSection from '../components/common/TopComicSection/TopComicSection';
+import TopMembersSection from '../components/common/TopMembersSection/TopMembersSection';
 import ChatLog from '../components/common/Chat/ChatLog';
 import './HomePage.css';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 
+// HomeSection component (giữ nguyên định nghĩa như trước)
 const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean }> = ({ title, comics, isLoading }) => {
     const [pageIndex, setPageIndex] = useState(0);
     const totalItems = comics.length;
@@ -55,7 +57,8 @@ const HomePage: React.FC = () => {
     }, []);
 
     return (
-        <div>
+        // Sử dụng Fragment thay vì div không cần thiết
+        <React.Fragment>
             <Hero />
 
             <div style={{ marginTop: '3rem' }}>
@@ -68,23 +71,23 @@ const HomePage: React.FC = () => {
 
             <FeaturedTagsSection />
 
-            <div>
-                 <HomeSection
-                    title="Truyện In Bán Chạy"
-                    comics={trendingComics}
-                    isLoading={isLoading}
-                 />
-            </div>
+            {/* Bỏ div thừa ở đây */}
+            <HomeSection
+                title="Truyện In Bán Chạy"
+                comics={trendingComics}
+                isLoading={isLoading}
+            />
 
             <div className="top-and-chat-section">
                 <div className="chat-column">
                    {!isLoading && <ChatLog />}
                    {isLoading && (
-                       <div className="skeleton-placeholder-chat" style={{ height: '500px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
+                       <div className="skeleton-placeholder-chat" style={{ height: '700px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
                    )}
                 </div>
                  <aside className="top-comics-column">
                      {!isLoading && <TopComicsSection />}
+                     {!isLoading && <TopMembersSection />}
                      {isLoading && (
                          <div className="skeleton-placeholder-sidebar" style={{ height: '500px', backgroundColor: 'var(--clr-card-bg)', borderRadius: 'var(--border-radius)', border: '1px solid var(--clr-border-light)', padding: '1.5rem', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
                      )}
@@ -99,7 +102,7 @@ const HomePage: React.FC = () => {
                 />
             </div>
 
-        </div>
+        </React.Fragment> // Đóng Fragments
     );
 };
 

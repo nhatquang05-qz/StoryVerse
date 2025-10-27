@@ -279,3 +279,18 @@ const featuredTagsData: FeaturedTag[] = [
   { name: 'COMEDY', count: 5078, imageUrl: '/src/components/common/FeaturedTagsSection/comedy.png', color: '#50E3C2', link: '/genres/comedy' },
   { name: 'FANTASY', count: 3463, imageUrl: '/src/components/common/FeaturedTagsSection/fantasy.png', color: '#AE81FF', link: '/genres/fantasy' },
 ];
+ export interface TopMember {
+  rank: number;
+  avatarUrl: string;
+  name: string;
+  level: number;
+  score: number;
+}
+
+export const topMembersData: TopMember[] = [
+  { rank: 1, avatarUrl: 'https://i.imgur.com/exampleAvatar1.png', name: 'festering vomitous mass', level: 8, score: 31250 },
+  { rank: 2, avatarUrl: 'https://i.imgur.com/exampleAvatar2.png', name: 'Foxy', level: 7, score: 33160 },
+  { rank: 3, avatarUrl: 'https://i.imgur.com/exampleAvatar3.png', name: 'Lunar', level: 7, score: 303 },
+  { rank: 4, avatarUrl: 'https://i.imgur.com/exampleAvatar4.png', name: 'jackngu5', level: 7, score: 142400 },
+  { rank: 5, avatarUrl: 'https://i.imgur.com/exampleAvatar5.png', name: 'Lọ Thánh Chí Tôn', level: 7, score: 64582 },
+];

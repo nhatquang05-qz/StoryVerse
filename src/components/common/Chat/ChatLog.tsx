@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react'; // Thêm useRef
 import './ChatLog.css';
 import ChatMessage from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FiSend } from 'react-icons/fi';
 
 const mockMessagesData = [
+    // ... (dữ liệu mock giữ nguyên)
     {
       id: 1,
       userId: 'user-coconut',
@@ -43,16 +44,19 @@ const mockMessagesData = [
     },
 ];
 
-
-const ChatRoom: React.FC = () => {
+const ChatLog: React.FC = () => {
     const { currentUser } = useAuth();
     const [messages, setMessages] = React.useState(mockMessagesData);
     const [newMessage, setNewMessage] = React.useState('');
-    const messagesEndRef = React.useRef<HTMLDivElement>(null);
+    // const messagesEndRef = React.useRef<HTMLDivElement>(null); // Không cần dòng này nữa
+    const chatMessagesListRef = useRef<HTMLDivElement>(null); // Thêm ref cho container
 
     React.useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+        // Cuộn container chat xuống dưới cùng
+        if (chatMessagesListRef.current) {
+            chatMessagesListRef.current.scrollTop = chatMessagesListRef.current.scrollHeight;
+        }
+    }, [messages]); // Chỉ chạy khi messages thay đổi
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,7 +66,7 @@ const ChatRoom: React.FC = () => {
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
+            avatarUrl: "https://i.imgur.com/tq9k3Yj.png", // Nên lấy avatar thực tế nếu có
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             message: newMessage,
             userLevel: currentUser.level,
@@ -78,7 +82,8 @@ const ChatRoom: React.FC = () => {
                 Vạn hữu đàm đạo
             </div>
 
-            <div className="chat-messages-list">
+            {/* Gắn ref vào đây */}
+            <div className="chat-messages-list" ref={chatMessagesListRef}>
                 {messages.map(msg => (
                     <ChatMessage
                         key={msg.id}
@@ -89,7 +94,7 @@ const ChatRoom: React.FC = () => {
                         userLevel={currentUser && msg.userId === currentUser.id ? currentUser.level : msg.userLevel}
                     />
                 ))}
-                <div ref={messagesEndRef} />
+                {/* Không cần div messagesEndRef nữa */}
             </div>
 
             {currentUser ? (
@@ -113,4 +118,4 @@ const ChatRoom: React.FC = () => {
     );
 };
 
-export default ChatRoom;
+export default ChatLog;
