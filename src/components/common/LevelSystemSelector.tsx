@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { FiChevronDown, FiEdit3 } from 'react-icons/fi';
 interface LevelSystemSelectorProps {
     currentUserLevel: number; 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -37,6 +37,9 @@ const Header: React.FC = () => {
   const cartIconRef = useRef<HTMLAnchorElement>(null);
   const navigate = useNavigate();
   const searchBarRef = useRef<HTMLDivElement>(null);
+
+  const location = useLocation();
+  const isReaderPage = location.pathname.startsWith('/read/');
 
   const toggleMenu = () => { setIsMenuOpen(!isMenuOpen); };
 
@@ -137,12 +140,11 @@ const Header: React.FC = () => {
 
   const showSuggestionsDropdown = suggestions.length > 0 && isSearchFocused;
 
-  // Lọc suggestions trong phần render JSX
   const digitalSuggestions = suggestions.filter(comic => comic.isDigital);
   const physicalSuggestions = suggestions.filter(comic => !comic.isDigital);
 
   return (
-    <header className="header">
+    <header className={`header ${isReaderPage ? 'header-no-sticky' : ''}`}>
       <div className="header-container">
         <Link to="/" className="logo">StoryVerse</Link>
 
@@ -239,7 +241,6 @@ const Header: React.FC = () => {
                   </div>
                 )}
 
-                {/* Link Xem tất cả */}
                 {searchTerm.trim() && (
                   <Link
                     to={`/search?q=${encodeURIComponent(searchTerm)}`}

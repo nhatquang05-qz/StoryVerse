@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth, type User } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import ProfileSidebar from '../../components/common/ProfileSideBar';
 import { useNotification } from '../../contexts/NotificationContext';
-import { FiEdit3, FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown } from 'react-icons/fi';
 import './ProfilePage.css';
 
 interface LevelSystem {
@@ -66,14 +66,8 @@ const LevelSystemSelector: React.FC<LevelSelectorProps> = ({ currentUserLevel, c
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newKey = e.target.value;
         setTempSystemKey(newKey);
-        // Thay đổi trực tiếp khi chọn từ dropdown
         onSystemChange(newKey);
-        setIsEditing(false); // Đóng chế độ edit sau khi chọn
-    };
-
-    const handleCancelClick = () => {
-        setTempSystemKey(currentSystemKey);
-        setIsEditing(false);
+        setIsEditing(false); 
     };
 
     return (
@@ -114,8 +108,6 @@ const LevelSystemSelector: React.FC<LevelSelectorProps> = ({ currentUserLevel, c
                             </select>
                             <FiChevronDown className="select-arrow" />
                         </div>
-                        {/* Nút hủy nếu cần */}
-                        {/* <button onClick={handleCancelClick} className="cancel-btn-inline">Hủy</button> */}
                     </div>
                  )}
             </div>
@@ -254,8 +246,8 @@ const ProfilePage: React.FC = () => {
 
             <LevelSystemSelector
                 currentUserLevel={currentUser.level}
-                currentSystemKey={selectedSystemKey} // Dùng state từ context
-                onSystemChange={handleLevelSystemChange} // Dùng hàm cập nhật từ context
+                currentSystemKey={selectedSystemKey} 
+                onSystemChange={handleLevelSystemChange} 
                 currentLevelColor={levelColor}
             />
 

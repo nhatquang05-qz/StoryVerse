@@ -1,5 +1,5 @@
 import React from 'react';
-import { topMembersData, type TopMember } from '../../../data/mockData';
+import { topMembersData } from '../../../data/mockData';
 import { useAuth } from '../../../contexts/AuthContext';
 import './TopMembersSection.css';
 

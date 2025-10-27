@@ -10,6 +10,10 @@
   border-bottom: 1px solid var(--clr-border-light);
 }
 
+.header.header-no-sticky {
+  position: static;
+}
+
 .header-container {
   max-width: 1536px;
   margin: 0 auto;

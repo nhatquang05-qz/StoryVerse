@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiMousePointer, FiArrowLeft, FiSettings } from 'react-icons/fi';
+import { FiArrowLeft, FiSettings } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 import './SettingPage.css';
