@@ -6,6 +6,8 @@ import './SettingPage.css';
 
 import mikaelaPreview from '../cursors/Mikaela_Hykuya.png'; 
 import krulTepesPreview from '../cursors/Krul_Tepes.png'; 
+import enePreview from '../cursors/Ene.png'; 
+import YuichiroPreview from '../cursors/Yuichiro.png'; 
 
 const CURSOR_STORAGE_KEY = 'storyverse_custom_cursor_pack';
 
@@ -42,6 +44,20 @@ const CURSOR_PACKS: CursorPack[] = [
         basePath: '../../src/cursors/Krul_Tepes_Cursor',
         defaultFile: CURSOR_FILE_NAMES['default'],
         previewImage: krulTepesPreview, 
+    },
+    {
+        id: 'Ene',
+        name: 'Ene',
+        basePath: '../../src/cursors/Ene_Cursor',
+        defaultFile: CURSOR_FILE_NAMES['default'],
+        previewImage: enePreview, 
+    },
+       {
+        id: 'YuichiroHyakuya',
+        name: 'Yuichiro Hyakuya',
+        basePath: '../../src/cursors/Yuichiro_Hyakuya_Cursor',
+        defaultFile: CURSOR_FILE_NAMES['default'],
+        previewImage: YuichiroPreview, 
     },
 ];
 

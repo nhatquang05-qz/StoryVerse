@@ -1,20 +1,37 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { comics } from '../../data/mockData';
+import { comics, trendingComics, digitalComics, physicalComics, type Comic } from '../../data/mockData';
 import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
 import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
 import './Header.css';
 
-const MAX_SUGGESTIONS = 5;
+const MAX_SUGGESTIONS_TOTAL = 14; 
+const MAX_DIGITAL_DEFAULT = 7; 
+const MAX_PHYSICAL_DEFAULT = 7; 
+
+const defaultDigital = digitalComics
+                        .sort((a, b) => b.viewCount - a.viewCount) 
+                        .slice(0, MAX_DIGITAL_DEFAULT);
+const defaultPhysical = physicalComics
+                        .sort((a,b) => b.id - a.id)
+                        .slice(0, MAX_PHYSICAL_DEFAULT);
+const defaultSuggestions = [...defaultDigital, ...defaultPhysical];
+
+
+const formatPrice = (price: number) => {
+  if (price === 0) return "Miễn phí";
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+};
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [suggestions, setSuggestions] = useState<typeof comics>([]);
+  const [suggestions, setSuggestions] = useState<Comic[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { cartCount, setCartIconRect } = useCart();
   const { currentUser, logout } = useAuth();
   const cartIconRef = useRef<HTMLAnchorElement>(null);
@@ -30,16 +47,17 @@ const Header: React.FC = () => {
   }, [setCartIconRect]);
 
   const handleLogout = async () => {
-      try {
-          await logout();
-          setIsMenuOpen(false);
-      } catch (error) {
-          console.error("Lỗi đăng xuất:", error);
-      }
+    try {
+      await logout();
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
   }
 
   const handleSearchTermChange = (value: string) => {
     setSearchTerm(value);
+    setIsSearchFocused(true);
 
     if (value.trim().length > 1) {
       const normalizedValue = value.toLowerCase().trim();
@@ -49,10 +67,19 @@ const Header: React.FC = () => {
             c.title.toLowerCase().includes(normalizedValue) ||
             c.author.toLowerCase().includes(normalizedValue)
         )
-        .slice(0, MAX_SUGGESTIONS);
+        .slice(0, MAX_SUGGESTIONS_TOTAL);
       setSuggestions(filtered);
+    } else if (value.trim().length === 0) {
+      setSuggestions(defaultSuggestions);
     } else {
       setSuggestions([]);
+    }
+  };
+
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+    if (searchTerm.trim() === '') {
+      setSuggestions(defaultSuggestions);
     }
   };
 
@@ -62,6 +89,7 @@ const Header: React.FC = () => {
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
       setSearchTerm('');
       setSuggestions([]);
+      setIsSearchFocused(false);
       setIsMenuOpen(false);
     }
   };
@@ -69,10 +97,11 @@ const Header: React.FC = () => {
   const handleSuggestionClick = (comicId: number) => {
     setSearchTerm('');
     setSuggestions([]);
+    setIsSearchFocused(false);
     navigate(`/comic/${comicId}`);
   };
 
-  const handleOpenRewardModal = (e: React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement>) => {
+    const handleOpenRewardModal = (e: React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (!currentUser) {
           navigate('/login');
@@ -83,14 +112,14 @@ const Header: React.FC = () => {
           setIsMenuOpen(false);
       }
   };
-  
+
   const canClaimReward = currentUser ? (() => {
     const today = new Date();
     const lastLoginDate = new Date(currentUser.lastDailyLogin);
     return !(
-        today.getFullYear() === lastLoginDate.getFullYear() &&
-        today.getMonth() === lastLoginDate.getMonth() &&
-        today.getDate() === lastLoginDate.getDate()
+      today.getFullYear() === lastLoginDate.getFullYear() &&
+      today.getMonth() === lastLoginDate.getMonth() &&
+      today.getDate() === lastLoginDate.getDate()
     );
   })() : false;
 
@@ -99,11 +128,18 @@ const Header: React.FC = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchBarRef.current && !searchBarRef.current.contains(event.target as Node)) {
         setSuggestions([]);
+        setIsSearchFocused(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchBarRef]);
+
+  const showSuggestionsDropdown = suggestions.length > 0 && isSearchFocused;
+
+  // Lọc suggestions trong phần render JSX
+  const digitalSuggestions = suggestions.filter(comic => comic.isDigital);
+  const physicalSuggestions = suggestions.filter(comic => !comic.isDigital);
 
   return (
     <header className="header">
@@ -113,11 +149,9 @@ const Header: React.FC = () => {
         <nav className="nav-desktop">
           <Link to="/physical-comics">Truyện In</Link>
           <Link to="/digital-comics">Đọc Online</Link>
-
           <div className="dropdown mega-dropdown">
             <button className="dropdown-btn">Thể Loại</button>
             <div className="dropdown-content mega-content">
-
               <div className="dropdown-column">
                 <h4>Truyện In (Vật Lý)</h4>
                 <Link to="/genres/action">Hành Động</Link>
@@ -125,7 +159,6 @@ const Header: React.FC = () => {
                 <Link to="/genres/sci-fi">Khoa Học Viễn Tưởng</Link>
                 <Link to="/genres/trinh-tham">Trinh Thám</Link>
               </div>
-
               <div className="dropdown-column">
                 <h4>Đọc Online (Digital)</h4>
                 <Link to="/genres/romance">Tình Cảm</Link>
@@ -133,7 +166,6 @@ const Header: React.FC = () => {
                 <Link to="/genres/the-thao">Thể Thao</Link>
                 <Link to="/genres/sieu-anh-hung">Siêu Anh Hùng</Link>
               </div>
-
             </div>
           </div>
           <Link to="/new-releases">Mới Phát Hành</Link>
@@ -147,36 +179,84 @@ const Header: React.FC = () => {
                 placeholder="Tìm kiếm truyện..."
                 value={searchTerm}
                 onChange={(e) => handleSearchTermChange(e.target.value)}
+                onFocus={handleSearchFocus}
               />
               <button type="submit" className="search-btn"><FiSearch /></button>
             </form>
 
-            {suggestions.length > 0 && (
-                <div className="search-suggestions-dropdown">
-                    {suggestions.map((comic) => (
-                        <div
-                            key={comic.id}
-                            className="suggestion-item"
-                            onClick={() => handleSuggestionClick(comic.id)}
-                        >
-                            <img src={comic.imageUrl} alt={comic.title} />
-                            <div>
-                                <p className="suggestion-title">{comic.title}</p>
-                                <p className="suggestion-author">{comic.author}</p>
-                            </div>
+            {showSuggestionsDropdown && (
+              <div className="search-suggestions-dropdown">
+                {searchTerm.trim() === '' && <h4 className="suggestion-section-title main-title">Gợi ý cho bạn</h4>}
+
+                {digitalSuggestions.length > 0 && (
+                  <div className="suggestion-section">
+                    {(physicalSuggestions.length > 0 || searchTerm.trim() !== '') && (
+                      <h5 className="suggestion-section-title">Truyện Online</h5>
+                    )}
+                    {digitalSuggestions.map((comic) => (
+                      <div
+                        key={`digital-${comic.id}`}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionClick(comic.id)}
+                      >
+                        <img src={comic.imageUrl} alt={comic.title} />
+                        <div>
+                          <p className="suggestion-title">{comic.title}</p>
+                          <p className="suggestion-author" style={{ fontSize: '0.75rem' }}>{comic.author}</p>
                         </div>
+                      </div>
                     ))}
-                    <Link to={`/search?q=${encodeURIComponent(searchTerm)}`} onClick={() => setSuggestions([])} className="suggestion-view-all">
-                        Xem tất cả kết quả cho "{searchTerm}"
-                    </Link>
-                </div>
+                  </div>
+                )}
+
+                {digitalSuggestions.length > 0 && physicalSuggestions.length > 0 && (
+                  <hr className="suggestion-divider" />
+                )}
+
+                {physicalSuggestions.length > 0 && (
+                  <div className="suggestion-section">
+                    {(digitalSuggestions.length > 0 || searchTerm.trim() !== '') && (
+                      <h5 className="suggestion-section-title">Truyện Vật Lý</h5>
+                    )}
+                    {physicalSuggestions.map((comic) => (
+                      <div
+                        key={`physical-${comic.id}`}
+                        className="suggestion-item"
+                        onClick={() => handleSuggestionClick(comic.id)}
+                      >
+                        <img src={comic.imageUrl} alt={comic.title} />
+                        <div>
+                          <p className="suggestion-title">{comic.title}</p>
+                          {comic.price > 0 && (
+                            <p className="suggestion-price">
+                              {formatPrice(comic.price)}
+                            </p>
+                          )}
+                          <p className="suggestion-author">{comic.author}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Link Xem tất cả */}
+                {searchTerm.trim() && (
+                  <Link
+                    to={`/search?q=${encodeURIComponent(searchTerm)}`}
+                    onClick={() => { setSuggestions([]); setIsSearchFocused(false); }}
+                    className="suggestion-view-all"
+                  >
+                    Xem tất cả kết quả cho "{searchTerm}"
+                  </Link>
+                )}
+              </div>
             )}
           </div>
 
           <ThemeToggleButton />
 
           {currentUser && (
-              <div 
+              <div
                   className={`action-icon daily-reward-icon-wrapper ${canClaimReward ? 'can-claim-wrapper' : ''}`}
                   onClick={handleOpenRewardModal}
                   aria-label="Nhận thưởng hàng ngày"
@@ -234,10 +314,10 @@ const Header: React.FC = () => {
               placeholder="Tìm kiếm truyện..."
               value={searchTerm}
               onChange={(e) => handleSearchTermChange(e.target.value)}
+              onFocus={handleSearchFocus}
             />
             <button type="submit" className="search-btn"><FiSearch /></button>
           </form>
-
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
           <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>
@@ -285,10 +365,10 @@ const Header: React.FC = () => {
           )}
         </nav>
       )}
-      
-      <DailyRewardModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
+
+      <DailyRewardModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </header>
   );

@@ -6,7 +6,7 @@ export interface Comic {
   imageUrl: string;
   isDigital: boolean;
   genres: string[];
-  rating: number; 
+  rating: number;
   viewCount: number;
   unlockCoinPrice: number;
 }
@@ -39,7 +39,7 @@ interface ChapterListEntry {
 }
 
 const digitalComicChapters: ChapterListEntry = {
-    31: [ 
+    31: [
         { id: 3101, chapterNumber: 1, title: 'Anh Hùng Tóc Dày', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 ngày trước', views: 3500 },
         { id: 3102, chapterNumber: 2, title: 'Sự Xuất Hiện Của Saitama', isFree: true, unlockCoinPrice: 0, lastUpdated: '3 ngày trước', views: 3000 },
         { id: 3103, chapterNumber: 3, title: 'Genos - Người Máy Tự Do', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 tuần trước', views: 2500 },
@@ -74,11 +74,12 @@ export const getChaptersByComicId = (comicId: number): Chapter[] => {
     if (digitalComicChapters[comicId]) {
         return digitalComicChapters[comicId];
     }
-    
-    if (comics.find(c => c.id === comicId)?.isDigital) {
+
+    const targetComic = comics.find(c => c.id === comicId);
+    if (targetComic?.isDigital) {
         return BASE_CHAPTERS.map(ch => ({
             ...ch,
-            id: ch.id + comicId * 100, 
+            id: ch.id + comicId * 100,
             unlockCoinPrice: ch.isFree ? 0 : ch.unlockCoinPrice + (comicId % 5) * 5,
             lastUpdated: ch.lastUpdated,
             views: ch.views,
@@ -188,7 +189,7 @@ export interface Order {
 
 export interface Review {
   id: number;
-  comicId: number; 
+  comicId: number;
   author: string;
   rating: number;
   date: string;
@@ -215,6 +216,7 @@ export const saveNewOrder = (order: Order): void => {
         allOrders.push(order);
         localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(allOrders));
     } catch (e) {
+        console.error("Failed to save order", e);
     }
 };
 
@@ -245,32 +247,35 @@ export const saveNewReview = (review: Review): void => {
         allReviews.push(review);
         localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(allReviews));
     } catch (e) {
+        console.error("Failed to save review", e);
     }
 };
 
-export const trendingComics: Comic[] = [...physicalComics]
-    .sort((a, b) => b.price - a.price) 
+// --- CẬP NHẬT THEO YÊU CẦU ---
+export const trendingComics: Comic[] = [...digitalComics, ...physicalComics] // Gộp cả hai danh sách
+    .sort((a, b) => (b.isDigital ? b.viewCount : 0) - (a.isDigital ? a.viewCount : 0)) // Ưu tiên sắp xếp theo viewCount của truyện digital, truyện vật lý (viewCount = 0) sẽ ở dưới
     .slice(0, 12);
+// --- KẾT THÚC CẬP NHẬT ---
 
 export const newReleasesComics: Comic[] = [...comics]
     .sort((a, b) => b.id - a.id)
     .slice(0, 15);
-    
+
 export const recommendedDigitalComics: Comic[] = digitalComics
     .filter(c => c.genres.includes('Fantasy'))
     .slice(0, 10);
-    
+
 interface FeaturedTag {
   name: string;
   count: number;
-  imageUrl: string; 
-  color: string; 
-  link: string; 
+  imageUrl: string;
+  color: string;
+  link: string;
 }
 
 const featuredTagsData: FeaturedTag[] = [
-  { name: 'ACTION', count: 5379, imageUrl: '/path/to/action-image.png', color: '#4A90E2', link: '/genres/action' },
-  { name: 'ROMANCE', count: 5364, imageUrl: '/path/to/romance-image.png', color: '#D95C5C', link: '/genres/romance' },
-  { name: 'COMEDY', count: 5078, imageUrl: '/path/to/comedy-image.png', color: '#50E3C2', link: '/genres/comedy' },
-  { name: 'FANTASY', count: 3463, imageUrl: '/path/to/fantasy-image.png', color: '#AE81FF', link: '/genres/fantasy' },
+  { name: 'ACTION', count: 5379, imageUrl: '/src/components/common/FeaturedTagsSection/action.png', color: '#4A90E2', link: '/genres/action' },
+  { name: 'ROMANCE', count: 5364, imageUrl: '/src/components/common/FeaturedTagsSection/romance.png', color: '#D95C5C', link: '/genres/romance' },
+  { name: 'COMEDY', count: 5078, imageUrl: '/src/components/common/FeaturedTagsSection/comedy.png', color: '#50E3C2', link: '/genres/comedy' },
+  { name: 'FANTASY', count: 3463, imageUrl: '/src/components/common/FeaturedTagsSection/fantasy.png', color: '#AE81FF', link: '/genres/fantasy' },
 ];
