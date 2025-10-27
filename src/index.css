@@ -449,3 +449,26 @@ html[data-theme="dark"] .cancel-btn:hover {
     opacity: 0; 
   }
 }
+
+@keyframes neon-border-pulse {
+    0% {
+        box-shadow: 0 0 5px var(--clr-primary), 0 0 10px var(--clr-primary);
+        border-color: var(--clr-primary);
+    }
+    25% {
+        box-shadow: 0 0 5px #ffc107, 0 0 10px #ffc107;
+        border-color: #ffc107;
+    }
+    50% {
+        box-shadow: 0 0 5px #e63946, 0 0 10px #e63946;
+        border-color: #e63946;
+    }
+    75% {
+        box-shadow: 0 0 5px #50E3C2, 0 0 10px #50E3C2;
+        border-color: #50E3C2;
+    }
+    100% {
+        box-shadow: 0 0 5px var(--clr-primary), 0 0 10px var(--clr-primary);
+        border-color: var(--clr-primary);
+    }
+}

@@ -36,6 +36,7 @@
     color: var(--clr-primary-dark);
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--clr-border-light);
+    margin-top: 0;
 }
 .profile-info-card p, .profile-info-card label {
     color: var(--clr-text);
@@ -51,40 +52,96 @@
 
 .level-display {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.level-badge-wrapper {
+    display: inline-block;
+    background-color: transparent;
+    padding: 0;
+    border: 0;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    border-radius: 30px;
 }
 
 .level-badge {
-    display: inline-block;
-    padding: 0.5rem 1.2rem;
-    border-radius: 20px;
-    color: white;
-    font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    
+    display: block;
+    padding: 0.6rem 1.8rem;
+    border-radius: 30px;
+    color: var(--clr-button-text);
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    background-color: var(--level-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+.level-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.0) 50%, rgba(0,0,0,0.1) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.level-badge-wrapper.neon-active {
+    border-radius: 30px;
+    background: transparent;
+    border: none;
+    animation: none; 
+}
+.level-badge-wrapper.neon-active .level-badge {
+    box-shadow: 
+        0 0 10px var(--level-color),
+        0 0 20px var(--level-color),
+        0 4px 8px rgba(0, 0, 0, 0.3); 
+    animation: neon-border-pulse 4s infinite linear;
+    border-radius: 30px;
+}
+
 
 .exp-progress-bar-container {
     width: 100%;
-    height: 12px;
-    background-color: var(--clr-border-light);
-    border-radius: 6px;
+    height: 20px;
+    background-color: var(--clr-footer-bg);
+    border-radius: 10px; 
     overflow: hidden;
     margin-bottom: 0.5rem;
+    border: 2px solid var(--clr-border-light); 
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 .exp-progress-bar-fill {
     height: 100%;
-    border-radius: 6px;
-    transition: width 0.3s ease-in-out;
+    border-radius: 6px; 
+    transition: width 0.5s ease-in-out; 
+    background: linear-gradient(90deg, var(--clr-text-secondary), var(--progress-bar-color));
+    box-shadow: 0 0 10px var(--progress-bar-color), 0 0 5px var(--progress-bar-color);
 }
+html[data-theme="night"] .exp-progress-bar-fill {
+    box-shadow: 0 0 10px var(--progress-bar-color), 0 0 5px var(--progress-bar-color);
+}
+
 
 .exp-text {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9rem;
-    color: var(--clr-text-secondary);
+    font-size: 1rem;
+    color: var(--clr-text);
+    font-weight: 500;
     margin-bottom: 1rem;
 }
 .exp-info-note {
@@ -188,7 +245,7 @@ html[data-theme="dark"] .orders-table a:hover {
     border: none;
     font-weight: 500;
 }
-.detail-order-btn:hover, .edit-btn:hover, .save-btn:hover {
+.detail-order-btn:hover, .checkout-btn:hover, .save-btn:hover, .edit-btn:hover, .cancel-btn:hover, .submit-review-btn:hover, .continue-shopping-btn:hover, .read-btn:hover, .page-nav-btn:hover:not(:disabled), .auth-button:hover {
     background-color: var(--clr-primary-dark);
 }
 .cancel-btn {

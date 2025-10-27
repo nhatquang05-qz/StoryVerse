@@ -11,7 +11,6 @@ const ProfilePage: React.FC = () => {
     fullName: '',
     phone: '',
   });
-  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -42,7 +41,6 @@ const ProfilePage: React.FC = () => {
     setIsSaving(true);
     try {
         await updateProfile({ fullName: formData.fullName, phone: formData.phone });
-        setIsEditing(false);
     } catch (error) {
         console.error('Lỗi khi cập nhật hồ sơ:', error);
         showNotification('Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
@@ -60,6 +58,10 @@ const ProfilePage: React.FC = () => {
   }
 
   const levelColor = getLevelColor(currentUser.level);
+  
+  const isNeonActive = currentUser.level >= 8;
+
+  const hasChanges = formData.fullName !== currentUser.fullName || formData.phone !== currentUser.phone;
 
   return (
     <div className="profile-page-container">
@@ -71,14 +73,20 @@ const ProfilePage: React.FC = () => {
         <div className="profile-info-card level-exp-card">
             <h3>Cấp Độ & Kinh Nghiệm</h3>
             <div className="level-display">
-                <span className="level-badge" style={{ backgroundColor: levelColor }}>
-                    Cấp {currentUser.level}
+                <span 
+                    className={`level-badge-wrapper ${isNeonActive ? 'neon-active' : ''}`}
+                    style={{'--progress-bar-color': levelColor, '--level-color': levelColor} as React.CSSProperties}
+                >
+                    <span className="level-badge" style={{ backgroundColor: levelColor }}>
+                        Cấp {currentUser.level}
+                    </span>
                 </span>
             </div>
-            <div className="exp-progress-bar-container">
+            
+            <div className="exp-progress-bar-container" style={{'--progress-bar-color': levelColor} as React.CSSProperties}>
                 <div
                     className="exp-progress-bar-fill"
-                    style={{ width: `${currentUser.exp}%`, backgroundColor: levelColor }}
+                    style={{ width: `${currentUser.exp}%` }}
                 ></div>
             </div>
             <div className="exp-text">
@@ -109,7 +117,6 @@ const ProfilePage: React.FC = () => {
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
-                        disabled={!isEditing}
                         required
                     />
                 </div>
@@ -122,40 +129,32 @@ const ProfilePage: React.FC = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        disabled={!isEditing}
                         required
                     />
                 </div>
 
                 <div className="profile-actions">
-                    {!isEditing ? (
-                        <button type="button" className="edit-btn" onClick={() => setIsEditing(true)}>Chỉnh Sửa</button>
-                    ) : (
-                        <>
-                            <button
-                                type="submit"
-                                className="save-btn"
-                                disabled={isSaving}
-                            >
-                                {isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
-                            </button>
-                            <button
-                                type="button"
-                                className="cancel-btn"
-                                onClick={() => {
-                                    setIsEditing(false);
-                                    if(currentUser) {
-                                        setFormData({
-                                            fullName: currentUser.fullName,
-                                            phone: currentUser.phone,
-                                        });
-                                    }
-                                }}
-                                disabled={isSaving}
-                            >
-                                Hủy
-                            </button>
-                        </>
+                    <button
+                        type="submit"
+                        className="save-btn"
+                        disabled={isSaving || !hasChanges}
+                    >
+                        {isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                    </button>
+                    {hasChanges && (
+                        <button
+                            type="button"
+                            className="cancel-btn"
+                            onClick={() => {
+                                setFormData({
+                                    fullName: currentUser.fullName,
+                                    phone: currentUser.phone,
+                                });
+                            }}
+                            disabled={isSaving}
+                        >
+                            Hủy
+                        </button>
                     )}
                 </div>
             </div>

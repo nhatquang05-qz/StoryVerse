@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/header/Header';
@@ -33,6 +32,8 @@ function App() {
   const { animationData, clearAnimation } = useCart();
 
   useEffect(() => {
+    // Khối mã gây xung đột toàn cục đã được loại bỏ.
+    // Nếu bạn muốn giữ lại hiệu ứng gợn sóng (ripple effect), bạn cần tìm một giải pháp khác.
     const handleGlobalClick = (event: MouseEvent) => {
       const targetElement = event.target as Element;
       const interactiveSelector = 'a, button, input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"]), .suggestion-item, .tag-card-link, .cursor-option';
@@ -52,11 +53,12 @@ function App() {
       });
     };
 
-    document.addEventListener('click', handleGlobalClick);
+    // Chỉ kích hoạt lại nếu muốn có ripple effect và chấp nhận rủi ro xung đột.
+    // document.addEventListener('click', handleGlobalClick);
 
-    return () => {
-      document.removeEventListener('click', handleGlobalClick);
-    };
+    // return () => {
+    //   document.removeEventListener('click', handleGlobalClick);
+    // };
   }, []);
 
 
