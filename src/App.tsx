@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom'; // Thêm useLocation
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import HomePage from './pages/HomePage';
@@ -30,6 +30,8 @@ import './App.css';
 
 function App() {
   const { animationData, clearAnimation } = useCart();
+  const location = useLocation(); 
+  const isReaderPage = location.pathname.startsWith('/read/'); 
 
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
@@ -61,7 +63,7 @@ function App() {
     <div className="app-container">
       <ScrollToTop />
       <Header />
-      <main className="main-content">
+      <main className={isReaderPage ? "main-content reader-mode" : "main-content"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/comic/:comicId" element={<ComicDetailPage />} />

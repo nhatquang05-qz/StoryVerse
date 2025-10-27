@@ -15,6 +15,11 @@
   background-color: var(--clr-background);
 }
 
+.main-content.reader-mode {
+  max-width: none;
+  padding: 0;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
