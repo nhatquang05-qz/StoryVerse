@@ -22,6 +22,7 @@ import ReaderPage from './pages/ReaderPage';
 import CoinRechargePage from './pages/CoinRechargePage'; 
 import ScrollToTop from './components/common/ScrollToTop';
 import FlyingImage from './components/common/FlyingImage/FlyingImage'; 
+import ScrollToTopButton from './components/common/ScrollToTopButton/ScrollToTopButton'; 
 import { useCart } from './contexts/CartContext';       
 import './App.css';
 
@@ -48,7 +49,7 @@ function App() {
           <Route path="/orders/:orderId" element={<OrderDetailPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/read/:comicId" element={<ReaderPage />} /> 
+          <Route path="/read/:comicId/:chapterNumber" element={<ReaderPage />} /> 
           <Route path="/recharge" element={<CoinRechargePage />} />
           <Route path="/physical-comics" element={<PhysicalComicsPage />} />
           <Route path="/digital-comics" element={<DigitalComicsPage />} />
@@ -64,6 +65,7 @@ function App() {
         endRect={animationData.endRect}
         onAnimationEnd={clearAnimation} 
       />
+      <ScrollToTopButton />
     </div>
   );
 }

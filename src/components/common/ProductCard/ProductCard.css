@@ -1,5 +1,5 @@
 .product-card {
-  background-color: var(--clr-card-bg);
+  background-color: transparent;
   border: 1px solid var(--clr-border-light);
   border-radius: var(--border-radius);
   overflow: hidden;

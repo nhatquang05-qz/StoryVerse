@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiHeart, FiBookOpen } from 'react-icons/fi';
-import { comics, type Comic, loadOrders, saveNewOrder } from '../../data/mockData';
+import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp } from 'react-icons/fi';
+import { comics, getChaptersByComicId, type Comic, loadOrders, saveNewOrder, type Chapter } from '../../data/mockData';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
 import ReviewSection from '../../components/common/review/ReviewSection';
@@ -53,7 +53,45 @@ const isDigitalComicPurchased = (comicId: number, userId: string | undefined): b
     return userOrders
         .filter(order => validStatuses.includes(order.status))
         .flatMap(order => order.items)
-        .some(item => item.id === comicId);
+        .some(item => item.id === comicId && item.title === 'Full Access'); 
+};
+
+const isChapterUnlocked = (comicId: number, chapterId: number, userId: string | undefined): boolean => {
+    if (!userId) return false;
+    
+    const userOrders = loadOrders(userId);
+    const validStatuses = ['Hoàn thành', 'Đang giao hàng'];
+    
+    return userOrders
+        .filter(order => validStatuses.includes(order.status))
+        .flatMap(order => order.items)
+        .some(item => item.id === comicId && item.quantity === chapterId); 
+};
+
+const getHighestUnlockedChapterNumber = (comicId: number, chapters: Chapter[], userId: string | undefined): number => {
+    if (!userId) return 0;
+
+    const unlockedChapters = chapters.filter(chapter => {
+        return chapter.isFree || isChapterUnlocked(comicId, chapter.id, userId);
+    });
+
+    if (unlockedChapters.length === 0) return 0;
+    
+    const highestNumber = Math.max(...unlockedChapters.map(ch => ch.chapterNumber));
+
+    for (let i = 1; i <= chapters.length; i++) {
+        const chapterToCheck = chapters.find(ch => ch.chapterNumber === i);
+        if (chapterToCheck) {
+            const isChUnlocked = chapterToCheck.isFree || isChapterUnlocked(comicId, chapterToCheck.id, userId);
+            if (!isChUnlocked) {
+                return i - 1; 
+            }
+        } else {
+            return i - 1;
+        }
+    }
+    
+    return chapters.length;
 };
 
 
@@ -62,13 +100,15 @@ const ComicDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
-  const { currentUser } = useAuth();
+  const { currentUser, updateProfile } = useAuth();
   const navigate = useNavigate();
   const { comicId } = useParams<{ comicId: string }>();
   const id = Number(comicId);
 
   const [comic, setComic] = useState<Comic | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -85,19 +125,30 @@ const ComicDetailPage: React.FC = () => {
 
   const isFavorite = comic ? isWishlisted(comic.id) : false;
   
-  const isPurchased = comic && comic.isDigital 
+  const chapters = useMemo(() => comic ? getChaptersByComicId(comic.id) : [], [comic]);
+  
+  const isFullUnlocked = comic && comic.isDigital 
     ? isDigitalComicPurchased(comic.id, currentUser?.id) 
     : false;
+
+  const highestUnlockedChapterNumber = getHighestUnlockedChapterNumber(id, chapters, currentUser?.id);
     
-  const handleReadNow = () => {
+  const handleReadNow = (chapterNumber: number) => {
       if (comic) {
-          navigate(`/read/${comic.id}`);
+          navigate(`/read/${comic.id}/${chapterNumber}`);
       }
   };
 
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+  
+  const formatViews = (views: number) => {
+      if (views >= 1000) {
+          return (views / 1000).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 1 }) + 'K';
+      }
+      return views.toLocaleString('vi-VN');
   };
 
   const handleQuantityChange = (amount: number) => {
@@ -107,7 +158,7 @@ const ComicDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (comic && !comic.isDigital) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-      addToCart(comic, quantity, rect);
+      addToCart(comic, 1, rect);
     }
   };
 
@@ -118,34 +169,53 @@ const ComicDetailPage: React.FC = () => {
     }
   };
   
-  const handleUnlockByCoin = () => {
+  const handleUnlockChapter = async (chapter: Chapter) => {
       if (!currentUser) {
-          showNotification('Vui lòng đăng nhập để mở khóa truyện.', 'warning');
+          showNotification('Vui lòng đăng nhập để mở khóa chương.', 'warning');
           return;
       }
       
       if (!comic || !comic.isDigital) return;
 
-      showNotification(`Đã mở khóa "${comic.title}" với ${comic.unlockCoinPrice} Xu! Vui lòng vào Thư viện số.`, 'success');
-      
+      // KIỂM TRA LOGIC TUẦN TỰ (CHỈ CHO PHÉP MỞ KHÓA CHƯƠNG KẾ TIẾP)
+      if (chapter.chapterNumber !== highestUnlockedChapterNumber + 1) {
+          showNotification(`Vui lòng mở khóa Chương ${highestUnlockedChapterNumber + 1} trước.`, 'warning');
+          return;
+      }
+
+      if (currentUser.coinBalance < chapter.unlockCoinPrice) {
+          showNotification('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
+          return;
+      }
+
+      const newBalance = currentUser.coinBalance - chapter.unlockCoinPrice;
+
       const newOrder = {
-          id: `COIN-${Date.now()}`,
+          id: `COIN-${Date.now()}-${chapter.id}`,
           userId: currentUser.id,
           date: new Date().toLocaleDateString('vi-VN'),
-          total: 0, 
+          total: chapter.unlockCoinPrice, 
           status: 'Hoàn thành' as const, 
           items: [{ 
               id: comic.id,
               title: comic.title,
               author: comic.author,
-              price: 0, 
+              price: chapter.unlockCoinPrice, 
               imageUrl: comic.imageUrl,
-              quantity: 1,
+              quantity: chapter.id,
           }],
       };
-      saveNewOrder(newOrder);
       
-      navigate(0); 
+      try {
+          await updateProfile({ coinBalance: newBalance });
+          saveNewOrder(newOrder);
+          showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.unlockCoinPrice} Xu!`, 'success');
+          
+          navigate(`/read/${comic.id}/${chapter.chapterNumber}`); 
+          
+      } catch (e) {
+          showNotification('Lỗi khi mở khóa chương.', 'error');
+      }
   };
   
   const renderActions = () => {
@@ -162,46 +232,25 @@ const ComicDetailPage: React.FC = () => {
     );
     
     if (comic!.isDigital) {
-        const isFullyFree = comic!.unlockCoinPrice === 0;
+        const firstFreeChapter = chapters.find(c => c.isFree);
 
-        if (currentUser && isPurchased) {
-            return (
-                <div className="detail-actions digital-actions-group" style={{ flexDirection: 'row', gap: '1rem', flexWrap: 'wrap' }}>
-                    <button className="add-to-cart-btn main-cart-btn" onClick={handleReadNow} style={{ maxWidth: '250px' }}>
-                        <FiBookOpen style={{ marginRight: '0.5rem' }} /> Đọc Ngay
-                    </button>
-                    {wishlistButton}
-                </div>
-            );
-        } else if (isFullyFree) {
-            return (
-                 <div className="detail-actions digital-actions-group" style={{ flexDirection: 'row', gap: '1rem', flexWrap: 'wrap' }}>
-                    <button className="add-to-cart-btn main-cart-btn" onClick={handleReadNow} style={{ backgroundColor: '#28a745', maxWidth: '250px' }}>
-                        <FiBookOpen style={{ marginRight: '0.5rem' }} /> Đọc Miễn Phí
-                    </button>
-                    {wishlistButton}
-                </div>
-            );
-        } else {
-            return (
-                <div className="digital-actions-group">
-                    <p className="coin-warning-text" style={{ margin: '0', textAlign: 'center', color: 'var(--primary-color-dark)', fontWeight: 'bold' }}>Truyện có giới hạn chương đọc thử.</p>
-                    
-                    <div className="digital-main-buttons">
-                        <button className="add-to-cart-btn" onClick={handleReadNow} style={{ backgroundColor: '#17a2b8' }}>
-                            Đọc Free (Giới hạn)
+        return (
+            <div className="digital-actions-group" style={{ flexDirection: 'column', gap: '1rem' }}>
+                <p className="coin-warning-text" style={{ margin: '0', textAlign: 'center', fontWeight: 'bold' }}>
+                     {chapters.length > 0 && chapters.filter(c => c.isFree).length > 0 ? 'Truyện có giới hạn chương đọc thử.' : 'Truyện Digital.'}
+                </p>
+                
+                <div className="digital-main-buttons">
+                    {firstFreeChapter && (
+                        <button className="add-to-cart-btn" onClick={() => handleReadNow(firstFreeChapter.chapterNumber)} style={{ backgroundColor: '#28a745', color: 'white', border: '1px solid #28a745' }}>
+                            <FiBookOpen style={{ marginRight: '0.5rem' }} /> Đọc Chương {firstFreeChapter.chapterNumber}
                         </button>
-                        
-                        <button className="add-to-cart-btn" onClick={handleUnlockByCoin} style={{ background: '#ffc107', color: '#333', fontWeight: 'bold' }}>
-                            <img src="/src/assets/images/coin.png" alt="Coin" style={{ width: '50px', height: '30px', marginRight: '0.5rem' }} />
-                            Mở khóa ({comic!.unlockCoinPrice})
-                        </button>
-                    </div>
-                    
-                    {wishlistButton}
+                    )}
                 </div>
-            );
-        }
+                
+                {wishlistButton}
+            </div>
+        );
     } 
     return (
         <div className="detail-actions">
@@ -218,6 +267,126 @@ const ComicDetailPage: React.FC = () => {
             {wishlistButton}
         </div>
     );
+  };
+  
+  const displayedChapters = useMemo(() => {
+    let list = [...chapters];
+
+    if (searchTerm) {
+        const normalizedSearch = searchTerm.toLowerCase();
+        list = list.filter(ch => 
+            ch.title.toLowerCase().includes(normalizedSearch) ||
+            ch.chapterNumber.toString().includes(normalizedSearch)
+        );
+    }
+
+    list.sort((a, b) => {
+        if (sortOrder === 'desc') {
+            return b.chapterNumber - a.chapterNumber;
+        }
+        return a.chapterNumber - b.chapterNumber;
+    });
+
+    return list;
+}, [chapters, searchTerm, sortOrder]);
+
+const toggleSort = () => {
+    setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
+};
+
+  const renderChapterList = () => {
+      if (!comic || !comic.isDigital || chapters.length === 0) return null;
+      
+      const isFullUnlocked = isDigitalComicPurchased(comic.id, currentUser?.id);
+      const highestUnlocked = getHighestUnlockedChapterNumber(comic.id, chapters, currentUser?.id);
+      
+      return (
+          <div className="chapter-list-container">
+              <h2>Danh Sách Chương ({chapters.length})</h2>
+
+              <div className="chapter-search-row">
+                  <div className="chapter-sort-label" onClick={toggleSort} style={{ cursor: 'pointer' }}>
+                      Chap {sortOrder === 'desc' ? <FiArrowDown /> : <FiArrowUp />}
+                  </div>
+                  <div className="chapter-search-box">
+                      <input 
+                          type="text"
+                          placeholder="Tìm kiếm"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                      <FiSearch />
+                  </div>
+                  
+                  <div className="chapter-header-col" style={{ gridColumn: '3 / 4', justifyContent: 'center' }}>
+                      Ngày cập nhật
+                  </div>
+                  
+                  <div className="chapter-header-col" style={{ gridColumn: '4 / 5', justifyContent: 'center' }}>
+                      Lượt xem
+                  </div>
+                  
+                  <div className="chapter-header-col" style={{ gridColumn: '5 / 6', justifyContent: 'flex-end' }}>
+                      Hành động
+                  </div>
+              </div>
+
+
+              <ul className="chapter-list">
+                  {displayedChapters.length > 0 ? (
+                      displayedChapters.map((chapter) => {
+                          const isUnlocked = isFullUnlocked || chapter.isFree || (currentUser && isChapterUnlocked(comic.id, chapter.id, currentUser.id));
+                          
+                          const isNextInSequence = chapter.chapterNumber === highestUnlocked + 1;
+                          const canUnlock = !isUnlocked && isNextInSequence;
+                          const canRead = isUnlocked;
+
+                          return (
+                              <li key={chapter.id} className={`chapter-item ${canRead ? 'unlocked' : 'locked'}`}>
+                                  
+                                  <div className="chapter-number">
+                                      Chương {chapter.chapterNumber}
+                                  </div>
+
+                                  <div className="chapter-title">
+                                      {chapter.title}
+                                  </div>
+
+                                  <div className="chapter-update">
+                                      {chapter.lastUpdated}
+                                  </div>
+                                  
+                                  <div className="chapter-views" style={{ textAlign: 'center' }}>
+                                      {formatViews(chapter.views)}
+                                  </div>
+                                  
+                                  <div className="chapter-actions">
+                                      {canRead ? (
+                                          <Link to={`/read/${comic.id}/${chapter.chapterNumber}`} className="read-chapter-btn">
+                                              Đọc Ngay
+                                          </Link>
+                                      ) : (
+                                          <button 
+                                              className="unlock-chapter-btn"
+                                              onClick={() => handleUnlockChapter(chapter)}
+                                              disabled={!currentUser || !canUnlock} // BỊ DISABLE NẾU KHÔNG PHẢI CHƯƠNG KẾ TIẾP
+                                              style={!canUnlock ? { backgroundColor: 'var(--clr-border-light)', color: 'var(--clr-text-secondary)' } : {}}
+                                          >
+                                              <FiLock style={{ marginRight: '0.25rem' }} /> Mở khóa ({chapter.unlockCoinPrice} Xu)
+                                          </button>
+                                      )}
+                                  </div>
+                              </li>
+                          );
+                      })
+                  ) : (
+                      <li className="chapter-item" style={{ gridColumn: '1 / -1', justifyContent: 'center' }}>
+                          Không tìm thấy chương nào phù hợp.
+                      </li>
+                  )}
+              </ul>
+          </div>
+      );
   };
 
 
@@ -244,7 +413,7 @@ const ComicDetailPage: React.FC = () => {
               <span className="digital-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>DIGITAL</span>
           )}
         </div>
-        <div className="detail-info-wrapper">
+        <div className={`detail-info-wrapper ${isDigital ? 'digital-header-center' : ''}`}>
           <p className="detail-author">Tác giả: {comic.author}</p>
           <h1 className="detail-title">{comic.title}</h1>
           
@@ -252,19 +421,9 @@ const ComicDetailPage: React.FC = () => {
           
           {isDigital && (
               <div className="digital-price-info" style={{ marginBottom: '2rem' }}>
-                  {isPurchased ? (
-                      <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: '#28a745', margin: 0, padding: 0, border: 'none' }}>
-                          Đã mở khóa
-                      </p>
-                  ) : comic.unlockCoinPrice > 0 ? (
-                      <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--text-color-dark)', margin: 0, padding: 0, border: 'none' }}>
-                           Mở khóa bằng: <span style={{ color: '#ffc107', fontWeight: 'bold' }}>{comic.unlockCoinPrice} Xu</span>
-                      </p>
-                  ) : (
-                      <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: '#28a745', margin: 0, padding: 0, border: 'none' }}>
-                          MIỄN PHÍ TRUY CẬP
-                      </p>
-                  )}
+                    <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--text-color-dark)', margin: 0, padding: 0, border: 'none' }}>
+                       Truyện Digital
+                    </p>
               </div>
           )}
           
@@ -282,6 +441,9 @@ const ComicDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {renderChapterList()}
+
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 1.5rem' }}>
         <ReviewSection comicId={comic.id} comicTitle={comic.title} />
       </div>

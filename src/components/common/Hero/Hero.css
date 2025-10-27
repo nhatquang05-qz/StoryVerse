@@ -1,30 +1,34 @@
 .hero-slider {
   height: auto;
-  min-height: 400px;
-  /* KHÔI PHỤC background color */
-  background: var(--clr-hero-bg); 
-  padding: 3rem 2rem;
+  min-height: 450px;
+  /* background: var(--clr-hero-bg);  */
+  background: transparent;
+  padding: 1.5rem 2rem;
   text-align: center;
   color: var(--clr-hero-text);
   position: relative;
   overflow: hidden;
-  /* BỎ box-shadow (lớp phủ) */
+}
+
+.hero-info, .hero-images {
+    position: relative;
+    z-index: 10; 
 }
 
 .hero-info {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .hero-info h3 {
   color: var(--clr-hero-highlight);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   letter-spacing: 2px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   font-weight: bold;
 }
 
 .hero-info h1 {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--clr-hero-text);
 }
@@ -33,7 +37,7 @@
   display: flex;
   justify-content: center;
   position: relative;
-  height: 380px;
+  height: 250px;
 }
 
 .hero-group {
@@ -42,11 +46,13 @@
   align-items: center;
   gap: 0;
   position: relative;
+  /* Dịch chuyển nhóm ảnh lên trên để cân bằng với khung mới */
+  transform: translateY(-20px); 
 }
 
 .hero-img {
-  width: 400px;
-  height: 280px;
+  width: 380px;
+  height: 250px;
   object-fit: contain;
   border-radius: 8px;
   transform-origin: center;
@@ -54,7 +60,6 @@
   cursor: default;
   caret-color: transparent;
   overflow: visible;
-  /* Giữ nguyên drop-shadow cho ảnh */
   filter: drop-shadow(2px 4px 6px black);
 }
 
@@ -64,20 +69,20 @@
 }
 
 .img-0 {
-  width: 350px;
+  width: 330px;
   height: 220px;
   margin-right: -10px;
-  transform: perspective(600px) rotateY(15deg) scale(0.8);
+  transform: perspective(600px) rotateY(15deg) scale(0.9);
 }
 .img-1 {
-  transform: scale(1.25);
+  transform: scale(1.2);
   z-index: 2;
-  height: 600px;
-  width: 600px;
+  height: 550px;
+  width: 550px;
 }
 .img-2 {
-  width: 500px;
-  height: 400px;
+  width: 480px;
+  height: 380px;
   margin-left: -50px;
   transform: perspective(600px) rotateY(-15deg) scale(1.1);
 }
@@ -96,12 +101,12 @@
     background: var(--clr-hero-nav-bg);
     color: var(--clr-hero-text);
     border: none;
-    padding: 1rem;
+    padding: 0.6rem;
     border-radius: 50%;
     cursor: pointer;
-    z-index: 10;
+    z-index: 20;
     transition: background 0.3s;
-    font-size: 1.5rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -121,22 +126,31 @@
 
 @media (max-width: 1000px) {
   .hero-img {
-    width: 300px;
-    height: 200px;
+    width: 280px;
+    height: 180px;
   }
 }
 
 @media (max-width: 700px) {
+  .hero-slider {
+      min-height: 250px;
+  }
+  .hero-images {
+      height: 200px;
+  }
+  .hero-group {
+      transform: translateY(0);
+  }
   .hero-img {
-    width: 240px;
-    height: 160px;
+    width: 220px;
+    height: 150px;
   }
   .hero-info h1 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
   }
   .nav-btn {
-      padding: 0.75rem;
-      font-size: 1.2rem;
+      padding: 0.5rem;
+      font-size: 0.9rem;
   }
   .prev-btn {
       left: 10px;

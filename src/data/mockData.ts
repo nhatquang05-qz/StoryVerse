@@ -11,6 +11,84 @@ export interface Comic {
   unlockCoinPrice: number;
 }
 
+export interface Chapter {
+    id: number;
+    chapterNumber: number;
+    title: string;
+    isFree: boolean;
+    unlockCoinPrice: number;
+    lastUpdated: string;
+    views: number;
+}
+
+const BASE_CHAPTERS: Chapter[] = [
+    { id: 1, chapterNumber: 1, title: 'Khởi đầu: Ngày đầu tiên', isFree: true, unlockCoinPrice: 0, lastUpdated: '2 ngày trước', views: 5379 },
+    { id: 2, chapterNumber: 2, title: 'Thử thách: Kẻ địch mới', isFree: true, unlockCoinPrice: 0, lastUpdated: '6 ngày trước', views: 5364 },
+    { id: 3, chapterNumber: 3, title: 'Nguy hiểm: Bí mật bị tiết lộ', isFree: true, unlockCoinPrice: 0, lastUpdated: '19 ngày trước', views: 5078 },
+    { id: 4, chapterNumber: 4, title: 'Quyết tâm: Lời thề dưới trăng', isFree: false, unlockCoinPrice: 15, lastUpdated: '25 ngày trước', views: 3463 },
+    { id: 5, chapterNumber: 5, title: 'Đối đầu: Đại chiến bắt đầu', isFree: false, unlockCoinPrice: 15, lastUpdated: '1 tháng trước', views: 1800 },
+    { id: 6, chapterNumber: 6, title: 'Chương 6: Phát triển sức mạnh', isFree: false, unlockCoinPrice: 20, lastUpdated: '1 tháng trước', views: 1050 },
+    { id: 7, chapterNumber: 7, title: 'Chương 7: Liên minh bất ngờ', isFree: false, unlockCoinPrice: 20, lastUpdated: '2 tháng trước', views: 900 },
+    { id: 8, chapterNumber: 8, title: 'Chương 8: Hồi kết sắp đến', isFree: false, unlockCoinPrice: 25, lastUpdated: '3 tháng trước', views: 750 },
+    { id: 9, chapterNumber: 9, title: 'Chương 9: Hy vọng mong manh', isFree: false, unlockCoinPrice: 25, lastUpdated: '3 tháng trước', views: 600 },
+    { id: 10, chapterNumber: 10, title: 'Chương 10: Kết thúc hành trình', isFree: false, unlockCoinPrice: 30, lastUpdated: '4 tháng trước', views: 450 },
+];
+
+interface ChapterListEntry {
+    [comicId: number]: Chapter[];
+}
+
+const digitalComicChapters: ChapterListEntry = {
+    31: [ 
+        { id: 3101, chapterNumber: 1, title: 'Anh Hùng Tóc Dày', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 ngày trước', views: 3500 },
+        { id: 3102, chapterNumber: 2, title: 'Sự Xuất Hiện Của Saitama', isFree: true, unlockCoinPrice: 0, lastUpdated: '3 ngày trước', views: 3000 },
+        { id: 3103, chapterNumber: 3, title: 'Genos - Người Máy Tự Do', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 tuần trước', views: 2500 },
+        { id: 3104, chapterNumber: 4, title: 'Bóng tối bắt đầu', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 tuần trước', views: 2000 },
+        { id: 3105, chapterNumber: 5, title: 'Quyền Lực Của Hiệp Hội', isFree: true, unlockCoinPrice: 0, lastUpdated: '2 tuần trước', views: 1500 },
+    ],
+    32: [
+        { id: 3201, chapterNumber: 1, title: 'Tàn Khốc', isFree: true, unlockCoinPrice: 0, lastUpdated: '3 ngày trước', views: 4500 },
+        { id: 3202, chapterNumber: 2, title: 'Quỷ Thợ Săn', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 tuần trước', views: 4000 },
+        { id: 3203, chapterNumber: 3, title: 'Hơi Thở Của Nước', isFree: true, unlockCoinPrice: 0, lastUpdated: '2 tuần trước', views: 3500 },
+        { id: 3204, chapterNumber: 4, title: 'Kiếm Sĩ và Quỷ Dữ', isFree: false, unlockCoinPrice: 15, lastUpdated: '3 tuần trước', views: 3000 },
+        { id: 3205, chapterNumber: 5, title: 'Trận Chiến Núi Natagumo', isFree: false, unlockCoinPrice: 20, lastUpdated: '1 tháng trước', views: 2500 },
+        { id: 3206, chapterNumber: 6, title: 'Trụ Cột', isFree: false, unlockCoinPrice: 25, lastUpdated: '1 tháng trước', views: 2000 },
+    ],
+    57: [
+        { id: 5701, chapterNumber: 1, title: 'Thành Phố Trong Tường', isFree: true, unlockCoinPrice: 0, lastUpdated: '4 ngày trước', views: 6000 },
+        { id: 5702, chapterNumber: 2, title: 'Mùa Thu Tàn Khốc', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 tuần trước', views: 5500 },
+        { id: 5703, chapterNumber: 3, title: 'Sự Trở Lại Của Titan', isFree: false, unlockCoinPrice: 20, lastUpdated: '2 tuần trước', views: 5000 },
+        { id: 5704, chapterNumber: 4, title: 'Đội Trinh Sát', isFree: false, unlockCoinPrice: 30, lastUpdated: '1 tháng trước', views: 4500 },
+        { id: 5705, chapterNumber: 5, title: 'Nhân Tính', isFree: false, unlockCoinPrice: 35, lastUpdated: '1 tháng trước', views: 4000 },
+    ],
+    59: [
+        { id: 5901, chapterNumber: 1, title: 'Kỷ Nguyên Mới', isFree: true, unlockCoinPrice: 0, lastUpdated: '2 ngày trước', views: 2500 },
+        { id: 5902, chapterNumber: 2, title: 'Học Viện Ninja', isFree: true, unlockCoinPrice: 0, lastUpdated: '5 ngày trước', views: 2000 },
+        { id: 5903, chapterNumber: 3, title: 'Bắt Đầu Sứ Mệnh', isFree: false, unlockCoinPrice: 10, lastUpdated: '1 tuần trước', views: 1500 },
+        { id: 5904, chapterNumber: 4, title: 'Nhóm 7 Trở Lại', isFree: false, unlockCoinPrice: 15, lastUpdated: '2 tuần trước', views: 1000 },
+        { id: 5905, chapterNumber: 5, title: 'Kawaki', isFree: false, unlockCoinPrice: 20, lastUpdated: '1 tháng trước', views: 500 },
+    ]
+};
+
+export const getChaptersByComicId = (comicId: number): Chapter[] => {
+    if (digitalComicChapters[comicId]) {
+        return digitalComicChapters[comicId];
+    }
+    
+    if (comics.find(c => c.id === comicId)?.isDigital) {
+        return BASE_CHAPTERS.map(ch => ({
+            ...ch,
+            id: ch.id + comicId * 100, 
+            unlockCoinPrice: ch.isFree ? 0 : ch.unlockCoinPrice + (comicId % 5) * 5,
+            lastUpdated: ch.lastUpdated,
+            views: ch.views,
+        }));
+    }
+
+    return [];
+};
+
+
 export const physicalComics: Comic[] = [
   { id: 1, title: 'Chú Thuật Hồi Chiến - Tập 10', author: 'Gege Akutami', price: 30000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/c/h/chu-thuat-hoi-chien---tap-10.jpg', isDigital: false, genres: ['Hành Động', 'Fantasy'], rating: 4.5, viewCount: 0, unlockCoinPrice: 0 },
   { id: 2, title: 'Thanh Gươm Diệt Quỷ - Tập 23', author: 'Koyoharu Gotouge', price: 28000, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/i/m/image_195509_1_36793.jpg', isDigital: false, genres: ['Hành Động', 'Fantasy'], rating: 4.8, viewCount: 0, unlockCoinPrice: 0 },
@@ -73,7 +151,7 @@ export const digitalComics: Comic[] = [
   { id: 56, title: 'Doraemon Truyện Dài - Tập 5 (Digital)', author: 'Fujiko F Fujio', price: 0, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/d/o/doraemon-truyen-dai---tap-1---bia-mem-tai-ban-2023.jpg', isDigital: true, genres: ['Hài Hước', 'Phiêu Lưu'], rating: 4.7, viewCount: 88000, unlockCoinPrice: 0 },
   { id: 57, title: 'Attack on Titan - Tập 20 (Digital)', author: 'Hajime Isayama', price: 0, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/i/m/image_195509_1_36802.jpg', isDigital: true, genres: ['Hành Động', 'Dark Fantasy'], rating: 4.9, viewCount: 190000, unlockCoinPrice: 180 },
   { id: 58, title: 'Tokyo Revengers - Tập 5 (Digital)', author: 'Ken Wakui', price: 0, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/8/9/8935244849313.jpg', isDigital: true, genres: ['Xuyên Không', 'Hành Động'], rating: 3.9, viewCount: 58000, unlockCoinPrice: 70 },
-  { id: 59, title: 'Boruto - Tập 5 (Digital)', author: 'Ukyō Kodachi', price: 0, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/i/m/image_224520.jpg', isDigital: true, genres: ['Hành Động', 'Fantasy'], rating: 4.1, viewCount: 42000, unlockCoinPrice: 90 },
+  { id: 59, title: 'Boruto - Tập 10 (Digital)', author: 'Ukyō Kodachi', price: 0, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/i/m/image_224520.jpg', isDigital: true, genres: ['Hành Động', 'Fantasy'], rating: 4.1, viewCount: 42000, unlockCoinPrice: 90 },
   { id: 60, title: 'Black Clover - Tập 5 (Digital)', author: 'Yūki Tabata', price: 0, imageUrl: 'https://cdn0.fahasa.com/media/catalog/product/8/9/8935244848910.jpg', isDigital: true, genres: ['Fantasy', 'Hành Động'], rating: 4.0, viewCount: 45000, unlockCoinPrice: 80 },
 ];
 
