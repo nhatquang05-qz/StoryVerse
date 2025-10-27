@@ -1,3 +1,5 @@
+// src/contexts/AuthContext.tsx
+
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import { useNotification } from './NotificationContext';
 import { saveNewOrder, loadOrders } from '../data/mockData';
@@ -18,7 +20,9 @@ export interface User {
   fullName: string;
   phone: string;
   addresses: Address[];
-  coinBalance: number; // ĐÃ THÊM
+  coinBalance: number;
+  lastDailyLogin: string;
+  consecutiveLoginDays: number; // THÊM MỚI
 }
 
 interface AuthContextType {
@@ -28,6 +32,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<void>;
   updateAddresses: (addresses: Address[]) => Promise<void>;
+  claimDailyReward: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,7 +78,9 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
         const defaultProfile = {
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
             phone: '0000000000',
-            coinBalance: 1000, // GIẢ LẬP SỐ DƯ XU
+            coinBalance: 1000,
+            lastDailyLogin: '2000-01-01T00:00:00.000Z',
+            consecutiveLoginDays: 0, // GIÁ TRỊ MẶC ĐỊNH
         };
 
         return {
@@ -81,7 +88,7 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
             ...defaultProfile,
             ...profile,
             addresses: loadAddresses(baseUser.id),
-        };
+        } as User;
     } catch (e) {
         console.error("Failed to load profile data", e);
         return {
@@ -89,8 +96,10 @@ const loadProfileData = (baseUser: { id: string, email: string }): User => {
             fullName: baseUser.email.split('@')[0] || 'Khách Hàng',
             phone: '0000000000',
             addresses: loadAddresses(baseUser.id),
-            coinBalance: 1000, // GIẢ LẬP SỐ DƯ XU
-        };
+            coinBalance: 1000,
+            lastDailyLogin: '2000-01-01T00:00:00.000Z',
+            consecutiveLoginDays: 0,
+        } as User;
     }
 };
 
@@ -168,7 +177,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return {
             ...prevUser,
             ...profileData,
-        };
+        } as User;
     });
     showNotification('Cập nhật hồ sơ thành công!', 'success');
   };
@@ -191,10 +200,69 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
     showNotification('Cập nhật địa chỉ thành công!', 'success');
   };
+  
+  const claimDailyReward = async () => {
+      if (!currentUser) {
+          showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning');
+          return;
+      }
+
+      const today = new Date();
+      const lastLoginDate = new Date(currentUser.lastDailyLogin);
+      const oneDay = 24 * 60 * 60 * 1000;
+      const diffDays = Math.round(Math.abs((today.getTime() - lastLoginDate.getTime()) / oneDay));
+
+      // Kiểm tra xem đã nhận thưởng hôm nay chưa
+      const isSameDay = 
+          today.getFullYear() === lastLoginDate.getFullYear() &&
+          today.getMonth() === lastLoginDate.getMonth() &&
+          today.getDate() === lastLoginDate.getDate();
+
+      if (isSameDay) {
+          showNotification('Bạn đã nhận thưởng hàng ngày hôm nay rồi!', 'info');
+          return;
+      }
+      
+      let nextLoginDays = currentUser.consecutiveLoginDays + 1;
+      let isStreakBroken = false;
+      
+      // Kiểm tra mất chuỗi (nếu cách nhau hơn 1 ngày)
+      if (diffDays > 1) {
+          nextLoginDays = 1;
+          isStreakBroken = true;
+      }
+      
+      if (isStreakBroken) {
+          showNotification('Chuỗi đăng nhập đã bị đứt! Bắt đầu lại từ Ngày 1.', 'warning');
+      }
+
+      // Vòng lặp 7 ngày
+      const currentRewardIndex = (nextLoginDays - 1) % dailyRewardsData.length;
+      const reward = dailyRewardsData[currentRewardIndex];
+      
+      if (reward.type !== 'Xu') return; 
+
+      const rewardCoins = reward.amount;
+      const newBalance = currentUser.coinBalance + rewardCoins;
+      const todayISOString = today.toISOString();
+
+      try {
+          await updateProfile({ 
+              coinBalance: newBalance, 
+              lastDailyLogin: todayISOString,
+              consecutiveLoginDays: nextLoginDays,
+          });
+
+          showNotification(`Đã nhận ${rewardCoins} Xu thưởng đăng nhập Ngày ${nextLoginDays}!`, 'success');
+
+      } catch (error) {
+          showNotification('Lỗi khi nhận thưởng. Vui lòng thử lại.', 'error');
+      }
+  };
 
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile, updateAddresses }}>
+    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile, updateAddresses, claimDailyReward }}>
       {children}
     </AuthContext.Provider>
   );
@@ -207,3 +275,14 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Dữ liệu phần thưởng giả lập 7 ngày
+export const dailyRewardsData = [
+    { day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '../src/assets/images/coin.png' },
+    { day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '../src/assets/images/coin.png' },
+    { day: 3, type: 'Phiếu giảm giá', amount: 10, color: '#e63946', icon: 'FiTag' },
+    { day: 4, type: 'Xu', amount: 70, color: '#f7b731', icon: '../src/assets/images/coin.png' },
+    { day: 5, type: 'Xu', amount: 100, color: '#28a745', icon: '../src/assets/images/coin.png' },
+    { day: 6, type: 'Xu', amount: 120, color: '#f7b731', icon: '../src/assets/images/coin.png' },
+    { day: 7, type: 'Xu Đặc Biệt', amount: 200, color: '#747bff', icon: '../src/assets/images/coin.png' },
+];

@@ -84,6 +84,38 @@ html[data-theme="night"] {
   color-scheme: night;
 }
 
+body, .default-cursor {
+  cursor: url('../src/cursors/Alternative.cur'), default;
+}
+
+a:hover, button:hover, .action-icon, .page-nav-btn, .reader-back-btn, .dropdown-btn {
+  cursor: url('../src/cursors/link.cur'), pointer !important;
+}
+
+input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, .quantity-input, .comment-box {
+    cursor: url('../src/cursors/Escritura a Mano.cur'), text;
+}
+
+.move-cursor, .hero-group { 
+    cursor: url('../src/cursors/movec.cur'), move;
+}
+
+.help-cursor {
+    cursor: url('../src/cursors/ayuda.cur'), help;
+}
+
+.horizontal-resize-cursor {
+    cursor: url('../src/cursors/horizontal.cur'), e-resize;
+}
+
+.diagonal-resize-1-cursor {
+    cursor: url('../src/cursors/diagonal resize 1.cur'), nwse-resize;
+}
+
+.diagonal-resize-2-cursor {
+    cursor: url('../src/cursors/diagonal resize 2.cur'), nesw-resize;
+}
+
 body {
   margin: 0;
   min-width: 320px;

@@ -358,17 +358,105 @@
   }
 
 
+.daily-reward-icon-wrapper {
+    position: relative; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+.daily-reward-icon {
+    font-size: 1.8rem;
+    color: var(--clr-text-secondary);
+    transition: all 0.3s ease;
+}
+
+.daily-reward-icon-wrapper.can-claim-wrapper .daily-reward-icon {
+    color: var(--clr-coin-color);
+    animation: bounce-scale 1.5s infinite;
+}
+
+.daily-reward-icon-wrapper.can-claim-wrapper:hover .daily-reward-icon {
+    color: var(--clr-coin-color);
+    transform: scale(1.1);
+    animation: none;
+}
+
+.daily-reward-tooltip {
+    visibility: hidden;
+    width: 200px;
+    background-color: var(--clr-warning-bg);
+    color: var(--clr-warning-text);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1002;
+    bottom: -35px; 
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid var(--clr-warning-text);
+    white-space: nowrap;
+}
+
+.daily-reward-icon-wrapper.can-claim-wrapper:hover .daily-reward-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+html[data-theme='night'] .daily-reward-tooltip {
+    background-color: var(--clr-warning-bg);
+    color: var(--clr-warning-text);
+    border-color: var(--clr-warning-text);
+}
+
+
+@keyframes bounce-scale {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1) rotate(-5deg); }
+}
+
+/* Style cho nút mobile */
+.nav-mobile-action.daily-reward-btn {
+    justify-content: flex-start;
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    color: var(--clr-text);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.nav-mobile-action.daily-reward-btn.can-claim {
+    background-color: var(--clr-warning-bg);
+    color: var(--clr-warning-text);
+    font-weight: 600;
+}
+
+
 @media (max-width: 1150px) {
   .nav-desktop,
   .search-wrapper,
   .coin-balance-display,
-  .header-actions .action-icon,
+  .header-actions .action-icon:not(.daily-reward-icon-wrapper),
   .header-actions .dropdown,
   .header-actions .login-btn {
     &:not(.theme-toggle-button-wrapper) {
         display: none;
     }
   }
+  .header-actions .daily-reward-icon-wrapper {
+      display: flex;
+  }
+  .daily-reward-tooltip {
+      display: none;
+  }
+
 
   .menu-toggle {
     display: block;

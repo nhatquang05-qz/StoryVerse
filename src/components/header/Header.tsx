@@ -1,16 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { comics } from '../../data/mockData';
-import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton'; // Import component mới
+import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
+import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
 import './Header.css';
 
 const MAX_SUGGESTIONS = 5;
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState<typeof comics>([]);
   const { cartCount, setCartIconRect } = useCart();
@@ -69,6 +71,29 @@ const Header: React.FC = () => {
     setSuggestions([]);
     navigate(`/comic/${comicId}`);
   };
+
+  const handleOpenRewardModal = (e: React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      if (!currentUser) {
+          navigate('/login');
+          return;
+      }
+      setIsModalOpen(true);
+      if (isMenuOpen) {
+          setIsMenuOpen(false);
+      }
+  };
+  
+  const canClaimReward = currentUser ? (() => {
+    const today = new Date();
+    const lastLoginDate = new Date(currentUser.lastDailyLogin);
+    return !(
+        today.getFullYear() === lastLoginDate.getFullYear() &&
+        today.getMonth() === lastLoginDate.getMonth() &&
+        today.getDate() === lastLoginDate.getDate()
+    );
+  })() : false;
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -148,7 +173,20 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          <ThemeToggleButton /> {/* Thêm nút chuyển đổi theme */}
+          <ThemeToggleButton />
+
+          {currentUser && (
+              <div 
+                  className={`action-icon daily-reward-icon-wrapper ${canClaimReward ? 'can-claim-wrapper' : ''}`}
+                  onClick={handleOpenRewardModal}
+                  aria-label="Nhận thưởng hàng ngày"
+              >
+                  <FiGift className="daily-reward-icon" />
+                  {canClaimReward && (
+                      <span className="daily-reward-tooltip">Bạn có quà hàng ngày chưa nhận</span>
+                  )}
+              </div>
+          )}
 
           <Link to="/wishlist" className="action-icon" aria-label="Danh sách yêu thích">
             <FiHeart />
@@ -204,7 +242,7 @@ const Header: React.FC = () => {
           <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>
           <Link to="/genres" onClick={toggleMenu}>Thể Loại</Link>
           <div className="nav-mobile-separator"></div>
-           <div style={{ padding: '0 2rem', marginBottom: '1rem' }}> {/* Wrapper cho nút theme mobile */}
+           <div style={{ padding: '0 2rem', marginBottom: '1rem' }}>
               <ThemeToggleButton />
            </div>
           <Link to="/wishlist" onClick={toggleMenu} className="nav-mobile-action">
@@ -215,10 +253,15 @@ const Header: React.FC = () => {
           </Link>
 
           {currentUser && (
-            <div className="coin-balance-display mobile-coin-balance">
-                <img src="/coin-icon.png" alt="Xu" className="coin-icon" />
-                <span className="coin-amount">{currentUser.coinBalance} Xu</span>
-            </div>
+              <>
+                  <button className={`nav-mobile-action daily-reward-btn ${canClaimReward ? 'can-claim' : ''}`} onClick={handleOpenRewardModal}>
+                      <FiGift /> <span>{canClaimReward ? 'Nhận Thưởng Hàng Ngày' : 'Đã Nhận Thưởng'}</span>
+                  </button>
+                  <div className="coin-balance-display mobile-coin-balance">
+                      <img src="/coin-icon.png" alt="Xu" className="coin-icon" />
+                      <span className="coin-amount">{currentUser.coinBalance} Xu</span>
+                  </div>
+              </>
            )}
           <div className="nav-mobile-separator"></div>
           {currentUser ? (
@@ -238,6 +281,11 @@ const Header: React.FC = () => {
           )}
         </nav>
       )}
+      
+      <DailyRewardModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+      />
     </header>
   );
 };

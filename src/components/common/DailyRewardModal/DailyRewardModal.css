@@ -1,0 +1,244 @@
+.daily-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+}
+
+.daily-modal-content {
+    background-color: var(--clr-card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: var(--clr-text);
+}
+.daily-modal-content.large-modal-content {
+    max-width: 800px;
+    padding: 2rem 3rem;
+}
+
+.daily-modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--clr-text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.daily-modal-close-btn:hover {
+    color: var(--clr-error-text);
+}
+
+.daily-modal-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--clr-border-light);
+    padding-bottom: 1rem;
+}
+
+.modal-gift-icon {
+    font-size: 3rem;
+    color: var(--clr-coin-color);
+    margin-bottom: 0.5rem;
+}
+
+.daily-modal-header h2 {
+    font-size: 1.8rem;
+    margin: 0;
+    color: var(--clr-text);
+}
+.modal-streak-info {
+    font-size: 1rem;
+    color: var(--clr-text-secondary);
+    margin-top: 0.5rem;
+}
+.streak-count {
+    font-weight: bold;
+    color: var(--clr-primary);
+}
+
+
+.daily-reward-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 2.5rem;
+}
+
+.reward-calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 2px solid var(--clr-border-light);
+    background-color: var(--clr-footer-bg);
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    min-height: 120px;
+}
+.reward-calendar-day.claimed {
+    border-color: var(--clr-success-text);
+    background-color: var(--clr-success-bg);
+    opacity: 1;
+}
+.reward-calendar-day.claimable {
+    border-color: var(--clr-coin-color);
+    box-shadow: 0 0 10px var(--clr-coin-color);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.calendar-header {
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--clr-text-secondary);
+}
+.reward-calendar-day.claimed .calendar-header {
+    color: var(--clr-success-text);
+}
+
+.reward-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+.reward-icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 0.2rem;
+    object-fit: contain;
+}
+.reward-icon.icon-placeholder {
+    display: none; 
+}
+.reward-icon.non-coin-icon {
+    display: block;
+    font-size: 1.8rem;
+    color: var(--clr-error-text);
+    width: auto;
+    height: auto;
+}
+
+.reward-amount-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--clr-text);
+}
+
+.reward-status {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--clr-text-secondary);
+    margin-top: 0.5rem;
+}
+.reward-calendar-day.claimed .reward-status {
+    color: var(--clr-success-text);
+}
+.claimable-text-tag {
+    color: var(--clr-coin-color);
+}
+/* --- END GRID --- */
+
+.daily-modal-action-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--clr-border-light);
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.claim-btn {
+    margin-top: 0 !important;
+    background-color: var(--clr-coin-color) !important;
+    color: #333 !important;
+    font-size: 1.1rem !important;
+    width: 100%;
+    max-width: 300px;
+}
+.claim-btn:hover {
+    background-color: #e3b018 !important;
+    color: #333 !important;
+}
+.claim-btn.claimed-btn {
+    background-color: var(--clr-text-secondary) !important;
+    color: var(--clr-button-text) !important;
+    cursor: not-allowed;
+}
+
+.daily-modal-footer p {
+    font-size: 0.9rem;
+    color: var(--clr-text-secondary);
+    margin: 0;
+}
+.coin-balance-footer {
+    font-weight: bold;
+    color: var(--clr-coin-color);
+}
+
+.countdown-timer {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--clr-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.time-group {
+    color: var(--clr-error-text); 
+    font-weight: 700;
+    margin-left: 0.25rem; 
+}
+.time-group .time-value {
+    color: inherit; 
+    font-weight: inherit;
+}
+
+
+@media (max-width: 768px) {
+    .daily-modal-content.large-modal-content {
+        max-width: 95%;
+        padding: 1.5rem;
+    }
+    .daily-reward-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .reward-calendar-day {
+        min-height: 100px;
+    }
+    .calendar-header {
+        font-size: 0.7rem;
+    }
+    .daily-reward-grid:nth-child(2) { 
+        grid-column: 1 / -1;
+    }
+    .daily-reward-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 450px) {
+    .daily-reward-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

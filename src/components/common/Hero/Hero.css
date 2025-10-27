@@ -1,7 +1,6 @@
 .hero-slider {
   height: auto;
   min-height: 450px;
-  /* background: var(--clr-hero-bg);  */
   background: transparent;
   padding: 1.5rem 2rem;
   text-align: center;
@@ -46,7 +45,6 @@
   align-items: center;
   gap: 0;
   position: relative;
-  /* Dịch chuyển nhóm ảnh lên trên để cân bằng với khung mới */
   transform: translateY(-20px); 
 }
 
@@ -57,7 +55,6 @@
   border-radius: 8px;
   transform-origin: center;
   transition: transform 0.4s ease;
-  cursor: default;
   caret-color: transparent;
   overflow: visible;
   filter: drop-shadow(2px 4px 6px black);
