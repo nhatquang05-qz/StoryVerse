@@ -65,8 +65,8 @@ html[data-theme="night"] .chapter-chat-container .chat-messages-list::-webkit-sc
   margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid var(--clr-border-light);
-  position: relative; /* Added */
-  flex-wrap: wrap; /* Added */
+  position: relative; 
+  flex-wrap: wrap; 
 }
 
 .chapter-chat-container .chat-input-form input[type="text"] {
@@ -163,15 +163,8 @@ html[data-theme="night"] .chapter-chat-container .chat-messages-list::-webkit-sc
   display: flex;
   flex-direction: column;
   gap: 5px; 
-  margin-bottom: 5px;
-  position: absolute;
-  bottom: calc(100% + 5px); 
-  left: 0;
-  right: 0;
-  padding: 0 15px; 
-  box-sizing: border-box;
+  margin-bottom: 5px; 
 }
-
 
 .replying-to-indicator {
   background-color: var(--clr-footer-bg);

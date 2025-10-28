@@ -2,9 +2,14 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import './ChatLog.css';
 import ChatMessage, { type ChatMessageData } from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
-import { FiSend, FiImage, FiX } from 'react-icons/fi';
+import { FiSend, FiImage, FiSmile, FiX } from 'react-icons/fi'; 
 import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
 import { isProfane } from '../../../utils/profanityList';
+import StickerPicker from './StickerPicker';
+import type { Sticker } from '../../../utils/stickerUtils'; 
+
+
+const CHATLOG_STORAGE_KEY = 'storyverse_chatlog_global';
 
 const mockMessagesData: ChatMessageData[] = [
     { id: 1, userId: 'user-coconut', userName: "Coconut", avatarUrl: "https://i.imgur.com/g5V2w1D.png", timestamp: "13:40", message: "rùi", userLevel: 1, likes: ['user-ffdai'] },
@@ -19,6 +24,10 @@ const mockMessagesData: ChatMessageData[] = [
 const ChatLog: React.FC = () => {
     const { currentUser, getEquivalentLevelTitle } = useAuth();
     const [messages, setMessages] = useState<ChatMessageData[]>(() => {
+        try {
+            const storedMessages = localStorage.getItem(CHATLOG_STORAGE_KEY);
+            if (storedMessages) return JSON.parse(storedMessages);
+        } catch (error) { console.error("Error loading global chat messages:", error); }
          if (currentUser && !mockMessagesData.some(m => m.userId === currentUser.id)) {
              const userMessages: ChatMessageData[] = [
                  { id: 7, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:50", message: "Tin nhắn cũ 1", userLevel: currentUser.level, likes: [] },
@@ -32,13 +41,20 @@ const ChatLog: React.FC = () => {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
     const [replyingTo, setReplyingTo] = useState<{ id: number; author: string } | null>(null);
+    const [showStickerPicker, setShowStickerPicker] = useState(false); 
     const chatMessagesListRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageInputRef = useRef<HTMLInputElement>(null);
+    const stickerPickerRef = useRef<HTMLDivElement>(null); 
     const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
 
     const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
     const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default';
+
+    useEffect(() => {
+        try { localStorage.setItem(CHATLOG_STORAGE_KEY, JSON.stringify(messages)); }
+        catch (error) { console.error("Error saving global chat messages:", error); }
+    }, [messages]);
 
     useEffect(() => {
         if (chatMessagesListRef.current) {
@@ -52,6 +68,22 @@ const ChatLog: React.FC = () => {
         }
     }, [replyingTo]);
 
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (stickerPickerRef.current && !stickerPickerRef.current.contains(event.target as Node)) {
+                const stickerButton = document.querySelector('.sticker-picker-btn'); 
+                if (!stickerButton || !stickerButton.contains(event.target as Node)) {
+                    setShowStickerPicker(false);
+                }
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [stickerPickerRef]);
+
+
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
@@ -61,32 +93,31 @@ const ChatLog: React.FC = () => {
                  return;
             }
             setSelectedImage(file);
+            setShowStickerPicker(false); 
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviewUrl(reader.result as string);
-            }
+            reader.onloadend = () => { setImagePreviewUrl(reader.result as string); }
             reader.readAsDataURL(file);
         }
     };
 
-    const handleSendMessage = (e: React.FormEvent) => {
-        e.preventDefault();
-        if ((!newMessage.trim() && !selectedImage) || !currentUser) return;
+    const handleSendMessage = (sticker?: Sticker) => {
+        if ((!newMessage.trim() && !selectedImage && !sticker) || !currentUser) return;
 
         if (newMessage.trim() && isProfane(newMessage)) {
             setIsWarningPopupOpen(true);
             return;
         }
 
-        const createMessageObject = (imgDataUrl?: string): ChatMessageData => ({
+        const createMessageObject = (imgDataUrl?: string, stickerUrl?: string): ChatMessageData => ({
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
             avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-            message: newMessage.trim(),
+            message: sticker ? '' : newMessage.trim(), 
             userLevel: currentUser.level,
             imageUrl: imgDataUrl,
+            stickerUrl: stickerUrl, 
             likes: [],
             replyTo: replyingTo?.id,
             replyToAuthor: replyingTo?.author,
@@ -97,21 +128,22 @@ const ChatLog: React.FC = () => {
             setSelectedImage(null);
             setImagePreviewUrl(null);
             setReplyingTo(null);
+            setShowStickerPicker(false);
             if (fileInputRef.current) fileInputRef.current.value = "";
         };
 
-        if (selectedImage) {
+        if (sticker) {
+             const messageToSend = createMessageObject(undefined, sticker.url);
+             setMessages(prev => [...prev, messageToSend]);
+             resetInputs();
+        } else if (selectedImage) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const messageToSend = createMessageObject(reader.result as string);
                 setMessages(prev => [...prev, messageToSend]);
                 resetInputs();
             }
-            reader.onerror = () => {
-                console.error("Lỗi đọc file ảnh");
-                alert("Không thể đọc file ảnh đã chọn.");
-                resetInputs();
-            }
+            reader.onerror = () => { console.error("Lỗi đọc file ảnh"); alert("Không thể đọc file ảnh đã chọn."); resetInputs(); }
             reader.readAsDataURL(selectedImage);
         } else if (newMessage.trim()) {
             const messageToSend = createMessageObject();
@@ -120,7 +152,17 @@ const ChatLog: React.FC = () => {
         }
     };
 
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSendMessage();
+    }
+
+    const handleStickerSelect = (sticker: Sticker) => {
+        handleSendMessage(sticker);
+    }
+
     const handleImageButtonClick = () => {
+        setShowStickerPicker(false); 
         fileInputRef.current?.click();
     };
 
@@ -150,11 +192,19 @@ const ChatLog: React.FC = () => {
     const handleReplyMessage = useCallback((messageId: number, authorName: string) => {
         if (!currentUser) return;
         setReplyingTo({ id: messageId, author: authorName });
+        setShowStickerPicker(false); 
     }, [currentUser]);
 
     const cancelReply = () => {
         setReplyingTo(null);
     };
+
+    const toggleStickerPicker = () => {
+        if (!showStickerPicker) {
+            cancelImageSelection();
+        }
+        setShowStickerPicker(!showStickerPicker);
+    }
 
     const getLevelTitleForDisplay = (userId: string, userLevel: number): string => {
         if (currentUser && userId === currentUser.id) {
@@ -184,19 +234,26 @@ const ChatLog: React.FC = () => {
             </div>
 
             {currentUser ? (
-                <form className="chat-input-form" onSubmit={handleSendMessage}>
-                    {replyingTo && (
-                        <div className="replying-to-indicator">
-                            Trả lời @{replyingTo.author}
-                            <button type="button" onClick={cancelReply} className="cancel-reply-btn"><FiX/></button>
-                        </div>
-                    )}
-                    {imagePreviewUrl && (
-                        <div className="image-preview-container">
-                            <img src={imagePreviewUrl} alt="Xem trước" className="image-preview" />
-                            <button type="button" onClick={cancelImageSelection} className="cancel-image-btn"><FiX/></button>
-                        </div>
-                    )}
+                <form className="chat-input-form" onSubmit={handleFormSubmit}>
+                     {showStickerPicker && (
+                         <div ref={stickerPickerRef}> 
+                            <StickerPicker onStickerSelect={handleStickerSelect} onClose={() => setShowStickerPicker(false)} />
+                         </div>
+                     )}
+                     <div className="input-previews">
+                        {replyingTo && (
+                            <div className="replying-to-indicator">
+                                Trả lời @{replyingTo.author}
+                                <button type="button" onClick={cancelReply} className="cancel-reply-btn"><FiX/></button>
+                            </div>
+                        )}
+                        {imagePreviewUrl && (
+                            <div className="image-preview-container">
+                                <img src={imagePreviewUrl} alt="Xem trước" className="image-preview" />
+                                <button type="button" onClick={cancelImageSelection} className="cancel-image-btn"><FiX/></button>
+                            </div>
+                        )}
+                    </div>
                     <input
                         type="file"
                         ref={fileInputRef}
@@ -204,6 +261,15 @@ const ChatLog: React.FC = () => {
                         accept="image/png, image/jpeg, image/gif"
                         style={{ display: 'none' }}
                     />
+                     <button
+                        type="button"
+                        className="image-upload-btn sticker-picker-btn" 
+                        onClick={toggleStickerPicker}
+                        title="Chọn sticker"
+                        disabled={!!selectedImage}
+                    >
+                       <FiSmile />
+                    </button>
                     <button
                         type="button"
                         className="image-upload-btn"
@@ -220,6 +286,7 @@ const ChatLog: React.FC = () => {
                         placeholder={replyingTo ? `Trả lời ${replyingTo.author}...` : (selectedImage ? "Thêm chú thích..." : "Nhập tin nhắn...")}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
+                        disabled={!!selectedImage}
                     />
                     <button type="submit" className="send-btn" disabled={!newMessage.trim() && !selectedImage}>
                        <FiSend />

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import ChatMessage, { type ChatMessageData } from './ChatMessage'; 
-import { FiSend, FiImage, FiX } from 'react-icons/fi';
+import ChatMessage, { type ChatMessageData } from './ChatMessage';
+import { FiSend, FiImage, FiSmile, FiX } from 'react-icons/fi'; 
 import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
 import { isProfane } from '../../../utils/profanityList';
+import StickerPicker from './StickerPicker';
+import type { Sticker } from '../../../utils/stickerUtils'; 
 import './ChapterChat.css';
+
 
 interface ChapterChatProps {
     comicId: number;
@@ -24,9 +27,11 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
     const [replyingTo, setReplyingTo] = useState<{ id: number; author: string } | null>(null);
+    const [showStickerPicker, setShowStickerPicker] = useState(false); 
     const chatMessagesListRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const messageInputRef = useRef<HTMLInputElement>(null);
+    const stickerPickerRef = useRef<HTMLDivElement>(null); 
     const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
 
     const STORAGE_KEY = getStorageKey(comicId, chapterId);
@@ -39,15 +44,14 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             } else {
                 setMessages([]);
             }
-        } catch (error) {
-            console.error("Lỗi tải tin nhắn chương:", error);
-            setMessages([]);
-        }
-
-        if (chatMessagesListRef.current) {
-            chatMessagesListRef.current.scrollTop = chatMessagesListRef.current.scrollHeight;
-        }
+        } catch (error) { console.error("Lỗi tải tin nhắn chương:", error); setMessages([]); }
     }, [STORAGE_KEY]);
+
+    useEffect(() => {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); }
+        catch (error) { console.error("Error saving chapter chat messages:", error); }
+    }, [messages, STORAGE_KEY]);
+
 
     useEffect(() => {
         if (chatMessagesListRef.current) {
@@ -61,6 +65,21 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
         }
     }, [replyingTo]);
 
+     useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (stickerPickerRef.current && !stickerPickerRef.current.contains(event.target as Node)) {
+                const stickerButton = document.querySelector('.sticker-picker-btn');
+                if (!stickerButton || !stickerButton.contains(event.target as Node)) {
+                    setShowStickerPicker(false);
+                }
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [stickerPickerRef]);
+
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
@@ -70,17 +89,15 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                  return;
             }
             setSelectedImage(file);
+             setShowStickerPicker(false); 
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviewUrl(reader.result as string);
-            }
+            reader.onloadend = () => { setImagePreviewUrl(reader.result as string); }
             reader.readAsDataURL(file);
         }
     };
 
-    const handleSendMessage = (e: React.FormEvent) => {
-        e.preventDefault();
-        if ((!newMessage.trim() && !selectedImage) || !currentUser) {
+    const handleSendMessage = (sticker?: Sticker) => {
+        if ((!newMessage.trim() && !selectedImage && !sticker) || !currentUser) {
              if (!currentUser) showNotification("Bạn cần đăng nhập để bình luận", "warning");
             return;
         }
@@ -90,15 +107,16 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             return;
         }
 
-        const createMessageObject = (imgDataUrl?: string): ChatMessageData => ({
+        const createMessageObject = (imgDataUrl?: string, stickerUrl?: string): ChatMessageData => ({
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
             avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-            message: newMessage.trim(),
+            message: sticker ? '' : newMessage.trim(),
             userLevel: currentUser.level,
             imageUrl: imgDataUrl,
+            stickerUrl: stickerUrl,
             likes: [],
             replyTo: replyingTo?.id,
             replyToAuthor: replyingTo?.author,
@@ -109,26 +127,26 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             setSelectedImage(null);
             setImagePreviewUrl(null);
             setReplyingTo(null);
+            setShowStickerPicker(false);
             if (fileInputRef.current) fileInputRef.current.value = "";
         };
 
         const saveMessages = (newMsgs: ChatMessageData[]) => {
-            setMessages(newMsgs);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(newMsgs));
+             setMessages(newMsgs);
         }
 
-        if (selectedImage) {
+        if (sticker) {
+             const messageToSend = createMessageObject(undefined, sticker.url);
+             saveMessages([...messages, messageToSend]);
+             resetInputs();
+        } else if (selectedImage) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const messageToSend = createMessageObject(reader.result as string);
                 saveMessages([...messages, messageToSend]);
                 resetInputs();
             }
-             reader.onerror = () => {
-                console.error("Lỗi đọc file ảnh");
-                alert("Không thể đọc file ảnh đã chọn.");
-                resetInputs();
-            }
+             reader.onerror = () => { console.error("Lỗi đọc file ảnh"); alert("Không thể đọc file ảnh đã chọn."); resetInputs(); }
             reader.readAsDataURL(selectedImage);
         } else if (newMessage.trim()) {
             const messageToSend = createMessageObject();
@@ -137,7 +155,17 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
         }
     };
 
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSendMessage();
+    }
+
+    const handleStickerSelect = (sticker: Sticker) => {
+        handleSendMessage(sticker);
+    }
+
     const handleImageButtonClick = () => {
+         setShowStickerPicker(false);
         fileInputRef.current?.click();
     };
 
@@ -149,30 +177,37 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 
     const handleLikeMessage = useCallback((messageId: number) => {
         if (!currentUser) return;
-        const updatedMessages = messages.map(msg => {
-            if (msg.id === messageId) {
-                const currentLikes = msg.likes || [];
-                const isLiked = currentLikes.includes(currentUser.id);
-                const newLikes = isLiked
-                    ? currentLikes.filter(id => id !== currentUser.id)
-                    : [...currentLikes, currentUser.id];
-                return { ...msg, likes: newLikes };
-            }
-            return msg;
-        });
-        setMessages(updatedMessages);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMessages));
-    }, [currentUser, messages, STORAGE_KEY]);
+        setMessages(prevMessages =>
+            prevMessages.map(msg => {
+                if (msg.id === messageId) {
+                    const currentLikes = msg.likes || [];
+                    const isLiked = currentLikes.includes(currentUser.id);
+                    const newLikes = isLiked
+                        ? currentLikes.filter(id => id !== currentUser.id)
+                        : [...currentLikes, currentUser.id];
+                    return { ...msg, likes: newLikes };
+                }
+                return msg;
+            })
+        );
+    }, [currentUser]);
 
     const handleReplyMessage = useCallback((messageId: number, authorName: string) => {
         if (!currentUser) return;
         setReplyingTo({ id: messageId, author: authorName });
+        setShowStickerPicker(false);
     }, [currentUser]);
 
      const cancelReply = () => {
         setReplyingTo(null);
     };
 
+     const toggleStickerPicker = () => {
+        if (!showStickerPicker) {
+            cancelImageSelection();
+        }
+        setShowStickerPicker(!showStickerPicker);
+    }
 
     const getLevelTitleForDisplay = (userId: string, userLevel: number): string => {
         if (currentUser && userId === currentUser.id) {
@@ -207,19 +242,26 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             </div>
 
             {currentUser ? (
-                <form className="chat-input-form" onSubmit={handleSendMessage}>
-                    {replyingTo && (
-                        <div className="replying-to-indicator">
-                            Trả lời @{replyingTo.author}
-                            <button type="button" onClick={cancelReply} className="cancel-reply-btn"><FiX/></button>
-                        </div>
-                    )}
-                     {imagePreviewUrl && (
-                        <div className="image-preview-container">
-                            <img src={imagePreviewUrl} alt="Xem trước" className="image-preview" />
-                            <button type="button" onClick={cancelImageSelection} className="cancel-image-btn"><FiX/></button>
-                        </div>
-                    )}
+                <form className="chat-input-form" onSubmit={handleFormSubmit}>
+                    {showStickerPicker && (
+                         <div ref={stickerPickerRef}>
+                            <StickerPicker onStickerSelect={handleStickerSelect} onClose={() => setShowStickerPicker(false)} />
+                         </div>
+                     )}
+                     <div className="input-previews">
+                        {replyingTo && (
+                            <div className="replying-to-indicator">
+                                Trả lời @{replyingTo.author}
+                                <button type="button" onClick={cancelReply} className="cancel-reply-btn"><FiX/></button>
+                            </div>
+                        )}
+                        {imagePreviewUrl && (
+                            <div className="image-preview-container">
+                                <img src={imagePreviewUrl} alt="Xem trước" className="image-preview" />
+                                <button type="button" onClick={cancelImageSelection} className="cancel-image-btn"><FiX/></button>
+                            </div>
+                        )}
+                    </div>
                     <input
                         type="file"
                         ref={fileInputRef}
@@ -227,6 +269,15 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                         accept="image/png, image/jpeg, image/gif"
                         style={{ display: 'none' }}
                     />
+                     <button
+                        type="button"
+                        className="image-upload-btn sticker-picker-btn"
+                        onClick={toggleStickerPicker}
+                        title="Chọn sticker"
+                        disabled={!!selectedImage}
+                    >
+                       <FiSmile />
+                    </button>
                     <button
                         type="button"
                         className="image-upload-btn"
@@ -243,6 +294,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                         placeholder={replyingTo ? `Trả lời ${replyingTo.author}...` : (selectedImage ? "Thêm chú thích..." : "Viết bình luận của bạn...")}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
+                        disabled={!!selectedImage}
                     />
                     <button type="submit" className="send-btn" disabled={!newMessage.trim() && !selectedImage}>
                        <FiSend />

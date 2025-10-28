@@ -146,3 +146,17 @@ html[data-theme="night"] .user-name {
 .like-count {
   margin-left: 2px;
 }
+
+.message-sticker-container {
+  margin-top: 5px;
+  max-width: 100px; 
+}
+
+.message-sticker {
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  object-fit: contain;
+  display: block; 
+  margin-bottom: 5px; 
+}

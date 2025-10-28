@@ -12,9 +12,10 @@ export interface ChatMessageData {
   message: string;
   userLevel: number;
   imageUrl?: string;
+  stickerUrl?: string; // Added
   likes?: string[];
-  replyTo?: number; 
-  replyToAuthor?: string; 
+  replyTo?: number;
+  replyToAuthor?: string;
 }
 
 interface ChatMessageProps {
@@ -87,6 +88,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         {msg.imageUrl && (
           <div className="message-image-container">
             <img src={msg.imageUrl} alt="Uploaded content" className="message-image" />
+          </div>
+        )}
+        {/* Display Sticker */}
+        {msg.stickerUrl && (
+          <div className="message-sticker-container">
+            <img src={msg.stickerUrl} alt="Sticker" className="message-sticker" />
           </div>
         )}
         <div className="message-actions">
