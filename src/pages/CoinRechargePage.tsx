@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
+import RechargeSuccessPopup from '../components/popups/RechargeSuccessPopup'; 
 import '../pages/AuthPage.css';
 import './CoinRechargePage.css';
 
@@ -9,16 +10,18 @@ const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },
     { id: 2, coins: 1500, price: 50000, bonus: 100 },
     { id: 3, coins: 3100, price: 100000, bonus: 300 },
-    { id: 4, coins: 6500, price: 2000000, bonus: 800 },
+    { id: 4, coins: 6500, price: 200000, bonus: 800 }, 
     { id: 5, coins: 20000, price: 500000, bonus: 1200 },
     { id: 6, coins: 45000, price: 1000000, bonus: 2000 },
 ];
 
 const CoinRechargePage: React.FC = () => {
-    const { currentUser, updateProfile, addExp } = useAuth(); 
+    const { currentUser, updateProfile, addExp } = useAuth();
     const { showNotification } = useNotification();
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedPack, setSelectedPack] = useState<number | null>(null);
+    const [isRechargeSuccessPopupOpen, setIsRechargeSuccessPopupOpen] = useState(false); 
+    const [rechargeInfo, setRechargeInfo] = useState({ amount: 0, newBalance: 0 }); 
 
     const handleRecharge = async (packId: number) => {
         if (!currentUser) {
@@ -35,12 +38,15 @@ const CoinRechargePage: React.FC = () => {
         setSelectedPack(packId);
 
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500)); 
-            const totalCoinsAdded = pack.coins + pack.bonus;            
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            const totalCoinsAdded = pack.coins + pack.bonus;
             const newBalance = currentUser.coinBalance + totalCoinsAdded;
-            await updateProfile({ coinBalance: newBalance });            
-            await addExp(totalCoinsAdded, 'recharge');            
-            showNotification(`Nạp thành công ${totalCoinsAdded} Xu! Số dư mới: ${newBalance}`, 'success');
+            await updateProfile({ coinBalance: newBalance });
+            await addExp(totalCoinsAdded, 'recharge');
+
+            setRechargeInfo({ amount: totalCoinsAdded, newBalance: newBalance });
+            setIsRechargeSuccessPopupOpen(true);
+
         } catch (error) {
             console.error('Lỗi khi nạp xu:', error);
             showNotification('Nạp xu thất bại. Vui lòng thử lại.', 'error');
@@ -53,6 +59,7 @@ const CoinRechargePage: React.FC = () => {
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
+
     if (!currentUser) {
         return (
             <div className="auth-page">
@@ -125,6 +132,13 @@ const CoinRechargePage: React.FC = () => {
                     *Mỗi Xu nạp sẽ tăng {(BASE_EXP_PER_COIN * Math.pow(EXP_RATE_REDUCTION_FACTOR, currentUser.level - 1)).toFixed(4)}% kinh nghiệm (tỉ lệ giảm theo cấp).
                 </p>
             </div>
+
+            <RechargeSuccessPopup
+              isOpen={isRechargeSuccessPopupOpen}
+              onClose={() => setIsRechargeSuccessPopupOpen(false)}
+              amount={rechargeInfo.amount}
+              newBalance={rechargeInfo.newBalance}
+            />
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, type ReactNode, useCallback} from 'react';
+import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
 
 export interface Address {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import RegisterSuccessPopup from '../../components/popups/RegisterSuccessPopup'; 
 import '../AuthPage.css';
 
 const RegisterPage: React.FC = () => {
@@ -12,24 +13,39 @@ const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const { showNotification } = useNotification();
   const [error, setError] = useState('');
+  const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     if (password !== confirmPassword) {
-      return setError('Mật khẩu nhập lại không khớp.');
+      setError('Mật khẩu nhập lại không khớp.'); 
+      showNotification('Mật khẩu nhập lại không khớp.', 'warning'); 
+      return; 
     }
 
     try {
       await register(email, password);
-      navigate('/login');
+      setIsRegisterSuccessPopupOpen(true); 
     } catch (err) {
-      setError('Không thể tạo tài khoản. Vui lòng thử lại.');
-      showNotification('Đăng ký thất bại.', 'error');
+      let errorMessage = 'Không thể tạo tài khoản. Vui lòng thử lại.';
+      if (err instanceof Error) {
+          if (err.message.includes('email-already-in-use') || err.message.includes('exists')) {
+              errorMessage = 'Email này đã được sử dụng. Vui lòng chọn email khác.';
+          }
+      }
+      setError(errorMessage);
+      showNotification(errorMessage, 'error');
       console.error('Lỗi đăng ký:', err);
     }
   };
+
+  const handleCloseRegisterPopup = () => {
+    setIsRegisterSuccessPopupOpen(false);
+    // navigate('/login')
+  };
+
 
   return (
     <div className="auth-page">
@@ -57,7 +73,7 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Tạo mật khẩu (ít nhất 6 ký tự)"
-              minLength={6}
+              minLength={6} 
             />
           </div>
           <div className="form-group">
@@ -77,6 +93,11 @@ const RegisterPage: React.FC = () => {
           Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
         </p>
       </div>
+
+      <RegisterSuccessPopup
+        isOpen={isRegisterSuccessPopupOpen}
+        onClose={handleCloseRegisterPopup} 
+      />
     </div>
   );
 };
