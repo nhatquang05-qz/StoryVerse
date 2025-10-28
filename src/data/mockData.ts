@@ -1,8 +1,33 @@
-import chap1img1 from './id60/chap1/1.1.jpeg';
-import chap1img2 from './id60/chap1/1.2.jpeg';
-import chap1img3 from './id60/chap1/1.3.jpeg';
-import chap1img4 from './id60/chap1/1.4.jpeg';
-import chap1img5 from './id60/chap1/1.5.jpeg';
+// === BẮT ĐẦU PHẦN TỰ ĐỘNG IMPORT ẢNH ===
+//
+// 1. Vite sẽ tự động tìm tất cả các file ảnh trong thư mục chỉ định.
+// 2. { eager: true, as: 'url' } yêu cầu Vite nạp ngay lập tức các đường dẫn URL của ảnh.
+//
+const chap1ImageModules = import.meta.glob('./id60/chap1/*.{jpeg,jpg,png}', { eager: true, as: 'url' });
+
+//
+// 2. Sắp xếp các ảnh theo đúng thứ tự (ví dụ: 1.2.jpeg, 1.3.jpeg, ... 1.10.jpeg)
+//
+const naturalSort = (a: string, b: string) => {
+    // Sử dụng localeCompare với tùy chọn numeric:true để sắp xếp số tự nhiên
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+};
+
+// Lấy các đường dẫn (keys), sắp xếp chúng, và lấy URL (values)
+const chap1ImagePaths = Object.keys(chap1ImageModules)
+    .sort(naturalSort)
+    .map(path => chap1ImageModules[path]);
+
+//
+// 3. (TÙY CHỌN) Lặp lại cho các chương khác
+//    Bạn chỉ cần tạo thư mục src/data/id60/chap2/
+//    Sau đó thêm 2 dòng tương tự bên dưới:
+//
+const chap2ImageModules = import.meta.glob('./id60/chap2/*.{jpeg,jpg,png}', { eager: true, as: 'url' });
+const chap2ImagePaths = Object.keys(chap2ImageModules).sort(naturalSort).map(path => chap2ImageModules[path]);
+//
+// === KẾT THÚC PHẦN TỰ ĐỘNG IMPORT ẢNH ===
+
 
 export interface Comic {
   id: number;
@@ -75,25 +100,59 @@ const digitalComicChapters: ChapterListEntry = {
         { id: 5904, chapterNumber: 4, title: 'Nhóm 7 Trở Lại', isFree: false, unlockCoinPrice: 15, lastUpdated: '2 tuần trước', views: 1000, images: [] },
         { id: 5905, chapterNumber: 5, title: 'Kawaki', isFree: false, unlockCoinPrice: 20, lastUpdated: '1 tháng trước', views: 500, images: [] },
     ],
-    // DỮ LIỆU MẪU CHO(ID 60)
+    // DỮ LIỆU MẪU CHO (ID 60)
     60: [
-        { id: 6001, chapterNumber: 1, title: 'Cỏ Ba Lá Và Ma Vương', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 ngày trước', views: 45000, images: [
-            chap1img1, chap1img2, chap1img3, chap1img4, chap1img5
-        ]},
-        { id: 6002, chapterNumber: 2, title: 'Lời thề', isFree: true, unlockCoinPrice: 0, lastUpdated: '3 ngày trước', views: 42000, images: [
-            "https://i.imgur.com/your-image-id-4.jpg", // Thay thế link này
-            "https://i.imgur.com/your-image-id-5.jpg"  // Thay thế link này
-        ]},
-        { id: 6003, chapterNumber: 3, title: 'Đến Thủ Đô', isFree: true, unlockCoinPrice: 0, lastUpdated: '1 tuần trước', views: 38000, images: [
-            "https://i.imgur.com/your-image-id-6.jpg"  // Thay thế link này
-        ]},
-        { id: 6004, chapterNumber: 4, title: 'Kỳ thi tuyển', isFree: false, unlockCoinPrice: 20, lastUpdated: '1 tuần trước', views: 35000, images: [
-            "https://i.imgur.com/your-image-id-7.jpg", // Thay thế link này
-            "https://i.imgur.com/your-image-id-8.jpg"  // Thay thế link này
-        ]},
-        { id: 6005, chapterNumber: 5, title: 'Bình Minh Đen', isFree: false, unlockCoinPrice: 20, lastUpdated: '2 tuần trước', views: 30000, images: [
-            "https://i.imgur.com/your-image-id-9.jpg"  // Thay thế link này
-        ]},
+        { 
+            id: 6001, 
+            chapterNumber: 1, 
+            title: 'Cỏ Ba Lá Và Ma Vương', 
+            isFree: true, 
+            unlockCoinPrice: 0, 
+            lastUpdated: '1 ngày trước', 
+            views: 45000, 
+            images: chap1ImagePaths // SỬ DỤNG MẢNG ĐÃ IMPORT TỰ ĐỘNG
+        },
+        { 
+            id: 6002, 
+            chapterNumber: 2, 
+            title: 'Lời thề', 
+            isFree: true, 
+            unlockCoinPrice: 0, 
+            lastUpdated: '3 ngày trước', 
+            views: 42000, 
+            images: chap2ImagePaths
+                // Thêm chap2ImagePaths vào đây nếu bạn tạo ở trên
+        },
+        { 
+            id: 6003, 
+            chapterNumber: 3, 
+            title: 'Đến Thủ Đô', 
+            isFree: true, 
+            unlockCoinPrice: 0, 
+            lastUpdated: '1 tuần trước', 
+            views: 38000, 
+            images: [] 
+        },
+        { 
+            id: 6004, 
+            chapterNumber: 4, 
+            title: 'Kỳ thi tuyển', 
+            isFree: false, 
+            unlockCoinPrice: 20, 
+            lastUpdated: '1 tuần trước', 
+            views: 35000, 
+            images: [] 
+        },
+        { 
+            id: 6005, 
+            chapterNumber: 5, 
+            title: 'Bình Minh Đen', 
+            isFree: false, 
+            unlockCoinPrice: 20, 
+            lastUpdated: '2 tuần trước', 
+            views: 30000, 
+            images: [] 
+        },
     ]
 };
 
@@ -323,7 +382,6 @@ export const topMembersData: TopMember[] = [
   { rank: 5, avatarUrl: 'https://i.imgur.com/exampleAvatar5.png', name: 'Lọ Thánh Chí Tôn', level: 7, score: 64582 },
 ];
 
-// Định nghĩa cấu trúc cho một hệ thống cấp bậc
 interface LevelSystem {
     key: string;
     name: string;
