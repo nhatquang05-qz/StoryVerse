@@ -1,5 +1,7 @@
+// src/contexts/AuthContext.tsx
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
+import LevelUpPopup from '../components/popups/LevelUpPopup'; // Import popup
 
 export interface Address {
     id: string;
@@ -36,6 +38,9 @@ interface AuthContextType {
   selectedSystemKey: string;
   updateSelectedSystemKey: (newKey: string) => void;
   getEquivalentLevelTitle: (userLevel: number) => string;
+  isLevelUpPopupOpen: boolean;
+  levelUpInfo: { newLevel: number; levelTitle: string } | null;
+  closeLevelUpPopup: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +110,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return localStorage.getItem(LEVEL_SYSTEM_STORAGE_KEY) || 'Bình Thường';
     });
 
+    const [isLevelUpPopupOpen, setIsLevelUpPopupOpen] = useState(false);
+    const [levelUpInfo, setLevelUpInfo] = useState<{ newLevel: number; levelTitle: string } | null>(null);
+
     const updateSelectedSystemKey = useCallback((newKey: string) => {
         setSelectedSystemKey(newKey);
         localStorage.setItem(LEVEL_SYSTEM_STORAGE_KEY, newKey);
@@ -154,7 +162,62 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updateProfile = useCallback(async (profileData: Partial<User>): Promise<User | null> => { return new Promise((resolve) => { setCurrentUser(prevUser => { if (!prevUser) { resolve(null); return null; } const updatedUser = { ...prevUser, ...profileData }; saveProfileData(prevUser.id, updatedUser); if (Object.keys(profileData).some(key => !['level', 'exp', 'coinBalance'].includes(key))) { showNotification('Cập nhật hồ sơ thành công!', 'success'); } resolve(updatedUser); return updatedUser; }); }); }, [showNotification]);
     const updateAddresses = async (addresses: Address[]) => { if (!currentUser) { throw new Error('User not logged in.'); } await new Promise(resolve => setTimeout(resolve, 100)); const sortedAddresses = addresses.sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1)); saveAddresses(currentUser.id, sortedAddresses); setCurrentUser(prevUser => { if (!prevUser) return null; return { ...prevUser, addresses: sortedAddresses, }; }); showNotification('Cập nhật địa chỉ thành công!', 'success'); };
     const claimDailyReward = async () => { if (!currentUser) { showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning'); return; } const today = new Date(); const lastLoginDate = new Date(currentUser.lastDailyLogin); const oneDay = 24 * 60 * 60 * 1000; const diffDays = Math.round(Math.abs((today.getTime() - lastLoginDate.getTime()) / oneDay)); const isSameDay = today.getFullYear() === lastLoginDate.getFullYear() && today.getMonth() === lastLoginDate.getMonth() && today.getDate() === lastLoginDate.getDate(); if (isSameDay) { showNotification('Bạn đã nhận thưởng hàng ngày hôm nay rồi!', 'info'); return; } let nextLoginDays = currentUser.consecutiveLoginDays + 1; if (diffDays > 1) { nextLoginDays = 1; showNotification('Chuỗi đăng nhập đã bị đứt! Bắt đầu lại từ Ngày 1.', 'warning'); } const currentRewardIndex = (nextLoginDays - 1) % dailyRewardsData.length; const reward = dailyRewardsData[currentRewardIndex]; if (reward.type !== 'Xu') return; const rewardCoins = reward.amount; const newBalance = currentUser.coinBalance + rewardCoins; const todayISOString = today.toISOString(); try { await updateProfile({ coinBalance: newBalance, lastDailyLogin: todayISOString, consecutiveLoginDays: nextLoginDays }); showNotification(`Đã nhận ${rewardCoins} Xu thưởng đăng nhập Ngày ${nextLoginDays}!`, 'success'); } catch (error) { showNotification('Lỗi khi nhận thưởng. Vui lòng thử lại.', 'error'); } };
-    const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => { setCurrentUser(prevUser => { if (!prevUser) return null; let baseExpGain = 0; if (source === 'reading') { baseExpGain = BASE_EXP_PER_PAGE * amount; } else if (source === 'recharge') { baseExpGain = BASE_EXP_PER_COIN * amount; } const modifier = Math.pow(EXP_RATE_REDUCTION_FACTOR, prevUser.level - 1); const actualExpGain = baseExpGain * modifier; let currentBalance = prevUser.coinBalance + coinIncrease; let newExp = prevUser.exp + actualExpGain; let newLevel = prevUser.level; let levelUpOccurred = false; while (newExp >= 100) { newLevel += 1; newExp -= 100; levelUpOccurred = true; } const updatedUserData: Partial<User> = { level: newLevel, exp: Math.min(100, Math.max(0, newExp)), coinBalance: currentBalance }; const updatedUser = { ...prevUser, ...updatedUserData }; saveProfileData(prevUser.id, updatedUser); if (levelUpOccurred) { showNotification(`Chúc mừng! Bạn đã lên Cấp ${newLevel}!`, 'success'); } return updatedUser; }); await new Promise(resolve => setTimeout(resolve, 10)); }, [showNotification]);
+
+    const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
+        let triggeredLevelUpInfo: { newLevel: number; levelTitle: string } | null = null;
+
+        setCurrentUser(prevUser => {
+            if (!prevUser) return null;
+
+            let baseExpGain = 0;
+            if (source === 'reading') {
+                baseExpGain = BASE_EXP_PER_PAGE * amount;
+            } else if (source === 'recharge') {
+                baseExpGain = BASE_EXP_PER_COIN * amount;
+            }
+
+            const modifier = Math.pow(EXP_RATE_REDUCTION_FACTOR, prevUser.level - 1);
+            const actualExpGain = baseExpGain * modifier;
+
+            let currentBalance = prevUser.coinBalance + coinIncrease;
+            let newExp = prevUser.exp + actualExpGain;
+            let newLevel = prevUser.level;
+            let levelUpOccurred = false;
+
+            while (newExp >= 100) {
+                newLevel += 1;
+                newExp -= 100;
+                levelUpOccurred = true;
+            }
+
+            const updatedUserData: Partial<User> = {
+                level: newLevel,
+                exp: Math.min(100, Math.max(0, newExp)),
+                coinBalance: currentBalance
+            };
+            const updatedUser = { ...prevUser, ...updatedUserData };
+            saveProfileData(prevUser.id, updatedUser);
+
+            if (levelUpOccurred) {
+                const newLevelTitle = getEquivalentLevelTitle(newLevel);
+                triggeredLevelUpInfo = { newLevel, levelTitle: newLevelTitle };
+            }
+            return updatedUser;
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 10));
+
+        if (triggeredLevelUpInfo) {
+            setLevelUpInfo(triggeredLevelUpInfo);
+            setIsLevelUpPopupOpen(true);
+        }
+
+    }, [showNotification, getEquivalentLevelTitle]);
+
+    const closeLevelUpPopup = useCallback(() => {
+        setIsLevelUpPopupOpen(false);
+        setLevelUpInfo(null);
+    }, []);
 
     return (
         <AuthContext.Provider value={{
@@ -169,9 +232,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             getLevelColor,
             selectedSystemKey,
             updateSelectedSystemKey,
-            getEquivalentLevelTitle
+            getEquivalentLevelTitle,
+            isLevelUpPopupOpen,
+            levelUpInfo,
+            closeLevelUpPopup
         }}>
             {children}
+            {levelUpInfo && (
+                <LevelUpPopup
+                    isOpen={isLevelUpPopupOpen}
+                    onClose={closeLevelUpPopup}
+                    newLevel={levelUpInfo.newLevel}
+                    levelTitle={levelUpInfo.levelTitle}
+                />
+             )}
         </AuthContext.Provider>
     );
 };

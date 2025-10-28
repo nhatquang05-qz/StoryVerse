@@ -3,7 +3,10 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
 import ChatMessage from './ChatMessage';
 import { FiSend } from 'react-icons/fi';
-import './ChapterChat.css'; 
+import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
+import { isProfane } from '../../../utils/profanityList'; 
+import './ChapterChat.css';
+
 
 interface ChatMessageData {
   id: number;
@@ -17,20 +20,22 @@ interface ChatMessageData {
 
 interface ChapterChatProps {
     comicId: number;
-    chapterId: number; 
+    chapterId: number;
 }
+
 
 const getStorageKey = (comicId: number, chapterId: number) => {
     return `storyverse_chat_${comicId}_${chapterId}`;
 };
 
 const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
-    const { currentUser, getEquivalentLevelTitle, getLevelColor } = useAuth();
+    const { currentUser, getEquivalentLevelTitle } = useAuth();
     const { showNotification } = useNotification();
     const [messages, setMessages] = useState<ChatMessageData[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const chatMessagesListRef = useRef<HTMLDivElement>(null);
-    
+    const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
+
     const STORAGE_KEY = getStorageKey(comicId, chapterId);
 
     useEffect(() => {
@@ -45,7 +50,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             console.error("Lỗi tải tin nhắn chương:", error);
             setMessages([]);
         }
-        
+
         if (chatMessagesListRef.current) {
             chatMessagesListRef.current.scrollTop = chatMessagesListRef.current.scrollHeight;
         }
@@ -64,11 +69,17 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             return;
         }
 
+        // Sử dụng hàm isProfane đã import
+        if (isProfane(newMessage)) {
+            setIsWarningPopupOpen(true);
+            return;
+        }
+
         const messageToSend: ChatMessageData = {
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: "https://i.imgur.com/tq9k3Yj.png", 
+            avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             message: newMessage,
             userLevel: currentUser.level,
@@ -76,11 +87,11 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 
         const newMessages = [...messages, messageToSend];
         setMessages(newMessages);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newMessages)); 
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newMessages));
         setNewMessage('');
     };
 
-    const getLevelTitleForDisplay = (userId: string, userLevel: number) => {
+    const getLevelTitleForDisplay = (userId: string, userLevel: number): string => {
         if (currentUser && userId === currentUser.id) {
             return getEquivalentLevelTitle(userLevel);
         }
@@ -90,7 +101,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
     return (
         <div className="chapter-chat-container">
             <div className="chat-room-header">
-                Bàn luận 
+                Bàn luận
             </div>
 
             <div className="chat-messages-list" ref={chatMessagesListRef}>
@@ -130,6 +141,11 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                     Bạn phải đăng nhập để bình luận.
                 </div>
             )}
+
+            <ProfanityWarningPopup
+                isOpen={isWarningPopupOpen}
+                onClose={() => setIsWarningPopupOpen(false)}
+            />
         </div>
     );
 };

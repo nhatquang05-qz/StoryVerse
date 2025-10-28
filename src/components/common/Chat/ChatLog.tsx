@@ -3,87 +3,59 @@ import './ChatLog.css';
 import ChatMessage from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FiSend } from 'react-icons/fi';
+import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
+import { isProfane } from '../../../utils/profanityList'; 
 
-const mockMessagesData = [
-    {
-      id: 1,
-      userId: 'user-coconut',
-      userName: "Coconut",
-      avatarUrl: "https://i.imgur.com/g5V2w1D.png",
-      timestamp: "13:40",
-      message: "rùi",
-      userLevel: 1
-    },
-    {
-      id: 2,
-      userId: 'user-ffdai',
-      userName: "ff.dai13112007",
-      avatarUrl: "https://i.imgur.com/L30h9hZ.png",
-      timestamp: "13:44",
-      message: "cơm chó nhiều vầy 😡😡😡😡",
-      userLevel: 1
-    },
-     {
-      id: 3,
-      userId: 'user-cao',
-      userName: "CÁO MẮT TRĂNG",
-      avatarUrl: "https://i.imgur.com/8mVLK0f.png",
-      timestamp: "14:00",
-      message: "xin cảm nhận ik đứa",
-      userLevel: 2
-    },
-     {
-      id: 4,
-      userId: 'user-san',
-      userName: "San",
-      avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
-      timestamp: "14:53",
-      message: "sdsds",
-      userLevel: 5
-    },
-    {
-      id: 5,
-      userId: 'user-duongnguyennhatquang@gmail.com', 
-      userName: "duongnguyennhatquang",
-      avatarUrl: "https://i.imgur.com/tq9k3Yj.png", 
-      timestamp: "03:48",
-      message: "sdsdsd",
-      userLevel: 13 
-    },
-     {
-      id: 6,
-      userId: 'user-duongnguyennhatquang@gmail.com',
-      userName: "duongnguyennhatquang",
-      avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
-      timestamp: "03:49",
-      message: "sssd",
-      userLevel: 13
-    },
+
+interface ChatMessageData {
+  id: number;
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  timestamp: string;
+  message: string;
+  userLevel: number;
+}
+
+
+const mockMessagesData: ChatMessageData[] = [
 ];
+
 
 const ChatLog: React.FC = () => {
     const { currentUser, getEquivalentLevelTitle } = useAuth();
-    const [messages, setMessages] = useState(() => {
+    const [messages, setMessages] = useState<ChatMessageData[]>(() => {
         if (currentUser && !mockMessagesData.some(m => m.userId === currentUser.id)) {
-             return [
-                 ...mockMessagesData,
+             const userMessages: ChatMessageData[] = [
                  {
-                    id: 5, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0],
-                    avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:50", message: "Tin nhắn cũ 1", userLevel: currentUser.level
+                    id: 7,
+                    userId: currentUser.id,
+                    userName: currentUser.fullName || currentUser.email.split('@')[0],
+                    avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
+                    timestamp: "03:50",
+                    message: "Tin nhắn cũ 1",
+                    userLevel: currentUser.level
                  },
                  {
-                    id: 6, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0],
-                    avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:51", message: "Tin nhắn cũ 2", userLevel: currentUser.level
+                    id: 8,
+                    userId: currentUser.id,
+                    userName: currentUser.fullName || currentUser.email.split('@')[0],
+                    avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
+                    timestamp: "03:51",
+                    message: "Tin nhắn cũ 2",
+                    userLevel: currentUser.level
                  }
              ];
+             return [...mockMessagesData, ...userMessages];
         }
         return mockMessagesData;
     });
     const [newMessage, setNewMessage] = useState('');
     const chatMessagesListRef = useRef<HTMLDivElement>(null);
+    const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
 
     const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
-    const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default'; // Thêm level vào key
+    const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default';
 
     useEffect(() => {
         if (chatMessagesListRef.current) {
@@ -95,7 +67,13 @@ const ChatLog: React.FC = () => {
         e.preventDefault();
         if (!newMessage.trim() || !currentUser) return;
 
-        const messageToSend = {
+        // Sử dụng hàm isProfane đã import
+        if (isProfane(newMessage)) {
+            setIsWarningPopupOpen(true);
+            return;
+        }
+
+        const messageToSend: ChatMessageData = {
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
@@ -109,7 +87,7 @@ const ChatLog: React.FC = () => {
         setNewMessage('');
     };
 
-    const getLevelTitleForDisplay = (userId: string, userLevel: number) => {
+    const getLevelTitleForDisplay = (userId: string, userLevel: number): string => {
         if (currentUser && userId === currentUser.id) {
             return getEquivalentLevelTitle(userLevel);
         } else {
@@ -125,7 +103,7 @@ const ChatLog: React.FC = () => {
             </div>
 
             <div className="chat-messages-list" ref={chatMessagesListRef}>
-                {messages.map(msg => (
+                {messages.map((msg: ChatMessageData) => (
                     <ChatMessage
                         key={msg.id}
                         avatarUrl={msg.avatarUrl}
@@ -155,6 +133,11 @@ const ChatLog: React.FC = () => {
                     Bạn phải đăng nhập để nói chuyện.
                 </div>
             )}
+
+            <ProfanityWarningPopup
+                isOpen={isWarningPopupOpen}
+                onClose={() => setIsWarningPopupOpen(false)}
+            />
         </div>
     );
 };

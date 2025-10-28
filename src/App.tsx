@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom'; // Thêm useLocation
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import HomePage from './pages/HomePage';
@@ -25,13 +25,16 @@ import SettingsPage from './pages/SettingPage';
 import ScrollToTop from './components/common/ScrollToTop';
 import FlyingImage from './components/common/FlyingImage/FlyingImage';
 import ScrollToTopButton from './components/common/ScrollToTopButton/ScrollToTopButton';
+import LevelUpPopup from './components/popups/LevelUpPopup'; // Import LevelUpPopup
 import { useCart } from './contexts/CartContext';
+import { useAuth } from './contexts/AuthContext'; // Import useAuth
 import './App.css';
 
 function App() {
   const { animationData, clearAnimation } = useCart();
-  const location = useLocation(); 
-  const isReaderPage = location.pathname.startsWith('/read/'); 
+  const location = useLocation();
+  const isReaderPage = location.pathname.startsWith('/read/');
+  const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth(); // Lấy state và hàm từ AuthContext
 
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
@@ -97,6 +100,16 @@ function App() {
         onAnimationEnd={clearAnimation}
       />
       <ScrollToTopButton />
+
+      {/* Render LevelUpPopup */}
+      {levelUpInfo && (
+        <LevelUpPopup
+          isOpen={isLevelUpPopupOpen}
+          onClose={closeLevelUpPopup}
+          newLevel={levelUpInfo.newLevel}
+          levelTitle={levelUpInfo.levelTitle}
+        />
+      )}
     </div>
   );
 }
