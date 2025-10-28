@@ -17,7 +17,6 @@ html[data-theme="night"] .chat-message-item:hover {
     filter: brightness(115%);
 }
 
-
 .chat-avatar img {
   width: 35px;
   height: 35px;
@@ -65,9 +64,85 @@ html[data-theme="night"] .user-name {
   color: var(--clr-text-secondary);
 }
 
+.reply-info {
+  font-size: 0.8em;
+  color: var(--clr-text-secondary);
+  margin-bottom: 4px;
+  padding-left: 10px;
+  border-left: 2px solid var(--clr-border-light);
+}
+
+.reply-to-author {
+  font-weight: 600;
+  color: var(--clr-primary);
+}
+
 .message-text {
   line-height: 1.4;
   color: var(--clr-text);
   word-wrap: break-word;
   font-size: 0.95em;
+  margin-bottom: 5px;
+}
+
+.message-image-container {
+  margin-top: 5px;
+}
+
+.message-image {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+  object-fit: contain;
+  cursor: pointer;
+  border: 1px solid var(--clr-border-light);
+  display: block;
+  margin-bottom: 5px;
+}
+
+.message-actions {
+  display: flex;
+  gap: 15px; 
+  margin-top: 8px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8em;
+  border-radius: 3px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.action-button:hover:not(:disabled) {
+  color: var(--clr-primary);
+  background-color: rgba(100, 108, 255, 0.1);
+}
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.like-button.liked {
+  color: var(--clr-error-text);
+  font-weight: bold;
+}
+.like-button.liked:hover {
+    color: #e63946; 
+    background-color: rgba(230, 57, 70, 0.1);
+}
+
+.like-count {
+  margin-left: 2px;
 }
