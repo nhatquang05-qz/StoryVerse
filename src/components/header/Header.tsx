@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom'; 
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { comics, trendingComics, digitalComics, physicalComics, type Comic } from '../../data/mockData';
+import { comics, digitalComics, physicalComics, type Comic } from '../../data/mockData';
 import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
 import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
+import coinIcon from '../../assets/images/coin.png'; 
 import './Header.css';
 
 const MAX_SUGGESTIONS_TOTAL = 14; 
@@ -292,8 +293,10 @@ const Header: React.FC = () => {
                   <button onClick={handleLogout} className="logout-btn">Đăng Xuất</button>
                 </div>
               </div>
+              
+              {/* SỬA ĐỔI 1 (DESKTOP) */}
               <div className="coin-balance-display">
-                  <img src="../src/assets/images/coin.png" alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
+                  <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
                   <span className="coin-amount">{currentUser.coinBalance}</span>
               </div>
             </>
@@ -339,8 +342,10 @@ const Header: React.FC = () => {
                   <button className={`nav-mobile-action daily-reward-btn ${canClaimReward ? 'can-claim' : ''}`} onClick={handleOpenRewardModal}>
                       <FiGift /> <span>{canClaimReward ? 'Nhận Thưởng Hàng Ngày' : 'Đã Nhận Thưởng'}</span>
                   </button>
+                  
+                  {/* SỬA ĐỔI 2 (MOBILE) */}
                   <div className="coin-balance-display mobile-coin-balance">
-                      <img src="/coin-icon.png" alt="Xu" className="coin-icon" />
+                      <img src={coinIcon} alt="Xu" className="coin-icon" />
                       <span className="coin-amount">{currentUser.coinBalance} Xu</span>
                   </div>
               </>

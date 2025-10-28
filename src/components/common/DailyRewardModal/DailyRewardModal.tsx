@@ -39,9 +39,9 @@ const CountdownTimer: React.FC = () => {
         <div className="countdown-timer">
             Thời gian nhận quà tiếp theo: 
             <span className="time-group">
-                <span className="time-value">{String(hours).padStart(2, '0')}</span>h : 
-                <span className="time-value">{String(minutes).padStart(2, '0')}</span>m : 
-                <span className="time-value">{String(seconds).padStart(2, '0')}</span>s
+                <span className="time-value">{String(hours).padStart(2, '0')}</span>: 
+                <span className="time-value">{String(minutes).padStart(2, '0')}</span>: 
+                <span className="time-value">{String(seconds).padStart(2, '0')}</span>
             </span>
         </div>
     );

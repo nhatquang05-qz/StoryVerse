@@ -5,7 +5,7 @@
   height: var(--header-height);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1001;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid var(--clr-border-light);
 }
@@ -122,7 +122,7 @@
   background-color: var(--clr-header-bg);
   min-width: 200px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  z-index: 1;
+  z-index: 99999; 
   border-radius: var(--border-radius);
   padding-bottom: 0.5rem;
   border: 1px solid var(--clr-border-light);

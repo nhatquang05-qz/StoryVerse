@@ -13,7 +13,6 @@
 .top-comics-column {
     flex: 1 1 300px; 
     min-width: 280px;
-    position: sticky;
     top: calc(var(--header-height, 70px) + 2rem);
 }
 
@@ -21,7 +20,7 @@
 .chat-column .chat-room-container {
     max-width: 100%;
     margin: 0;
-    height: 777px
+    height: 500px
 }
 
 

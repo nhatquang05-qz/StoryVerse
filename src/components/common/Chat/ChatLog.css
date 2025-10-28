@@ -27,7 +27,7 @@ html[data-theme="night"] .chat-room-container {
 
 .chat-messages-list {
   flex-grow: 1;
-  max-height: 800px; 
+  max-height: 500px; 
   overflow-y: auto;
   padding-right: 5px;
   margin-bottom: 10px;
@@ -83,7 +83,7 @@ html[data-theme="night"] .chat-messages-list::-webkit-scrollbar-thumb:hover {
   font-size: 0.9em;
   outline: none;
   transition: border-color 0.2s;
-  height: 40px; /* Adjust height */
+  height: 40px;
   box-sizing: border-box;
 }
 .chat-input-form input::placeholder {

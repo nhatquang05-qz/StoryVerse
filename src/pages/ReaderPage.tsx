@@ -266,7 +266,6 @@ const ReaderPage: React.FC = () => {
                 )}
             </div>
 
-            {/* Khung chat nằm ngoài vùng cuộn và trên Footer chính */}
             {isUnlocked && (
                 <div className="chapter-chat-wrapper">
                     <ChapterChat 
