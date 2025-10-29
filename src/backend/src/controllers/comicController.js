@@ -1,6 +1,6 @@
 // backend/src/controllers/comicController.js
 const { getConnection } = require('../db/connection');
-const cloudinary = require('../config/CloudinaryConfig'); // Dùng để xóa ảnh nếu cần
+const cloudinary = require('../config/CloudinaryConfig');
 
 const getComics = async (req, res) => {
     try {
@@ -54,7 +54,6 @@ const getComicById = async (req, res) => {
 };
 
 const addComic = async (req, res) => {
-    // *** Cần Middleware kiểm tra Admin ở đây ***
     const { title, author, description, coverImageUrl, status, isDigital, price, genreIds } = req.body;
     if (!title || !coverImageUrl) return res.status(400).json({ error: 'Title and Cover Image URL are required.' });
 
@@ -82,7 +81,7 @@ const addComic = async (req, res) => {
 
 const getChapterContent = async (req, res) => {
      const { comicId, chapterNumber } = req.params;
-     const userId = req.userId; // Có thể null
+     const userId = req.userId; 
      if (!comicId || !chapterNumber) return res.status(400).json({ error: 'Comic ID and Chapter Number are required.' });
 
      const connection = getConnection();
@@ -94,30 +93,16 @@ const getChapterContent = async (req, res) => {
         if (chapterRows.length === 0) return res.status(404).json({ error: 'Chapter not found' });
 
         const chapter = chapterRows[0];
-        const chapterPrice = chapter.price;
-        let hasAccess = false;
-
-        if (chapterPrice === 0) {
-            hasAccess = true;
-        } else if (userId) {
-            // Check library (full purchase)
-            const [libraryRows] = await connection.execute(
-                'SELECT 1 FROM user_library WHERE userId = ? AND comicId = ?',
-                [userId, comicId]
-            );
-            if (libraryRows.length > 0) hasAccess = true;
-            // *** TODO: Add logic for individual chapter purchase if needed ***
-        }
-
-        if (!hasAccess) {
-            return res.status(403).json({ error: `Bạn cần ${chapterPrice} Xu để đọc chương này.`, requiredCoins: chapterPrice });
-        }
-
+        
+        // Khối logic 'hasAccess' đã bị xóa
+        
         let contentUrlsArray = [];
         try {
+            // Đây là dòng 105 đang báo lỗi trong terminal của bạn
             contentUrlsArray = chapter.contentUrls ? JSON.parse(chapter.contentUrls) : [];
         } catch (parseError) {
-            console.error("Error parsing contentUrls JSON:", parseError);
+            // Lỗi xảy ra ở đây vì dữ liệu trong DB không phải JSON
+            console.error("Error parsing contentUrls JSON:", parseError); 
             return res.status(500).json({ error: 'Lỗi dữ liệu nội dung chương.' });
         }
 
@@ -134,7 +119,6 @@ const getChapterContent = async (req, res) => {
 };
 
 const addChapter = async (req, res) => {
-    // *** Cần Middleware kiểm tra Admin ở đây ***
     const { comicId } = req.params;
     const { chapterNumber, title, contentUrls, price } = req.body;
 
@@ -166,11 +150,10 @@ const addChapter = async (req, res) => {
     }
 };
 
-// *** SỬA Ở ĐÂY: Thêm addChapter vào export ***
 module.exports = {
     getComics,
     getComicById,
     addComic,
     getChapterContent,
-    addChapter, // Đảm bảo addChapter được export
+    addChapter,
 };

@@ -190,7 +190,7 @@ const ComicDetailPage: React.FC = () => {
     }
   };
   
-  const handleUnlockChapter = async (chapter: ChapterSummary) => {
+const handleUnlockChapter = async (chapter: ChapterSummary) => {
       if (!currentUser) {
           showNotification('Vui lòng đăng nhập để mở khóa chương.', 'warning');
           return;
@@ -205,10 +205,12 @@ const ComicDetailPage: React.FC = () => {
 
       if (currentUser.coinBalance < chapter.price) {
           showNotification('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
+          navigate('/recharge'); // Thêm điều hướng đến trang nạp
           return;
       }
 
-      const newBalance = currentUser.coinBalance - chapter.price;
+      // KHÔNG CẦN newBalance ở đây
+      // const newBalance = currentUser.coinBalance - chapter.price;
 
       const newOrder = {
           id: `COIN-${Date.now()}-${chapter.id}`,
@@ -219,7 +221,7 @@ const ComicDetailPage: React.FC = () => {
           items: [{ 
               id: comic.id,
               title: comic.title,
-              author: comic.author || 'Không rõ tác giả', // Sửa lỗi ở đây
+              author: comic.author || 'Không rõ tác giả',
               price: chapter.price, 
               imageUrl: comic.coverImageUrl, 
               quantity: chapter.id, 
@@ -227,14 +229,20 @@ const ComicDetailPage: React.FC = () => {
       };
       
       try {
-          await updateProfile({ coinBalance: newBalance });
-          saveNewOrder(newOrder);
-          await addExp(chapter.price, 'recharge');
+          // *** ĐÂY LÀ THAY ĐỔI QUAN TRỌNG ***
+          // Bỏ: await updateProfile({ coinBalance: newBalance });
+
+          // Thay bằng: Gọi addExp với số Xu âm để trừ tiền
+          // Arg 1: Lượng EXP (code cũ của bạn dùng chapter.price, ta giữ nguyên)
+          // Arg 2: Nguồn ('recharge' như code cũ)
+          // Arg 3: Thay đổi Xu (truyền -chapter.price để trừ Xu)
+          await addExp(chapter.price, 'recharge', -chapter.price); 
+          
+          saveNewOrder(newOrder); // Vẫn lưu order vào mockData
+          
           showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.price} Xu!`, 'success');
           
-          setUnlockedChapters(prev => new Set(prev).add(chapter.id));
-          
-          navigate(`/read/${comic.id}/${chapter.chapterNumber}`); 
+          navigate(`/read/${comic.id}/${chapter.chapterNumber}`); // Dòng này sẽ chạy
           
       } catch (e) {
           showNotification('Lỗi khi mở khóa chương.', 'error');
@@ -473,6 +481,4 @@ const toggleSort = () => {
 
 export default ComicDetailPage;
 
-function setUnlockedChapters(arg0: (prev: any) => Set<unknown>) {
-    throw new Error('Function not implemented.');
-}
+// Hàm setUnlockedChapters bị lỗi đã được xóa bỏ khỏi đây

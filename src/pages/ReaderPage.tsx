@@ -9,6 +9,8 @@ import ChapterChat from '../components/common/Chat/ChapterChat';
 import './ReaderPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+// *** THÊM HẰNG SỐ BỊ THIẾU ***
+const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const isChapterUnlockedGlobally = (comicId: number, chapterId: number, userId: string | undefined): boolean => {
     if (!userId) return false;
@@ -90,11 +92,23 @@ const ReaderPage: React.FC = () => {
             setIsLoading(true);
             setChapterImages([]); 
             
-            fetch(`${API_URL}/comics/${comicId}/chapters/${chapterNumParam}`)
+            // *** BẮT ĐẦU SỬA LỖI ***
+            // Lấy token từ localStorage để xác thực
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY); 
+            
+            fetch(`${API_URL}/comics/${comicId}/chapters/${chapterNumParam}`, {
+                headers: { // Thêm headers chứa token
+                    'Authorization': `Bearer ${token}`
+                }
+            })
                 .then(res => {
-                    if (!res.ok) throw new Error('Không thể tải nội dung chương');
+                    if (!res.ok) {
+                         console.error("Fetch chapter content failed with status:", res.status);
+                         throw new Error('Không thể tải nội dung chương (lỗi xác thực hoặc không tìm thấy)');
+                    }
                     return res.json();
                 })
+             // *** KẾT THÚC SỬA LỖI ***
                 .then((data: ChapterContent) => {
                     setChapterImages(data.contentUrls);
                 })
@@ -142,7 +156,6 @@ const ReaderPage: React.FC = () => {
         const selectedChapterId = Number(e.target.value);
         const selectedChapter = allChapters.find(c => c.id === selectedChapterId);
         if (selectedChapter) {
-            // SỬA LỖI: Đảm bảo chapterNumber là number
             goToChapter(Number(selectedChapter.chapterNumber));
         }
     };
@@ -157,7 +170,7 @@ const ReaderPage: React.FC = () => {
             navigate('/recharge');
             return false;
         }
-        const newBalance = currentUser.coinBalance - chapterToUnlock.price;
+        
         const newOrder = {
             id: `COIN-${Date.now()}-${chapterToUnlock.id}`,
             userId: currentUser.id,
@@ -174,9 +187,11 @@ const ReaderPage: React.FC = () => {
             }],
         };
         try {
-            await updateProfile({ coinBalance: newBalance });
+            // *** SỬA LỖI LOGIC TRỪ XU ***
+            // Dùng addExp với số âm để trừ Xu
+            await addExp(chapterToUnlock.price, 'recharge', -chapterToUnlock.price);
+
             saveNewOrder(newOrder);
-            await addExp(chapterToUnlock.price, 'recharge'); 
             setUnlockedChapters(prev => new Set(prev).add(chapterToUnlock.id));
             showNotification(`Đã mở khóa Chương ${chapterToUnlock.chapterNumber} với ${chapterToUnlock.price} Xu!`, 'success');
             return true;
@@ -196,7 +211,6 @@ const ReaderPage: React.FC = () => {
         if (nextChapter) {
             const success = await handleUnlockChapter(nextChapter);
             if (success) {
-                // SỬA LỖI: Đảm bảo chapterNumber là number
                 goToChapter(Number(nextChapter.chapterNumber));
             }
         }
@@ -219,7 +233,6 @@ const ReaderPage: React.FC = () => {
                     </Link>
                     <button
                         className="nav-button prev-chap-button"
-                        // SỬA LỖI: Đảm bảo chapterNumber là number
                         onClick={() => goToChapter(Number(prevChapter!.chapterNumber))}
                         disabled={!prevChapter || !(prevChapter.price === 0 || unlockedChapters.has(prevChapter.id))}
                     >
@@ -246,7 +259,6 @@ const ReaderPage: React.FC = () => {
                     </div>
                     <button
                         className="nav-button next-chap-button"
-                        // SỬA LỖI: Đảm bảo chapterNumber là number
                         onClick={() => goToChapter(Number(nextChapter!.chapterNumber))}
                         disabled={!nextChapter || !isNextChapterUnlocked}
                     >
@@ -286,7 +298,6 @@ const ReaderPage: React.FC = () => {
             <div className="reader-footer-bar">
                 <button
                     className="nav-button"
-                    // SỬA LỖI: Đảm bảo chapterNumber là number
                     onClick={() => goToChapter(Number(prevChapter!.chapterNumber))}
                     disabled={!prevChapter || !(prevChapter.price === 0 || unlockedChapters.has(prevChapter.id))}
                 >
@@ -299,7 +310,6 @@ const ReaderPage: React.FC = () => {
                 ) : isNextChapterUnlocked ? (
                     <button
                         className="nav-button"
-                        // SỬA LỖI: Đảm bảo chapterNumber là number
                         onClick={() => goToChapter(Number(nextChapter.chapterNumber))}
                     >
                         Chương kế tiếp <FiChevronRight />
