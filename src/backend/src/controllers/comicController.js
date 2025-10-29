@@ -1,6 +1,5 @@
-// backend/src/controllers/comicController.js
 const { getConnection } = require('../db/connection');
-const cloudinary = require('../config/cloudinaryConfig');
+const cloudinary = require('../config/CloudinaryConfig');
 
 const getComics = async (req, res) => {
     try {

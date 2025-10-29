@@ -42,16 +42,20 @@ const CoinRechargePage: React.FC = () => {
             
             const totalCoinsAdded = pack.coins + pack.bonus;
             
-            await addExp(totalCoinsAdded, 'recharge', totalCoinsAdded);
+            const responseData = await addExp(totalCoinsAdded, 'recharge', totalCoinsAdded);
             
-            const newBalance = (currentUser.coinBalance || 0) + totalCoinsAdded;
-            
-            setRechargeInfo({ amount: totalCoinsAdded, newBalance: newBalance });
-            setIsRechargeSuccessPopupOpen(true);
+            if (responseData) {
+                setRechargeInfo({ amount: totalCoinsAdded, newBalance: responseData.coinBalance });
+                setIsRechargeSuccessPopupOpen(true);
+            } else {
+                throw new Error('Không thể cập nhật số dư từ máy chủ.');
+            }
 
         } catch (error) {
             console.error('Lỗi khi nạp xu:', error);
-            showNotification('Nạp xu thất bại. Vui lòng thử lại.', 'error');
+            if (!(error as Error).message.includes('Không thể cập nhật')) {
+                 showNotification('Nạp xu thất bại. Vui lòng thử lại.', 'error');
+            }
         } finally {
             setIsProcessing(false);
             setSelectedPack(null);

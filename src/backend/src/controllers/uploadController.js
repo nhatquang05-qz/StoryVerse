@@ -1,4 +1,4 @@
-const cloudinary = require('../config/cloudinaryConfig');
+const cloudinary = require('../config/CloudinaryConfig');
 const path = require('path');
 
 const uploadFromBuffer = (buffer, options = {}) => {

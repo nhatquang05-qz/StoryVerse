@@ -17,7 +17,12 @@ interface AuthContextType {
   updateAvatar: (avatarUrl: string) => Promise<User | null>; 
   updateAddresses: (addresses: Address[]) => Promise<void>;
   claimDailyReward: () => Promise<void>;
-  addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<void>;
+  addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<{
+    level: number;
+    exp: number;
+    coinBalance: number;
+    levelUpOccurred: boolean;
+  } | null>;
   getLevelColor: (level: number) => string;
   selectedSystemKey: string;
   updateSelectedSystemKey: (newKey: string) => void;
@@ -245,9 +250,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             const rawUpdatedUser = await response.json();
-            const updatedUser = ensureUserDataTypes(rawUpdatedUser); // Chuẩn hóa dữ liệu trả về
+            const updatedUser = ensureUserDataTypes(rawUpdatedUser); 
 
-            // Cập nhật state currentUser
             setCurrentUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : updatedUser);
             showNotification('Cập nhật hồ sơ thành công!', 'success');
             return updatedUser;
@@ -299,27 +303,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const updateAddresses = async (addresses: Address[]) => {
         const token = getToken();
-        if (!token) { /* ... (xử lý lỗi) ... */ return; }
+        if (!token) { return; }
 
         try {
              const response = await fetch(`${API_URL}/addresses`, { 
                 method: 'PUT',
-                headers: { /* ... */ 'Authorization': `Bearer ${token}` },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 body: JSON.stringify({ addresses })
             });
 
-             if (!response.ok) { /* ... (xử lý lỗi) ... */ }
+             if (!response.ok) { throw new Error('Cập nhật địa chỉ thất bại'); }
 
             const updatedAddresses = await response.json(); 
             setCurrentUser(prevUser => prevUser ? { ...prevUser, addresses: updatedAddresses } : null);
             showNotification('Cập nhật địa chỉ thành công!', 'success');
 
-        } catch (error: any) { /* ... (xử lý lỗi) ... */ }
+        } catch (error: any) { 
+            showNotification(error.message || 'Lỗi cập nhật địa chỉ.', 'error');
+        }
     };
 
     const claimDailyReward = async () => {
         const token = getToken();
-        if (!currentUser) { /* ... */ return; }
+        if (!currentUser) { return; }
 
         try {
             const response = await fetch(`${API_URL}/claim-reward`, { 
@@ -342,19 +351,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                  showNotification(data.notificationMessage, 'success');
             }
 
-        } catch (error: any) { /* ... (xử lý lỗi) ... */ }
+        } catch (error: any) { 
+            showNotification(error.message || 'Lỗi khi nhận thưởng.', 'error');
+        }
     };
 
-    const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
+    const addExp = useCallback(async (
+        amount: number, 
+        source: 'reading' | 'recharge', 
+        coinIncrease: number = 0
+    ): Promise<{ level: number, exp: number, coinBalance: number, levelUpOccurred: boolean } | null> => {
         const token = getToken();
-        if (!currentUser) return; 
+        if (!currentUser) return null; 
 
         try {
             const response = await fetch(`${API_URL}/add-exp`, { 
                 method: 'POST',
-                headers: { /* ... */ 'Authorization': `Bearer ${token}` },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 body: JSON.stringify({ amount, source, coinIncrease })
             });
+            
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Lỗi khi cộng EXP');
 
@@ -370,7 +389,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 setLevelUpInfo({ newLevel: data.level, levelTitle: newLevelTitle });
                 setIsLevelUpPopupOpen(true);
             }
-        } catch (error: any) { /* ... (xử lý lỗi) ... */ }
+            
+            return data; 
+
+        } catch (error: any) { 
+            console.error('Lỗi khi addExp:', error);
+            showNotification(error.message || 'Đã xảy ra lỗi khi cập nhật EXP/Xu.', 'error');
+            return null; 
+        }
 
     }, [currentUser, getEquivalentLevelTitle, showNotification]);
 
@@ -406,7 +432,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return (
         <AuthContext.Provider value={contextValue}>
             {children}
-            {/* Render popup level up nếu cần */}
             {levelUpInfo && (
                 <LevelUpPopup
                     isOpen={isLevelUpPopupOpen}
