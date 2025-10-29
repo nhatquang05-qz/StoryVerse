@@ -1,7 +1,6 @@
-// src/contexts/AuthContext.tsx
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
-import LevelUpPopup from '../components/popups/LevelUpPopup'; // Import popup
+import LevelUpPopup from '../components/popups/LevelUpPopup';
 
 export interface Address {
     id: string;
@@ -51,7 +50,7 @@ const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
 
 const BASE_EXP_PER_PAGE = 0.05;
 const BASE_EXP_PER_COIN = 0.2;
-const EXP_RATE_REDUCTION_FACTOR = 0.7;
+const EXP_RATE_REDUCTION_FACTOR = 0.5;
 
 const LEVEL_COLORS: { [key: number]: string } = {
     1: '#6c757d', 2: '#007bff', 3: '#28a745', 4: '#ffc107', 5: '#dc3545',

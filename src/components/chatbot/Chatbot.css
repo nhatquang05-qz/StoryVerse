@@ -1,11 +1,8 @@
-/* src/components/chatbot/Chatbot.css */
-
 .chatbot-toggle-button {
   position: fixed;
   bottom: 30px;
   right: 30px;
   background-color: transparent;
-  color: var(--clr-button-text);
   border: none;
   border-radius: 0;
   width: 100px;
@@ -13,8 +10,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
   z-index: 9998;
   padding: 0;
