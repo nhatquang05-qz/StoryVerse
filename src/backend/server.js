@@ -6,7 +6,7 @@ const cors = require('cors');
 
 const app = express();
 
-// Cấu hình CORS chặt chẽ hơn
+
 app.use(cors({
   origin: 'http://localhost:5173', // Hoặc domain frontend của bạn
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -16,12 +16,12 @@ app.use(express.json());
 
 const JWT_SECRET = 'your_super_secret_key_change_this_later_123456';
 
-// --- Database Config ---
+
 const dbConfig = {
   host: 'localhost',
-  user: 'root',       // <<< THAY USER DB CỦA BẠN
-  password: '24122005Quang#', // <<< THAY PASSWORD DB CỦA BẠN
-  database: 'storyverse_db'   // <<< THAY TÊN DB CỦA BẠN
+  user: 'root',
+  password: '24122005Quang#', // <<< NHỚ THAY PASSWORD DB CỦA BẠN
+  database: 'storyverse_db'   // <<< NHỚ THAY TÊN DB CỦA BẠN
 };
 
 let connection;
@@ -38,7 +38,7 @@ async function connectDB() {
 
 connectDB();
 
-// --- Middleware ---
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -55,24 +55,22 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// --- Helper Function ---
+
 const ensureUserDataTypes = (userData) => {
     if (!userData) return null;
-    const safeData = { ...userData }; // Tạo bản sao để tránh thay đổi trực tiếp
+    const safeData = { ...userData };
 
     try {
         safeData.exp = parseFloat(safeData.exp || 0);
-        if (isNaN(safeData.exp)) safeData.exp = 0; // Xử lý NaN
+        if (isNaN(safeData.exp)) safeData.exp = 0;
     } catch (e) {
         safeData.exp = 0;
     }
 
     try {
-        // Kiểm tra xem addresses có phải là string không trước khi parse
         if (typeof safeData.addresses === 'string') {
            safeData.addresses = JSON.parse(safeData.addresses || '[]');
         }
-        // Đảm bảo cuối cùng nó là một mảng
         if (!Array.isArray(safeData.addresses)) safeData.addresses = [];
     } catch(e) {
         console.error("Error parsing addresses:", e, "Original value:", safeData.addresses);
@@ -88,7 +86,6 @@ const ensureUserDataTypes = (userData) => {
     safeData.consecutiveLoginDays = parseInt(safeData.consecutiveLoginDays || 0);
      if (isNaN(safeData.consecutiveLoginDays)) safeData.consecutiveLoginDays = 0;
 
-    // Chuyển đổi ID thành chuỗi nếu cần (nhất quán với frontend)
     if (typeof safeData.id !== 'undefined' && typeof safeData.id !== 'string') {
         safeData.id = String(safeData.id);
     }
@@ -98,7 +95,6 @@ const ensureUserDataTypes = (userData) => {
 };
 
 
-// --- Auth Routes ---
 app.post('/api/register', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -114,7 +110,7 @@ app.post('/api/register', async (req, res) => {
 
     const [result] = await connection.execute(
       'INSERT INTO users (email, password, fullName, phone, coinBalance, lastDailyLogin, consecutiveLoginDays, level, exp, addresses) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [email, hashedPassword, defaultFullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', mockDefaultAddress] // Lưu exp dạng string '0.00'
+      [email, hashedPassword, defaultFullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', mockDefaultAddress]
     );
     res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
   } catch (error) {
@@ -138,7 +134,7 @@ app.post('/api/login', async (req, res) => {
     const { password: userPassword, ...userWithoutPassword } = user;
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
-    const userData = ensureUserDataTypes(userWithoutPassword); // Đảm bảo kiểu dữ liệu
+    const userData = ensureUserDataTypes(userWithoutPassword);
     res.json({ message: 'Login successful', token, user: userData });
   } catch (error) {
     console.error('Login error:', error);
@@ -146,14 +142,14 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// --- User Routes ---
+
 app.get('/api/me', authenticateToken, async (req, res) => {
   try {
     const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [req.userId]);
     if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
 
     const { password, ...userData } = rows[0];
-    const finalUserData = ensureUserDataTypes(userData); // Đảm bảo kiểu dữ liệu
+    const finalUserData = ensureUserDataTypes(userData);
 
     res.json(finalUserData);
   } catch (error) {
@@ -165,7 +161,6 @@ app.get('/api/me', authenticateToken, async (req, res) => {
 app.put('/api/profile', authenticateToken, async (req, res) => {
   try {
     const { fullName, phone } = req.body;
-    // Thêm kiểm tra đầu vào cơ bản
     if (typeof fullName !== 'string' || fullName.trim() === '' || typeof phone !== 'string' || phone.trim() === '') {
         return res.status(400).json({ error: 'Họ tên và Số điện thoại không hợp lệ.' });
     }
@@ -176,10 +171,10 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
     );
 
     const [rows] = await connection.execute('SELECT * FROM users WHERE id = ?', [req.userId]);
-    if (rows.length === 0) return res.status(404).json({ message: 'User not found after update' }); // Thêm kiểm tra
+    if (rows.length === 0) return res.status(404).json({ message: 'User not found after update' });
 
     const { password, ...updatedUser } = rows[0];
-    const finalUserData = ensureUserDataTypes(updatedUser); // Đảm bảo kiểu dữ liệu
+    const finalUserData = ensureUserDataTypes(updatedUser);
 
     res.json(finalUserData);
   } catch (error) {
@@ -188,7 +183,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// --- Address Routes ---
+
 app.get('/api/addresses', authenticateToken, async (req, res) => {
     try {
         const [rows] = await connection.execute(
@@ -197,7 +192,6 @@ app.get('/api/addresses', authenticateToken, async (req, res) => {
         );
         if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
 
-        // Sử dụng helper để đảm bảo addresses là array
         const addresses = ensureUserDataTypes({ addresses: rows[0].addresses }).addresses;
         res.json(addresses);
 
@@ -213,7 +207,6 @@ app.put('/api/addresses', authenticateToken, async (req, res) => {
         if (!Array.isArray(addresses)) {
             return res.status(400).json({ error: 'Invalid data format, expected an array of addresses.' });
         }
-        // Validate từng address trong mảng (ví dụ cơ bản)
         for(const addr of addresses) {
             if (!addr || typeof addr.street !== 'string' || typeof addr.city !== 'string') {
                  return res.status(400).json({ error: 'Một hoặc nhiều địa chỉ không hợp lệ.' });
@@ -234,11 +227,11 @@ app.put('/api/addresses', authenticateToken, async (req, res) => {
 });
 
 
-// --- EXP & Reward Constants and Route ---
+
 const BASE_EXP_PER_PAGE = 0.05;
 const BASE_EXP_PER_COIN = 0.2;
-const EXP_RATE_REDUCTION_FACTOR = 0.5; // Giảm 50% mỗi cấp
-const MIN_EXP_PER_COIN = 1e-9; // Ngưỡng EXP tối thiểu nhận được mỗi coin
+const EXP_RATE_REDUCTION_FACTOR = 0.5;
+const MIN_EXP_PER_COIN = 1e-9;
 const dailyRewardsData = [
     { day: 1, type: 'Xu', amount: 30 }, { day: 2, type: 'Xu', amount: 50 },
     { day: 3, type: 'Xu', amount: 60 }, { day: 4, type: 'Xu', amount: 70 },
@@ -256,7 +249,7 @@ app.post('/api/add-exp', authenticateToken, async (req, res) => {
 
 
         const [rows] = await connection.execute(
-            'SELECT level, exp, coinBalance FROM users WHERE id = ? FOR UPDATE', // Thêm FOR UPDATE để khóa dòng, tránh race condition
+            'SELECT level, exp, coinBalance FROM users WHERE id = ? FOR UPDATE',
             [req.userId]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -281,27 +274,22 @@ app.post('/api/add-exp', authenticateToken, async (req, res) => {
 
                 const expNeededForNextLevel = 100.0 - currentExp;
 
-                // Nếu expNeeded rất gần 0 (do lỗi float), coi như cần 100 cho cấp sau
                 if (expNeededForNextLevel < 1e-9) {
                      currentLevel += 1;
                      currentExp = 0;
-                     continue; // Bắt đầu vòng lặp mới với cấp độ mới
+                     continue;
                 }
 
 
                 const coinsNeededForNextLevel = expNeededForNextLevel / expPerCoinThisLevel;
-
-                // console.log(`Lv: ${currentLevel}, Exp: ${currentExp.toFixed(2)}, CoinsLeft: ${coinsToProcess.toFixed(2)}, Exp/Coin: ${expPerCoinThisLevel.toFixed(4)}, ExpNeeded: ${expNeededForNextLevel.toFixed(2)}, CoinsNeeded: ${coinsNeededForNextLevel.toFixed(2)}`);
 
 
                 if (coinsToProcess >= coinsNeededForNextLevel) {
                     coinsToProcess -= coinsNeededForNextLevel;
                     currentLevel += 1;
                     currentExp = 0;
-                     // console.log(`---> Leveled Up to ${currentLevel}! Coins remaining: ${coinsToProcess.toFixed(2)}`);
                 } else {
                     currentExp += coinsToProcess * expPerCoinThisLevel;
-                     // console.log(`---> Added ${coinsToProcess * expPerCoinThisLevel} EXP. Final Exp: ${currentExp.toFixed(2)}`);
                     coinsToProcess = 0;
                 }
             }
@@ -316,7 +304,7 @@ app.post('/api/add-exp', authenticateToken, async (req, res) => {
              }
         }
 
-        currentExp = Math.min(100, Math.max(0, currentExp)); // Clamp final EXP
+        currentExp = Math.min(100, Math.max(0, currentExp));
 
         await connection.execute(
             'UPDATE users SET level = ?, exp = ?, coinBalance = ? WHERE id = ?',
@@ -340,7 +328,7 @@ app.post('/api/add-exp', authenticateToken, async (req, res) => {
 app.post('/api/claim-reward', authenticateToken, async (req, res) => {
     try {
         const [rows] = await connection.execute(
-            'SELECT lastDailyLogin, consecutiveLoginDays, coinBalance FROM users WHERE id = ? FOR UPDATE', // Thêm FOR UPDATE
+            'SELECT lastDailyLogin, consecutiveLoginDays, coinBalance FROM users WHERE id = ? FOR UPDATE',
             [req.userId]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
@@ -355,7 +343,7 @@ app.post('/api/claim-reward', authenticateToken, async (req, res) => {
         const diffTime = todayStart.getTime() - lastLoginStart.getTime();
         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays <= 0) { // Đã nhận trong hôm nay hoặc lỗi ngày trong tương lai?
+        if (diffDays <= 0) {
             return res.status(400).json({ error: 'Bạn đã nhận thưởng hôm nay rồi!' });
         }
 
@@ -396,36 +384,40 @@ app.post('/api/claim-reward', authenticateToken, async (req, res) => {
     }
 });
 
+// --- SỬA ĐỔI Ở ĐÂY ---
 app.get('/api/users/top', async (req, res) => {
     try {
-        // Lấy top 10 user, sắp xếp theo level giảm dần, sau đó là exp giảm dần
-        const limit = parseInt(req.query.limit) || 10; // Lấy top 10 hoặc theo query param
+        const limit = parseInt(req.query.limit) || 10;
+        // Đảm bảo limit là số nguyên dương
+        const safeLimit = Math.max(1, Math.floor(limit));
 
-        const [rows] = await connection.execute(
-            `SELECT id, fullName, level, exp
-             FROM users
-             ORDER BY level DESC, exp DESC
-             LIMIT ?`,
-            [limit]
-        );
+        // Dùng template literal để chèn giá trị limit đã được làm sạch
+        const query = `
+            SELECT id, fullName, level, exp
+            FROM users
+            ORDER BY CAST(level AS UNSIGNED) DESC, CAST(exp AS DECIMAL(5,2)) DESC
+            LIMIT ${safeLimit}
+        `;
 
-        // Đảm bảo kiểu dữ liệu trả về (không cần thiết lắm vì chỉ dùng level, name)
+        // Sử dụng connection.query vì không còn placeholder
+        const [rows] = await connection.query(query);
+
         const topUsers = rows.map(user => ({
-             id: String(user.id), // Chuyển id sang string nếu cần
-             fullName: user.fullName,
-             level: parseInt(user.level),
-             // exp: parseFloat(user.exp) // Không cần gửi exp nếu không hiển thị
+             id: String(user.id),
+             fullName: user.fullName || 'Người dùng ẩn danh', // Thêm fallback
+             level: parseInt(user.level) || 1, // Thêm fallback
         }));
-
 
         res.json(topUsers);
 
     } catch (error) {
         console.error("Get top users error:", error);
-        res.status(500).json({ error: 'Failed to fetch top users' });
+        // Gửi thông báo lỗi chi tiết hơn nếu có
+        res.status(500).json({ error: error.message || 'Failed to fetch top users' });
     }
 });
-// --- Server Start ---
+// --- KẾT THÚC SỬA ĐỔI ---
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
