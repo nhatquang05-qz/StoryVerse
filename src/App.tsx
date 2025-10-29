@@ -25,16 +25,17 @@ import SettingsPage from './pages/SettingPage';
 import ScrollToTop from './components/common/ScrollToTop';
 import FlyingImage from './components/common/FlyingImage/FlyingImage';
 import ScrollToTopButton from './components/common/ScrollToTopButton/ScrollToTopButton';
-import LevelUpPopup from './components/popups/LevelUpPopup'; 
+import LevelUpPopup from './components/popups/LevelUpPopup';
+import ChatbotUI from './components/chatbot/ChatbotUI';
 import { useCart } from './contexts/CartContext';
-import { useAuth } from './contexts/AuthContext'; 
+import { useAuth } from './contexts/AuthContext';
 import './App.css';
 
 function App() {
   const { animationData, clearAnimation } = useCart();
   const location = useLocation();
   const isReaderPage = location.pathname.startsWith('/read/');
-  const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth(); 
+  const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
@@ -101,7 +102,6 @@ function App() {
       />
       <ScrollToTopButton />
 
-      {/* Render LevelUpPopup */}
       {levelUpInfo && (
         <LevelUpPopup
           isOpen={isLevelUpPopupOpen}
@@ -110,6 +110,8 @@ function App() {
           levelTitle={levelUpInfo.levelTitle}
         />
       )}
+
+      <ChatbotUI />
     </div>
   );
 }

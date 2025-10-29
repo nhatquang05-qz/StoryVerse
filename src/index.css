@@ -1,3 +1,4 @@
+/* src/index.css */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -99,13 +100,13 @@ html, body, .app-container {
   cursor: var(--cursor-path-default), default;
 }
 
-a, 
-button, 
-.action-icon, 
-.page-nav-btn, 
-.reader-back-btn, 
-.dropdown-btn, 
-.claim-btn, 
+a,
+button,
+.action-icon,
+.page-nav-btn,
+.reader-back-btn,
+.dropdown-btn,
+.claim-btn,
 .card-image-container,
 .daily-reward-icon-wrapper,
 .daily-modal-close-btn
@@ -113,17 +114,17 @@ button,
   cursor: var(--cursor-path-pointer), pointer !important;
 }
 
-input[type="text"], 
-input[type="email"], 
-input[type="password"], 
-input[type="tel"], 
-textarea, 
-.quantity-input, 
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+textarea,
+.quantity-input,
 .comment-box {
     cursor: var(--cursor-path-text), text !important;
 }
 
-.move-cursor, .hero-group { 
+.move-cursor, .hero-group {
     cursor: var(--cursor-path-move), move !important;
 }
 
@@ -145,10 +146,10 @@ textarea,
 
 
 html, body, .app-container {
-  -webkit-user-select: none; 
+  -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
-          user-select: none; 
+          user-select: none;
 }
 input[type="text"],
 input[type="email"],
@@ -388,7 +389,7 @@ html[data-theme="dark"] .cancel-btn:hover {
 
 .scroll-to-top-btn {
     position: fixed;
-    bottom: 50px;
+    bottom: 110px;
     right: 50px;
     z-index: 5000;
     width: 50px;
@@ -407,10 +408,10 @@ html[data-theme="dark"] .cancel-btn:hover {
 }
 
 .scroll-to-top-icon {
-    width: 50%; 
+    width: 50%;
     height: 50%;
     object-fit: contain;
-    filter: brightness(0) invert(1); 
+    filter: brightness(0) invert(1);
 }
 
 .scroll-to-top-btn:hover {
@@ -422,7 +423,7 @@ html[data-theme="dark"] .cancel-btn:hover {
     .scroll-to-top-btn {
         width: 40px;
         height: 40px;
-        bottom: 20px;
+        bottom: 90px;
         right: 20px;
         font-size: 1.2rem;
     }
@@ -435,18 +436,18 @@ html[data-theme="dark"] .cancel-btn:hover {
   position: fixed;
   border-radius: 50%;
   background-color: rgba(100, 108, 255, 0.4);
-  transform: translate(-50%, -50%) scale(0); 
+  transform: translate(-50%, -50%) scale(0);
   animation: ripple-effect 0.6s ease-out;
-  pointer-events: none; 
-  z-index: 99999; 
-  width: 30px; 
-  height: 30px; 
+  pointer-events: none;
+  z-index: 99999;
+  width: 30px;
+  height: 30px;
 }
 
 @keyframes ripple-effect {
   to {
     transform: translate(-50%, -50%) scale(3);
-    opacity: 0; 
+    opacity: 0;
   }
 }
 

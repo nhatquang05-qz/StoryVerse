@@ -1,0 +1,215 @@
+/* src/components/chatbot/Chatbot.css */
+
+.chatbot-toggle-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: transparent;
+  color: var(--clr-button-text);
+  border: none;
+  border-radius: 0;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  z-index: 9998;
+  padding: 0;
+  overflow: hidden;
+}
+
+.chatbot-toggle-button img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+.chatbot-toggle-button svg {
+    font-size: 1.8rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    filter: drop-shadow(0 0 2px black);
+}
+
+
+.chatbot-toggle-button:hover {
+  transform: scale(1.1);
+}
+
+.chatbot-toggle-button.open {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+}
+.chatbot-toggle-button.open img {
+    opacity: 0.5;
+}
+.chatbot-toggle-button.open svg {
+    opacity: 1;
+}
+.chatbot-toggle-button.open:hover {
+   background-color: rgba(230, 57, 70, 0.7);
+}
+
+.chatbot-window {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 350px;
+  height: 500px;
+  background-color: var(--clr-card-bg);
+  border: 1px solid var(--clr-border-light);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9999;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.chatbot-header {
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+.chatbot-header button {
+  background: none;
+  border: none;
+  color: var(--clr-button-text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  line-height: 1;
+}
+.chatbot-header button:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: none;
+    border: none;
+}
+
+.chatbot-messages {
+  flex-grow: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.message {
+  max-width: 85%;
+  padding: 0.6rem 0.9rem;
+  border-radius: 15px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  font-size: 0.95rem;
+}
+.message p {
+    margin: 0;
+}
+.message ul {
+    margin: 0.5rem 0 0 1rem;
+    padding: 0;
+}
+.message li {
+    margin-bottom: 0.3rem;
+}
+
+.message.user {
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
+  border-bottom-right-radius: 5px;
+  align-self: flex-end;
+}
+
+.message.bot {
+  background-color: var(--clr-footer-bg);
+  color: var(--clr-text);
+  border-bottom-left-radius: 5px;
+  align-self: flex-start;
+}
+.message.bot a {
+    color: var(--clr-primary-dark);
+    text-decoration: underline;
+}
+html[data-theme="night"] .message.bot a {
+    color: var(--clr-primary);
+}
+
+.chatbot-input-form {
+  display: flex;
+  padding: 0.8rem;
+  border-top: 1px solid var(--clr-border-light);
+  background-color: var(--clr-footer-bg);
+}
+
+.chatbot-input-form input {
+  flex-grow: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--clr-border-light);
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  outline: none;
+  background-color: var(--clr-card-bg);
+  color: var(--clr-text);
+  font-size: 0.9rem;
+}
+.chatbot-input-form input:focus {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 2px var(--clr-input-focus-shadow);
+}
+
+.chatbot-input-form button {
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  padding: 0;
+}
+
+.chatbot-input-form button:hover {
+  background-color: var(--clr-primary-dark);
+}
+
+@media (max-width: 480px) {
+  .chatbot-window {
+    width: calc(100% - 20px);
+    height: calc(100% - 80px);
+    bottom: 80px;
+    right: 10px;
+    left: 10px;
+  }
+   .chatbot-toggle-button {
+      bottom: 15px;
+      right: 15px;
+      width: 50px;
+      height: 50px;
+   }
+    .chatbot-toggle-button svg {
+       font-size: 1.5rem;
+    }
+}
