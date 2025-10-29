@@ -1,3 +1,5 @@
+// backend/server.js
+require('dotenv').config(); // Load .env ngay từ đầu
 const app = require('./src/app');
 const { connectDB, closeDB } = require('./src/db/connection');
 const { PORT } = require('./src/config/appConfig');
@@ -18,5 +20,6 @@ startServer();
 
 process.on('SIGINT', async () => {
     await closeDB();
-    process.exit();
+    console.log('Server shutting down.');
+    process.exit(0);
 });

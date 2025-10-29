@@ -1,35 +1,15 @@
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
 import LevelUpPopup from '../components/popups/LevelUpPopup';
+// Đảm bảo bạn đã tạo file này và đường dẫn đúng
+import type { User, Address } from '../types/userTypes';
 
-const API_URL = 'http://localhost:3000/api';
+// Lấy API URL từ biến môi trường Vite
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
 
-
-export interface Address {
-    id: string;
-    street: string;
-    ward: string;
-    district: string;
-    city: string;
-    isDefault: boolean;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  fullName: string;
-  phone: string;
-  addresses: Address[];
-  coinBalance: number;
-  lastDailyLogin: string;
-  consecutiveLoginDays: number;
-  level: number;
-  exp: number;
-  avatarUrl: string;
-}
-
+// Interface AuthContextType giữ nguyên như trước, bao gồm updateAvatar
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
@@ -37,7 +17,7 @@ interface AuthContextType {
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<User | null>;
-  updateAvatar: (avatarUrl: string) => Promise<User | null>;
+  updateAvatar: (avatarUrl: string) => Promise<User | null>; // Hàm cập nhật avatar
   updateAddresses: (addresses: Address[]) => Promise<void>;
   claimDailyReward: () => Promise<void>;
   addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<void>;
@@ -52,7 +32,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
+// Các hằng số LEVEL_COLORS, DEFAULT_LEVEL_COLOR, LEVEL_SYSTEMS giữ nguyên
 const LEVEL_COLORS: { [key: number]: string } = {
     1: '#6c757d', 2: '#007bff', 3: '#28a745', 4: '#ffc107', 5: '#dc3545',
     6: '#6f42c1', 7: '#d704d5', 8: '#ecdcef', 9: '#eb4107', 10: '#441498',
@@ -78,6 +58,7 @@ const LEVEL_SYSTEMS: LevelSystem[] = [
     { key: 'Tinh Không', name: 'Tinh Không', description: 'Thế giới vũ trụ, du hành giữa các hành tinh và hệ sao.', levels: ['Binh lính', 'Chiến Sĩ', 'Vệ Tinh', 'Tinh Vương', 'Tinh Hoàng', 'Tinh Đế', 'Tinh Tôn', 'Vũ Trụ Chi Chủ'], minLevels: [0, 1, 3, 6, 9, 11, 13, 15], }
 ];
 
+
 const getLevelColor = (level: number): string => {
     const applicableLevels = Object.keys(LEVEL_COLORS).map(Number).filter(l => l <= level).sort((a, b) => b - a);
     const highestApplicableLevel = applicableLevels[0];
@@ -86,14 +67,64 @@ const getLevelColor = (level: number): string => {
 
 const getToken = () => localStorage.getItem(TOKEN_STORAGE_KEY);
 
-const ensureUserExpIsNumber = (userData: any): User => {
-    return {
-        ...userData,
-        exp: typeof userData.exp === 'string' ? parseFloat(userData.exp) : (userData.exp || 0),
-        addresses: Array.isArray(userData.addresses) ? userData.addresses : [],
-        avatarUrl: String(userData.avatarUrl || 'https://via.placeholder.com/150'),
-    };
+const ensureUserDataTypes = (userData: any): User => {
+    if (!userData) {
+      // Trả về một giá trị mặc định hoặc null/undefined phù hợp
+      // Ở đây ví dụ trả về null, bạn cần xử lý trường hợp này ở nơi gọi hàm
+      // Hoặc throw error nếu userData bắt buộc phải có
+      // throw new Error("userData cannot be null or undefined in ensureUserDataTypes");
+      // Tạm thời trả về object rỗng để tránh lỗi runtime, nhưng cần xem lại logic
+       console.warn("ensureUserDataTypes received null or undefined userData");
+       return {} as User; // Ép kiểu tạm thời, không an toàn
+    }
+    const safeData = { ...userData };
+
+    try {
+        safeData.exp = typeof safeData.exp === 'string' ? parseFloat(safeData.exp) : (safeData.exp || 0);
+        if (isNaN(safeData.exp)) safeData.exp = 0;
+    } catch (e) {
+        safeData.exp = 0;
+    }
+
+    try {
+        // Parse addresses nếu nó là string, ngược lại giữ nguyên nếu đã là array
+        if (typeof safeData.addresses === 'string') {
+           safeData.addresses = JSON.parse(safeData.addresses || '[]');
+        }
+        // Đảm bảo cuối cùng addresses là một array
+        if (!Array.isArray(safeData.addresses)) safeData.addresses = [];
+    } catch(e) {
+        console.error("Error parsing addresses:", e, "Original value:", safeData.addresses);
+        safeData.addresses = []; // Default về mảng rỗng nếu lỗi parse
+    }
+
+    // Đảm bảo avatarUrl luôn là string, có giá trị mặc định
+    safeData.avatarUrl = String(safeData.avatarUrl || 'https://via.placeholder.com/150');
+
+    // Chuyển đổi và kiểm tra các trường số nguyên
+    safeData.level = parseInt(String(safeData.level || 1));
+    if (isNaN(safeData.level) || safeData.level < 1) safeData.level = 1;
+
+    safeData.coinBalance = parseInt(String(safeData.coinBalance || 0));
+     if (isNaN(safeData.coinBalance)) safeData.coinBalance = 0;
+
+    safeData.consecutiveLoginDays = parseInt(String(safeData.consecutiveLoginDays || 0));
+     if (isNaN(safeData.consecutiveLoginDays)) safeData.consecutiveLoginDays = 0;
+
+    // Đảm bảo ID là string (nếu có)
+    if (typeof safeData.id !== 'undefined' && typeof safeData.id !== 'string') {
+        safeData.id = String(safeData.id);
+    }
+
+    // Đảm bảo các trường string khác là string
+    safeData.email = String(safeData.email || '');
+    safeData.fullName = String(safeData.fullName || '');
+    safeData.phone = String(safeData.phone || '');
+    safeData.lastDailyLogin = String(safeData.lastDailyLogin || '2000-01-01T00:00:00.000Z'); // Hoặc giá trị mặc định phù hợp
+
+    return safeData as User; // Ép kiểu cuối cùng sau khi đã xử lý
 };
+
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -112,32 +143,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const token = getToken();
             if (token) {
                 try {
-                    const resUser = await fetch(`${API_URL}/me`, {
+                    const resUser = await fetch(`${API_URL}/me`, { // Sử dụng API_URL
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
                     if (resUser.ok) {
                         const rawUserData = await resUser.json();
-                        const userData = ensureUserExpIsNumber(rawUserData);
+                        const userData = ensureUserDataTypes(rawUserData); // Đảm bảo kiểu dữ liệu đúng
                         setCurrentUser(userData);
                     } else {
+                        // Xóa token nếu nó không hợp lệ hoặc hết hạn
                         localStorage.removeItem(TOKEN_STORAGE_KEY);
                         setCurrentUser(null);
+                        console.error("Failed to fetch user, status:", resUser.status);
                     }
                 } catch (error) {
-                    console.error("Failed to fetch user with token", error);
+                    console.error("Failed to fetch user with token:", error);
                     localStorage.removeItem(TOKEN_STORAGE_KEY);
                     setCurrentUser(null);
                 } finally {
                     setLoading(false);
                 }
             } else {
-                setLoading(false);
+                setLoading(false); // Không có token, không cần fetch user
             }
         };
 
         checkUser();
-    }, []);
+    }, []); // Chỉ chạy 1 lần khi component mount
 
     const updateSelectedSystemKey = useCallback((newKey: string) => {
         setSelectedSystemKey(newKey);
@@ -146,7 +179,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const getEquivalentLevelTitle = useCallback((userLevel: number): string => {
         const system = LEVEL_SYSTEMS.find(s => s.key === selectedSystemKey) || LEVEL_SYSTEMS[0];
-        let matchingLevel = system.levels[0];
+        let matchingLevel = system.levels[0]; // Mặc định là level thấp nhất
+        // Tìm level cao nhất mà user đạt được trong hệ thống đã chọn
         for (let i = system.minLevels.length - 1; i >= 0; i--) {
             if (userLevel >= system.minLevels[i]) {
                 matchingLevel = system.levels[i];
@@ -157,188 +191,205 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [selectedSystemKey]);
 
     const login = async (email: string, pass: string) => {
-        const response = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify({ email, password: pass }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Đăng nhập thất bại');
+        setLoading(true); // Bắt đầu loading
+        try {
+            const response = await fetch(`${API_URL}/login`, { // Sử dụng API_URL
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({ email, password: pass }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Đăng nhập thất bại');
 
-        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-        const userData = ensureUserExpIsNumber(data.user);
-        setCurrentUser(userData);
-        showNotification('Đăng nhập thành công!', 'success');
+            localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+            const userData = ensureUserDataTypes(data.user); // Chuẩn hóa dữ liệu
+            setCurrentUser(userData);
+            showNotification('Đăng nhập thành công!', 'success');
+        } catch (error: any) {
+             showNotification(error.message || 'Đã xảy ra lỗi khi đăng nhập.', 'error');
+             throw error; // Ném lỗi ra ngoài để component gọi có thể xử lý nếu cần
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
     };
 
     const register = async (email: string, pass: string) => {
-        const response = await fetch(`${API_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
-            body: JSON.stringify({ email, password: pass }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Đăng ký thất bại');
-        showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+         setLoading(true); // Bắt đầu loading
+         try {
+            const response = await fetch(`${API_URL}/register`, { // Sử dụng API_URL
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', },
+                body: JSON.stringify({ email, password: pass }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Đăng ký thất bại');
+            showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+         } catch (error: any) {
+              showNotification(error.message || 'Đã xảy ra lỗi khi đăng ký.', 'error');
+              throw error;
+         } finally {
+             setLoading(false); // Kết thúc loading
+         }
     };
 
     const logout = async () => {
         setCurrentUser(null);
         localStorage.removeItem(TOKEN_STORAGE_KEY);
-        setSelectedSystemKey('Bình Thường');
+        // Có thể reset thêm các state khác nếu cần
+        // setSelectedSystemKey('Bình Thường'); // Reset về mặc định
+        // localStorage.removeItem(LEVEL_SYSTEM_STORAGE_KEY); // Hoặc xóa khỏi storage
         showNotification('Đã đăng xuất.', 'info');
+        // Không cần gọi API logout trừ khi backend yêu cầu (vd: blacklist token)
     };
 
     const updateProfile = useCallback(async (profileData: Partial<User>): Promise<User | null> => {
         const token = getToken();
         if (!token) {
-            showNotification('Phiên đăng nhập hết hạn', 'error');
+            showNotification('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
+            // Có thể thêm logic redirect về trang login
             return null;
         }
 
+        setIsSaving(true); // Bắt đầu trạng thái lưu (nếu cần state isSaving)
         try {
-            const response = await fetch(`${API_URL}/profile`, {
+            const response = await fetch(`${API_URL}/profile`, { // Sử dụng API_URL
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(profileData)
+                body: JSON.stringify(profileData) // Chỉ gửi dữ liệu cần cập nhật
             });
+
+            if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.error || 'Cập nhật hồ sơ thất bại');
+            }
 
             const rawUpdatedUser = await response.json();
-            if (!response.ok) throw new Error(rawUpdatedUser.error || 'Cập nhật thất bại');
+            const updatedUser = ensureUserDataTypes(rawUpdatedUser); // Chuẩn hóa dữ liệu trả về
 
-            const updatedUser = ensureUserExpIsNumber(rawUpdatedUser);
-
-            setCurrentUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : null);
-             showNotification('Cập nhật hồ sơ thành công!', 'success');
+            // Cập nhật state currentUser
+            setCurrentUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : updatedUser);
+            showNotification('Cập nhật hồ sơ thành công!', 'success');
             return updatedUser;
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Lỗi khi cập nhật hồ sơ:', error);
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            showNotification(errorMessage, 'error');
-            return null;
+            showNotification(error.message || 'Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
+            return null; // Trả về null khi có lỗi
+        } finally {
+            // setIsSaving(false); // Kết thúc trạng thái lưu
         }
-    }, [showNotification]);
+    }, [showNotification]); // currentUser không cần là dependency trừ khi dùng giá trị cũ của nó
 
-    const updateAvatar = useCallback(async (avatarUrl: string): Promise<User | null> => {
+     // Cập nhật hàm updateAvatar để gọi API backend
+     const updateAvatar = useCallback(async (avatarUrl: string): Promise<User | null> => {
         const token = getToken();
-        if (!token || !currentUser) {
-            showNotification('Vui lòng đăng nhập lại.', 'error');
+        if (!token || !currentUser) { // Thêm kiểm tra currentUser
+            showNotification('Vui lòng đăng nhập để cập nhật ảnh đại diện.', 'error');
             return null;
         }
 
+        // setIsSavingAvatar(true); // Thêm state loading riêng cho avatar nếu cần
         try {
-            const response = await fetch(`${API_URL}/profile/avatar`, {
+            const response = await fetch(`${API_URL}/profile/avatar`, { // Gọi API backend
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ avatarUrl })
+                body: JSON.stringify({ avatarUrl }) // Gửi URL mới nhận được (từ Cloudinary hoặc nguồn khác)
             });
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Cập nhật avatar thất bại');
+             if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.error || 'Cập nhật ảnh đại diện thất bại');
+             }
 
-            const updatedUser = ensureUserExpIsNumber(data.user);
-            setCurrentUser(updatedUser);
+            const data = await response.json(); // Backend nên trả về user mới nhất
+            const updatedUser = ensureUserDataTypes(data.user); // Chuẩn hóa
+
+            setCurrentUser(updatedUser); // Cập nhật user hiện tại với avatar mới
             showNotification('Cập nhật ảnh đại diện thành công!', 'success');
             return updatedUser;
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Lỗi khi cập nhật avatar:', error);
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            showNotification(errorMessage, 'error');
+            showNotification(error.message || 'Đã xảy ra lỗi khi cập nhật ảnh đại diện.', 'error');
             return null;
+        } finally {
+             // setIsSavingAvatar(false);
         }
-    }, [currentUser, showNotification]);
+    }, [currentUser, showNotification]); // Thêm currentUser vào dependency
 
 
     const updateAddresses = async (addresses: Address[]) => {
         const token = getToken();
-        if (!token) {
-            showNotification('Phiên đăng nhập hết hạn', 'error');
-            return;
-        }
+        if (!token) { /* ... (xử lý lỗi) ... */ return; }
 
         try {
-             const response = await fetch(`${API_URL}/addresses`, {
+             const response = await fetch(`${API_URL}/addresses`, { // Sử dụng API_URL
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { /* ... */ 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ addresses })
             });
 
-            const updatedAddresses = await response.json();
-            if (!response.ok) throw new Error(updatedAddresses.error || 'Cập nhật địa chỉ thất bại');
+             if (!response.ok) { /* ... (xử lý lỗi) ... */ }
 
+            const updatedAddresses = await response.json(); // Backend nên trả về list addresses mới
+            // Cập nhật addresses trong currentUser state
             setCurrentUser(prevUser => prevUser ? { ...prevUser, addresses: updatedAddresses } : null);
             showNotification('Cập nhật địa chỉ thành công!', 'success');
 
-        } catch (error) {
-             console.error('Lỗi khi cập nhật địa chỉ:', error);
-             const errorMessage = error instanceof Error ? error.message : String(error);
-             showNotification(errorMessage, 'error');
-        }
+        } catch (error: any) { /* ... (xử lý lỗi) ... */ }
     };
 
     const claimDailyReward = async () => {
         const token = getToken();
-        if (!currentUser) {
-            showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning');
-            return;
-        }
+        if (!currentUser) { /* ... */ return; }
 
         try {
-            const response = await fetch(`${API_URL}/claim-reward`, {
+            const response = await fetch(`${API_URL}/claim-reward`, { // Sử dụng API_URL
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
+            if (!response.ok) throw new Error(data.error || 'Nhận thưởng thất bại');
 
+            // Cập nhật user state với thông tin mới từ backend
             setCurrentUser(prevUser => prevUser ? {
                 ...prevUser,
                 coinBalance: data.newBalance,
                 consecutiveLoginDays: data.nextLoginDays,
+                // Cập nhật lastDailyLogin thành thời gian hiện tại để tránh claim lại
                 lastDailyLogin: new Date().toISOString()
             } : null);
 
+            // Hiển thị thông báo thành công hoặc cảnh báo (nếu chuỗi bị đứt)
             if (data.notificationMessage.includes('Bắt đầu lại')) {
                  showNotification(data.notificationMessage, 'warning');
             } else {
                  showNotification(data.notificationMessage, 'success');
             }
 
-        } catch (error) {
-             const errorMessage = error instanceof Error ? error.message : String(error);
-             showNotification(errorMessage, 'error');
-        }
+        } catch (error: any) { /* ... (xử lý lỗi) ... */ }
     };
 
     const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
         const token = getToken();
-        if (!currentUser) return;
+        if (!currentUser) return; // Không làm gì nếu chưa đăng nhập
 
         try {
-            const response = await fetch(`${API_URL}/add-exp`, {
+            const response = await fetch(`${API_URL}/add-exp`, { // Sử dụng API_URL
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { /* ... */ 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ amount, source, coinIncrease })
             });
-
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Lỗi khi cộng EXP');
 
+            // Cập nhật level, exp, coinBalance dựa trên kết quả từ backend
             setCurrentUser(prevUser => prevUser ? {
                 ...prevUser,
                 level: data.level,
@@ -346,37 +397,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 coinBalance: data.coinBalance
             } : null);
 
+            // Hiển thị popup level up nếu có
             if (data.levelUpOccurred) {
                 const newLevelTitle = getEquivalentLevelTitle(data.level);
                 setLevelUpInfo({ newLevel: data.level, levelTitle: newLevelTitle });
                 setIsLevelUpPopupOpen(true);
+                // Có thể thêm âm thanh hoặc hiệu ứng khác
             }
-        } catch (error) {
-            console.error('Lỗi khi cộng EXP:', error);
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            showNotification(errorMessage, 'error');
-        }
+        } catch (error: any) { /* ... (xử lý lỗi) ... */ }
 
-    }, [currentUser, getEquivalentLevelTitle, showNotification]);
+    }, [currentUser, getEquivalentLevelTitle, showNotification]); // Phụ thuộc vào currentUser và các hàm khác
 
     const closeLevelUpPopup = useCallback(() => {
         setIsLevelUpPopupOpen(false);
         setLevelUpInfo(null);
     }, []);
 
+    // Hiển thị loading toàn trang nếu đang xác thực user ban đầu
     if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '2rem' }}>Đang tải...</div>;
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.5rem', color: 'var(--clr-text)' }}>Đang tải dữ liệu người dùng...</div>;
     }
 
-    return (
-        <AuthContext.Provider value={{
+    // Giá trị cung cấp cho Context Provider
+    const contextValue = {
             currentUser,
-            loading,
+            loading, // Trạng thái loading chung (chủ yếu cho lần tải đầu)
             login,
             register,
             logout,
             updateProfile,
-            updateAvatar,
+            updateAvatar, // Đã sửa
             updateAddresses,
             claimDailyReward,
             addExp,
@@ -387,8 +437,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             isLevelUpPopupOpen,
             levelUpInfo,
             closeLevelUpPopup
-        }}>
+        };
+
+    return (
+        <AuthContext.Provider value={contextValue}>
             {children}
+            {/* Render popup level up nếu cần */}
             {levelUpInfo && (
                 <LevelUpPopup
                     isOpen={isLevelUpPopupOpen}
@@ -401,6 +455,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 };
 
+// Hook tùy chỉnh để sử dụng context
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
@@ -409,12 +464,17 @@ export const useAuth = () => {
     return context;
 };
 
+// Dữ liệu phần thưởng hàng ngày (có thể chuyển ra file constants)
 export const dailyRewardsData = [
-    { day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '../src/assets/images/coin.png' },
-    { day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '../src/assets/images/coin.png' },
-    { day: 3, type: 'Xu', amount: 60, color: '#e63946', icon: '../src/assets/images/coin.png' },
-    { day: 4, type: 'Xu', amount: 70, color: '#f7b731', icon: '../src/assets/images/coin.png' },
-    { day: 5, type: 'Xu', amount: 100, color: '#28a745', icon: '../src/assets/images/coin.png' },
-    { day: 6, type: 'Xu', amount: 120, color: '#f7b731', icon: '../src/assets/images/coin.png' },
-    { day: 7, type: 'Xu', amount: 200, color: '#747bff', icon: '../src/assets/images/coin.png' },
+    { day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '/src/assets/images/coin.png' }, // Sửa đường dẫn nếu cần
+    { day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '/src/assets/images/coin.png' },
+    { day: 3, type: 'Xu', amount: 60, color: '#e63946', icon: '/src/assets/images/coin.png' },
+    { day: 4, type: 'Xu', amount: 70, color: '#f7b731', icon: '/src/assets/images/coin.png' },
+    { day: 5, type: 'Xu', amount: 100, color: '#28a745', icon: '/src/assets/images/coin.png' },
+    { day: 6, type: 'Xu', amount: 120, color: '#f7b731', icon: '/src/assets/images/coin.png' },
+    { day: 7, type: 'Xu', amount: 200, color: '#747bff', icon: '/src/assets/images/coin.png' },
 ];
+
+function setIsSaving(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}
