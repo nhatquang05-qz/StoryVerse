@@ -516,27 +516,25 @@ button:disabled {
     margin-left: 0.5rem;
 }
 
-/* Thêm vào cuối file ProfilePage.css */
-
 .profile-avatar-card {
-    text-align: center; /* Căn giữa nội dung card */
+    text-align: center;
 }
 
 .avatar-display-section {
     display: flex;
-    flex-direction: column; /* Xếp ảnh và nút dọc */
-    align-items: center; /* Căn giữa theo chiều ngang */
-    gap: 1rem; /* Khoảng cách giữa các element */
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 
 .profile-avatar-img {
     width: 150px;
     height: 150px;
-    border-radius: 50%; /* Bo tròn ảnh */
-    object-fit: cover; /* Đảm bảo ảnh đầy khung */
-    border: 3px solid var(--clr-border-light); /* Viền nhẹ */
+    border-radius: 50%; 
+    object-fit: cover; 
+    border: 3px solid var(--clr-border-light); 
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 0.5rem; /* Khoảng cách dưới ảnh */
+    margin-bottom: 0.5rem;
 }
 
 .change-avatar-btn {
@@ -563,8 +561,6 @@ button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
-
-/* Responsive nếu cần */
 @media (max-width: 768px) {
     .profile-avatar-img {
         width: 120px;

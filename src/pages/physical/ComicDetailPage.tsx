@@ -205,12 +205,10 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
 
       if (currentUser.coinBalance < chapter.price) {
           showNotification('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
-          navigate('/recharge'); // Thêm điều hướng đến trang nạp
+          navigate('/recharge'); 
           return;
       }
 
-      // KHÔNG CẦN newBalance ở đây
-      // const newBalance = currentUser.coinBalance - chapter.price;
 
       const newOrder = {
           id: `COIN-${Date.now()}-${chapter.id}`,
@@ -229,20 +227,14 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
       };
       
       try {
-          // *** ĐÂY LÀ THAY ĐỔI QUAN TRỌNG ***
-          // Bỏ: await updateProfile({ coinBalance: newBalance });
-
-          // Thay bằng: Gọi addExp với số Xu âm để trừ tiền
-          // Arg 1: Lượng EXP (code cũ của bạn dùng chapter.price, ta giữ nguyên)
-          // Arg 2: Nguồn ('recharge' như code cũ)
-          // Arg 3: Thay đổi Xu (truyền -chapter.price để trừ Xu)
+         
           await addExp(chapter.price, 'recharge', -chapter.price); 
           
-          saveNewOrder(newOrder); // Vẫn lưu order vào mockData
+          saveNewOrder(newOrder); 
           
           showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.price} Xu!`, 'success');
           
-          navigate(`/read/${comic.id}/${chapter.chapterNumber}`); // Dòng này sẽ chạy
+          navigate(`/read/${comic.id}/${chapter.chapterNumber}`); 
           
       } catch (e) {
           showNotification('Lỗi khi mở khóa chương.', 'error');
@@ -481,4 +473,3 @@ const toggleSort = () => {
 
 export default ComicDetailPage;
 
-// Hàm setUnlockedChapters bị lỗi đã được xóa bỏ khỏi đây

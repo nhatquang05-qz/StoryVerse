@@ -3,24 +3,14 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { comics, digitalComics, physicalComics, type Comic } from '../../data/mockData';
+import { type ComicSummary } from '../../types/comicTypes'; 
 import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
 import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
 import coinIcon from '../../assets/images/coin.png';
 import './Header.css';
 
-const MAX_SUGGESTIONS_TOTAL = 14;
-const MAX_DIGITAL_DEFAULT = 7;
-const MAX_PHYSICAL_DEFAULT = 7;
-
-const defaultDigital = digitalComics
-                        .sort((a, b) => b.viewCount - a.viewCount)
-                        .slice(0, MAX_DIGITAL_DEFAULT);
-const defaultPhysical = physicalComics
-                        .sort((a,b) => b.id - a.id)
-                        .slice(0, MAX_PHYSICAL_DEFAULT);
-const defaultSuggestions = [...defaultDigital, ...defaultPhysical];
-
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const MAX_SUGGESTIONS_TOTAL = 10; 
 
 const formatPrice = (price: number) => {
   if (price === 0) return "Miễn phí";
@@ -31,13 +21,17 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [suggestions, setSuggestions] = useState<Comic[]>([]);
+  
+  const [suggestions, setSuggestions] = useState<ComicSummary[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false); 
+  
   const { cartCount, setCartIconRect } = useCart();
   const { currentUser, logout } = useAuth();
   const cartIconRef = useRef<HTMLAnchorElement>(null);
   const navigate = useNavigate();
   const searchBarRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<number | null>(null); 
 
   const location = useLocation();
   const isReaderPage = location.pathname.startsWith('/read/');
@@ -63,27 +57,35 @@ const Header: React.FC = () => {
     setSearchTerm(value);
     setIsSearchFocused(true);
 
+    if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+    }
+
     if (value.trim().length > 1) {
-      const normalizedValue = value.toLowerCase().trim();
-      const filtered = comics
-        .filter(
-          (c) =>
-            c.title.toLowerCase().includes(normalizedValue) ||
-            c.author.toLowerCase().includes(normalizedValue)
-        )
-        .slice(0, MAX_SUGGESTIONS_TOTAL);
-      setSuggestions(filtered);
-    } else if (value.trim().length === 0) {
-      setSuggestions(defaultSuggestions);
+        setIsLoadingSearch(true);
+        searchTimeoutRef.current = window.setTimeout(async () => {
+            try {
+                const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(value.trim())}&limit=${MAX_SUGGESTIONS_TOTAL}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data: ComicSummary[] = await response.json();
+                setSuggestions(data);
+            } catch (error) {
+                console.error("Lỗi fetch search suggestions:", error);
+                setSuggestions([]);
+            } finally {
+                setIsLoadingSearch(false);
+            }
+        }, 300); 
     } else {
-      setSuggestions([]);
+        setSuggestions([]);
+        setIsLoadingSearch(false);
     }
   };
 
   const handleSearchFocus = () => {
     setIsSearchFocused(true);
-    if (searchTerm.trim() === '') {
-      setSuggestions(defaultSuggestions);
+    if (searchTerm.trim().length > 1 && suggestions.length === 0 && !isLoadingSearch) {
+       handleSearchTermChange(searchTerm); 
     }
   };
 
@@ -105,7 +107,7 @@ const Header: React.FC = () => {
     navigate(`/comic/${comicId}`);
   };
 
-    const handleOpenRewardModal = (e: React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement>) => {
+  const handleOpenRewardModal = (e: React.MouseEvent<HTMLDivElement> | React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       if (!currentUser) {
           navigate('/login');
@@ -139,10 +141,10 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchBarRef]);
 
-  const showSuggestionsDropdown = suggestions.length > 0 && isSearchFocused;
+  const showSuggestionsDropdown = (suggestions.length > 0 || isLoadingSearch) && isSearchFocused;
 
-  const digitalSuggestions = suggestions.filter(comic => comic.isDigital);
-  const physicalSuggestions = suggestions.filter(comic => !comic.isDigital);
+  const digitalSuggestions = suggestions.filter(comic => (comic as any).isDigital === 1);
+  const physicalSuggestions = suggestions.filter(comic => (comic as any).isDigital === 0);
 
   return (
     <header className={`header ${isReaderPage ? 'header-no-sticky' : ''}`}>
@@ -189,20 +191,22 @@ const Header: React.FC = () => {
 
             {showSuggestionsDropdown && (
               <div className="search-suggestions-dropdown">
-                {searchTerm.trim() === '' && <h4 className="suggestion-section-title main-title">Gợi ý cho bạn</h4>}
+                {isLoadingSearch && <div className="suggestion-item">Đang tìm...</div>}
+                
+                {!isLoadingSearch && searchTerm.trim().length > 1 && suggestions.length === 0 && (
+                     <div className="suggestion-item">Không tìm thấy kết quả nào.</div>
+                )}
 
                 {digitalSuggestions.length > 0 && (
                   <div className="suggestion-section">
-                    {(physicalSuggestions.length > 0 || searchTerm.trim() !== '') && (
-                      <h5 className="suggestion-section-title">Truyện Online</h5>
-                    )}
+                    <h5 className="suggestion-section-title">Truyện Online</h5>
                     {digitalSuggestions.map((comic) => (
                       <div
                         key={`digital-${comic.id}`}
                         className="suggestion-item"
                         onClick={() => handleSuggestionClick(comic.id)}
                       >
-                        <img src={comic.imageUrl} alt={comic.title} />
+                        <img src={comic.coverImageUrl} alt={comic.title} />
                         <div>
                           <p className="suggestion-title">{comic.title}</p>
                           <p className="suggestion-author" style={{ fontSize: '0.75rem' }}>{comic.author}</p>
@@ -218,16 +222,14 @@ const Header: React.FC = () => {
 
                 {physicalSuggestions.length > 0 && (
                   <div className="suggestion-section">
-                    {(digitalSuggestions.length > 0 || searchTerm.trim() !== '') && (
-                      <h5 className="suggestion-section-title">Truyện Vật Lý</h5>
-                    )}
+                     <h5 className="suggestion-section-title">Truyện Vật Lý</h5>
                     {physicalSuggestions.map((comic) => (
                       <div
                         key={`physical-${comic.id}`}
                         className="suggestion-item"
                         onClick={() => handleSuggestionClick(comic.id)}
                       >
-                        <img src={comic.imageUrl} alt={comic.title} />
+                        <img src={comic.coverImageUrl} alt={comic.title} />
                         <div>
                           <p className="suggestion-title">{comic.title}</p>
                           {comic.price > 0 && (
@@ -242,7 +244,7 @@ const Header: React.FC = () => {
                   </div>
                 )}
 
-                {searchTerm.trim() && (
+                {searchTerm.trim().length > 1 && !isLoadingSearch && (
                   <Link
                     to={`/search?q=${encodeURIComponent(searchTerm)}`}
                     onClick={() => { setSuggestions([]); setIsSearchFocused(false); }}
@@ -254,7 +256,7 @@ const Header: React.FC = () => {
               </div>
             )}
           </div>
-
+          
           <ThemeToggleButton />
 
           {currentUser && (

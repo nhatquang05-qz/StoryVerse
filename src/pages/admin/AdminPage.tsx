@@ -1,11 +1,9 @@
-// src/pages/admin/AdminPage.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// --- AddComicForm ---
 const AddComicForm = () => {
     const { showNotification } = useNotification();
     const [title, setTitle] = useState('');
@@ -35,7 +33,7 @@ const AddComicForm = () => {
         formData.append('image', coverImageFile);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/upload`, { // Gọi API upload backend
+            const response = await fetch(`${API_BASE_URL}/upload`, { 
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -63,7 +61,7 @@ const AddComicForm = () => {
         const token = localStorage.getItem('storyverse_token');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/comics`, { // Gọi API thêm truyện
+            const response = await fetch(`${API_BASE_URL}/comics`, { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -123,7 +121,6 @@ const AddComicForm = () => {
     );
 };
 
-// --- AddChapterForm ---
 const AddChapterForm = () => {
      const { showNotification } = useNotification();
      const [comicId, setComicId] = useState('');
@@ -189,7 +186,7 @@ const AddChapterForm = () => {
         const token = localStorage.getItem('storyverse_token');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/comics/${comicId}/chapters`, { // Gọi API thêm chương
+            const response = await fetch(`${API_BASE_URL}/comics/${comicId}/chapters`, { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -205,7 +202,6 @@ const AddChapterForm = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to add chapter');
             showNotification(`Thêm chương ${chapterNumber} thành công!`, 'success');
-            // Reset form
             setComicId(''); setChapterNumber(''); setChapterTitle('');
             setChapterImageFiles(null); setChapterImageUrls([]); setChapterPrice(0); setUploadProgress(0);
         } catch (error: any) {
@@ -238,12 +234,10 @@ const AddChapterForm = () => {
 };
 
 
-// --- AdminPage Component ---
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
-    // *** Quan trọng: Thêm logic kiểm tra quyền Admin thực sự ở đây ***
-    // Ví dụ đơn giản: Kiểm tra email hoặc thêm trường 'role' vào user
-    const isAdmin = currentUser?.email === 'admin@123'; // Thay bằng logic của bạn
+
+    const isAdmin = currentUser?.email === 'admin@123';
 
     if (!currentUser) {
          return <div>Vui lòng đăng nhập với tài khoản Admin.</div>;

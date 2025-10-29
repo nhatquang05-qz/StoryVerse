@@ -743,7 +743,6 @@ html[data-theme='night'] .daily-reward-tooltip {
     color: var(--clr-primary-dark);
     text-decoration: underline;
 }
-/* Thêm vào cuối file Header.css */
 
 .user-avatar-icon {
   width: 30px;
@@ -768,5 +767,5 @@ html[data-theme='night'] .daily-reward-tooltip {
 .nav-mobile-action .user-avatar-icon.small {
   width: 24px;
   height: 24px;
-  margin-right: 0.5rem; /* Tách biệt với chữ */
+  margin-right: 0.5rem; 
 }

@@ -1,33 +1,61 @@
-import React, { useMemo } from 'react';
+// src/pages/SearchPage.tsx
+import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList/ProductList';
-import { comics } from '../data/mockData';
+import { type ComicSummary } from '../types/comicTypes'; 
+import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton'; 
 import './category/CategoryPage.css';
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const normalizedQuery = query.toLowerCase().trim();
 
-  const filteredComics = useMemo(() => {
+  const [searchResults, setSearchResults] = useState<ComicSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
     if (!normalizedQuery) {
-      return [];
+      setSearchResults([]);
+      setIsLoading(false);
+      return;
     }
-    return comics.filter(comic => 
-      comic.title.toLowerCase().includes(normalizedQuery) ||
-      comic.author.toLowerCase().includes(normalizedQuery)
-    );
-  }, [normalizedQuery]);
+
+    const fetchSearchResults = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(normalizedQuery)}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data: ComicSummary[] = await response.json();
+        setSearchResults(data);
+      } catch (error) {
+        console.error("Lỗi fetch search results:", error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSearchResults();
+  }, [normalizedQuery]); 
 
   return (
     <div className="category-page-container">
       <div className="category-header">
         <h1>Kết Quả Tìm Kiếm</h1>
-        <p>Hiển thị {filteredComics.length} kết quả cho từ khóa: "{query}"</p>
+        {!isLoading && (
+            <p>Hiển thị {searchResults.length} kết quả cho từ khóa: "{query}"</p>
+        )}
       </div>
       
-      {filteredComics.length > 0 ? (
-        <ProductList comics={filteredComics} />
+      {isLoading ? (
+        <div style={{ padding: '0 1.5rem' }}>
+            <LoadingSkeleton count={12} />
+        </div>
+      ) : searchResults.length > 0 ? (
+        <ProductList comics={searchResults as any[]} />
       ) : (
         <div className="empty-state">
           <h2>Không tìm thấy kết quả nào</h2>
