@@ -4,14 +4,14 @@
     border: 1px solid var(--clr-border-light);
     padding: 1.5rem;
     color: var(--clr-text);
-    margin-bottom: 2rem; 
+    margin-bottom: 2rem;
 }
 
 .top-members-title {
-    font-size: 1.3rem; 
+    font-size: 1.3rem; /* Hoặc 1.2rem tùy ý */
     font-weight: 700;
     margin: 0 0 1.5rem 0;
-    color: var(--clr-primary);
+    color: var(--clr-primary); /* Màu xanh tím giống ảnh */
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--clr-border-light);
 }
@@ -19,7 +19,10 @@
 .top-members-list {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem; 
+    gap: 1.2rem;
+    list-style: none; /* Đảm bảo không có dấu chấm */
+    padding: 0;
+    margin: 0;
 }
 
 .top-member-item {
@@ -27,7 +30,8 @@
     align-items: center;
     gap: 1rem;
     padding-bottom: 1.2rem;
-    border-bottom: 1px dashed var(--clr-border-light); 
+    border-bottom: 1px solid var(--clr-border-light); /* Đường kẻ ngang mờ */
+    /* Xóa đường dashed nếu có */
 }
 
 .top-member-item:last-child {
@@ -36,69 +40,91 @@
 }
 
 .member-rank {
-    font-size: 1.5rem; 
+    font-size: 1.1rem; /* Cỡ chữ số thứ tự */
     font-weight: bold;
-    color: var(--clr-text-secondary);
-    width: 35px; 
+    color: var(--clr-text-secondary); /* Màu xám */
+    width: 35px;
     text-align: center;
     flex-shrink: 0;
 }
 
+/* *** BỔ SUNG: Style cho avatar *** */
 .member-avatar {
-    width: 45px; 
-    height: 45px;
-    border-radius: 50%; 
+    width: 35px; /* Kích thước avatar nhỏ hơn */
+    height: 35px;
+    border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--clr-border-light);
+    flex-shrink: 0;
 }
+/* *** KẾT THÚC BỔ SUNG *** */
 
+/* *** BỔ SUNG: Style cho info container *** */
 .member-info {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Tên ở trên, Cấp và Điểm ở dưới */
     flex-grow: 1;
-    gap: 0.25rem;
-    overflow: hidden; 
+    gap: 0.25rem; /* Khoảng cách giữa tên và dòng dưới */
+    overflow: hidden; /* Để xử lý text-overflow */
 }
+/* *** KẾT THÚC BỔ SUNG *** */
+
 
 .member-name {
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.95rem; /* Cỡ chữ tên */
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; 
+    text-overflow: ellipsis;
+    color: var(--clr-text); /* Màu chữ tên */
+    margin-bottom: 0.1rem; /* Khoảng cách nhỏ dưới tên */
 }
 
+/* *** BỔ SUNG: Style cho stats container (Cấp + Điểm) *** */
 .member-stats {
     display: flex;
     align-items: center;
-    gap: 0.5rem; 
+    gap: 0.5rem; /* Khoảng cách giữa Cấp và Điểm */
 }
+/* *** KẾT THÚC BỔ SUNG *** */
 
 .member-level-badge {
-    padding: 2px 8px; 
-    border-radius: 4px; 
-    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem; /* Cỡ chữ trong huy hiệu */
     font-weight: bold;
-    color: white; 
+    color: white; /* Chữ trắng mặc định */
     line-height: 1;
     white-space: nowrap;
+    /* Xóa margin-left nếu có */
+    margin-left: 0;
 }
 
+/* Style này giữ nguyên để tự động đổi màu chữ */
 .member-level-badge[style*="background-color: rgb(255, 193, 7)"],
-.member-level-badge[style*="background-color: rgb(236, 220, 239)"] 
+.member-level-badge[style*="background-color: rgb(236, 220, 239)"]
 {
     color: #333;
 }
 
-
+/* *** BỔ SUNG: Style cho điểm số *** */
 .member-score {
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: bold;
-    color: var(--clr-error-text);
-    border: 1px solid var(--clr-error-text); 
-    background-color: var(--clr-background); 
+    color: var(--clr-text); /* Màu chữ của điểm */
+    border: 1px solid var(--clr-border-light); /* Viền xám */
+    background-color: var(--clr-card-bg); /* Nền trùng với card */
     line-height: 1;
     white-space: nowrap;
 }
+/* *** KẾT THÚC BỔ SUNG *** */
+
+/* Xóa các style không cần thiết hoặc của giao diện cũ nếu còn */
+/* .rank-icon { ... } */
+/* .rank-icon.gold { ... } */
+/* .rank-icon.silver { ... } */
+/* .rank-icon.bronze { ... } */
+/* .top-member-item.rank-1 { ... } */
+/* ... */

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import ProfileSidebar from '../../components/common/ProfileSideBar';
 import { useNotification } from '../../contexts/NotificationContext';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown, FiUpload } from 'react-icons/fi'; // Thêm FiUpload
 import './ProfilePage.css';
 import { Link } from 'react-router-dom';
 
@@ -68,7 +68,7 @@ const LevelSystemSelector: React.FC<LevelSelectorProps> = ({ currentUserLevel, c
         const newKey = e.target.value;
         setTempSystemKey(newKey);
         onSystemChange(newKey);
-        setIsEditing(false); 
+        setIsEditing(false);
     };
 
     return (
@@ -140,14 +140,17 @@ const LevelSystemSelector: React.FC<LevelSelectorProps> = ({ currentUserLevel, c
 
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, updateProfile, getLevelColor, selectedSystemKey, updateSelectedSystemKey, getEquivalentLevelTitle, loading } = useAuth(); 
+  const { currentUser, updateProfile, updateAvatar, getLevelColor, selectedSystemKey, updateSelectedSystemKey, getEquivalentLevelTitle, loading } = useAuth();
   const { showNotification } = useNotification();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   if (loading) {
       return (
@@ -156,7 +159,7 @@ const ProfilePage: React.FC = () => {
           </div>
       );
   }
-  
+
   if (!currentUser) {
     return (
       <div className="profile-page-not-logged">
@@ -169,13 +172,15 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (currentUser) {
       setFormData({
-        fullName: currentUser.fullName || '', 
-        phone: currentUser.phone || '',     
+        fullName: currentUser.fullName || '',
+        phone: currentUser.phone || '',
       });
+      setAvatarPreview(currentUser.avatarUrl); // Hiển thị avatar hiện tại
+      setAvatarFile(null); // Reset file khi load lại user
     }
-  }, [currentUser]); 
+  }, [currentUser]);
 
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -199,6 +204,7 @@ const ProfilePage: React.FC = () => {
     setIsSaving(true);
     try {
         await updateProfile({ fullName: formData.fullName, phone: formData.phone });
+        // Không cần cập nhật avatar ở đây nữa
     } catch (error) {
         console.error('Lỗi khi cập nhật hồ sơ:', error);
     } finally {
@@ -206,11 +212,74 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  // *** HÀM XỬ LÝ CHỌN AVATAR MỚI ***
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          // Có thể thêm kiểm tra kích thước, loại file ở đây
+          setAvatarFile(file);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+              setAvatarPreview(reader.result as string);
+          };
+          reader.readAsDataURL(file);
+      }
+  };
+
+  // *** HÀM XỬ LÝ UPLOAD VÀ CẬP NHẬT AVATAR ***
+  const handleAvatarUpdate = async () => {
+      if (!avatarFile) {
+          showNotification('Bạn chưa chọn ảnh mới.', 'warning');
+          return;
+      }
+      setIsSaving(true);
+      try {
+          // --- Logic upload ảnh lên server/cloud ---
+          // 1. Tạo FormData
+          const formDataUpload = new FormData();
+          formDataUpload.append('avatar', avatarFile);
+
+          // 2. Gửi request POST lên API upload của bạn (ví dụ: /api/upload/avatar)
+          // const uploadResponse = await fetch(`${API_URL}/upload/avatar`, {
+          //     method: 'POST',
+          //     headers: { 'Authorization': `Bearer ${getToken()}` }, // Cần token
+          //     body: formDataUpload,
+          // });
+          // const uploadData = await uploadResponse.json();
+          // if (!uploadResponse.ok) throw new Error(uploadData.error || 'Upload ảnh thất bại');
+          // const newAvatarUrl = uploadData.avatarUrl; // Lấy URL ảnh đã upload
+
+          // --- Giả lập upload thành công, lấy URL tạm thời từ preview ---
+          const newAvatarUrl = avatarPreview; // Tạm thời dùng preview URL
+          if (!newAvatarUrl) throw new Error("Không có URL ảnh xem trước");
+          // --- Kết thúc giả lập ---
+
+
+          // 3. Gọi hàm updateAvatar trong context để cập nhật URL trong DB
+          await updateAvatar(newAvatarUrl);
+
+          setAvatarFile(null); // Reset file sau khi thành công
+
+      } catch (error) {
+          console.error('Lỗi khi cập nhật avatar:', error);
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          showNotification(`Lỗi cập nhật avatar: ${errorMessage}`, 'error');
+          // Có thể reset preview về avatar cũ nếu muốn
+          // setAvatarPreview(currentUser.avatarUrl);
+          // setAvatarFile(null);
+      } finally {
+          setIsSaving(false);
+      }
+  };
+  // *** KẾT THÚC HÀM XỬ LÝ ***
+
+
   const levelColor = getLevelColor(currentUser.level);
   const isNeonActive = currentUser.level >= 8;
-  
+
   const isProfileChanged = formData.fullName !== (currentUser.fullName || '') || formData.phone !== (currentUser.phone || '');
-  const hasChanges = isProfileChanged;
+  const hasAvatarChanged = avatarFile !== null; // Kiểm tra xem có file avatar mới không
+  const hasChanges = isProfileChanged || hasAvatarChanged; // Cập nhật điều kiện
 
   const equivalentLevelTextOnBadge = getEquivalentLevelTitle(currentUser.level);
 
@@ -220,9 +289,48 @@ const ProfilePage: React.FC = () => {
       <div className="profile-content">
         <h1>Thông Tin Hồ Sơ</h1>
 
+        {/* *** THÊM PHẦN AVATAR *** */}
+        <div className="profile-info-card profile-avatar-card">
+             <h3>Ảnh Đại Diện</h3>
+             <div className="avatar-display-section">
+                <img
+                    src={avatarPreview || currentUser.avatarUrl} // Ưu tiên preview nếu có
+                    alt="Ảnh đại diện"
+                    className="profile-avatar-img"
+                />
+                <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/gif"
+                    ref={fileInputRef}
+                    onChange={handleAvatarChange}
+                    style={{ display: 'none' }}
+                />
+                <button
+                    type="button"
+                    className="change-avatar-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isSaving}
+                >
+                    <FiUpload /> {avatarFile ? 'Chọn ảnh khác' : 'Thay đổi ảnh'}
+                </button>
+                 {avatarFile && (
+                    <button
+                        type="button"
+                        className="save-btn"
+                        onClick={handleAvatarUpdate}
+                        disabled={isSaving || !hasAvatarChanged}
+                        style={{ marginLeft: '1rem' }}
+                    >
+                         {isSaving ? 'Đang lưu ảnh...' : 'Lưu ảnh mới'}
+                    </button>
+                 )}
+             </div>
+        </div>
+        {/* *** KẾT THÚC PHẦN AVATAR *** */}
+
+
         <div className="profile-info-card level-exp-card">
             <h3>Cấp Độ & Kinh Nghiệm</h3>
-
             <div className="level-display">
                 <span
                     className={`level-badge-wrapper ${isNeonActive ? 'neon-active' : ''}`}
@@ -233,7 +341,6 @@ const ProfilePage: React.FC = () => {
                     </span>
                 </span>
             </div>
-
             <div className="exp-progress-bar-container" style={{'--progress-bar-color': levelColor} as React.CSSProperties}>
                 <div
                     className="exp-progress-bar-fill"
@@ -247,25 +354,21 @@ const ProfilePage: React.FC = () => {
             <p className="exp-info-note">
                 Kinh nghiệm nhận được từ đọc truyện và nạp Xu. Tỉ lệ nhận giảm dần theo cấp độ.
             </p>
-
             <LevelSystemSelector
                 currentUserLevel={currentUser.level}
-                currentSystemKey={selectedSystemKey} 
-                onSystemChange={handleLevelSystemChange} 
+                currentSystemKey={selectedSystemKey}
+                onSystemChange={handleLevelSystemChange}
                 currentLevelColor={levelColor}
             />
-
         </div>
 
         <form onSubmit={handleSave}>
             <div className="profile-info-card">
                 <h3>Thông Tin Cá Nhân</h3>
-
                 <div className="form-group">
                     <label htmlFor="email">Email</label>
                     <input type="text" id="email" value={currentUser.email} disabled />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="fullName">Họ và Tên</label>
                     <input
@@ -277,7 +380,6 @@ const ProfilePage: React.FC = () => {
                         required
                     />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="phone">Số Điện Thoại</label>
                     <input
@@ -289,16 +391,15 @@ const ProfilePage: React.FC = () => {
                         required
                     />
                 </div>
-
                 <div className="profile-actions">
                     <button
                         type="submit"
                         className="save-btn"
-                        disabled={isSaving || !hasChanges}
+                        disabled={isSaving || !isProfileChanged} // Chỉ bật khi có thay đổi thông tin khác avatar
                     >
-                        {isSaving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+                        {isSaving ? 'Đang lưu...' : 'Lưu Thông Tin'}
                     </button>
-                    {hasChanges && (
+                    {isProfileChanged && ( // Chỉ hiển thị nút Hủy khi có thay đổi thông tin khác avatar
                         <button
                             type="button"
                             className="cancel-btn"

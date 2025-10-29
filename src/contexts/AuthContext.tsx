@@ -21,21 +21,23 @@ export interface User {
   email: string;
   fullName: string;
   phone: string;
-  addresses: Address[]; 
+  addresses: Address[];
   coinBalance: number;
   lastDailyLogin: string;
   consecutiveLoginDays: number;
   level: number;
-  exp: number; // Đảm bảo đây luôn là number
+  exp: number;
+  avatarUrl: string; // Thêm trường avatarUrl
 }
 
 interface AuthContextType {
   currentUser: User | null;
-  loading: boolean; 
+  loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<User | null>;
+  updateAvatar: (avatarUrl: string) => Promise<User | null>; // Thêm hàm cập nhật avatar
   updateAddresses: (addresses: Address[]) => Promise<void>;
   claimDailyReward: () => Promise<void>;
   addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<void>;
@@ -84,12 +86,12 @@ const getLevelColor = (level: number): string => {
 
 const getToken = () => localStorage.getItem(TOKEN_STORAGE_KEY);
 
-// Hàm đảm bảo dữ liệu user trả về từ API có exp là number
 const ensureUserExpIsNumber = (userData: any): User => {
     return {
         ...userData,
         exp: typeof userData.exp === 'string' ? parseFloat(userData.exp) : (userData.exp || 0),
-        addresses: Array.isArray(userData.addresses) ? userData.addresses : [], // Đảm bảo addresses là array
+        addresses: Array.isArray(userData.addresses) ? userData.addresses : [],
+        avatarUrl: String(userData.avatarUrl || 'https://via.placeholder.com/150'), // Đảm bảo avatarUrl là string
     };
 };
 
@@ -110,14 +112,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const token = getToken();
             if (token) {
                 try {
-                    // Chỉ cần gọi /api/me vì nó đã bao gồm addresses (nếu có)
                     const resUser = await fetch(`${API_URL}/me`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
                     if (resUser.ok) {
                         const rawUserData = await resUser.json();
-                        // Đảm bảo exp là number trước khi set state
                         const userData = ensureUserExpIsNumber(rawUserData);
                         setCurrentUser(userData);
                     } else {
@@ -166,7 +166,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!response.ok) throw new Error(data.error || 'Đăng nhập thất bại');
 
         localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-        // Đảm bảo exp là number khi đăng nhập
         const userData = ensureUserExpIsNumber(data.user);
         setCurrentUser(userData);
         showNotification('Đăng nhập thành công!', 'success');
@@ -189,7 +188,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setSelectedSystemKey('Bình Thường');
         showNotification('Đã đăng xuất.', 'info');
     };
-    
+
     const updateProfile = useCallback(async (profileData: Partial<User>): Promise<User | null> => {
         const token = getToken();
         if (!token) {
@@ -210,27 +209,63 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const rawUpdatedUser = await response.json();
             if (!response.ok) throw new Error(rawUpdatedUser.error || 'Cập nhật thất bại');
 
-            // Đảm bảo exp là number sau khi cập nhật
             const updatedUser = ensureUserExpIsNumber(rawUpdatedUser);
 
             setCurrentUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : null);
-            // showNotification('Cập nhật hồ sơ thành công!', 'success'); // Thông báo này đã có trong ensureUserExpIsNumber nếu cần
+             showNotification('Cập nhật hồ sơ thành công!', 'success');
             return updatedUser;
 
         } catch (error) {
             console.error('Lỗi khi cập nhật hồ sơ:', error);
-            showNotification(String(error), 'error');
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            showNotification(errorMessage, 'error');
             return null;
         }
     }, [showNotification]);
-    
-    const updateAddresses = async (addresses: Address[]) => { 
+
+    // *** THÊM HÀM CẬP NHẬT AVATAR ***
+    const updateAvatar = useCallback(async (avatarUrl: string): Promise<User | null> => {
+        const token = getToken();
+        if (!token || !currentUser) {
+            showNotification('Vui lòng đăng nhập lại.', 'error');
+            return null;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/profile/avatar`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ avatarUrl })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Cập nhật avatar thất bại');
+
+            const updatedUser = ensureUserExpIsNumber(data.user);
+            setCurrentUser(updatedUser); // Cập nhật user hiện tại với avatar mới
+            showNotification('Cập nhật ảnh đại diện thành công!', 'success');
+            return updatedUser;
+
+        } catch (error) {
+            console.error('Lỗi khi cập nhật avatar:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            showNotification(errorMessage, 'error');
+            return null;
+        }
+    }, [currentUser, showNotification]);
+    // *** KẾT THÚC THÊM HÀM ***
+
+
+    const updateAddresses = async (addresses: Address[]) => {
         const token = getToken();
         if (!token) {
             showNotification('Phiên đăng nhập hết hạn', 'error');
             return;
         }
-        
+
         try {
              const response = await fetch(`${API_URL}/addresses`, {
                 method: 'PUT',
@@ -238,28 +273,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ addresses }) 
+                body: JSON.stringify({ addresses })
             });
-            
+
             const updatedAddresses = await response.json();
             if (!response.ok) throw new Error(updatedAddresses.error || 'Cập nhật địa chỉ thất bại');
-            
+
             setCurrentUser(prevUser => prevUser ? { ...prevUser, addresses: updatedAddresses } : null);
             showNotification('Cập nhật địa chỉ thành công!', 'success');
-        
+
         } catch (error) {
              console.error('Lỗi khi cập nhật địa chỉ:', error);
-             showNotification(String(error), 'error');
+             const errorMessage = error instanceof Error ? error.message : String(error);
+             showNotification(errorMessage, 'error');
         }
     };
-    
-    const claimDailyReward = async () => { 
+
+    const claimDailyReward = async () => {
         const token = getToken();
-        if (!currentUser) { 
-            showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning'); 
-            return; 
-        } 
-        
+        if (!currentUser) {
+            showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning');
+            return;
+        }
+
         try {
             const response = await fetch(`${API_URL}/claim-reward`, {
                 method: 'POST',
@@ -273,9 +309,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 ...prevUser,
                 coinBalance: data.newBalance,
                 consecutiveLoginDays: data.nextLoginDays,
-                lastDailyLogin: new Date().toISOString() 
+                lastDailyLogin: new Date().toISOString()
             } : null);
-            
+
             if (data.notificationMessage.includes('Bắt đầu lại')) {
                  showNotification(data.notificationMessage, 'warning');
             } else {
@@ -283,14 +319,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
         } catch (error) {
-             showNotification(String(error), 'error');
+             const errorMessage = error instanceof Error ? error.message : String(error);
+             showNotification(errorMessage, 'error');
         }
     };
 
     const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
         const token = getToken();
         if (!currentUser) return;
-        
+
         try {
             const response = await fetch(`${API_URL}/add-exp`, {
                 method: 'POST',
@@ -304,11 +341,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Lỗi khi cộng EXP');
 
-            // Backend /api/add-exp đã trả về exp là number
             setCurrentUser(prevUser => prevUser ? {
                 ...prevUser,
                 level: data.level,
-                exp: data.exp, // Đã là number từ backend
+                exp: data.exp,
                 coinBalance: data.coinBalance
             } : null);
 
@@ -319,10 +355,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
         } catch (error) {
             console.error('Lỗi khi cộng EXP:', error);
-            showNotification(String(error), 'error');
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            showNotification(errorMessage, 'error');
         }
 
-    }, [currentUser, getEquivalentLevelTitle]); 
+    }, [currentUser, getEquivalentLevelTitle, showNotification]);
 
     const closeLevelUpPopup = useCallback(() => {
         setIsLevelUpPopupOpen(false);
@@ -341,6 +378,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             register,
             logout,
             updateProfile,
+            updateAvatar, // Thêm vào context value
             updateAddresses,
             claimDailyReward,
             addExp,

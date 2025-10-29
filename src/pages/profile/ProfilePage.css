@@ -516,3 +516,58 @@ button:disabled {
     margin-left: 0.5rem;
 }
 
+/* Thêm vào cuối file ProfilePage.css */
+
+.profile-avatar-card {
+    text-align: center; /* Căn giữa nội dung card */
+}
+
+.avatar-display-section {
+    display: flex;
+    flex-direction: column; /* Xếp ảnh và nút dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
+    gap: 1rem; /* Khoảng cách giữa các element */
+}
+
+.profile-avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Bo tròn ảnh */
+    object-fit: cover; /* Đảm bảo ảnh đầy khung */
+    border: 3px solid var(--clr-border-light); /* Viền nhẹ */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0.5rem; /* Khoảng cách dưới ảnh */
+}
+
+.change-avatar-btn {
+    background-color: var(--clr-card-bg);
+    color: var(--clr-primary);
+    border: 1px solid var(--clr-primary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.change-avatar-btn:hover {
+    background-color: var(--clr-primary);
+    color: var(--clr-button-text);
+}
+
+.change-avatar-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive nếu cần */
+@media (max-width: 768px) {
+    .profile-avatar-img {
+        width: 120px;
+        height: 120px;
+    }
+}
