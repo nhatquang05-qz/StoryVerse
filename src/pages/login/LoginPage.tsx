@@ -19,8 +19,10 @@ const LoginPage: React.FC = () => {
       await login(email, password); 
       navigate('/'); 
     } catch (err) {
-      setError('Email hoặc mật khẩu không đúng.');
-      showNotification('Đăng nhập thất bại. Kiểm tra lại thông tin.', 'error');
+      // Lỗi sẽ được throw từ AuthContext
+      const errorMessage = (err instanceof Error) ? err.message : 'Email hoặc mật khẩu không đúng.';
+      setError(errorMessage);
+      showNotification(errorMessage, 'error');
       console.error('Lỗi đăng nhập:', err);
     }
   };

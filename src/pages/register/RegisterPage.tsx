@@ -29,10 +29,15 @@ const RegisterPage: React.FC = () => {
       await register(email, password);
       setIsRegisterSuccessPopupOpen(true); 
     } catch (err) {
+      // Chỉnh sửa logic bắt lỗi để hiển thị đúng thông báo từ backend
       let errorMessage = 'Không thể tạo tài khoản. Vui lòng thử lại.';
       if (err instanceof Error) {
-          if (err.message.includes('email-already-in-use') || err.message.includes('exists')) {
+          if (err.message.includes('Email already in use')) {
               errorMessage = 'Email này đã được sử dụng. Vui lòng chọn email khác.';
+          } else if (err.message.includes('at least 6 characters')) {
+              errorMessage = 'Mật khẩu phải có ít nhất 6 ký tự.';
+          } else {
+              errorMessage = err.message; // Hiển thị lỗi chung từ API
           }
       }
       setError(errorMessage);
@@ -43,7 +48,7 @@ const RegisterPage: React.FC = () => {
 
   const handleCloseRegisterPopup = () => {
     setIsRegisterSuccessPopupOpen(false);
-    // navigate('/login')
+    // navigate('/login') // Bỏ comment dòng này nếu bạn muốn tự động chuyển sang trang login
   };
 
 

@@ -2,6 +2,11 @@ import React, { createContext, useState, useContext, type ReactNode, useCallback
 import { useNotification } from './NotificationContext';
 import LevelUpPopup from '../components/popups/LevelUpPopup';
 
+const API_URL = 'http://localhost:3000/api';
+const TOKEN_STORAGE_KEY = 'storyverse_token';
+const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
+
+
 export interface Address {
     id: string;
     street: string;
@@ -16,16 +21,17 @@ export interface User {
   email: string;
   fullName: string;
   phone: string;
-  addresses: Address[];
+  addresses: Address[]; 
   coinBalance: number;
   lastDailyLogin: string;
   consecutiveLoginDays: number;
   level: number;
-  exp: number;
+  exp: number; // Đảm bảo đây luôn là number
 }
 
 interface AuthContextType {
   currentUser: User | null;
+  loading: boolean; 
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -43,14 +49,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const USER_STORAGE_KEY = 'storyverse_user';
-const PROFILE_DATA_KEY = 'storyverse_user_profile';
-const ADDRESSES_DATA_KEY = 'storyverse_user_addresses';
-const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
 
-const BASE_EXP_PER_PAGE = 0.05;
-const BASE_EXP_PER_COIN = 0.2;
-const EXP_RATE_REDUCTION_FACTOR = 0.5;
 
 const LEVEL_COLORS: { [key: number]: string } = {
     1: '#6c757d', 2: '#007bff', 3: '#28a745', 4: '#ffc107', 5: '#dc3545',
@@ -83,26 +82,20 @@ const getLevelColor = (level: number): string => {
     return LEVEL_COLORS[highestApplicableLevel] || DEFAULT_LEVEL_COLOR;
 };
 
-const mockDefaultAddress: Address = { id: 'default-1', street: '123 Đường Nguyễn Huệ', ward: 'Phường 1', district: 'Quận 1', city: 'TP. Hồ Chí Minh', isDefault: true, };
-const loadAddresses = (userId: string): Address[] => { try { const storedAddresses = localStorage.getItem(ADDRESSES_DATA_KEY + userId); const addresses: Address[] = storedAddresses ? JSON.parse(storedAddresses) : []; if (addresses.length === 0 && userId) { return [mockDefaultAddress]; } return addresses.sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1)); } catch (e) { return userId ? [mockDefaultAddress] : []; } };
-const saveAddresses = (userId: string, addresses: Address[]): void => { try { localStorage.setItem(ADDRESSES_DATA_KEY + userId, JSON.stringify(addresses)); } catch (e) { console.error("Failed to save addresses", e); } };
-const loadProfileData = (baseUser: { id: string, email: string }): User => { try { const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + baseUser.id); const profile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {}; const defaultProfile = { fullName: baseUser.email.split('@')[0] || 'Khách Hàng', phone: '0000000000', coinBalance: 1000, lastDailyLogin: '2000-01-01T00:00:00.000Z', consecutiveLoginDays: 0, level: 1, exp: 0, }; const loadedLevel = typeof profile.level === 'number' && profile.level >= 1 ? profile.level : defaultProfile.level; const loadedExp = typeof profile.exp === 'number' && profile.exp >= 0 && profile.exp <= 100 ? profile.exp : defaultProfile.exp; return { ...baseUser, ...defaultProfile, ...profile, level: loadedLevel, exp: loadedExp, addresses: loadAddresses(baseUser.id), } as User; } catch (e) { console.error("Failed to load profile data", e); return { ...baseUser, fullName: baseUser.email.split('@')[0] || 'Khách Hàng', phone: '0000000000', addresses: loadAddresses(baseUser.id), coinBalance: 1000, lastDailyLogin: '2000-01-01T00:00:00.000Z', consecutiveLoginDays: 0, level: 1, exp: 0, } as User; } };
-const saveProfileData = (userId: string, profileData: Partial<User>): void => { try { const storedProfile = localStorage.getItem(PROFILE_DATA_KEY + userId); const currentProfile: Partial<User> = storedProfile ? JSON.parse(storedProfile) : {}; const { addresses, ...dataToSave } = { ...currentProfile, ...profileData }; localStorage.setItem(PROFILE_DATA_KEY + userId, JSON.stringify(dataToSave)); } catch (e) { console.error("Failed to save profile data", e); } };
+const getToken = () => localStorage.getItem(TOKEN_STORAGE_KEY);
+
+// Hàm đảm bảo dữ liệu user trả về từ API có exp là number
+const ensureUserExpIsNumber = (userData: any): User => {
+    return {
+        ...userData,
+        exp: typeof userData.exp === 'string' ? parseFloat(userData.exp) : (userData.exp || 0),
+        addresses: Array.isArray(userData.addresses) ? userData.addresses : [], // Đảm bảo addresses là array
+    };
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState<User | null>(() => {
-        try {
-            const storedUser = localStorage.getItem(USER_STORAGE_KEY);
-            const baseUser = storedUser ? JSON.parse(storedUser) : null;
-            if (baseUser) {
-                return loadProfileData(baseUser);
-            }
-            return null;
-        } catch (error) {
-            console.error("Error loading user from storage:", error);
-            return null;
-        }
-    });
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
     const { showNotification } = useNotification();
 
     const [selectedSystemKey, setSelectedSystemKey] = useState<string>(() => {
@@ -111,6 +104,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const [isLevelUpPopupOpen, setIsLevelUpPopupOpen] = useState(false);
     const [levelUpInfo, setLevelUpInfo] = useState<{ newLevel: number; levelTitle: string } | null>(null);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const token = getToken();
+            if (token) {
+                try {
+                    // Chỉ cần gọi /api/me vì nó đã bao gồm addresses (nếu có)
+                    const resUser = await fetch(`${API_URL}/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (resUser.ok) {
+                        const rawUserData = await resUser.json();
+                        // Đảm bảo exp là number trước khi set state
+                        const userData = ensureUserExpIsNumber(rawUserData);
+                        setCurrentUser(userData);
+                    } else {
+                        localStorage.removeItem(TOKEN_STORAGE_KEY);
+                        setCurrentUser(null);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch user with token", error);
+                    localStorage.removeItem(TOKEN_STORAGE_KEY);
+                    setCurrentUser(null);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
+
+        checkUser();
+    }, []);
 
     const updateSelectedSystemKey = useCallback((newKey: string) => {
         setSelectedSystemKey(newKey);
@@ -130,97 +157,186 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [selectedSystemKey]);
 
     const login = async (email: string, pass: string) => {
-        const baseUser = { id: 'user-' + email, email: email };
-        const fullUser = loadProfileData(baseUser);
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ id: fullUser.id, email: fullUser.email }));
-        saveProfileData(fullUser.id, fullUser);
-        saveAddresses(fullUser.id, fullUser.addresses);
-        setCurrentUser(fullUser);
-        const storedSystemKey = localStorage.getItem(LEVEL_SYSTEM_STORAGE_KEY) || 'Bình Thường';
-        setSelectedSystemKey(storedSystemKey);
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', },
+            body: JSON.stringify({ email, password: pass }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Đăng nhập thất bại');
+
+        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+        // Đảm bảo exp là number khi đăng nhập
+        const userData = ensureUserExpIsNumber(data.user);
+        setCurrentUser(userData);
         showNotification('Đăng nhập thành công!', 'success');
     };
 
     const register = async (email: string, pass: string) => {
-        if (!email || !pass) throw new Error("Email/Pass required (mock)");
-        const baseUser = { id: 'user-' + email, email: email };
-        const defaultUser = loadProfileData(baseUser);
-        saveProfileData(baseUser.id, defaultUser);
-        saveAddresses(baseUser.id, defaultUser.addresses);
-        localStorage.setItem(LEVEL_SYSTEM_STORAGE_KEY, 'Bình Thường');
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', },
+            body: JSON.stringify({ email, password: pass }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Đăng ký thất bại');
         showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
     };
 
     const logout = async () => {
         setCurrentUser(null);
-        localStorage.removeItem(USER_STORAGE_KEY);
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
         setSelectedSystemKey('Bình Thường');
         showNotification('Đã đăng xuất.', 'info');
     };
-
-    const updateProfile = useCallback(async (profileData: Partial<User>): Promise<User | null> => { return new Promise((resolve) => { setCurrentUser(prevUser => { if (!prevUser) { resolve(null); return null; } const updatedUser = { ...prevUser, ...profileData }; saveProfileData(prevUser.id, updatedUser); if (Object.keys(profileData).some(key => !['level', 'exp', 'coinBalance'].includes(key))) { showNotification('Cập nhật hồ sơ thành công!', 'success'); } resolve(updatedUser); return updatedUser; }); }); }, [showNotification]);
-    const updateAddresses = async (addresses: Address[]) => { if (!currentUser) { throw new Error('User not logged in.'); } await new Promise(resolve => setTimeout(resolve, 100)); const sortedAddresses = addresses.sort((a, b) => (a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1)); saveAddresses(currentUser.id, sortedAddresses); setCurrentUser(prevUser => { if (!prevUser) return null; return { ...prevUser, addresses: sortedAddresses, }; }); showNotification('Cập nhật địa chỉ thành công!', 'success'); };
-    const claimDailyReward = async () => { if (!currentUser) { showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning'); return; } const today = new Date(); const lastLoginDate = new Date(currentUser.lastDailyLogin); const oneDay = 24 * 60 * 60 * 1000; const diffDays = Math.round(Math.abs((today.getTime() - lastLoginDate.getTime()) / oneDay)); const isSameDay = today.getFullYear() === lastLoginDate.getFullYear() && today.getMonth() === lastLoginDate.getMonth() && today.getDate() === lastLoginDate.getDate(); if (isSameDay) { showNotification('Bạn đã nhận thưởng hàng ngày hôm nay rồi!', 'info'); return; } let nextLoginDays = currentUser.consecutiveLoginDays + 1; if (diffDays > 1) { nextLoginDays = 1; showNotification('Chuỗi đăng nhập đã bị đứt! Bắt đầu lại từ Ngày 1.', 'warning'); } const currentRewardIndex = (nextLoginDays - 1) % dailyRewardsData.length; const reward = dailyRewardsData[currentRewardIndex]; if (reward.type !== 'Xu') return; const rewardCoins = reward.amount; const newBalance = currentUser.coinBalance + rewardCoins; const todayISOString = today.toISOString(); try { await updateProfile({ coinBalance: newBalance, lastDailyLogin: todayISOString, consecutiveLoginDays: nextLoginDays }); showNotification(`Đã nhận ${rewardCoins} Xu thưởng đăng nhập Ngày ${nextLoginDays}!`, 'success'); } catch (error) { showNotification('Lỗi khi nhận thưởng. Vui lòng thử lại.', 'error'); } };
-
-    const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
-        let triggeredLevelUpInfo: { newLevel: number; levelTitle: string } | null = null;
-
-        setCurrentUser(prevUser => {
-            if (!prevUser) return null;
-
-            let baseExpGain = 0;
-            if (source === 'reading') {
-                baseExpGain = BASE_EXP_PER_PAGE * amount;
-            } else if (source === 'recharge') {
-                baseExpGain = BASE_EXP_PER_COIN * amount;
-            }
-
-            const modifier = Math.pow(EXP_RATE_REDUCTION_FACTOR, prevUser.level - 1);
-            const actualExpGain = baseExpGain * modifier;
-
-            let currentBalance = prevUser.coinBalance + coinIncrease;
-            let newExp = prevUser.exp + actualExpGain;
-            let newLevel = prevUser.level;
-            let levelUpOccurred = false;
-
-            while (newExp >= 100) {
-                newLevel += 1;
-                newExp -= 100;
-                levelUpOccurred = true;
-            }
-
-            const updatedUserData: Partial<User> = {
-                level: newLevel,
-                exp: Math.min(100, Math.max(0, newExp)),
-                coinBalance: currentBalance
-            };
-            const updatedUser = { ...prevUser, ...updatedUserData };
-            saveProfileData(prevUser.id, updatedUser);
-
-            if (levelUpOccurred) {
-                const newLevelTitle = getEquivalentLevelTitle(newLevel);
-                triggeredLevelUpInfo = { newLevel, levelTitle: newLevelTitle };
-            }
-            return updatedUser;
-        });
-
-        await new Promise(resolve => setTimeout(resolve, 10));
-
-        if (triggeredLevelUpInfo) {
-            setLevelUpInfo(triggeredLevelUpInfo);
-            setIsLevelUpPopupOpen(true);
+    
+    const updateProfile = useCallback(async (profileData: Partial<User>): Promise<User | null> => {
+        const token = getToken();
+        if (!token) {
+            showNotification('Phiên đăng nhập hết hạn', 'error');
+            return null;
         }
 
-    }, [showNotification, getEquivalentLevelTitle]);
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(profileData)
+            });
+
+            const rawUpdatedUser = await response.json();
+            if (!response.ok) throw new Error(rawUpdatedUser.error || 'Cập nhật thất bại');
+
+            // Đảm bảo exp là number sau khi cập nhật
+            const updatedUser = ensureUserExpIsNumber(rawUpdatedUser);
+
+            setCurrentUser(prevUser => prevUser ? { ...prevUser, ...updatedUser } : null);
+            // showNotification('Cập nhật hồ sơ thành công!', 'success'); // Thông báo này đã có trong ensureUserExpIsNumber nếu cần
+            return updatedUser;
+
+        } catch (error) {
+            console.error('Lỗi khi cập nhật hồ sơ:', error);
+            showNotification(String(error), 'error');
+            return null;
+        }
+    }, [showNotification]);
+    
+    const updateAddresses = async (addresses: Address[]) => { 
+        const token = getToken();
+        if (!token) {
+            showNotification('Phiên đăng nhập hết hạn', 'error');
+            return;
+        }
+        
+        try {
+             const response = await fetch(`${API_URL}/addresses`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ addresses }) 
+            });
+            
+            const updatedAddresses = await response.json();
+            if (!response.ok) throw new Error(updatedAddresses.error || 'Cập nhật địa chỉ thất bại');
+            
+            setCurrentUser(prevUser => prevUser ? { ...prevUser, addresses: updatedAddresses } : null);
+            showNotification('Cập nhật địa chỉ thành công!', 'success');
+        
+        } catch (error) {
+             console.error('Lỗi khi cập nhật địa chỉ:', error);
+             showNotification(String(error), 'error');
+        }
+    };
+    
+    const claimDailyReward = async () => { 
+        const token = getToken();
+        if (!currentUser) { 
+            showNotification('Vui lòng đăng nhập để nhận thưởng.', 'warning'); 
+            return; 
+        } 
+        
+        try {
+            const response = await fetch(`${API_URL}/claim-reward`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            setCurrentUser(prevUser => prevUser ? {
+                ...prevUser,
+                coinBalance: data.newBalance,
+                consecutiveLoginDays: data.nextLoginDays,
+                lastDailyLogin: new Date().toISOString() 
+            } : null);
+            
+            if (data.notificationMessage.includes('Bắt đầu lại')) {
+                 showNotification(data.notificationMessage, 'warning');
+            } else {
+                 showNotification(data.notificationMessage, 'success');
+            }
+
+        } catch (error) {
+             showNotification(String(error), 'error');
+        }
+    };
+
+    const addExp = useCallback(async (amount: number, source: 'reading' | 'recharge', coinIncrease: number = 0) => {
+        const token = getToken();
+        if (!currentUser) return;
+        
+        try {
+            const response = await fetch(`${API_URL}/add-exp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ amount, source, coinIncrease })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Lỗi khi cộng EXP');
+
+            // Backend /api/add-exp đã trả về exp là number
+            setCurrentUser(prevUser => prevUser ? {
+                ...prevUser,
+                level: data.level,
+                exp: data.exp, // Đã là number từ backend
+                coinBalance: data.coinBalance
+            } : null);
+
+            if (data.levelUpOccurred) {
+                const newLevelTitle = getEquivalentLevelTitle(data.level);
+                setLevelUpInfo({ newLevel: data.level, levelTitle: newLevelTitle });
+                setIsLevelUpPopupOpen(true);
+            }
+        } catch (error) {
+            console.error('Lỗi khi cộng EXP:', error);
+            showNotification(String(error), 'error');
+        }
+
+    }, [currentUser, getEquivalentLevelTitle]); 
 
     const closeLevelUpPopup = useCallback(() => {
         setIsLevelUpPopupOpen(false);
         setLevelUpInfo(null);
     }, []);
 
+    if (loading) {
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '2rem' }}>Đang tải...</div>;
+    }
+
     return (
         <AuthContext.Provider value={{
             currentUser,
+            loading,
             login,
             register,
             logout,

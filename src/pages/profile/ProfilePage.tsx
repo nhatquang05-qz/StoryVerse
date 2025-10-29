@@ -4,6 +4,7 @@ import ProfileSidebar from '../../components/common/ProfileSideBar';
 import { useNotification } from '../../contexts/NotificationContext';
 import { FiChevronDown } from 'react-icons/fi';
 import './ProfilePage.css';
+import { Link } from 'react-router-dom';
 
 interface LevelSystem {
     key: string;
@@ -139,7 +140,7 @@ const LevelSystemSelector: React.FC<LevelSelectorProps> = ({ currentUserLevel, c
 
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, updateProfile, getLevelColor, selectedSystemKey, updateSelectedSystemKey, getEquivalentLevelTitle } = useAuth();
+  const { currentUser, updateProfile, getLevelColor, selectedSystemKey, updateSelectedSystemKey, getEquivalentLevelTitle, loading } = useAuth(); 
   const { showNotification } = useNotification();
 
   const [formData, setFormData] = useState({
@@ -148,15 +149,33 @@ const ProfilePage: React.FC = () => {
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  if (loading) {
+      return (
+          <div className="profile-page-not-logged">
+              <h2>Đang tải dữ liệu người dùng...</h2>
+          </div>
+      );
+  }
+  
+  if (!currentUser) {
+    return (
+      <div className="profile-page-not-logged">
+        <h2>Bạn cần đăng nhập để xem thông tin hồ sơ.</h2>
+        <Link to="/login" className="detail-order-btn" style={{marginTop: '1rem'}}>Đi đến trang đăng nhập</Link>
+      </div>
+    );
+  }
+
   useEffect(() => {
     if (currentUser) {
       setFormData({
-        fullName: currentUser.fullName,
-        phone: currentUser.phone,
+        fullName: currentUser.fullName || '', 
+        phone: currentUser.phone || '',     
       });
     }
-  }, [currentUser]);
+  }, [currentUser]); 
 
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -164,7 +183,6 @@ const ProfilePage: React.FC = () => {
     });
   };
 
-  // Hàm này giờ sẽ gọi context để cập nhật
   const handleLevelSystemChange = (newSystemKey: string) => {
       updateSelectedSystemKey(newSystemKey);
       showNotification(`Đã đổi hệ thống cấp bậc thành ${newSystemKey}`, 'success');
@@ -172,7 +190,6 @@ const ProfilePage: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
 
     if (!formData.fullName || !formData.phone) {
         showNotification('Vui lòng điền đầy đủ Họ tên và Số điện thoại.', 'warning');
@@ -182,32 +199,19 @@ const ProfilePage: React.FC = () => {
     setIsSaving(true);
     try {
         await updateProfile({ fullName: formData.fullName, phone: formData.phone });
-        // Không cần lưu systemKey ở đây nữa vì nó được cập nhật tức thì qua context
-        showNotification('Cập nhật hồ sơ thành công!', 'success');
     } catch (error) {
         console.error('Lỗi khi cập nhật hồ sơ:', error);
-        showNotification('Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
     } finally {
         setIsSaving(false);
     }
   };
 
-  if (!currentUser) {
-    return (
-      <div className="profile-page-not-logged">
-        <h2>Bạn cần đăng nhập để xem thông tin hồ sơ.</h2>
-      </div>
-    );
-  }
-
   const levelColor = getLevelColor(currentUser.level);
   const isNeonActive = currentUser.level >= 8;
-
-  const isProfileChanged = formData.fullName !== currentUser.fullName || formData.phone !== currentUser.phone;
-  // hasChanges giờ chỉ kiểm tra thông tin profile
+  
+  const isProfileChanged = formData.fullName !== (currentUser.fullName || '') || formData.phone !== (currentUser.phone || '');
   const hasChanges = isProfileChanged;
 
-  // Lấy cấp bậc tương đương để hiển thị trên BADGE (dùng state từ context)
   const equivalentLevelTextOnBadge = getEquivalentLevelTitle(currentUser.level);
 
   return (
@@ -300,8 +304,8 @@ const ProfilePage: React.FC = () => {
                             className="cancel-btn"
                             onClick={() => {
                                 setFormData({
-                                    fullName: currentUser.fullName,
-                                    phone: currentUser.phone,
+                                    fullName: currentUser.fullName || '',
+                                    phone: currentUser.phone || '',
                                 });
                             }}
                             disabled={isSaving}

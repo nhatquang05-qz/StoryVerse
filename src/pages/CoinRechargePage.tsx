@@ -16,7 +16,7 @@ const rechargePacks = [
 ];
 
 const CoinRechargePage: React.FC = () => {
-    const { currentUser, updateProfile, addExp } = useAuth();
+    const { currentUser, addExp } = useAuth();
     const { showNotification } = useNotification();
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedPack, setSelectedPack] = useState<number | null>(null);
@@ -39,11 +39,13 @@ const CoinRechargePage: React.FC = () => {
 
         try {
             await new Promise(resolve => setTimeout(resolve, 1500));
+            
             const totalCoinsAdded = pack.coins + pack.bonus;
-            const newBalance = currentUser.coinBalance + totalCoinsAdded;
-            await updateProfile({ coinBalance: newBalance });
-            await addExp(totalCoinsAdded, 'recharge');
-
+            
+            await addExp(totalCoinsAdded, 'recharge', totalCoinsAdded);
+            
+            const newBalance = (currentUser.coinBalance || 0) + totalCoinsAdded;
+            
             setRechargeInfo({ amount: totalCoinsAdded, newBalance: newBalance });
             setIsRechargeSuccessPopupOpen(true);
 
@@ -129,7 +131,7 @@ const CoinRechargePage: React.FC = () => {
                 </div>
 
                 <p className="recharge-info-note">
-                    *Mỗi Xu nạp sẽ tăng {(BASE_EXP_PER_COIN * Math.pow(EXP_RATE_REDUCTION_FACTOR, currentUser.level - 1)).toFixed(4)}% kinh nghiệm (tỉ lệ giảm theo cấp).
+                    *Mỗi Xu nạp sẽ tăng kinh nghiệm (tỉ lệ giảm theo cấp).
                 </p>
             </div>
 
@@ -142,8 +144,5 @@ const CoinRechargePage: React.FC = () => {
         </div>
     );
 };
-
-const BASE_EXP_PER_COIN = 0.2;
-const EXP_RATE_REDUCTION_FACTOR = 0.5;
 
 export default CoinRechargePage;
