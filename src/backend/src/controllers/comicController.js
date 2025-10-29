@@ -1,4 +1,4 @@
-// backend/src/controllers/comicController.js
+// src/backend/src/controllers/comicController.js
 const { getConnection } = require('../db/connection');
 const cloudinary = require('../config/CloudinaryConfig');
 
@@ -94,17 +94,48 @@ const getChapterContent = async (req, res) => {
 
         const chapter = chapterRows[0];
         
-        // Khối logic 'hasAccess' đã bị xóa
-        
+        // ===================================
+        // === LOGIC MỚI XỬ LÝ contentUrls ===
+        // ===================================
         let contentUrlsArray = [];
-        try {
-            // Đây là dòng 105 đang báo lỗi trong terminal của bạn
-            contentUrlsArray = chapter.contentUrls ? JSON.parse(chapter.contentUrls) : [];
-        } catch (parseError) {
-            // Lỗi xảy ra ở đây vì dữ liệu trong DB không phải JSON
-            console.error("Error parsing contentUrls JSON:", parseError); 
-            return res.status(500).json({ error: 'Lỗi dữ liệu nội dung chương.' });
+        const rawContent = chapter.contentUrls;
+
+        if (Array.isArray(rawContent)) {
+            // Case 1: DB trả về mảng (mysql2 đã parse JSON thành công)
+            console.log("DB trả về Array, sử dụng trực tiếp.");
+            contentUrlsArray = rawContent;
+        } else if (rawContent && typeof rawContent === 'string') {
+            // Case 2: DB trả về string (do JSON invalid hoặc là string trần)
+            try {
+                // Thử parse JSON chuẩn (với nháy kép)
+                contentUrlsArray = JSON.parse(rawContent);
+            } catch (e1) {
+                // Thử parse JSON (với nháy đơn)
+                console.warn("Lỗi parse JSON (lần 1), thử thay thế single quotes:", rawContent);
+                try {
+                    const correctedJson = rawContent.replace(/'/g, '"');
+                    contentUrlsArray = JSON.parse(correctedJson);
+                } catch (e2) {
+                    // Nếu vẫn lỗi, kiểm tra xem có phải là 1 URL trần không
+                    console.error("Lỗi parse JSON (lần 2), thử xử lý như string đơn lẻ:", e2.message);
+                    if (rawContent.trim().startsWith('http')) {
+                        contentUrlsArray = [rawContent.trim()];
+                    } else {
+                        console.error("Không thể phân tích contentUrls:", rawContent);
+                        contentUrlsArray = []; // Trả về rỗng nếu không thể xử lý
+                    }
+                }
+            }
         }
+        
+        // Đảm bảo cuối cùng luôn là một mảng
+        if (!Array.isArray(contentUrlsArray)) {
+            console.warn("Dữ liệu contentUrls sau khi xử lý không phải là mảng, ép về mảng rỗng.");
+            contentUrlsArray = [];
+        }
+        // ===================================
+        // === KẾT THÚC SỬA LỖI           ===
+        // ===================================
 
         res.json({
             chapterId: chapter.id,
@@ -132,6 +163,7 @@ const addChapter = async (req, res) => {
         const [comicRows] = await connection.execute('SELECT id FROM comics WHERE id = ?', [comicId]);
         if (comicRows.length === 0) return res.status(404).json({ error: 'Comic not found.' });
 
+        // Luôn lưu trữ dưới dạng JSON chuẩn (dấu nháy kép)
         await connection.execute(
             'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price) VALUES (?, ?, ?, ?, ?)',
             [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price !== undefined ? price : 0]

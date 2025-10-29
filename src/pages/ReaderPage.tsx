@@ -1,3 +1,4 @@
+// src/pages/ReaderPage.tsx
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,7 +10,6 @@ import ChapterChat from '../components/common/Chat/ChapterChat';
 import './ReaderPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-// *** THÊM HẰNG SỐ BỊ THIẾU ***
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const isChapterUnlockedGlobally = (comicId: number, chapterId: number, userId: string | undefined): boolean => {
@@ -92,28 +92,30 @@ const ReaderPage: React.FC = () => {
             setIsLoading(true);
             setChapterImages([]); 
             
-            // *** BẮT ĐẦU SỬA LỖI ***
-            // Lấy token từ localStorage để xác thực
             const token = localStorage.getItem(TOKEN_STORAGE_KEY); 
             
             fetch(`${API_URL}/comics/${comicId}/chapters/${chapterNumParam}`, {
-                headers: { // Thêm headers chứa token
+                headers: { 
                     'Authorization': `Bearer ${token}`
                 }
             })
                 .then(res => {
                     if (!res.ok) {
                          console.error("Fetch chapter content failed with status:", res.status);
-                         throw new Error('Không thể tải nội dung chương (lỗi xác thực hoặc không tìm thấy)');
+                         throw new Error(`Không thể tải nội dung chương (Lỗi: ${res.status}). Có thể bạn cần đăng nhập lại.`);
                     }
                     return res.json();
                 })
-             // *** KẾT THÚC SỬA LỖI ***
                 .then((data: ChapterContent) => {
+                    if (!Array.isArray(data.contentUrls)) {
+                         console.error("Dữ liệu trả về không phải là mảng:", data.contentUrls);
+                         throw new Error("Lỗi định dạng dữ liệu từ server.");
+                    }
                     setChapterImages(data.contentUrls);
                 })
                 .catch(err => {
-                    console.error("Lỗi tải ảnh chương:", err);
+                    console.error("Lỗi tải ảnh chương (fetch/catch):", err);
+                    showNotification(err.message, 'error');
                     setChapterImages([]); 
                 })
                 .finally(() => {
@@ -126,7 +128,7 @@ const ReaderPage: React.FC = () => {
             window.scrollTo(0, 0);
         }
 
-    }, [chapterNumParam, allChapters, comicId, unlockedChapters, navigate]);
+    }, [chapterNumParam, allChapters, comicId, unlockedChapters, navigate, showNotification]);
 
     const isUnlocked = useMemo(() => {
         if (!currentChapterData) return false;
@@ -187,8 +189,6 @@ const ReaderPage: React.FC = () => {
             }],
         };
         try {
-            // *** SỬA LỖI LOGIC TRỪ XU ***
-            // Dùng addExp với số âm để trừ Xu
             await addExp(chapterToUnlock.price, 'recharge', -chapterToUnlock.price);
 
             saveNewOrder(newOrder);
@@ -280,6 +280,12 @@ const ReaderPage: React.FC = () => {
                                 />
                             ))
                         }
+                        {/* Thêm thông báo nếu không có ảnh và không loading */}
+                        {!isLoading && chapterImages.length === 0 && (
+                            <p style={{color: 'white', padding: '2rem'}}>
+                                Không tải được nội dung chương. (Bạn có thể F12 xem Console Log).
+                            </p>
+                        )}
                     </div>
                 ) : (
                     <div className="chapter-locked-overlay">
