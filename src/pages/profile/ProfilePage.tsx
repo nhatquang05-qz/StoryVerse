@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import ProfileSidebar from '../../components/common/ProfileSideBar';
 import { useNotification } from '../../contexts/NotificationContext';
-import { FiChevronDown, FiUpload } from 'react-icons/fi'; // Thêm FiUpload
+import { FiChevronDown, FiUpload, FiLoader } from 'react-icons/fi';
 import './ProfilePage.css';
 import { Link } from 'react-router-dom';
 
@@ -152,6 +152,9 @@ const ProfilePage: React.FC = () => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
+  const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
   if (loading) {
       return (
           <div className="profile-page-not-logged">
@@ -175,8 +178,8 @@ const ProfilePage: React.FC = () => {
         fullName: currentUser.fullName || '',
         phone: currentUser.phone || '',
       });
-      setAvatarPreview(currentUser.avatarUrl); // Hiển thị avatar hiện tại
-      setAvatarFile(null); // Reset file khi load lại user
+      setAvatarPreview(currentUser.avatarUrl);
+      setAvatarFile(null);
     }
   }, [currentUser]);
 
@@ -204,7 +207,6 @@ const ProfilePage: React.FC = () => {
     setIsSaving(true);
     try {
         await updateProfile({ fullName: formData.fullName, phone: formData.phone });
-        // Không cần cập nhật avatar ở đây nữa
     } catch (error) {
         console.error('Lỗi khi cập nhật hồ sơ:', error);
     } finally {
@@ -212,11 +214,9 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  // *** HÀM XỬ LÝ CHỌN AVATAR MỚI ***
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
           const file = e.target.files[0];
-          // Có thể thêm kiểm tra kích thước, loại file ở đây
           setAvatarFile(file);
           const reader = new FileReader();
           reader.onloadend = () => {
@@ -226,60 +226,62 @@ const ProfilePage: React.FC = () => {
       }
   };
 
-  // *** HÀM XỬ LÝ UPLOAD VÀ CẬP NHẬT AVATAR ***
   const handleAvatarUpdate = async () => {
       if (!avatarFile) {
           showNotification('Bạn chưa chọn ảnh mới.', 'warning');
           return;
       }
+      if (!CLOUD_NAME || !UPLOAD_PRESET) {
+          console.error('Cloudinary config is missing. Check .env file.');
+          showNotification('Lỗi cấu hình upload ảnh.', 'error');
+          return;
+      }
+
       setIsSaving(true);
+
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', avatarFile);
+      formDataUpload.append('upload_preset', UPLOAD_PRESET);
+
       try {
-          // --- Logic upload ảnh lên server/cloud ---
-          // 1. Tạo FormData
-          const formDataUpload = new FormData();
-          formDataUpload.append('avatar', avatarFile);
+          const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+              method: 'POST',
+              body: formDataUpload,
+          });
 
-          // 2. Gửi request POST lên API upload của bạn (ví dụ: /api/upload/avatar)
-          // const uploadResponse = await fetch(`${API_URL}/upload/avatar`, {
-          //     method: 'POST',
-          //     headers: { 'Authorization': `Bearer ${getToken()}` }, // Cần token
-          //     body: formDataUpload,
-          // });
-          // const uploadData = await uploadResponse.json();
-          // if (!uploadResponse.ok) throw new Error(uploadData.error || 'Upload ảnh thất bại');
-          // const newAvatarUrl = uploadData.avatarUrl; // Lấy URL ảnh đã upload
+          if (!response.ok) {
+              throw new Error('Tải ảnh lên Cloudinary thất bại.');
+          }
 
-          // --- Giả lập upload thành công, lấy URL tạm thời từ preview ---
-          const newAvatarUrl = avatarPreview; // Tạm thời dùng preview URL
-          if (!newAvatarUrl) throw new Error("Không có URL ảnh xem trước");
-          // --- Kết thúc giả lập ---
+          const data = await response.json();
+          const newAvatarUrl = data.secure_url;
 
+          if (newAvatarUrl) {
+              await updateAvatar(newAvatarUrl);
+          } else {
+              throw new Error('Không nhận được URL từ Cloudinary.');
+          }
 
-          // 3. Gọi hàm updateAvatar trong context để cập nhật URL trong DB
-          await updateAvatar(newAvatarUrl);
-
-          setAvatarFile(null); // Reset file sau khi thành công
+          setAvatarFile(null);
 
       } catch (error) {
           console.error('Lỗi khi cập nhật avatar:', error);
           const errorMessage = error instanceof Error ? error.message : String(error);
           showNotification(`Lỗi cập nhật avatar: ${errorMessage}`, 'error');
-          // Có thể reset preview về avatar cũ nếu muốn
-          // setAvatarPreview(currentUser.avatarUrl);
-          // setAvatarFile(null);
+          setAvatarPreview(currentUser.avatarUrl);
+          setAvatarFile(null);
       } finally {
           setIsSaving(false);
       }
   };
-  // *** KẾT THÚC HÀM XỬ LÝ ***
 
 
   const levelColor = getLevelColor(currentUser.level);
   const isNeonActive = currentUser.level >= 8;
 
   const isProfileChanged = formData.fullName !== (currentUser.fullName || '') || formData.phone !== (currentUser.phone || '');
-  const hasAvatarChanged = avatarFile !== null; // Kiểm tra xem có file avatar mới không
-  const hasChanges = isProfileChanged || hasAvatarChanged; // Cập nhật điều kiện
+  const hasAvatarChanged = avatarFile !== null;
+  const hasChanges = isProfileChanged || hasAvatarChanged;
 
   const equivalentLevelTextOnBadge = getEquivalentLevelTitle(currentUser.level);
 
@@ -289,12 +291,11 @@ const ProfilePage: React.FC = () => {
       <div className="profile-content">
         <h1>Thông Tin Hồ Sơ</h1>
 
-        {/* *** THÊM PHẦN AVATAR *** */}
         <div className="profile-info-card profile-avatar-card">
              <h3>Ảnh Đại Diện</h3>
              <div className="avatar-display-section">
                 <img
-                    src={avatarPreview || currentUser.avatarUrl} // Ưu tiên preview nếu có
+                    src={avatarPreview || currentUser.avatarUrl}
                     alt="Ảnh đại diện"
                     className="profile-avatar-img"
                 />
@@ -319,15 +320,14 @@ const ProfilePage: React.FC = () => {
                         className="save-btn"
                         onClick={handleAvatarUpdate}
                         disabled={isSaving || !hasAvatarChanged}
-                        style={{ marginLeft: '1rem' }}
+                        style={{ marginLeft: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
                     >
-                         {isSaving ? 'Đang lưu ảnh...' : 'Lưu ảnh mới'}
+                         {isSaving ? <FiLoader className="animate-spin" /> : <FiUpload />}
+                         {isSaving ? 'Đang tải lên...' : 'Lưu ảnh mới'}
                     </button>
                  )}
              </div>
         </div>
-        {/* *** KẾT THÚC PHẦN AVATAR *** */}
-
 
         <div className="profile-info-card level-exp-card">
             <h3>Cấp Độ & Kinh Nghiệm</h3>
@@ -395,11 +395,11 @@ const ProfilePage: React.FC = () => {
                     <button
                         type="submit"
                         className="save-btn"
-                        disabled={isSaving || !isProfileChanged} // Chỉ bật khi có thay đổi thông tin khác avatar
+                        disabled={isSaving || !isProfileChanged}
                     >
                         {isSaving ? 'Đang lưu...' : 'Lưu Thông Tin'}
                     </button>
-                    {isProfileChanged && ( // Chỉ hiển thị nút Hủy khi có thay đổi thông tin khác avatar
+                    {isProfileChanged && (
                         <button
                             type="button"
                             className="cancel-btn"

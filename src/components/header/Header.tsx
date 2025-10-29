@@ -6,15 +6,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { comics, digitalComics, physicalComics, type Comic } from '../../data/mockData';
 import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
 import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
-import coinIcon from '../../assets/images/coin.png'; 
+import coinIcon from '../../assets/images/coin.png';
 import './Header.css';
 
-const MAX_SUGGESTIONS_TOTAL = 14; 
-const MAX_DIGITAL_DEFAULT = 7; 
-const MAX_PHYSICAL_DEFAULT = 7; 
+const MAX_SUGGESTIONS_TOTAL = 14;
+const MAX_DIGITAL_DEFAULT = 7;
+const MAX_PHYSICAL_DEFAULT = 7;
 
 const defaultDigital = digitalComics
-                        .sort((a, b) => b.viewCount - a.viewCount) 
+                        .sort((a, b) => b.viewCount - a.viewCount)
                         .slice(0, MAX_DIGITAL_DEFAULT);
 const defaultPhysical = physicalComics
                         .sort((a,b) => b.id - a.id)
@@ -282,7 +282,7 @@ const Header: React.FC = () => {
             <>
               <div className="dropdown">
                 <button className="action-icon user-icon" aria-label="Tài khoản">
-                  <FiUser />
+                  <img src={currentUser.avatarUrl} alt="Avatar" className="user-avatar-icon" />
                 </button>
                 <div className="dropdown-content user-dropdown">
                   <Link to="/profile">Tài Khoản Của Tôi</Link>
@@ -293,8 +293,7 @@ const Header: React.FC = () => {
                   <button onClick={handleLogout} className="logout-btn">Đăng Xuất</button>
                 </div>
               </div>
-              
-              {/* SỬA ĐỔI 1 (DESKTOP) */}
+
               <div className="coin-balance-display">
                   <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
                   <span className="coin-amount">{currentUser.coinBalance}</span>
@@ -342,8 +341,7 @@ const Header: React.FC = () => {
                   <button className={`nav-mobile-action daily-reward-btn ${canClaimReward ? 'can-claim' : ''}`} onClick={handleOpenRewardModal}>
                       <FiGift /> <span>{canClaimReward ? 'Nhận Thưởng Hàng Ngày' : 'Đã Nhận Thưởng'}</span>
                   </button>
-                  
-                  {/* SỬA ĐỔI 2 (MOBILE) */}
+
                   <div className="coin-balance-display mobile-coin-balance">
                       <img src={coinIcon} alt="Xu" className="coin-icon" />
                       <span className="coin-amount">{currentUser.coinBalance} Xu</span>
@@ -354,7 +352,7 @@ const Header: React.FC = () => {
           {currentUser ? (
             <div className="nav-mobile-user-section">
               <Link to="/profile" onClick={toggleMenu} className="nav-mobile-action">
-                <FiUser /> <span>Tài Khoản Của Tôi</span>
+                <img src={currentUser.avatarUrl} alt="Avatar" className="user-avatar-icon small" /> <span>Tài Khoản Của Tôi</span>
               </Link>
               <Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
                 <FiDollarSign /> <span>Nạp Xu</span>

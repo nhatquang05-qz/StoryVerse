@@ -182,7 +182,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
+            avatarUrl: currentUser.avatarUrl || "https://i.imgur.com/tq9k3Yj.png",
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             message: sticker ? '' : messageContent,
             userLevel: currentUser.level,

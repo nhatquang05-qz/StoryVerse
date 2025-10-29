@@ -27,7 +27,7 @@ export interface User {
   consecutiveLoginDays: number;
   level: number;
   exp: number;
-  avatarUrl: string; // Thêm trường avatarUrl
+  avatarUrl: string;
 }
 
 interface AuthContextType {
@@ -37,7 +37,7 @@ interface AuthContextType {
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: Partial<User>) => Promise<User | null>;
-  updateAvatar: (avatarUrl: string) => Promise<User | null>; // Thêm hàm cập nhật avatar
+  updateAvatar: (avatarUrl: string) => Promise<User | null>;
   updateAddresses: (addresses: Address[]) => Promise<void>;
   claimDailyReward: () => Promise<void>;
   addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<void>;
@@ -91,7 +91,7 @@ const ensureUserExpIsNumber = (userData: any): User => {
         ...userData,
         exp: typeof userData.exp === 'string' ? parseFloat(userData.exp) : (userData.exp || 0),
         addresses: Array.isArray(userData.addresses) ? userData.addresses : [],
-        avatarUrl: String(userData.avatarUrl || 'https://via.placeholder.com/150'), // Đảm bảo avatarUrl là string
+        avatarUrl: String(userData.avatarUrl || 'https://via.placeholder.com/150'),
     };
 };
 
@@ -223,7 +223,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }, [showNotification]);
 
-    // *** THÊM HÀM CẬP NHẬT AVATAR ***
     const updateAvatar = useCallback(async (avatarUrl: string): Promise<User | null> => {
         const token = getToken();
         if (!token || !currentUser) {
@@ -245,7 +244,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (!response.ok) throw new Error(data.error || 'Cập nhật avatar thất bại');
 
             const updatedUser = ensureUserExpIsNumber(data.user);
-            setCurrentUser(updatedUser); // Cập nhật user hiện tại với avatar mới
+            setCurrentUser(updatedUser);
             showNotification('Cập nhật ảnh đại diện thành công!', 'success');
             return updatedUser;
 
@@ -256,7 +255,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return null;
         }
     }, [currentUser, showNotification]);
-    // *** KẾT THÚC THÊM HÀM ***
 
 
     const updateAddresses = async (addresses: Address[]) => {
@@ -378,7 +376,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             register,
             logout,
             updateProfile,
-            updateAvatar, // Thêm vào context value
+            updateAvatar,
             updateAddresses,
             claimDailyReward,
             addExp,

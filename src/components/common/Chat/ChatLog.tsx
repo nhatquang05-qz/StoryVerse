@@ -32,8 +32,8 @@ const ChatLog: React.FC = () => {
         } catch (error) { console.error("Error loading global chat messages:", error); }
          if (currentUser && !mockMessagesData.some(m => m.userId === currentUser.id)) {
              const userMessages: ChatMessageData[] = [
-                 { id: 7, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:50", message: "Tin nhắn cũ 1", userLevel: currentUser.level, likes: [] },
-                 { id: 8, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:51", message: "Tin nhắn cũ 2", userLevel: currentUser.level, likes: [] }
+                 { id: 7, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: currentUser.avatarUrl, timestamp: "03:50", message: "Tin nhắn cũ 1", userLevel: currentUser.level, likes: [] },
+                 { id: 8, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: currentUser.avatarUrl, timestamp: "03:51", message: "Tin nhắn cũ 2", userLevel: currentUser.level, likes: [] }
              ];
              return [...mockMessagesData, ...userMessages];
         }
@@ -198,7 +198,7 @@ const ChatLog: React.FC = () => {
             id: Date.now(),
             userId: currentUser.id,
             userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: "https://i.imgur.com/tq9k3Yj.png",
+            avatarUrl: currentUser.avatarUrl || "https://i.imgur.com/tq9k3Yj.png",
             timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             message: sticker ? '' : messageContent,
             userLevel: currentUser.level,
