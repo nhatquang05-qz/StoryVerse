@@ -243,7 +243,7 @@ const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
     // *** Quan trọng: Thêm logic kiểm tra quyền Admin thực sự ở đây ***
     // Ví dụ đơn giản: Kiểm tra email hoặc thêm trường 'role' vào user
-    const isAdmin = currentUser?.email === 'admin@example.com'; // Thay bằng logic của bạn
+    const isAdmin = currentUser?.email === 'admin@123'; // Thay bằng logic của bạn
 
     if (!currentUser) {
          return <div>Vui lòng đăng nhập với tài khoản Admin.</div>;

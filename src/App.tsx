@@ -22,6 +22,7 @@ import WishlistPage from './pages/wishlist/WishlistPage';
 import ReaderPage from './pages/ReaderPage';
 import CoinRechargePage from './pages/CoinRechargePage';
 import SettingsPage from './pages/SettingPage';
+import AdminPage from './pages/admin/AdminPage';
 import ScrollToTop from './components/common/ScrollToTop';
 import FlyingImage from './components/common/FlyingImage/FlyingImage';
 import ScrollToTopButton from './components/common/ScrollToTopButton/ScrollToTopButton';
@@ -90,6 +91,7 @@ function App() {
           <Route path="/digital-comics" element={<DigitalComicsPage />} />
           <Route path="/new-releases" element={<CategoryPage />} />
           <Route path="/genres/:categorySlug" element={<CategoryPage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
       <Footer />
