@@ -392,7 +392,7 @@ const ChatLog: React.FC = () => {
                             placeholder={isCurrentlyBanned ? "Bạn đang bị cấm chat..." : (replyingTo ? `Trả lời ${replyingTo.author}...` : (selectedImage ? "Thêm chú thích..." : "Nhập tin nhắn..."))}
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            disabled={!!selectedImage || isCurrentlyBanned}
+                            disabled={isCurrentlyBanned}
                             className={isCurrentlyBanned ? 'input-banned' : ''}
                         />
                         <button type="submit" className="send-btn" disabled={(!newMessage.trim() && !selectedImage && !showStickerPicker) || isCurrentlyBanned}>

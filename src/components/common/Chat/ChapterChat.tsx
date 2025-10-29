@@ -395,7 +395,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                             placeholder={isCurrentlyBanned ? "Bạn đang bị cấm chat..." : (replyingTo ? `Trả lời ${replyingTo.author}...` : (selectedImage ? "Thêm chú thích..." : "Viết bình luận của bạn..."))}
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            disabled={!!selectedImage || isCurrentlyBanned}
+                            disabled={isCurrentlyBanned}
                             className={isCurrentlyBanned ? 'input-banned' : ''}
                         />
                         <button type="submit" className="send-btn" disabled={(!newMessage.trim() && !selectedImage && !showStickerPicker) || isCurrentlyBanned}>

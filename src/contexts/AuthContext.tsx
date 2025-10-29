@@ -51,7 +51,7 @@ const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
 
 const BASE_EXP_PER_PAGE = 0.05;
 const BASE_EXP_PER_COIN = 0.2;
-const EXP_RATE_REDUCTION_FACTOR = 0.5;
+const EXP_RATE_REDUCTION_FACTOR = 0.7;
 
 const LEVEL_COLORS: { [key: number]: string } = {
     1: '#6c757d', 2: '#007bff', 3: '#28a745', 4: '#ffc107', 5: '#dc3545',
