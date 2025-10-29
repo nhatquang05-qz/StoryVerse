@@ -1,13 +1,16 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp } from 'react-icons/fi';
-import { comics, getChaptersByComicId, type Comic, loadOrders, saveNewOrder, type Chapter } from '../../data/mockData';
+import { type ComicDetail, type ChapterSummary } from '../../types/comicTypes';
+import { loadOrders, saveNewOrder } from '../../data/mockData';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
 import ReviewSection from '../../components/common/review/ReviewSection';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useAuth } from '../../contexts/AuthContext';
 import './ComicDetailPage.css';
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ComicDetailSkeleton: React.FC = () => (
     <div className="detail-skeleton-wrapper">
@@ -35,21 +38,36 @@ const ComicDetailSkeleton: React.FC = () => (
     </div>
 );
 
-const fetchComicDetail = (id: number): Promise<Comic | undefined> => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            const comic = comics.find(c => c.id === id);
-            resolve(comic);
-        }, 800);
+const fetchComicDetail = (id: number): Promise<ComicDetail | undefined> => {
+    return new Promise((resolve, reject) => {
+        fetch(`${API_URL}/comics/${id}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Không tìm thấy truyện');
+                }
+                return res.json();
+            })
+            .then(data => {
+                const comicData = data as ComicDetail;
+                // SỬA LỖI: Thêm lại '...ch' để sao chép 'id' và 'createdAt'
+                comicData.chapters = comicData.chapters.map(ch => ({
+                    ...ch, // Dòng này giữ lại tất cả thuộc tính (id, createdAt)
+                    chapterNumber: parseFloat(String(ch.chapterNumber)), 
+                    price: ch.price || 0 
+                }));
+                resolve(comicData);
+            })
+            .catch(err => {
+                console.error("Lỗi fetch chi tiết truyện:", err);
+                reject(err);
+            });
     });
 };
 
 const isDigitalComicPurchased = (comicId: number, userId: string | undefined): boolean => {
     if (!userId) return false;
-    
     const userOrders = loadOrders(userId);
     const validStatuses = ['Hoàn thành', 'Đang giao hàng'];
-    
     return userOrders
         .filter(order => validStatuses.includes(order.status))
         .flatMap(order => order.items)
@@ -58,36 +76,35 @@ const isDigitalComicPurchased = (comicId: number, userId: string | undefined): b
 
 const isChapterUnlocked = (comicId: number, chapterId: number, userId: string | undefined): boolean => {
     if (!userId) return false;
-    
     const userOrders = loadOrders(userId);
     const validStatuses = ['Hoàn thành', 'Đang giao hàng'];
-    
     return userOrders
         .filter(order => validStatuses.includes(order.status))
         .flatMap(order => order.items)
         .some(item => item.id === comicId && item.quantity === chapterId); 
 };
 
-const getHighestUnlockedChapterNumber = (comicId: number, chapters: Chapter[], userId: string | undefined): number => {
-    if (!userId) return 0;
+const getHighestUnlockedChapterNumber = (comicId: number, chapters: ChapterSummary[], userId: string | undefined): number => {
+    if (!userId || !chapters) return 0;
 
     const unlockedChapters = chapters.filter(chapter => {
-        return chapter.isFree || isChapterUnlocked(comicId, chapter.id, userId);
+        return (chapter.price === 0) || isChapterUnlocked(comicId, chapter.id, userId);
     });
 
     if (unlockedChapters.length === 0) return 0;
     
-    const highestNumber = Math.max(...unlockedChapters.map(ch => ch.chapterNumber));
+    const chapterNumbers = unlockedChapters.map(ch => Number(ch.chapterNumber));
+    const highestNumber = Math.max(...chapterNumbers);
 
     for (let i = 1; i <= chapters.length; i++) {
-        const chapterToCheck = chapters.find(ch => ch.chapterNumber === i);
+        const chapterToCheck = chapters.find(ch => Number(ch.chapterNumber) === i);
         if (chapterToCheck) {
-            const isChUnlocked = chapterToCheck.isFree || isChapterUnlocked(comicId, chapterToCheck.id, userId);
+            const isChUnlocked = (chapterToCheck.price === 0) || isChapterUnlocked(comicId, chapterToCheck.id, userId);
             if (!isChUnlocked) {
                 return i - 1; 
             }
         } else {
-            return i - 1;
+             return i - 1;
         }
     }
     
@@ -100,12 +117,12 @@ const ComicDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
-  const { currentUser, updateProfile } = useAuth();
+  const { currentUser, updateProfile, addExp } = useAuth();
   const navigate = useNavigate();
   const { comicId } = useParams<{ comicId: string }>();
   const id = Number(comicId);
 
-  const [comic, setComic] = useState<Comic | null>(null);
+  const [comic, setComic] = useState<ComicDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -118,16 +135,20 @@ const ComicDetailPage: React.FC = () => {
         .then(data => {
             setComic(data || null);
         })
+        .catch(() => {
+            setComic(null); 
+            navigate('/404'); 
+        })
         .finally(() => {
             setIsLoading(false);
         });
-  }, [id]);
+  }, [id, navigate]);
 
   const isFavorite = comic ? isWishlisted(comic.id) : false;
   
-  const chapters = useMemo(() => comic ? getChaptersByComicId(comic.id) : [], [comic]);
+  const chapters = useMemo(() => comic?.chapters || [], [comic]);
   
-  const isFullUnlocked = comic && comic.isDigital 
+  const isFullUnlocked = comic && ((comic.isDigital as any) === 1) 
     ? isDigitalComicPurchased(comic.id, currentUser?.id) 
     : false;
 
@@ -139,12 +160,12 @@ const ComicDetailPage: React.FC = () => {
       }
   };
 
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
   
   const formatViews = (views: number) => {
+      if (!views) return '0';
       if (views >= 1000) {
           return (views / 1000).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 1 }) + 'K';
       }
@@ -156,60 +177,62 @@ const ComicDetailPage: React.FC = () => {
   };
   
   const handleAddToCart = () => {
-    if (comic && !comic.isDigital) {
+    if (comic && !((comic.isDigital as any) === 1)) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-      addToCart(comic, 1, rect);
+      addToCart(comic as any, 1, rect);
     }
   };
 
   const handleToggleWishlist = () => {
     if (comic) {
-        toggleWishlist(comic);
+        toggleWishlist(comic as any);
         showNotification(isFavorite ? `Đã xóa ${comic.title} khỏi Yêu thích.` : `Đã thêm ${comic.title} vào Yêu thích.`, isFavorite ? 'error' : 'success');
     }
   };
   
-  const handleUnlockChapter = async (chapter: Chapter) => {
+  const handleUnlockChapter = async (chapter: ChapterSummary) => {
       if (!currentUser) {
           showNotification('Vui lòng đăng nhập để mở khóa chương.', 'warning');
           return;
       }
       
-      if (!comic || !comic.isDigital) return;
+      if (!comic || !((comic.isDigital as any) === 1)) return;
 
-      // KIỂM TRA LOGIC TUẦN TỰ (CHỈ CHO PHÉP MỞ KHÓA CHƯƠNG KẾ TIẾP)
-      if (chapter.chapterNumber !== highestUnlockedChapterNumber + 1) {
+      if (Number(chapter.chapterNumber) !== highestUnlockedChapterNumber + 1) {
           showNotification(`Vui lòng mở khóa Chương ${highestUnlockedChapterNumber + 1} trước.`, 'warning');
           return;
       }
 
-      if (currentUser.coinBalance < chapter.unlockCoinPrice) {
+      if (currentUser.coinBalance < chapter.price) {
           showNotification('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
           return;
       }
 
-      const newBalance = currentUser.coinBalance - chapter.unlockCoinPrice;
+      const newBalance = currentUser.coinBalance - chapter.price;
 
       const newOrder = {
           id: `COIN-${Date.now()}-${chapter.id}`,
           userId: currentUser.id,
           date: new Date().toLocaleDateString('vi-VN'),
-          total: chapter.unlockCoinPrice, 
+          total: chapter.price, 
           status: 'Hoàn thành' as const, 
           items: [{ 
               id: comic.id,
               title: comic.title,
-              author: comic.author,
-              price: chapter.unlockCoinPrice, 
-              imageUrl: comic.imageUrl,
-              quantity: chapter.id,
+              author: comic.author || 'Không rõ tác giả', // Sửa lỗi ở đây
+              price: chapter.price, 
+              imageUrl: comic.coverImageUrl, 
+              quantity: chapter.id, 
           }],
       };
       
       try {
           await updateProfile({ coinBalance: newBalance });
           saveNewOrder(newOrder);
-          showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.unlockCoinPrice} Xu!`, 'success');
+          await addExp(chapter.price, 'recharge');
+          showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.price} Xu!`, 'success');
+          
+          setUnlockedChapters(prev => new Set(prev).add(chapter.id));
           
           navigate(`/read/${comic.id}/${chapter.chapterNumber}`); 
           
@@ -231,18 +254,18 @@ const ComicDetailPage: React.FC = () => {
         </button>
     );
     
-    if (comic!.isDigital) {
-        const firstFreeChapter = chapters.find(c => c.isFree);
+    if ((comic!.isDigital as any) === 1) {
+        const firstFreeChapter = chapters.find(c => c.price === 0);
 
         return (
             <div className="digital-actions-group" style={{ flexDirection: 'column', gap: '1rem' }}>
                 <p className="coin-warning-text" style={{ margin: '0', textAlign: 'center', fontWeight: 'bold' }}>
-                     {chapters.length > 0 && chapters.filter(c => c.isFree).length > 0 ? 'Truyện có giới hạn chương đọc thử.' : 'Truyện Digital.'}
+                     {chapters.length > 0 && chapters.filter(c => c.price === 0).length > 0 ? 'Truyện có giới hạn chương đọc thử.' : 'Truyện Digital.'}
                 </p>
                 
                 <div className="digital-main-buttons">
                     {firstFreeChapter && (
-                        <button className="add-to-cart-btn" onClick={() => handleReadNow(firstFreeChapter.chapterNumber)} style={{ backgroundColor: '#28a745', color: 'white', border: '1px solid #28a745' }}>
+                        <button className="add-to-cart-btn" onClick={() => handleReadNow(Number(firstFreeChapter.chapterNumber))} style={{ backgroundColor: '#28a745', color: 'white', border: '1px solid #28a745' }}>
                             <FiBookOpen style={{ marginRight: '0.5rem' }} /> Đọc Chương {firstFreeChapter.chapterNumber}
                         </button>
                     )}
@@ -275,16 +298,16 @@ const ComicDetailPage: React.FC = () => {
     if (searchTerm) {
         const normalizedSearch = searchTerm.toLowerCase();
         list = list.filter(ch => 
-            ch.title.toLowerCase().includes(normalizedSearch) ||
+            (ch.title || '').toLowerCase().includes(normalizedSearch) ||
             ch.chapterNumber.toString().includes(normalizedSearch)
         );
     }
 
     list.sort((a, b) => {
         if (sortOrder === 'desc') {
-            return b.chapterNumber - a.chapterNumber;
+            return Number(b.chapterNumber) - Number(a.chapterNumber);
         }
-        return a.chapterNumber - b.chapterNumber;
+        return Number(a.chapterNumber) - Number(b.chapterNumber);
     });
 
     return list;
@@ -295,7 +318,7 @@ const toggleSort = () => {
 };
 
   const renderChapterList = () => {
-      if (!comic || !comic.isDigital || chapters.length === 0) return null;
+      if (!comic || !((comic.isDigital as any) === 1) || chapters.length === 0) return null;
       
       const isFullUnlocked = isDigitalComicPurchased(comic.id, currentUser?.id);
       const highestUnlocked = getHighestUnlockedChapterNumber(comic.id, chapters, currentUser?.id);
@@ -334,9 +357,9 @@ const toggleSort = () => {
               <ul className="chapter-list">
                   {displayedChapters.length > 0 ? (
                       displayedChapters.map((chapter) => {
-                          const isUnlocked = isFullUnlocked || chapter.isFree || (currentUser && isChapterUnlocked(comic.id, chapter.id, currentUser.id));
+                          const isUnlocked = isFullUnlocked || (chapter.price === 0) || (currentUser && isChapterUnlocked(comic.id, chapter.id, currentUser.id));
                           
-                          const isNextInSequence = chapter.chapterNumber === highestUnlocked + 1;
+                          const isNextInSequence = Number(chapter.chapterNumber) === highestUnlocked + 1;
                           const canUnlock = !isUnlocked && isNextInSequence;
                           const canRead = isUnlocked;
 
@@ -352,11 +375,11 @@ const toggleSort = () => {
                                   </div>
 
                                   <div className="chapter-update">
-                                      {chapter.lastUpdated}
+                                      {new Date(chapter.createdAt).toLocaleDateString('vi-VN')}
                                   </div>
                                   
                                   <div className="chapter-views" style={{ textAlign: 'center' }}>
-                                      {formatViews(chapter.views)}
+                                      --
                                   </div>
                                   
                                   <div className="chapter-actions">
@@ -368,10 +391,10 @@ const toggleSort = () => {
                                           <button 
                                               className="unlock-chapter-btn"
                                               onClick={() => handleUnlockChapter(chapter)}
-                                              disabled={!currentUser || !canUnlock} // BỊ DISABLE NẾU KHÔNG PHẢI CHƯƠNG KẾ TIẾP
+                                              disabled={!currentUser || !canUnlock} 
                                               style={!canUnlock ? { backgroundColor: 'var(--clr-border-light)', color: 'var(--clr-text-secondary)' } : {}}
                                           >
-                                              <FiLock style={{ marginRight: '0.25rem' }} /> Mở khóa ({chapter.unlockCoinPrice} Xu)
+                                              <FiLock style={{ marginRight: '0.25rem' }} /> Mở khóa ({chapter.price} Xu)
                                           </button>
                                       )}
                                   </div>
@@ -401,13 +424,13 @@ const toggleSort = () => {
     return <div>Không tìm thấy truyện!</div>;
   }
   
-  const isDigital = comic.isDigital;
+  const isDigital = (comic.isDigital as any) === 1;
 
   return (
     <div className="detail-page-container">
       <div className="detail-main-card">
         <div className="detail-image-wrapper">
-          <img ref={imgRef} src={comic.imageUrl} alt={comic.title} className="detail-image" /> 
+          <img ref={imgRef} src={comic.coverImageUrl} alt={comic.title} className="detail-image" /> 
           {isDigital && (
               <span className="digital-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>DIGITAL</span>
           )}
@@ -420,7 +443,7 @@ const toggleSort = () => {
           
           {isDigital && (
               <div className="digital-price-info" style={{ marginBottom: '2rem' }}>
-                    <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--text-color-dark)', margin: 0, padding: 0, border: 'none' }}>
+                    <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--clr-text)', margin: 0, padding: 0, border: 'none' }}>
                        Truyện Digital
                     </p>
               </div>
@@ -433,9 +456,7 @@ const toggleSort = () => {
           <div className="detail-description">
             <h3>Mô tả</h3>
             <p>
-              Đây là mô tả cho cuốn truyện "{comic.title}". Nội dung chi tiết về các tình tiết hấp dẫn, 
-              nhân vật đặc sắc và những cuộc phiêu lưu kỳ thú sẽ được cập nhật tại đây. 
-              Hãy sẵn sàng để đắm chìm vào một thế giới đầy màu sắc và bất ngờ!
+              {comic.description || "Truyện này hiện chưa có mô tả chi tiết."}
             </p>
           </div>
         </div>
@@ -451,3 +472,7 @@ const toggleSort = () => {
 };
 
 export default ComicDetailPage;
+
+function setUnlockedChapters(arg0: (prev: any) => Set<unknown>) {
+    throw new Error('Function not implemented.');
+}

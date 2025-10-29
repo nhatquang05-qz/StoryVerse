@@ -1,8 +1,10 @@
+// src/pages/HomePage.tsx
 import React, { useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
 import Hero from '../components/common/Hero/Hero';
 import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton';
-import { type Comic, trendingComics, newReleasesComics, recommendedDigitalComics } from '../data/mockData';
+// Bỏ mockData, import kiểu dữ liệu chuẩn
+import { type ComicSummary } from '../types/comicTypes'; 
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import FeaturedTagsSection from '../components/common/FeaturedTagsSection/FeaturedTagsSection';
 import TopComicsSection from '../components/common/TopComicSection/TopComicSection';
@@ -11,8 +13,11 @@ import ChatLog from '../components/common/Chat/ChatLog';
 import './HomePage.css';
 
 const ITEMS_PER_SECTION_PAGE = 14;
+// Đảm bảo API_URL này đúng
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean, addSpacing?: boolean }> = ({ title, comics, isLoading, addSpacing = false }) => {
+// HomeSection chấp nhận kiểu dữ liệu ComicSummary
+const HomeSection: React.FC<{ title: string, comics: ComicSummary[], isLoading: boolean, addSpacing?: boolean }> = ({ title, comics, isLoading, addSpacing = false }) => {
     const [pageIndex, setPageIndex] = useState(0);
     const totalItems = comics.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_SECTION_PAGE);
@@ -42,7 +47,8 @@ const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean
                     </div>
                 </div>
             )}
-            {isLoading ? <LoadingSkeleton count={ITEMS_PER_SECTION_PAGE} /> : <ProductList comics={currentComics} />}
+            {/* Sử dụng 'as any[]' để ProductList có thể chấp nhận kiểu dữ liệu mới */}
+            {isLoading ? <LoadingSkeleton count={ITEMS_PER_SECTION_PAGE} /> : <ProductList comics={currentComics as any[]} />}
         </div>
     );
 };
@@ -50,11 +56,50 @@ const HomeSection: React.FC<{ title: string, comics: Comic[], isLoading: boolean
 
 const HomePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
+    
+    // State để lưu dữ liệu từ API
+    const [newReleasesComics, setNewReleasesComics] = useState<ComicSummary[]>([]);
+    const [recommendedDigitalComics, setRecommendedDigitalComics] = useState<ComicSummary[]>([]);
+    const [trendingComics, setTrendingComics] = useState<ComicSummary[]>([]);
 
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 800);
-        return () => clearTimeout(timer);
-    }, []);
+        const fetchAllComics = async () => {
+            setIsLoading(true);
+            try {
+                // Gọi API backend
+                const response = await fetch(`${API_URL}/comics`); 
+                if (!response.ok) {
+                    throw new Error('Không thể tải truyện từ backend');
+                }
+                const allComics: ComicSummary[] = await response.json();
+
+                // Lọc và sắp xếp dữ liệu từ API
+                
+                // Mới Phát Hành: Sắp xếp theo 'updatedAt' mới nhất
+                setNewReleasesComics(
+                    [...allComics].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 15)
+                );
+
+                // Đề xuất Digital: Lọc truyện Digital
+                setRecommendedDigitalComics(
+                    allComics.filter(c => c.isDigital).slice(0, 10)
+                );
+
+                // Bán Chạy (Trending): Sắp xếp theo 'viewCount' cao nhất
+                setTrendingComics(
+                    [...allComics].sort((a, b) => b.viewCount - a.viewCount).slice(0, 12)
+                );
+
+            } catch (error) {
+                console.error("Lỗi khi tải truyện:", error);
+            } finally {
+                // Giữ một chút delay để UI mượt hơn
+                setTimeout(() => setIsLoading(false), 500); 
+            }
+        };
+        
+        fetchAllComics();
+    }, []); // Mảng rỗng đảm bảo chỉ gọi 1 lần
 
     return (
         <React.Fragment>
@@ -92,7 +137,7 @@ const HomePage: React.FC = () => {
                 </aside>
             </div>
             <HomeSection
-                title="Truyện In Bán Chạy"
+                title="Truyện Bán Chạy" // Đổi tên cho phù hợp
                 comics={trendingComics}
                 isLoading={isLoading}
             />        

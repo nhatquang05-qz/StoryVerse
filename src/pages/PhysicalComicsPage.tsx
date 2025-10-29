@@ -1,16 +1,25 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
-import { getUniqueAuthors, physicalComics, type Comic, getUniqueGenres } from '../data/mockData';
+import { type ComicSummary } from '../types/comicTypes';
 import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton';
 import Pagination from '../components/common/Pagination';
 import './category/CategoryPage.css';
 
-const fetchPhysicalComics = (): Promise<Comic[]> => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      const sourceComics = physicalComics.filter(c => c.isDigital === false);
-      resolve(sourceComics);
-    }, 800);
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+
+const fetchPhysicalComics = (): Promise<ComicSummary[]> => {
+  return new Promise((resolve, reject) => {
+    fetch(`${API_URL}/comics`)
+        .then(res => {
+            if (!res.ok) throw new Error('Không thể tải truyện');
+            return res.json();
+        })
+        .then((allComics: ComicSummary[]) => {
+            // Lọc chỉ truyện vật lý
+            // SỬA LỖI: So sánh với số 0 (vì API trả về 0) thay vì 'false'
+            resolve(allComics.filter(c => (c.isDigital as any) === 0));
+        })
+        .catch(reject);
   });
 };
 
@@ -19,7 +28,7 @@ const ITEMS_PER_PAGE = 25;
 const PhysicalComicsPage: React.FC = () => {
   const [categoryTitle] = useState('Truyện In - Sưu Tầm');
   const [categoryDescription] = useState('Sở hữu những ấn phẩm giấy chất lượng cao nhất.');
-  const [allComics, setAllComics] = useState<Comic[]>([]);
+  const [allComics, setAllComics] = useState<ComicSummary[]>([]);
 
   const [sortBy, setSortBy] = useState('newest');
   const [filterAuthor, setFilterAuthor] = useState('all');
@@ -27,8 +36,9 @@ const PhysicalComicsPage: React.FC = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const uniqueAuthors = useMemo(() => getUniqueAuthors(), []);
-  const uniqueGenres = useMemo(() => getUniqueGenres(), []);
+
+  const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([]);
+  const [uniqueGenres, setUniqueGenres] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -41,6 +51,11 @@ const PhysicalComicsPage: React.FC = () => {
     fetchPhysicalComics()
       .then(data => {
         setAllComics(data);
+        
+        const authors = Array.from(new Set(data.map(c => c.author).filter(Boolean) as string[]));
+        const genres = Array.from(new Set(data.flatMap(c => c.genres ? c.genres.split(', ') : []).filter(Boolean) as string[]));
+        setUniqueAuthors(authors.sort());
+        setUniqueGenres(genres.sort());
       })
       .finally(() => {
         setIsLoading(false);
@@ -55,23 +70,23 @@ const PhysicalComicsPage: React.FC = () => {
     }
 
     if (filterGenre !== 'all') {
-        currentComics = currentComics.filter(comic => comic.genres.includes(filterGenre));
+        currentComics = currentComics.filter(comic => comic.genres && comic.genres.includes(filterGenre));
     }
 
 
     currentComics.sort((a, b) => {
       switch (sortBy) {
         case 'price-asc':
-          return a.price - b.price;
+          return Number(a.price) - Number(b.price);
         case 'price-desc':
-          return b.price - a.price;
+          return Number(b.price) - Number(a.price);
         case 'title-asc':
           return a.title.localeCompare(b.title, 'vi');
         case 'title-desc':
           return b.title.localeCompare(a.title, 'vi');
         case 'newest':
         default:
-          return b.id - a.id;
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }
     });
     
@@ -174,7 +189,7 @@ const PhysicalComicsPage: React.FC = () => {
 
             {currentComics.length > 0 ? (
                 <>
-                    <ProductList comics={currentComics} />
+                    <ProductList comics={currentComics as any[]} />
                     {totalPages > 1 && (
                         <Pagination 
                             currentPage={currentPage}

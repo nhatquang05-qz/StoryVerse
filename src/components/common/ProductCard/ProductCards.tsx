@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart } from 'react-icons/fi';
-import { type Comic } from '../../../data/mockData';
+import { type ComicSummary } from '../../../types/comicTypes'; // Import kiểu dữ liệu chuẩn
 import { useCart } from '../../../contexts/CartContext';
 import { useWishlist } from '../../../contexts/WishListContext';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -9,7 +9,7 @@ import StarRating from '../StarRating';
 import './ProductCard.css';
 
 interface ProductCardProps {
-  comic: Comic;
+  comic: ComicSummary; 
   isCarousel?: boolean;
 }
 
@@ -19,13 +19,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const { showNotification } = useNotification();
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const isFavorite = isWishlisted(comic.id);
+  // Ép kiểu 'comic' thành 'any' để dễ dàng truy cập các thuộc tính
+  const comicData: any = comic;
+
+  const isFavorite = isWishlisted(comicData.id);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
   
   const formatViewCount = (count: number) => {
+    if (!count) return '0 lượt xem'; // Xử lý nếu viewCount là null
     if (count >= 1000000) {
       return (count / 1000000).toFixed(1) + 'M lượt xem';
     }
@@ -38,26 +42,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-    addToCart(comic, 1, rect);
+    addToCart(comicData, 1, rect); 
   };
   
   const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    toggleWishlist(comic);
+    toggleWishlist(comicData);
     showNotification(
-        isFavorite ? `Đã xóa ${comic.title} khỏi Yêu thích.` : `Đã thêm ${comic.title} vào Yêu thích.`, 
+        isFavorite ? `Đã xóa ${comicData.title} khỏi Yêu thích.` : `Đã thêm ${comicData.title} vào Yêu thích.`, 
         isFavorite ? 'error' : 'success'
     );
   };
+  
+  // Rating tạm thời vì API chưa có
+  const displayRating = comicData.rating || (comicData.id % 4) + 1.5; 
 
   return (
     <div 
         className={`product-card ${isCarousel ? 'carousel-item' : ''}`}
     >
-      <Link to={`/comic/${comic.id}`} className="card-image-container">
-        <img ref={imgRef} src={comic.imageUrl} alt={comic.title} className="card-image" />
+      <Link to={`/comic/${comicData.id}`} className="card-image-container">
+        {/* SỬ DỤNG coverImageUrl TỪ API */}
+        <img ref={imgRef} src={comicData.coverImageUrl} alt={comicData.title} className="card-image" /> 
         
-        {comic.isDigital && (
+        {comicData.isDigital && (
             <span className="digital-badge">DIGITAL</span>
         )}
         
@@ -70,7 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
             <FiHeart />
           </button>
           
-          {!comic.isDigital && (
+          {!comicData.isDigital && (
             <button className="card-action-button" onClick={handleAddToCart} aria-label="Thêm vào giỏ hàng">
               <FiShoppingCart />
             </button>
@@ -80,22 +88,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
       </Link>
       <div className="card-info">
         <h3 className="card-title">
-          <Link to={`/comic/${comic.id}`}>{comic.title}</Link>
+          <Link to={`/comic/${comicData.id}`}>{comicData.title}</Link>
         </h3>
-        <p className="card-author">{comic.author}</p>
+        <p className="card-author">{comicData.author}</p>
         
+        {/* Hiển thị rating (tạm thời hoặc nếu có) */}
         <div className="card-rating-section">
-          <StarRating rating={comic.rating} />
+          <StarRating rating={displayRating} />
         </div>
         
-        {comic.isDigital && comic.viewCount > 0 && (
+        {comicData.isDigital && (
           <div className="card-view-count-section">
-            <span className="card-view-count">{formatViewCount(comic.viewCount)}</span>
+            <span className="card-view-count">{formatViewCount(comicData.viewCount)}</span>
           </div>
         )}
         
-        {!comic.isDigital && (
-            <p className="card-price">{formatPrice(comic.price)}</p>
+        {!comicData.isDigital && (
+            <p className="card-price">{formatPrice(comicData.price)}</p>
         )}
         
       </div>
