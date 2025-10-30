@@ -58,6 +58,8 @@ const ChatbotUI: React.FC = () => {
         setMessages(prev => [...prev, botMessage]);
         setIsLoading(false);
     };
+    
+    const userFallbackAvatar = "https://i.imgur.com/tq9k3Yj.png";
 
     return (
         <>
@@ -78,7 +80,14 @@ const ChatbotUI: React.FC = () => {
                         {messages.map((msg, index) => (
                             <div key={index} className={`chat-message ${msg.role}`}>
                                 <span className="message-icon">
-                                    {msg.role === 'model' ? <img src={chatbotIcon} alt="Bot icon" /> : <FiUser />}
+                                    {msg.role === 'model' ? (
+                                        <img src={chatbotIcon} alt="Bot icon" />
+                                    ) : (
+                                        <img 
+                                            src={currentUser?.avatarUrl || userFallbackAvatar} 
+                                            alt="User icon" 
+                                        />
+                                    )}
                                 </span>
                                 <p>{msg.parts}</p>
                             </div>
