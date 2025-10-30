@@ -5,7 +5,10 @@ const getComics = async (req, res) => {
     try {
         const connection = getConnection();
         const [rows] = await connection.execute(`
-            SELECT c.id, c.title, c.author, c.coverImageUrl, c.status, c.isDigital, c.price, c.viewCount, c.updatedAt, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
+            SELECT c.id, c.title, c.author, c.coverImageUrl, c.status, c.isDigital, c.price, 
+                   (IFNULL(c.viewCount, 0) + (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id)) AS viewCount, 
+                   (SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = c.id) AS averageRating,
+                   c.updatedAt, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
             FROM comics c
             LEFT JOIN comic_genres cg ON c.id = cg.comicId
             LEFT JOIN genres g ON cg.genreId = g.id
@@ -27,8 +30,15 @@ const getComicById = async (req, res) => {
 
         const connection = getConnection();
 
+        await connection.execute(
+            'UPDATE comics SET viewCount = IFNULL(viewCount, 0) + 1 WHERE id = ?',
+            [comicId]
+        );
+
         const [comicRows] = await connection.execute(`
-            SELECT c.*, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
+            SELECT c.*, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,
+                   (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id) AS totalChapterViews,
+                   (SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = c.id) AS averageRating
             FROM comics c
             LEFT JOIN comic_genres cg ON c.id = cg.comicId
             LEFT JOIN genres g ON cg.genreId = g.id
@@ -39,11 +49,17 @@ const getComicById = async (req, res) => {
         if (comicRows.length === 0) return res.status(404).json({ error: 'Comic not found' });
 
         const [chapterRows] = await connection.execute(
-            'SELECT id, chapterNumber, title, price, createdAt FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
+            'SELECT id, chapterNumber, title, price, createdAt, IFNULL(viewCount, 0) AS viewCount FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
             [comicId]
         );
 
         const comicData = comicRows[0];
+        
+        const totalChapterViews = parseInt(comicData.totalChapterViews) || 0;
+        comicData.viewCount = (parseInt(comicData.viewCount) || 0) + totalChapterViews; 
+        comicData.averageRating = parseFloat(comicData.averageRating) || 0;
+        delete comicData.totalChapterViews;
+
         comicData.chapters = chapterRows;
         res.json(comicData);
     } catch (error) {
@@ -90,10 +106,11 @@ const searchComics = async (req, res) => {
         
         const searchQuery = `%${q}%`; 
         
-        // *** BẮT ĐẦU SỬA LỖI ***
-        // Câu query cơ bản (luôn có 2 placeholder)
         let sqlQuery = `
-            SELECT c.id, c.title, c.author, c.coverImageUrl, c.status, c.isDigital, c.price, c.viewCount, c.updatedAt, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
+            SELECT c.id, c.title, c.author, c.coverImageUrl, c.status, c.isDigital, c.price, 
+                   (IFNULL(c.viewCount, 0) + (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id)) AS viewCount, 
+                   (SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = c.id) AS averageRating,
+                   c.updatedAt, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
             FROM comics c
             LEFT JOIN comic_genres cg ON c.id = cg.comicId
             LEFT JOIN genres g ON cg.genreId = g.id
@@ -102,16 +119,11 @@ const searchComics = async (req, res) => {
             ORDER BY c.updatedAt DESC
         `;
 
-        // Mảng params (luôn có 2 giá trị)
         const params = [searchQuery, searchQuery];
 
-        // Nếu có limit, nối thẳng chuỗi LIMIT vào.
-        // Điều này an toàn VÌ chúng ta đã dùng parseInt() để đảm bảo nó là SỐ.
         if (limit && !isNaN(parseInt(limit))) {
             sqlQuery += ` LIMIT ${parseInt(limit)}`; 
-            // Không .push() vào mảng params nữa
         }
-        // *** KẾT THÚC SỬA LỖI ***
 
         const [rows] = await connection.execute(sqlQuery, params);
         
@@ -130,6 +142,11 @@ const getChapterContent = async (req, res) => {
 
      const connection = getConnection();
     try {
+        await connection.execute(
+            'UPDATE chapters SET viewCount = IFNULL(viewCount, 0) + 1 WHERE comicId = ? AND chapterNumber = ?',
+            [comicId, chapterNumber]
+        );
+        
         const [chapterRows] = await connection.execute(
             'SELECT id, price, contentUrls FROM chapters WHERE comicId = ? AND chapterNumber = ?',
             [comicId, chapterNumber]

@@ -1,3 +1,4 @@
+// src/pages/physical/ComicDetailPage.tsx
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp } from 'react-icons/fi';
@@ -49,11 +50,11 @@ const fetchComicDetail = (id: number): Promise<ComicDetail | undefined> => {
             })
             .then(data => {
                 const comicData = data as ComicDetail;
-                // SỬA LỖI: Thêm lại '...ch' để sao chép 'id' và 'createdAt'
                 comicData.chapters = comicData.chapters.map(ch => ({
-                    ...ch, // Dòng này giữ lại tất cả thuộc tính (id, createdAt)
+                    ...ch, 
                     chapterNumber: parseFloat(String(ch.chapterNumber)), 
-                    price: ch.price || 0 
+                    price: ch.price || 0,
+                    viewCount: ch.viewCount || 0
                 }));
                 resolve(comicData);
             })
@@ -379,7 +380,7 @@ const toggleSort = () => {
                                   </div>
                                   
                                   <div className="chapter-views" style={{ textAlign: 'center' }}>
-                                      --
+                                      {formatViews(chapter.viewCount || 0)}
                                   </div>
                                   
                                   <div className="chapter-actions">
@@ -472,4 +473,3 @@ const toggleSort = () => {
 };
 
 export default ComicDetailPage;
-
