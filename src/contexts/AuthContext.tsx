@@ -1,3 +1,5 @@
+// src/contexts/AuthContext.tsx (ĐÃ SỬA LỖI)
+
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
 import { useNavigate } from 'react-router-dom';
@@ -68,7 +70,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const token = getToken();
             if (token) {
                 try {
-                    const resUser = await fetch(`${API_URL}/me`, { 
+                    // FIX: Thêm /users
+                    const resUser = await fetch(`${API_URL}/users/me`, { 
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
@@ -107,7 +110,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, pass: string) => {
         setLoading(true); 
         try {
-            const response = await fetch(`${API_URL}/login`, { 
+            // FIX: Thêm /auth
+            const response = await fetch(`${API_URL}/auth/login`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email, password: pass }),
@@ -133,7 +137,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const register = async (email: string, pass: string) => {
          setLoading(true); 
          try {
-            const response = await fetch(`${API_URL}/register`, { 
+            // FIX: Thêm /auth
+            const response = await fetch(`${API_URL}/auth/register`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email, password: pass }),
@@ -163,7 +168,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         try {
-            const response = await fetch(`${API_URL}/profile`, {
+            // FIX: Thêm /users
+            const response = await fetch(`${API_URL}/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -199,7 +205,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         try {
-            const response = await fetch(`${API_URL}/profile/avatar`, { 
+            // FIX: Thêm /users
+            const response = await fetch(`${API_URL}/users/profile/avatar`, { 
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -232,7 +239,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!token) { return; }
 
         try {
-             const response = await fetch(`${API_URL}/addresses`, { 
+             // FIX: Thêm /address
+             const response = await fetch(`${API_URL}/address/addresses`, { 
                 method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -257,7 +265,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!currentUser) { return; }
 
         try {
-            const response = await fetch(`${API_URL}/claim-reward`, { 
+            // FIX: Thêm /rewards
+            const response = await fetch(`${API_URL}/rewards/claim-reward`, { 
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -291,7 +300,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!currentUser) return null; 
 
         try {
-            const response = await fetch(`${API_URL}/add-exp`, { 
+            // FIX: Thêm /rewards
+            const response = await fetch(`${API_URL}/rewards/add-exp`, { 
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',

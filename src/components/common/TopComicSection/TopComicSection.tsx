@@ -1,3 +1,5 @@
+// src/components/common/TopComicSection/TopComicSection.tsx (ĐÃ SỬA LỖI)
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import StarRating from '../StarRating';
@@ -36,7 +38,8 @@ const TopComicsSection: React.FC = () => {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await fetch(`${API_URL}/comics/top-rated`);
+                // FIX: Sửa /comics/top-rated thành /comics/top
+                const response = await fetch(`${API_URL}/comics/top`);
                 if (!response.ok) {
                     throw new Error('Không thể tải top truyện');
                 }

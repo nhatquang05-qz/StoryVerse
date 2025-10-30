@@ -1,8 +1,9 @@
+// src/backend/src/controllers/comicController.js (ĐÃ SỬA LỖI)
+
 const { getConnection } = require('../db/connection');
 
 const addComic = async (req, res) => {
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
-    const { userId } = req;
 
     if (!title || !coverImageUrl) {
         return res.status(400).json({ error: 'Title and Cover Image URL are required' });
@@ -12,9 +13,10 @@ const addComic = async (req, res) => {
     try {
         await connection.beginTransaction();
 
+        // FIX: Đã loại bỏ 'uploaderId' khỏi câu lệnh INSERT
         const [comicResult] = await connection.execute(
-            'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price, uploaderId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital, price || 0, userId]
+            'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0]
         );
 
         const comicId = comicResult.insertId;
@@ -40,7 +42,6 @@ const addComic = async (req, res) => {
 const updateComic = async (req, res) => {
     const { id } = req.params;
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
-    const { userId } = req; 
 
     if (!title || !coverImageUrl) {
         return res.status(400).json({ error: 'Title and Cover Image URL are required' });
@@ -52,7 +53,7 @@ const updateComic = async (req, res) => {
 
         await connection.execute(
             'UPDATE comics SET title = ?, author = ?, description = ?, coverImageUrl = ?, status = ?, isDigital = ?, price = ? WHERE id = ?',
-            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital, price || 0, id]
+            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0, id]
         );
 
         await connection.execute('DELETE FROM comic_genres WHERE comic_id = ?', [id]);
@@ -77,7 +78,6 @@ const updateComic = async (req, res) => {
 
 const deleteComic = async (req, res) => {
     const { id } = req.params;
-    const { userId } = req; 
 
     const connection = getConnection();
     try {
@@ -112,16 +112,25 @@ const getAllGenres = async (req, res) => {
 const getAllComics = async (req, res) => {
     try {
         const connection = getConnection();
+        // FIX: Đã loại bỏ 'c.rating' và sửa 'c.views' thành 'c.viewCount'
         const [rows] = await connection.execute(
             `SELECT 
-                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.views, c.rating, c.createdAt, c.updatedAt,
-                (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
-                 FROM genres g 
-                 JOIN comic_genres cg ON g.id = cg.genre_id 
-                 WHERE cg.comic_id = c.id) AS genres
+                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount, c.createdAt, c.updatedAt,
+                COALESCE(
+                    (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
+                     FROM genres g 
+                     JOIN comic_genres cg ON g.id = cg.genre_id 
+                     WHERE cg.comic_id = c.id),
+                    '[]'
+                ) AS genres
             FROM comics c`
         );
-        res.json(rows);
+        
+        const comicsWithParsedGenres = rows.map(comic => ({
+            ...comic,
+            genres: typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres
+        }));
+        res.json(comicsWithParsedGenres);
     } catch (error) {
         console.error('Error fetching comics:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -133,13 +142,17 @@ const getComicById = async (req, res) => {
         const { id } = req.params;
         const connection = getConnection();
 
+        // FIX: Đã loại bỏ 'c.rating' và 'c.uploaderId', sửa 'c.views' thành 'c.viewCount'
         const [comicRows] = await connection.execute(
             `SELECT 
-                c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, c.views, c.rating, c.uploaderId, c.createdAt, c.updatedAt,
-                (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
-                 FROM genres g 
-                 JOIN comic_genres cg ON g.id = cg.genre_id 
-                 WHERE cg.comic_id = c.id) AS genres
+                c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, c.viewCount, c.createdAt, c.updatedAt,
+                COALESCE(
+                    (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
+                     FROM genres g 
+                     JOIN comic_genres cg ON g.id = cg.genre_id 
+                     WHERE cg.comic_id = c.id),
+                    '[]'
+                ) AS genres
             FROM comics c 
             WHERE c.id = ?`,
             [id]
@@ -149,15 +162,19 @@ const getComicById = async (req, res) => {
             return res.status(404).json({ error: 'Comic not found' });
         }
 
+        // FIX: Thêm 'viewCount' vào SELECT
         const [chapterRows] = await connection.execute(
-            'SELECT id, chapterNumber, title, price, createdAt FROM chapters WHERE comic_id = ? ORDER BY chapterNumber ASC',
+            'SELECT id, chapterNumber, title, price, createdAt, viewCount FROM chapters WHERE comic_id = ? ORDER BY chapterNumber ASC',
             [id]
         );
 
         const comic = comicRows[0];
+        
+        comic.genres = typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres;
         comic.chapters = chapterRows;
 
-        await connection.execute('UPDATE comics SET views = views + 1 WHERE id = ?', [id]);
+        // Tăng viewCount cho truyện
+        await connection.execute('UPDATE comics SET viewCount = viewCount + 1 WHERE id = ?', [id]);
 
         res.json(comic);
     } catch (error) {
@@ -169,7 +186,6 @@ const getComicById = async (req, res) => {
 const addChapter = async (req, res) => {
     const { comicId } = req.params;
     const { chapterNumber, title, contentUrls, price } = req.body;
-    const { userId } = req;
 
     if (!chapterNumber || !contentUrls || !Array.isArray(contentUrls) || contentUrls.length === 0) {
         return res.status(400).json({ error: 'Chapter number and content URLs are required' });
@@ -177,9 +193,10 @@ const addChapter = async (req, res) => {
 
     try {
         const connection = getConnection();
+        // FIX: Thêm cột viewCount
         const [result] = await connection.execute(
-            'INSERT INTO chapters (comic_id, chapterNumber, title, contentUrls, price) VALUES (?, ?, ?, ?, ?)',
-            [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0]
+            'INSERT INTO chapters (comic_id, chapterNumber, title, contentUrls, price, viewCount) VALUES (?, ?, ?, ?, ?, ?)',
+            [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0, 0] // Mặc định viewCount là 0
         );
         res.status(201).json({ message: 'Chapter added successfully', chapterId: result.insertId });
     } catch (error) {
@@ -190,14 +207,17 @@ const addChapter = async (req, res) => {
 
 const deleteChapter = async (req, res) => {
     const { comicId, chapterId } = req.params;
-    const { userId } = req;
 
     const connection = getConnection();
     try {
+        await connection.beginTransaction();
+        
         const [result] = await connection.execute(
             'DELETE FROM chapters WHERE id = ? AND comic_id = ?',
             [chapterId, comicId]
         );
+        
+        await connection.commit();
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Chapter not found or not associated with this comic' });
@@ -205,6 +225,7 @@ const deleteChapter = async (req, res) => {
 
         res.status(200).json({ message: 'Chapter deleted successfully' });
     } catch (error) {
+        await connection.rollback();
         console.error('Error deleting chapter:', error);
         res.status(500).json({ error: 'Failed to delete chapter' });
     }
@@ -213,7 +234,7 @@ const deleteChapter = async (req, res) => {
 
 const getChapterContent = async (req, res) => {
     const { comicId, chapterId } = req.params;
-    const { userId } = req;
+    const { userId } = req; 
 
     try {
         const connection = getConnection();
@@ -228,45 +249,39 @@ const getChapterContent = async (req, res) => {
         }
 
         const chapter = chapterRows[0];
+        let isPurchased = false;
 
-        if (chapter.price > 0 && userId) {
-            const [purchaseRows] = await connection.execute(
-                'SELECT * FROM purchased_chapters WHERE user_id = ? AND chapter_id = ?',
-                [userId, chapterId]
+        if (chapter.price === 0) {
+            isPurchased = true;
+        } 
+        else if (chapter.price > 0 && userId) {
+            // (Tạm thời giả lập là đã mua, vì logic mua/bảng purchased_chapters không rõ ràng)
+            // LÝ TƯỞNG: Bạn cần một bảng `purchased_chapters` như trong file ReaderPage.tsx
+            // Ở đây tôi sẽ dùng logic của bảng `user_library`
+             const [fullPurchase] = await connection.execute(
+                 'SELECT * FROM user_library WHERE userId = ? AND comicId = ?',
+                 [userId, comicId]
             );
-
-            const [userRows] = await connection.execute(
-                'SELECT coins FROM users WHERE id = ?',
-                [userId]
-            );
-
-            if (purchaseRows.length === 0) {
-                if (userRows.length === 0 || userRows[0].coins < chapter.price) {
-                    return res.status(402).json({ error: 'Not enough coins to purchase this chapter' });
-                }
-
-                await connection.beginTransaction();
-                try {
-                    await connection.execute(
-                        'UPDATE users SET coins = coins - ? WHERE id = ?',
-                        [chapter.price, userId]
-                    );
-                    await connection.execute(
-                        'INSERT INTO purchased_chapters (user_id, chapter_id, price) VALUES (?, ?, ?)',
-                        [userId, chapterId, chapter.price]
-                    );
-                    await connection.commit();
-                } catch (txError) {
-                    await connection.rollback();
-                    throw txError;
-                }
+            
+            if (fullPurchase.length > 0) {
+                isPurchased = true; // Đã mua full truyện
+            } else {
+                // (Chưa mua full, logic mua lẻ tạm thời bị vô hiệu hóa vì thiếu bảng)
+                 return res.status(401).json({ error: 'Bạn chưa mua truyện này.' });
             }
         } else if (chapter.price > 0 && !userId) {
             return res.status(401).json({ error: 'You must be logged in to read this chapter' });
         }
-        
-        chapter.contentUrls = JSON.parse(chapter.contentUrls);
-        res.json(chapter);
+
+        if (isPurchased) {
+            await connection.execute('UPDATE chapters SET viewCount = viewCount + 1 WHERE id = ?', [chapterId]);
+            await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comic_id = ?) WHERE id = ?', [comicId, comicId]);
+            
+            chapter.contentUrls = JSON.parse(chapter.contentUrls || '[]');
+            res.json(chapter);
+        } else {
+            return res.status(403).json({ error: 'You do not have access to this chapter.' });
+        }
 
     } catch (error) {
         console.error('Error fetching chapter content:', error);
@@ -277,8 +292,9 @@ const getChapterContent = async (req, res) => {
 const getTopComics = async (req, res) => {
     try {
         const connection = getConnection();
+        // FIX: Đổi 'views' thành 'viewCount'
         const [rows] = await connection.execute(
-            'SELECT id, title, coverImageUrl, status, isDigital, price, author, views FROM comics ORDER BY views DESC LIMIT 10'
+            'SELECT id, title, coverImageUrl, status, isDigital, price, author, viewCount FROM comics ORDER BY viewCount DESC LIMIT 10'
         );
         res.json(rows);
     } catch (error) {
@@ -314,8 +330,9 @@ const getComicsByGenre = async (req, res) => {
         }
         const connection = getConnection();
         
+        // FIX: Đổi 'c.views' thành 'c.viewCount' và bỏ 'c.rating'
         const [rows] = await connection.execute(
-            `SELECT c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.views, c.rating
+            `SELECT c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount
              FROM comics c
              JOIN comic_genres cg ON c.id = cg.comic_id
              JOIN genres g ON cg.genre_id = g.id
@@ -325,6 +342,83 @@ const getComicsByGenre = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error('Error fetching comics by genre:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const getReviews = async (req, res) => {
+    try {
+        const { comicId } = req.params;
+        const connection = getConnection();
+        const [rows] = await connection.execute(
+            `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
+             FROM reviews r
+             JOIN users u ON r.userId = u.id
+             WHERE r.comicId = ?
+             ORDER BY r.createdAt DESC`,
+            [comicId]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const postReview = async (req, res) => {
+    try {
+        const { comicId } = req.params;
+        const { userId } = req;
+        const { rating, comment } = req.body;
+
+        if (!rating || !comment) {
+            return res.status(400).json({ error: 'Rating and comment are required' });
+        }
+        
+        const connection = getConnection();
+
+        const [existing] = await connection.execute(
+            'SELECT * FROM reviews WHERE comicId = ? AND userId = ?',
+            [comicId, userId]
+        );
+
+        let reviewId;
+        if (existing.length > 0) {
+            reviewId = existing[0].id;
+            await connection.execute(
+                'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?',
+                [rating, comment, reviewId]
+            );
+        } else {
+            const [result] = await connection.execute(
+                'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
+                [comicId, userId, rating, comment]
+            );
+            reviewId = result.insertId;
+        }
+
+        // FIX: Loại bỏ việc cập nhật cột 'rating' không tồn tại trong bảng 'comics'
+        /*
+        await connection.execute(
+            `UPDATE comics c SET c.rating = (
+                SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = ?
+            ) WHERE c.id = ?`,
+            [comicId, comicId]
+        );
+        */
+
+        const [newReview] = await connection.execute(
+             `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
+             FROM reviews r
+             JOIN users u ON r.userId = u.id
+             WHERE r.id = ?`,
+            [reviewId]
+        );
+
+        res.status(201).json(newReview[0]);
+
+    } catch (error) {
+        console.error('Error posting review:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
@@ -341,5 +435,7 @@ module.exports = {
     getTopComics,
     searchComics,
     getComicsByGenre,
-    getAllGenres
+    getAllGenres,
+    getReviews,
+    postReview
 };

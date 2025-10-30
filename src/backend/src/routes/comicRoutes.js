@@ -1,3 +1,5 @@
+// src/backend/src/routes/comicRoutes.js (ĐÃ SỬA LỖI)
+
 const express = require('express');
 const router = express.Router();
 const {
@@ -12,9 +14,11 @@ const {
     getTopComics,
     searchComics,
     getComicsByGenre,
-    getAllGenres
+    getAllGenres,
+    getReviews,  // <-- Đã thêm
+    postReview // <-- Đã thêm
 } = require('../controllers/comicController');
-const authMiddleware = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 router.get('/', getAllComics);
 router.get('/top', getTopComics);
@@ -22,14 +26,19 @@ router.get('/search', searchComics);
 router.get('/by-genre', getComicsByGenre);
 router.get('/system/genres', getAllGenres);
 router.get('/:id', getComicById);
-router.get('/:comicId/chapters/:chapterId', authMiddleware, getChapterContent);
 
-router.post('/', authMiddleware, addComic);
-router.post('/:comicId/chapters', authMiddleware, addChapter);
+// FIX: Thêm 2 route cho reviews
+router.get('/:comicId/reviews', getReviews);
+router.post('/:comicId/reviews', authenticateToken, postReview);
 
-router.put('/:id', authMiddleware, updateComic);
+router.get('/:comicId/chapters/:chapterId', authenticateToken, getChapterContent);
 
-router.delete('/:id', authMiddleware, deleteComic);
-router.delete('/:comicId/chapters/:chapterId', authMiddleware, deleteChapter);
+router.post('/', authenticateToken, addComic);
+router.post('/:comicId/chapters', authenticateToken, addChapter);
+
+router.put('/:id', authenticateToken, updateComic);
+
+router.delete('/:id', authenticateToken, deleteComic);
+router.delete('/:comicId/chapters/:chapterId', authenticateToken, deleteChapter);
 
 module.exports = router;
