@@ -10,7 +10,6 @@ export interface ChapterSummary {
     price: number;
     createdAt: string;
     viewCount?: number; 
-    // Thêm trường 'isPurchased' nếu API trả về trạng thái mua
     isPurchased?: boolean;
 }
 
@@ -24,7 +23,7 @@ export interface ComicSummary {
     price: number;
     viewCount: number;
     updatedAt: string;
-    genres?: string; 
+    genres?: string; // Hoặc Genre[]
     averageRating?: number;
 }
 
@@ -39,5 +38,16 @@ export interface ChapterContent {
     chapterId: number;
     comicId: number;
     chapterNumber: number | string;
-    contentUrls: string[]; 
+    contentUrls: string[]; // Mảng URL ảnh
+}
+
+export interface Review {
+  id: number;
+  userId: string;
+  comicId: number;
+  rating: number;
+  comment: string;
+  createdAt: string; 
+  fullName: string; 
+  avatarUrl: string; 
 }

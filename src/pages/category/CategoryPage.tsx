@@ -1,50 +1,18 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductList from '../../components/common/ProductList/ProductList';
-import { comics, getUniqueAuthors, physicalComics, digitalComics, type Comic } from '../../data/mockData';
-import LoadingSkeleton from '../../components/common/Loading/LoadingScreen';
+import { type ComicSummary } from '../../types/comicTypes';
+import LoadingPage from '../../components/common/Loading/LoadingScreen';
 import Pagination from '../../components/common/Pagination';
 import './CategoryPage.css';
 
 interface CategoryData {
   title: string;
   description: string;
-  sourceComics: Comic[];
+  sourceComics: ComicSummary[];
 }
 
-const fetchCategoryData = (slug: string): Promise<CategoryData> => {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      let sourceComics: Comic[] = comics; 
-      let title: string;
-      let description: string;
-
-      switch (slug) {
-        case 'new-releases':
-          title = 'Mới Phát Hành';
-          description = 'Cập nhật những tập truyện mới nhất vừa ra mắt.';
-          sourceComics = comics.slice(0, 30);
-          break;
-        case 'action':
-          title = 'Thể loại: Hành Động';
-          description = 'Những trận chiến mãn nhãn và kịch tính.';
-          sourceComics = physicalComics.filter(c => c.id % 2 === 0); 
-          break;
-        case 'romance':
-          title = 'Thể loại: Tình Cảm';
-          description = 'Những câu chuyện tình yêu lãng mạn và cảm động.';
-          sourceComics = digitalComics.filter(c => c.id % 2 !== 0); 
-          break;
-        default:
-          title = 'Danh Mục Truyện';
-          description = 'Khám phá tất cả các bộ truyện hiện có.';
-          sourceComics = comics;
-          break;
-      }
-      resolve({ title, description, sourceComics });
-    }, 800);
-  });
-};
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ITEMS_PER_PAGE = 25; 
 
@@ -53,14 +21,14 @@ const CategoryPage: React.FC = () => {
   
   const [categoryTitle, setCategoryTitle] = useState('Đang tải...');
   const [categoryDescription, setCategoryDescription] = useState('');
-  const [allComics, setAllComics] = useState<Comic[]>([]);
+  const [allComics, setAllComics] = useState<ComicSummary[]>([]);
 
   const [sortBy, setSortBy] = useState('newest');
   const [filterAuthor, setFilterAuthor] = useState('all');
   
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const uniqueAuthors = useMemo(() => getUniqueAuthors(), []);
+  const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -70,11 +38,50 @@ const CategoryPage: React.FC = () => {
     
     const slug = categorySlug || 'all'; 
 
-    fetchCategoryData(slug)
-      .then(data => {
-        setCategoryTitle(data.title);
-        setCategoryDescription(data.description);
-        setAllComics(data.sourceComics);
+    fetch(`${API_URL}/comics`)
+      .then(res => {
+          if (!res.ok) throw new Error('Không thể tải truyện');
+          return res.json();
+      })
+      .then((allApiComics: ComicSummary[]) => {
+          let sourceComics: ComicSummary[] = allApiComics;
+          let title: string;
+          let description: string;
+          
+          switch (slug) {
+            case 'new-releases':
+              title = 'Mới Phát Hành';
+              description = 'Cập nhật những tập truyện mới nhất vừa ra mắt.';
+              sourceComics = allApiComics.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 30);
+              break;
+            case 'action':
+              title = 'Thể loại: Hành Động';
+              description = 'Những trận chiến mãn nhãn và kịch tính.';
+              sourceComics = allApiComics.filter(c => c.genres && c.genres.toLowerCase().includes('hành động'));
+              break;
+            case 'romance':
+              title = 'Thể loại: Tình Cảm';
+              description = 'Những câu chuyện tình yêu lãng mạn và cảm động.';
+              sourceComics = allApiComics.filter(c => c.genres && c.genres.toLowerCase().includes('tình cảm'));
+              break;
+            default:
+              title = 'Danh Mục Truyện';
+              description = 'Khám phá tất cả các bộ truyện hiện có.';
+              sourceComics = allApiComics;
+              break;
+          }
+          
+          setCategoryTitle(title);
+          setCategoryDescription(description);
+          setAllComics(sourceComics);
+
+          const authors = Array.from(new Set(sourceComics.map(c => c.author).filter(Boolean) as string[]));
+          setUniqueAuthors(authors.sort());
+      })
+      .catch(err => {
+            console.error("Lỗi tải category data:", err);
+            setCategoryTitle("Lỗi");
+            setCategoryDescription("Không thể tải dữ liệu cho danh mục này.");
       })
       .finally(() => {
         setIsLoading(false);
@@ -100,7 +107,7 @@ const CategoryPage: React.FC = () => {
           return b.title.localeCompare(a.title, 'vi');
         case 'newest':
         default:
-          return b.id - a.id;
+           return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }
     });
     
@@ -149,6 +156,9 @@ const CategoryPage: React.FC = () => {
       setCurrentPage(1); 
   };
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="category-page-container">
@@ -157,53 +167,47 @@ const CategoryPage: React.FC = () => {
         <p>{categoryDescription}</p>
       </div>
 
-      {isLoading ? (
-          <div style={{ padding: '0 1.5rem' }}>
-            <LoadingSkeleton count={ITEMS_PER_PAGE} />
-          </div>
-      ) : (
-          <>
-            <div className="filter-sort-bar">
-                <div className="filter-sort-group">
-                    <span>Lọc theo Tác giả:</span>
-                    <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>
-                        <option value="all">Tất cả</option>
-                        {uniqueAuthors.map(author => (
-                            <option key={author} value={author}>{author}</option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div className="filter-sort-group">
-                    <span>Sắp xếp theo:</span>
-                    <select value={sortBy} onChange={(e) => handleSortByChange(e.target.value)}>
-                        <option value="newest">Mới nhất</option>
-                        <option value="price-asc">Giá: Thấp đến Cao</option>
-                        <option value="price-desc">Giá: Cao đến Thấp</option>
-                        <option value="title-asc">Tên: A - Z</option>
-                        <option value="title-desc">Tên: Z - A</option>
-                    </select>
-                </div>
+      <>
+        <div className="filter-sort-bar">
+            <div className="filter-sort-group">
+                <span>Lọc theo Tác giả:</span>
+                <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>
+                    <option value="all">Tất cả</option>
+                    {uniqueAuthors.map(author => (
+                        <option key={author} value={author}>{author}</option>
+                    ))}
+                </select>
             </div>
+            
+            <div className="filter-sort-group">
+                <span>Sắp xếp theo:</span>
+                <select value={sortBy} onChange={(e) => handleSortByChange(e.target.value)}>
+                    <option value="newest">Mới nhất</option>
+                    <option value="price-asc">Giá: Thấp đến Cao</option>
+                    <option value="price-desc">Giá: Cao đến Thấp</option>
+                    <option value="title-asc">Tên: A - Z</option>
+                    <option value="title-desc">Tên: Z - A</option>
+                </select>
+            </div>
+        </div>
 
-            {currentComics.length > 0 ? (
-                <>
-                    <ProductList comics={currentComics} />
-                    {totalPages > 1 && (
-                        <Pagination 
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    )}
-                </>
-            ) : (
-                <div className="empty-state">
-                    <p>Không có sản phẩm nào phù hợp với tiêu chí lọc.</p>
-                </div>
-            )}
-          </>
-      )}
+        {currentComics.length > 0 ? (
+            <>
+                <ProductList comics={currentComics as any[]} />
+                {totalPages > 1 && (
+                    <Pagination 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                )}
+            </>
+        ) : (
+            <div className="empty-state">
+                <p>Không có sản phẩm nào phù hợp với tiêu chí lọc.</p>
+            </div>
+        )}
+      </>
     </div>
   );
 };

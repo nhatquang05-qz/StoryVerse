@@ -229,11 +229,84 @@ const addChapter = async (req, res) => {
     }
 };
 
+const getReviews = async (req, res) => {
+    try {
+        const { comicId } = req.params;
+        const connection = getConnection();
+        const [rows] = await connection.execute(
+            `SELECT r.id, r.userId, r.comicId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl 
+             FROM reviews r
+             JOIN users u ON r.userId = u.id
+             WHERE r.comicId = ?
+             ORDER BY r.createdAt DESC`,
+            [comicId]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error("Get reviews error:", error);
+        res.status(500).json({ error: 'Failed to fetch reviews' });
+    }
+};
+
+const addReview = async (req, res) => {
+    try {
+        const { comicId } = req.params;
+        const { userId } = req;
+        const { rating, comment } = req.body;
+
+        if (!rating || rating < 1 || rating > 5) {
+            return res.status(400).json({ error: 'Rating (1-5) is required.' });
+        }
+        if (!comment || comment.trim().length < 3) {
+            return res.status(400).json({ error: 'Comment (min 3 chars) is required.' });
+        }
+
+        const connection = getConnection();
+        
+        const [existingReview] = await connection.execute(
+            'SELECT id FROM reviews WHERE comicId = ? AND userId = ?',
+            [comicId, userId]
+        );
+
+        let result;
+        if (existingReview.length > 0) {
+            // User has already reviewed, update it
+            const [updateResult] = await connection.execute(
+                'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?',
+                [rating, comment, existingReview[0].id]
+            );
+            result = { insertId: existingReview[0].id }; 
+        } else {
+            // New review
+            const [insertResult] = await connection.execute(
+                'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
+                [comicId, userId, rating, comment]
+            );
+            result = insertResult;
+        }
+
+        const [newReviewRows] = await connection.execute(
+            `SELECT r.id, r.userId, r.comicId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl 
+             FROM reviews r
+             JOIN users u ON r.userId = u.id
+             WHERE r.id = ?`,
+            [result.insertId]
+        );
+
+        res.status(201).json(newReviewRows[0]);
+    } catch (error) {
+        console.error("Add review error:", error);
+        res.status(500).json({ error: 'Failed to add review' });
+    }
+};
+
 module.exports = {
     getComics,
     getComicById,
     addComic,
     getChapterContent,
     addChapter,
-    searchComics
+    searchComics,
+    getReviews,
+    addReview
 };

@@ -3,7 +3,7 @@ import { FiStar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { saveNewReview, loadReviews, type Review } from '../../../data/mockData';
+import { type Review } from '../../../types/comicTypes';
 import './ReviewSection.css';
 
 interface ReviewSectionProps {
@@ -12,6 +12,8 @@ interface ReviewSectionProps {
 }
 
 const MIN_COMMENT_LENGTH = 3; 
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) => {
     const { currentUser } = useAuth();
@@ -21,8 +23,21 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
     const [newRating, setNewRating] = useState(5);
     
     useEffect(() => {
-        const storedReviews = loadReviews(comicId);
-        setReviews(storedReviews);
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch(`${API_URL}/comics/${comicId}/reviews`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reviews');
+                }
+                const data: Review[] = await response.json();
+                setReviews(data);
+            } catch (error) {
+                console.error("Error loading reviews:", error);
+                setReviews([]);
+            }
+        };
+
+        fetchReviews();
     }, [comicId]);
 
 
@@ -43,7 +58,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
         });
     }, []);
 
-    const handleSubmitReview = (e: React.FormEvent) => {
+    const handleSubmitReview = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!currentUser) {
             showNotification('Vui lòng đăng nhập để gửi đánh giá.', 'warning');
@@ -54,22 +69,44 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
             return;
         }
 
-        const newReview: Review = {
-            id: Date.now(),
-            comicId: comicId,
-            author: currentUser.fullName || currentUser.email.split('@')[0] || 'Khách Hàng',
-            rating: newRating,
-            date: new Date().toLocaleDateString('vi-VN'),
-            comment: newComment.trim(),
-        };
+        const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+        if (!token) {
+            showNotification('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
+            return;
+        }
 
-        saveNewReview(newReview);
-        
-        setReviews(prevReviews => [newReview, ...prevReviews]);
-        
-        setNewComment('');
-        setNewRating(5);
-        showNotification('Đánh giá của bạn đã được gửi thành công!', 'success');
+        try {
+            const response = await fetch(`${API_URL}/comics/${comicId}/reviews`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    rating: newRating,
+                    comment: newComment.trim()
+                })
+            });
+
+            const newReviewData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(newReviewData.error || 'Không thể gửi đánh giá');
+            }
+            
+            setReviews(prevReviews => {
+                const otherReviews = prevReviews.filter(r => r.userId !== currentUser.id);
+                return [newReviewData, ...otherReviews];
+            });
+            
+            setNewComment('');
+            setNewRating(5);
+            showNotification('Đánh giá của bạn đã được gửi thành công!', 'success');
+
+        } catch (error: any) {
+            console.error("Lỗi gửi đánh giá:", error);
+            showNotification(error.message || 'Lỗi khi gửi đánh giá.', 'error');
+        }
     };
 
     return (
@@ -90,8 +127,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                 {reviews.map((review) => (
                     <div key={review.id} className="review-item">
                         <div className="review-header">
-                            <span className="review-author">{review.author}</span>
-                            <span className="review-date">{review.date}</span>
+                            <span className="review-author">{review.fullName}</span>
+                            <span className="review-date">{new Date(review.createdAt).toLocaleDateString('vi-VN')}</span>
                         </div>
                         <div className="star-rating">{renderStars(review.rating)}</div>
                         <p className="review-text">{review.comment}</p>

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../types/comicTypes';
-import LoadingSkeleton from '../components/common/Loading/LoadingScreen';
+import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import './category/CategoryPage.css';
 
@@ -15,8 +15,6 @@ const fetchDigitalComics = (): Promise<ComicSummary[]> => {
             return res.json();
         })
         .then((allComics: ComicSummary[]) => {
-            // Lọc chỉ truyện digital
-            // SỬA LỖI: So sánh với số 1 (vì API trả về 1) thay vì 'true'
             resolve(allComics.filter(c => (c.isDigital as any) === 1));
         })
         .catch(reject);
@@ -140,6 +138,9 @@ const DigitalComicsPage: React.FC = () => {
       setCurrentPage(1); 
   };
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="category-page-container">
@@ -148,63 +149,57 @@ const DigitalComicsPage: React.FC = () => {
         <p>{categoryDescription}</p>
       </div>
 
-      {isLoading ? (
-          <div style={{ padding: '0 1.5rem' }}>
-            <LoadingSkeleton count={ITEMS_PER_PAGE} />
-          </div>
-      ) : (
-          <>
-            <div className="filter-sort-bar">
-                <div className="filter-sort-group">
-                    <span>Lọc theo Thể loại:</span>
-                    <select value={filterGenre} onChange={(e) => handleFilterGenreChange(e.target.value)}>
-                        <option value="all">Tất cả</option>
-                        {uniqueGenres.map(genre => (
-                            <option key={genre} value={genre}>{genre}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="filter-sort-group">
-                    <span>Lọc theo Tác giả:</span>
-                    <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>
-                        <option value="all">Tất cả</option>
-                        {uniqueAuthors.map(author => (
-                            <option key={author} value={author}>{author}</option>
-                        ))}
-                    </select>
-                </div>
-                
-                <div className="filter-sort-group">
-                    <span>Sắp xếp theo:</span>
-                    <select value={sortBy} onChange={(e) => handleSortByChange(e.target.value)}>
-                        <option value="newest">Mới nhất</option>
-                        <option value="price-asc">Giá: Thấp đến Cao</option>
-                        <option value="price-desc">Giá: Cao đến Thấp</option>
-                        <option value="title-asc">Tên: A - Z</option>
-                        <option value="title-desc">Tên: Z - A</option>
-                    </select>
-                </div>
+      <>
+        <div className="filter-sort-bar">
+            <div className="filter-sort-group">
+                <span>Lọc theo Thể loại:</span>
+                <select value={filterGenre} onChange={(e) => handleFilterGenreChange(e.target.value)}>
+                    <option value="all">Tất cả</option>
+                    {uniqueGenres.map(genre => (
+                        <option key={genre} value={genre}>{genre}</option>
+                    ))}
+                </select>
             </div>
 
-            {currentComics.length > 0 ? (
-                <>
-                    <ProductList comics={currentComics as any[]} /> 
-                    {totalPages > 1 && (
-                        <Pagination 
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    )}
-                </>
-            ) : (
-                <div className="empty-state">
-                    <p>Không có sản phẩm nào phù hợp với tiêu chí lọc.</p>
-                </div>
-            )}
-          </>
-      )}
+            <div className="filter-sort-group">
+                <span>Lọc theo Tác giả:</span>
+                <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>
+                    <option value="all">Tất cả</option>
+                    {uniqueAuthors.map(author => (
+                        <option key={author} value={author}>{author}</option>
+                    ))}
+                </select>
+            </div>
+            
+            <div className="filter-sort-group">
+                <span>Sắp xếp theo:</span>
+                <select value={sortBy} onChange={(e) => handleSortByChange(e.target.value)}>
+                    <option value="newest">Mới nhất</option>
+                    <option value="price-asc">Giá: Thấp đến Cao</option>
+                    <option value="price-desc">Giá: Cao đến Thấp</option>
+                    <option value="title-asc">Tên: A - Z</option>
+                    <option value="title-desc">Tên: Z - A</option>
+                </select>
+            </div>
+        </div>
+
+        {currentComics.length > 0 ? (
+            <>
+                <ProductList comics={currentComics as any[]} /> 
+                {totalPages > 1 && (
+                    <Pagination 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                )}
+            </>
+        ) : (
+            <div className="empty-state">
+                <p>Không có sản phẩm nào phù hợp với tiêu chí lọc.</p>
+            </div>
+        )}
+      </>
     </div>
   );
 };

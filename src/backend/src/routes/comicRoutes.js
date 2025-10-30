@@ -1,7 +1,15 @@
-// backend/src/routes/comicRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getComics, getComicById, addComic, getChapterContent, addChapter, searchComics } = require('../controllers/comicController');
+const { 
+    getComics, 
+    getComicById, 
+    addComic, 
+    getChapterContent, 
+    addChapter, 
+    searchComics,
+    getReviews,
+    addReview
+} = require('../controllers/comicController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 // const { checkAdminRole } = require('../middleware/adminMiddleware'); 
 
@@ -13,6 +21,10 @@ router.get('/comics/search', searchComics);
 router.get('/comics/:id', getComicById); 
 
 router.get('/comics/:comicId/chapters/:chapterNumber', authenticateToken, getChapterContent);
+
+// Review Routes
+router.get('/comics/:comicId/reviews', getReviews);
+router.post('/comics/:comicId/reviews', authenticateToken, addReview);
 
 // Admin Routes
 router.post('/comics', authenticateToken, /* checkAdminRole, */ addComic); 

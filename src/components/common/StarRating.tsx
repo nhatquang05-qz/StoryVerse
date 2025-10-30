@@ -1,12 +1,14 @@
+// src/components/common/StarRating.tsx
 import React from 'react';
 import { FiStar } from 'react-icons/fi';
 
 interface StarRatingProps {
-    rating: number;
+    rating: number | string | null | undefined;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
-    const roundedRating = Math.round(rating * 2) / 2;
+    const numericRating = parseFloat(String(rating)) || 0;
+    const roundedRating = Math.round(numericRating * 2) / 2;
 
     const renderStars = () => {
         return Array.from({ length: 5 }, (_, index) => {
@@ -47,7 +49,7 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
             <div className="star-rating-icons">
                 {renderStars()}
             </div>
-            <span className="rating-text">{rating.toFixed(1)}</span>
+            <span className="rating-text">{numericRating.toFixed(1)}</span>
         </div>
     );
 };

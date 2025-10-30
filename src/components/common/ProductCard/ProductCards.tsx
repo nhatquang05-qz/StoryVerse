@@ -1,7 +1,8 @@
+// src/components/common/ProductCard/ProductCards.tsx
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart } from 'react-icons/fi';
-import { type ComicSummary } from '../../../types/comicTypes'; 
+import { type ComicSummary } from '../../../types/comicTypes'; // Import kiểu dữ liệu chuẩn
 import { useCart } from '../../../contexts/CartContext';
 import { useWishlist } from '../../../contexts/WishListContext';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -19,6 +20,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const { showNotification } = useNotification();
   const imgRef = useRef<HTMLImageElement>(null);
 
+  // Ép kiểu 'comic' thành 'any' để dễ dàng truy cập các thuộc tính
   const comicData: any = comic;
 
   const isFavorite = isWishlisted(comicData.id);
@@ -53,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
     );
   };
   
-  const displayRating = comicData.averageRating || 0; 
+  const displayRating = parseFloat(comicData.averageRating) || 0; 
 
   return (
     <div 
@@ -90,6 +92,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         </h3>
         <p className="card-author">{comicData.author}</p>
         
+        {/* Hiển thị rating (tạm thời hoặc nếu có) */}
         <div className="card-rating-section">
           <StarRating rating={displayRating} />
         </div>

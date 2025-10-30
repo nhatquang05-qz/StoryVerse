@@ -1,9 +1,8 @@
-// src/pages/SearchPage.tsx
 import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 
-import LoadingSkeleton from '../components/common/Loading/LoadingScreen'; 
+import LoadingPage from '../components/common/Loading/LoadingScreen'; 
 import './category/CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -41,6 +40,10 @@ const SearchPage: React.FC = () => {
     fetchSearchResults();
   }, [normalizedQuery]); 
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
   return (
     <div className="category-page-container">
       <div className="category-header">
@@ -50,11 +53,7 @@ const SearchPage: React.FC = () => {
         )}
       </div>
       
-      {isLoading ? (
-        <div style={{ padding: '0 1.5rem' }}>
-            <LoadingSkeleton count={12} />
-        </div>
-      ) : searchResults.length > 0 ? (
+      {searchResults.length > 0 ? (
         <ProductList comics={searchResults as any[]} />
       ) : (
         <div className="empty-state">
