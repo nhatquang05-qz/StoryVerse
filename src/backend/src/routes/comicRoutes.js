@@ -1,38 +1,35 @@
-// src/backend/src/routes/comicRoutes.js
-// backend/src/routes/comicRoutes.js
 const express = require('express');
 const router = express.Router();
-const { 
-    getComics, 
-    getComicById, 
-    addComic, 
-    getChapterContent, 
-    addChapter, 
+const {
+    addComic,
+    updateComic,
+    deleteComic,
+    getAllComics,
+    getComicById,
+    addChapter,
+    deleteChapter,
+    getChapterContent,
+    getTopComics,
     searchComics,
-    getReviews,
-    addReview,
-    getTopRatedComics
+    getComicsByGenre,
+    getAllGenres
 } = require('../controllers/comicController');
-const { authenticateToken } = require('../middleware/authMiddleware');
-// const { checkAdminRole } = require('../middleware/adminMiddleware'); 
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Public Routes
-router.get('/comics', getComics); 
+router.get('/', getAllComics);
+router.get('/top', getTopComics);
+router.get('/search', searchComics);
+router.get('/by-genre', getComicsByGenre);
+router.get('/system/genres', getAllGenres);
+router.get('/:id', getComicById);
+router.get('/:comicId/chapters/:chapterId', authMiddleware, getChapterContent);
 
-router.get('/comics/search', searchComics); 
+router.post('/', authMiddleware, addComic);
+router.post('/:comicId/chapters', authMiddleware, addChapter);
 
-router.get('/comics/top-rated', getTopRatedComics);
+router.put('/:id', authMiddleware, updateComic);
 
-router.get('/comics/:id', getComicById); 
-
-router.get('/comics/:comicId/chapters/:chapterNumber', authenticateToken, getChapterContent);
-
-// Review Routes
-router.get('/comics/:comicId/reviews', getReviews);
-router.post('/comics/:comicId/reviews', authenticateToken, addReview);
-
-// Admin Routes
-router.post('/comics', authenticateToken, /* checkAdminRole, */ addComic); 
-router.post('/comics/:comicId/chapters', authenticateToken, /* checkAdminRole, */ addChapter); 
+router.delete('/:id', authMiddleware, deleteComic);
+router.delete('/:comicId/chapters/:chapterId', authMiddleware, deleteChapter);
 
 module.exports = router;

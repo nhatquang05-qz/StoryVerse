@@ -1,339 +1,345 @@
 const { getConnection } = require('../db/connection');
-const cloudinary = require('../config/CloudinaryConfig');
 
-const getComics = async (req, res) => {
+const addComic = async (req, res) => {
+    const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
+    const { userId } = req;
+
+    if (!title || !coverImageUrl) {
+        return res.status(400).json({ error: 'Title and Cover Image URL are required' });
+    }
+
+    const connection = getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const [comicResult] = await connection.execute(
+            'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price, uploaderId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital, price || 0, userId]
+        );
+
+        const comicId = comicResult.insertId;
+
+        if (genres && Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(genreId => [comicId, Number(genreId)]);
+            await connection.query(
+                'INSERT INTO comic_genres (comic_id, genre_id) VALUES ?',
+                [genreValues]
+            );
+        }
+
+        await connection.commit();
+        res.status(201).json({ message: 'Comic added successfully', comicId: comicId });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error adding comic:', error);
+        res.status(500).json({ error: 'Failed to add comic' });
+    }
+};
+
+const updateComic = async (req, res) => {
+    const { id } = req.params;
+    const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
+    const { userId } = req; 
+
+    if (!title || !coverImageUrl) {
+        return res.status(400).json({ error: 'Title and Cover Image URL are required' });
+    }
+
+    const connection = getConnection();
+    try {
+        await connection.beginTransaction();
+
+        await connection.execute(
+            'UPDATE comics SET title = ?, author = ?, description = ?, coverImageUrl = ?, status = ?, isDigital = ?, price = ? WHERE id = ?',
+            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital, price || 0, id]
+        );
+
+        await connection.execute('DELETE FROM comic_genres WHERE comic_id = ?', [id]);
+
+        if (genres && Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(genreId => [id, Number(genreId)]);
+            await connection.query(
+                'INSERT INTO comic_genres (comic_id, genre_id) VALUES ?',
+                [genreValues]
+            );
+        }
+
+        await connection.commit();
+        res.status(200).json({ message: 'Comic updated successfully' });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error updating comic:', error);
+        res.status(500).json({ error: 'Failed to update comic' });
+    }
+};
+
+const deleteComic = async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req; 
+
+    const connection = getConnection();
+    try {
+        await connection.beginTransaction();
+        
+        await connection.execute('DELETE FROM reviews WHERE comic_id = ?', [id]);
+        await connection.execute('DELETE FROM comic_genres WHERE comic_id = ?', [id]);
+        await connection.execute('DELETE FROM chapters WHERE comic_id = ?', [id]);
+        await connection.execute('DELETE FROM comics WHERE id = ?', [id]);
+
+        await connection.commit();
+        res.status(200).json({ message: 'Comic deleted successfully' });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error deleting comic:', error);
+        res.status(500).json({ error: 'Failed to delete comic' });
+    }
+};
+
+const getAllGenres = async (req, res) => {
     try {
         const connection = getConnection();
-        const [rows] = await connection.execute(`
-            SELECT c.id, c.title, c.author, c.coverImageUrl, c.status, c.isDigital, c.price, 
-                   (IFNULL(c.viewCount, 0) + (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id)) AS viewCount, 
-                   (SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = c.id) AS averageRating,
-                   c.updatedAt, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
-            FROM comics c
-            LEFT JOIN comic_genres cg ON c.id = cg.comicId
-            LEFT JOIN genres g ON cg.genreId = g.id
-            GROUP BY c.id
-            ORDER BY c.updatedAt DESC
-            LIMIT 50
-        `);
+        const [genres] = await connection.execute('SELECT id, name FROM genres ORDER BY name');
+        res.json(genres);
+    } catch (error) {
+        console.error('Error fetching genres:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const getAllComics = async (req, res) => {
+    try {
+        const connection = getConnection();
+        const [rows] = await connection.execute(
+            `SELECT 
+                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.views, c.rating, c.createdAt, c.updatedAt,
+                (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
+                 FROM genres g 
+                 JOIN comic_genres cg ON g.id = cg.genre_id 
+                 WHERE cg.comic_id = c.id) AS genres
+            FROM comics c`
+        );
         res.json(rows);
     } catch (error) {
-        console.error("Get comics error:", error);
-        res.status(500).json({ error: 'Failed to fetch comics' });
+        console.error('Error fetching comics:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
 const getComicById = async (req, res) => {
     try {
-        const comicId = req.params.id;
-        if (!comicId) return res.status(400).json({ error: 'Comic ID is required.' });
-
+        const { id } = req.params;
         const connection = getConnection();
 
-        await connection.execute(
-            'UPDATE comics SET viewCount = IFNULL(viewCount, 0) + 1 WHERE id = ?',
-            [comicId]
+        const [comicRows] = await connection.execute(
+            `SELECT 
+                c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, c.views, c.rating, c.uploaderId, c.createdAt, c.updatedAt,
+                (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
+                 FROM genres g 
+                 JOIN comic_genres cg ON g.id = cg.genre_id 
+                 WHERE cg.comic_id = c.id) AS genres
+            FROM comics c 
+            WHERE c.id = ?`,
+            [id]
         );
 
-        const [comicRows] = await connection.execute(`
-            SELECT c.*, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,
-                   (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id) AS totalChapterViews,
-                   (SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = c.id) AS averageRating
-            FROM comics c
-            LEFT JOIN comic_genres cg ON c.id = cg.comicId
-            LEFT JOIN genres g ON cg.genreId = g.id
-            WHERE c.id = ?
-            GROUP BY c.id
-        `, [comicId]);
-
-        if (comicRows.length === 0) return res.status(404).json({ error: 'Comic not found' });
+        if (comicRows.length === 0) {
+            return res.status(404).json({ error: 'Comic not found' });
+        }
 
         const [chapterRows] = await connection.execute(
-            'SELECT id, chapterNumber, title, price, createdAt, IFNULL(viewCount, 0) AS viewCount FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
-            [comicId]
+            'SELECT id, chapterNumber, title, price, createdAt FROM chapters WHERE comic_id = ? ORDER BY chapterNumber ASC',
+            [id]
         );
 
-        const comicData = comicRows[0];
-        
-        const totalChapterViews = parseInt(comicData.totalChapterViews) || 0;
-        comicData.viewCount = (parseInt(comicData.viewCount) || 0) + totalChapterViews; 
-        comicData.averageRating = parseFloat(comicData.averageRating) || 0;
-        delete comicData.totalChapterViews;
+        const comic = comicRows[0];
+        comic.chapters = chapterRows;
 
-        comicData.chapters = chapterRows;
-        res.json(comicData);
+        await connection.execute('UPDATE comics SET views = views + 1 WHERE id = ?', [id]);
+
+        res.json(comic);
     } catch (error) {
-        console.error("Get comic by ID error:", error);
-        res.status(500).json({ error: 'Failed to fetch comic details' });
-    }
-};
-
-const addComic = async (req, res) => {
-    const { title, author, description, coverImageUrl, status, isDigital, price, genreIds } = req.body;
-    if (!title || !coverImageUrl) return res.status(400).json({ error: 'Title and Cover Image URL are required.' });
-
-    const connection = getConnection();
-    try {
-        await connection.beginTransaction();
-        const [comicResult] = await connection.execute(
-            'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital !== undefined ? isDigital : true, price || 0]
-        );
-        const newComicId = comicResult.insertId;
-
-        if (Array.isArray(genreIds) && genreIds.length > 0) {
-            const genreValues = genreIds.map(genreId => [newComicId, genreId]);
-            await connection.query('INSERT INTO comic_genres (comicId, genreId) VALUES ?', [genreValues]);
-        }
-        await connection.commit();
-        res.status(201).json({ message: 'Comic added successfully', comicId: newComicId });
-    } catch (error) {
-        await connection.rollback();
-        console.error("Add comic error:", error);
-        res.status(500).json({ error: 'Failed to add comic' });
-    }
-};
-
-const searchComics = async (req, res) => {
-    try {
-        const { q, limit } = req.query; 
-
-        if (!q) {
-            return res.json([]); 
-        }
-
-        const connection = getConnection();
-        
-        const searchQuery = `%${q}%`; 
-        
-        let sqlQuery = `
-            SELECT c.id, c.title, c.author, c.coverImageUrl, c.status, c.isDigital, c.price, 
-                   (IFNULL(c.viewCount, 0) + (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id)) AS viewCount, 
-                   (SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = c.id) AS averageRating,
-                   c.updatedAt, GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
-            FROM comics c
-            LEFT JOIN comic_genres cg ON c.id = cg.comicId
-            LEFT JOIN genres g ON cg.genreId = g.id
-            WHERE c.title LIKE ? OR c.author LIKE ?
-            GROUP BY c.id
-            ORDER BY c.updatedAt DESC
-        `;
-
-        const params = [searchQuery, searchQuery];
-
-        if (limit && !isNaN(parseInt(limit))) {
-            sqlQuery += ` LIMIT ${parseInt(limit)}`; 
-        }
-
-        const [rows] = await connection.execute(sqlQuery, params);
-        
-        res.json(rows);
-
-    } catch (error) {
-        console.error("Search comics error:", error);
-        res.status(500).json({ error: 'Failed to search comics' });
-    }
-};
-
-const getChapterContent = async (req, res) => {
-     const { comicId, chapterNumber } = req.params;
-     const userId = req.userId; 
-     if (!comicId || !chapterNumber) return res.status(400).json({ error: 'Comic ID and Chapter Number are required.' });
-
-     const connection = getConnection();
-    try {
-        await connection.execute(
-            'UPDATE chapters SET viewCount = IFNULL(viewCount, 0) + 1 WHERE comicId = ? AND chapterNumber = ?',
-            [comicId, chapterNumber]
-        );
-        
-        const [chapterRows] = await connection.execute(
-            'SELECT id, price, contentUrls FROM chapters WHERE comicId = ? AND chapterNumber = ?',
-            [comicId, chapterNumber]
-        );
-        if (chapterRows.length === 0) return res.status(404).json({ error: 'Chapter not found' });
-
-        const chapter = chapterRows[0];
-        
-        let contentUrlsArray = [];
-        const rawContent = chapter.contentUrls;
-
-        if (Array.isArray(rawContent)) {
-            contentUrlsArray = rawContent;
-        } else if (rawContent && typeof rawContent === 'string') {
-            try {
-                contentUrlsArray = JSON.parse(rawContent);
-            } catch (e1) {
-                console.warn("Lỗi parse JSON (lần 1), thử thay thế single quotes:", rawContent);
-                try {
-                    const correctedJson = rawContent.replace(/'/g, '"');
-                    contentUrlsArray = JSON.parse(correctedJson);
-                } catch (e2) {
-                    console.error("Lỗi parse JSON (lần 2), thử xử lý như string đơn lẻ:", e2.message);
-                    if (rawContent.trim().startsWith('http')) {
-                        contentUrlsArray = [rawContent.trim()];
-                    } else {
-                        console.error("Không thể phân tích contentUrls:", rawContent);
-                        contentUrlsArray = []; 
-                    }
-                }
-            }
-        }
-        
-        if (!Array.isArray(contentUrlsArray)) {
-            console.warn("Dữ liệu contentUrls sau khi xử lý không phải là mảng, ép về mảng rỗng.");
-            contentUrlsArray = [];
-        }
-
-        res.json({
-            chapterId: chapter.id,
-            comicId: parseInt(comicId),
-            chapterNumber: parseFloat(chapterNumber),
-            contentUrls: contentUrlsArray
-        });
-    } catch (error) {
-        console.error("Get chapter content error:", error);
-        res.status(500).json({ error: 'Failed to fetch chapter content' });
+        console.error('Error fetching comic details:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
 const addChapter = async (req, res) => {
     const { comicId } = req.params;
     const { chapterNumber, title, contentUrls, price } = req.body;
+    const { userId } = req;
 
-    if (!comicId) return res.status(400).json({ error: 'Comic ID is required.' });
-    if (!chapterNumber || !Array.isArray(contentUrls) || contentUrls.length === 0) {
-        return res.status(400).json({ error: 'Chapter number and content URLs (array) are required.' });
+    if (!chapterNumber || !contentUrls || !Array.isArray(contentUrls) || contentUrls.length === 0) {
+        return res.status(400).json({ error: 'Chapter number and content URLs are required' });
     }
 
-    const connection = getConnection();
     try {
-        const [comicRows] = await connection.execute('SELECT id FROM comics WHERE id = ?', [comicId]);
-        if (comicRows.length === 0) return res.status(404).json({ error: 'Comic not found.' });
-
-        await connection.execute(
-            'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price) VALUES (?, ?, ?, ?, ?)',
-            [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price !== undefined ? price : 0]
+        const connection = getConnection();
+        const [result] = await connection.execute(
+            'INSERT INTO chapters (comic_id, chapterNumber, title, contentUrls, price) VALUES (?, ?, ?, ?, ?)',
+            [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0]
         );
-         await connection.execute(
-             'UPDATE comics SET updatedAt = NOW() WHERE id = ?',
-             [comicId]
-         );
-        res.status(201).json({ message: 'Chapter added successfully' });
+        res.status(201).json({ message: 'Chapter added successfully', chapterId: result.insertId });
     } catch (error) {
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ error: `Chapter number ${chapterNumber} already exists.` });
-        }
-        console.error("Add chapter error:", error);
+        console.error('Error adding chapter:', error);
         res.status(500).json({ error: 'Failed to add chapter' });
     }
 };
 
-const getReviews = async (req, res) => {
+const deleteChapter = async (req, res) => {
+    const { comicId, chapterId } = req.params;
+    const { userId } = req;
+
+    const connection = getConnection();
     try {
-        const { comicId } = req.params;
+        const [result] = await connection.execute(
+            'DELETE FROM chapters WHERE id = ? AND comic_id = ?',
+            [chapterId, comicId]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Chapter not found or not associated with this comic' });
+        }
+
+        res.status(200).json({ message: 'Chapter deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting chapter:', error);
+        res.status(500).json({ error: 'Failed to delete chapter' });
+    }
+};
+
+
+const getChapterContent = async (req, res) => {
+    const { comicId, chapterId } = req.params;
+    const { userId } = req;
+
+    try {
+        const connection = getConnection();
+
+        const [chapterRows] = await connection.execute(
+            'SELECT * FROM chapters WHERE id = ? AND comic_id = ?',
+            [chapterId, comicId]
+        );
+
+        if (chapterRows.length === 0) {
+            return res.status(404).json({ error: 'Chapter not found' });
+        }
+
+        const chapter = chapterRows[0];
+
+        if (chapter.price > 0 && userId) {
+            const [purchaseRows] = await connection.execute(
+                'SELECT * FROM purchased_chapters WHERE user_id = ? AND chapter_id = ?',
+                [userId, chapterId]
+            );
+
+            const [userRows] = await connection.execute(
+                'SELECT coins FROM users WHERE id = ?',
+                [userId]
+            );
+
+            if (purchaseRows.length === 0) {
+                if (userRows.length === 0 || userRows[0].coins < chapter.price) {
+                    return res.status(402).json({ error: 'Not enough coins to purchase this chapter' });
+                }
+
+                await connection.beginTransaction();
+                try {
+                    await connection.execute(
+                        'UPDATE users SET coins = coins - ? WHERE id = ?',
+                        [chapter.price, userId]
+                    );
+                    await connection.execute(
+                        'INSERT INTO purchased_chapters (user_id, chapter_id, price) VALUES (?, ?, ?)',
+                        [userId, chapterId, chapter.price]
+                    );
+                    await connection.commit();
+                } catch (txError) {
+                    await connection.rollback();
+                    throw txError;
+                }
+            }
+        } else if (chapter.price > 0 && !userId) {
+            return res.status(401).json({ error: 'You must be logged in to read this chapter' });
+        }
+        
+        chapter.contentUrls = JSON.parse(chapter.contentUrls);
+        res.json(chapter);
+
+    } catch (error) {
+        console.error('Error fetching chapter content:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const getTopComics = async (req, res) => {
+    try {
         const connection = getConnection();
         const [rows] = await connection.execute(
-            `SELECT r.id, r.userId, r.comicId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl 
-             FROM reviews r
-             JOIN users u ON r.userId = u.id
-             WHERE r.comicId = ?
-             ORDER BY r.createdAt DESC`,
-            [comicId]
+            'SELECT id, title, coverImageUrl, status, isDigital, price, author, views FROM comics ORDER BY views DESC LIMIT 10'
         );
         res.json(rows);
     } catch (error) {
-        console.error("Get reviews error:", error);
-        res.status(500).json({ error: 'Failed to fetch reviews' });
+        console.error('Error fetching top comics:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
-const addReview = async (req, res) => {
+const searchComics = async (req, res) => {
     try {
-        const { comicId } = req.params;
-        const { userId } = req;
-        const { rating, comment } = req.body;
-
-        if (!rating || rating < 1 || rating > 5) {
-            return res.status(400).json({ error: 'Rating (1-5) is required.' });
+        const { query } = req.query;
+        if (!query) {
+            return res.status(400).json({ error: 'Query parameter is required' });
         }
-        if (!comment || comment.trim().length < 3) {
-            return res.status(400).json({ error: 'Comment (min 3 chars) is required.' });
-        }
-
         const connection = getConnection();
-        
-        const [existingReview] = await connection.execute(
-            'SELECT id FROM reviews WHERE comicId = ? AND userId = ?',
-            [comicId, userId]
+        const searchQuery = `%${query}%`;
+        const [rows] = await connection.execute(
+            'SELECT id, title, coverImageUrl, status, isDigital, price, author FROM comics WHERE title LIKE ? OR author LIKE ?',
+            [searchQuery, searchQuery]
         );
-
-        let result;
-        if (existingReview.length > 0) {
-            // User has already reviewed, update it
-            const [updateResult] = await connection.execute(
-                'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?',
-                [rating, comment, existingReview[0].id]
-            );
-            result = { insertId: existingReview[0].id }; 
-        } else {
-            // New review
-            const [insertResult] = await connection.execute(
-                'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
-                [comicId, userId, rating, comment]
-            );
-            result = insertResult;
-        }
-
-        const [newReviewRows] = await connection.execute(
-            `SELECT r.id, r.userId, r.comicId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl 
-             FROM reviews r
-             JOIN users u ON r.userId = u.id
-             WHERE r.id = ?`,
-            [result.insertId]
-        );
-
-        res.status(201).json(newReviewRows[0]);
-    } catch (error) {
-        console.error("Add review error:", error);
-        res.status(500).json({ error: 'Failed to add review' });
-    }
-};
-
-const getTopRatedComics = async (req, res) => {
-    try {
-        const connection = getConnection();
-        
-        const [rows] = await connection.execute(`
-            SELECT 
-                c.id, 
-                c.title, 
-                c.coverImageUrl, 
-                (IFNULL(c.viewCount, 0) + (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id)) AS totalViewCount, 
-                AVG(r.rating) AS averageRating
-            FROM comics c
-            LEFT JOIN reviews r ON c.id = r.comicId
-            WHERE c.isDigital = 1
-            GROUP BY c.id
-            ORDER BY averageRating DESC, totalViewCount DESC
-            LIMIT 5
-        `);
-        
         res.json(rows);
     } catch (error) {
-        console.error("Get top rated comics error:", error);
-        res.status(500).json({ error: 'Failed to fetch top rated comics' });
+        console.error('Error searching comics:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const getComicsByGenre = async (req, res) => {
+    try {
+        const { genre } = req.query;
+        if (!genre) {
+            return res.status(400).json({ error: 'Genre parameter is required' });
+        }
+        const connection = getConnection();
+        
+        const [rows] = await connection.execute(
+            `SELECT c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.views, c.rating
+             FROM comics c
+             JOIN comic_genres cg ON c.id = cg.comic_id
+             JOIN genres g ON cg.genre_id = g.id
+             WHERE g.name = ?`,
+            [genre]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching comics by genre:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
 module.exports = {
-    getComics,
-    getComicById,
     addComic,
-    getChapterContent,
+    updateComic,
+    deleteComic,
+    getAllComics,
+    getComicById,
     addChapter,
+    deleteChapter,
+    getChapterContent,
+    getTopComics,
     searchComics,
-    getReviews,
-    addReview,
-    getTopRatedComics
+    getComicsByGenre,
+    getAllGenres
 };

@@ -1,20 +1,41 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import { type ComicSummary, type ComicDetail, type ChapterSummary } from '../../types/comicTypes';
-import { FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiUpload, FiLoader, FiSave, FiX } from 'react-icons/fi';
-import './AdminPage.css'; // Tệp CSS mới sẽ được tạo ở dưới
+import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } from '../../types/comicTypes';
+import { FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave } from 'react-icons/fi';
+import './AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ===================================================================
-// ==================== KHUNG NHẬP TRUYỆN MỚI =======================
-// ===================================================================
+interface GenreSelectorProps {
+    allGenres: Genre[];
+    selectedGenres: number[];
+    onChange: (genreId: number) => void;
+}
+
+const GenreSelector: React.FC<GenreSelectorProps> = ({ allGenres, selectedGenres, onChange }) => {
+    return (
+        <div className="genre-selector">
+            {allGenres.map(genre => (
+                <label key={genre.id} className="genre-checkbox-label">
+                    <input
+                        type="checkbox"
+                        checked={selectedGenres.includes(genre.id)}
+                        onChange={() => onChange(genre.id)}
+                    />
+                    {genre.name}
+                </label>
+            ))}
+        </div>
+    );
+};
+
 interface AddComicFormProps {
+    allGenres: Genre[];
     onCancel: () => void;
     onSuccess: () => void;
 }
-const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
+const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSuccess }) => {
     const { showNotification } = useNotification();
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
@@ -26,6 +47,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
     const [status, setStatus] = useState<'Ongoing' | 'Completed' | 'Dropped'>('Ongoing');
     const [isDigital, setIsDigital] = useState(true);
     const [price, setPrice] = useState(0);
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
     const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -60,6 +82,12 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
         }
     };
 
+    const handleGenreChange = (genreId: number) => {
+        setSelectedGenres(prev =>
+            prev.includes(genreId) ? prev.filter(id => id !== genreId) : [...prev, genreId]
+        );
+    };
+
     const handleSubmitComic = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!title || !coverImageUrl) {
@@ -77,13 +105,14 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title, author, description, coverImageUrl, status, isDigital, price
+                    title, author, description, coverImageUrl, status, isDigital, price,
+                    genres: selectedGenres
                 })
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to add comic');
             showNotification(`Thêm truyện "${title}" thành công! ID: ${data.comicId}`, 'success');
-            onSuccess(); // Gọi hàm onSuccess để quay lại danh sách
+            onSuccess();
         } catch (error: any) {
             console.error("Submit comic error:", error);
             showNotification(`Lỗi thêm truyện: ${error.message}`, 'error');
@@ -97,7 +126,6 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
             <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại</button>
             <form onSubmit={handleSubmitComic} className="admin-form">
                 <h2>Thêm Truyện Mới</h2>
-                {/* ... (Các trường input giống hệt form cũ của bạn) ... */}
                 <div className="form-group"><label>Tiêu đề:</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} required /></div>
                 <div className="form-group"><label>Tác giả:</label><input type="text" value={author} onChange={e => setAuthor(e.target.value)} /></div>
                 <div className="form-group"><label>Mô tả:</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
@@ -123,6 +151,10 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
                 </div>
                 <div className="form-group"><label>Giá (VND cho Physical, Xu cho Digital Chapter):</label><input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} /></div>
                 
+                <div className="form-group"><label>Thể loại:</label>
+                    <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
+                </div>
+                
                 <button type="submit" className="mgmt-btn add" disabled={isSubmitting || !coverImageUrl || isUploadingCover}>
                     {isSubmitting ? 'Đang thêm...' : 'Thêm Truyện'}
                 </button>
@@ -131,54 +163,80 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ onCancel, onSuccess }) => {
     );
 };
 
-// ===================================================================
-// ==================== KHUNG SỬA TRUYỆN ============================
-// ===================================================================
 interface EditComicFormProps {
     comic: ComicSummary;
+    allGenres: Genre[];
     onCancel: () => void;
     onSuccess: () => void;
 }
-const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSuccess }) => {
+const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCancel, onSuccess }) => {
     const { showNotification } = useNotification();
-    const [formData, setFormData] = useState(comic);
+    
+    const [formData, setFormData] = useState<ComicDetail | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    
-    // TODO: Thêm logic upload ảnh bìa mới nếu cần
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+
+    useEffect(() => {
+        const fetchComicDetails = async () => {
+            setIsLoading(true);
+            try {
+                const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`);
+                if (!response.ok) throw new Error('Không thể tải chi tiết truyện');
+                const data: ComicDetail = await response.json();
+                setFormData(data);
+                setSelectedGenres(data.genres?.map(g => g.id) || []);
+            } catch (error: any) {
+                showNotification(`Lỗi tải chi tiết truyện: ${error.message}`, 'error');
+                onCancel();
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchComicDetails();
+    }, [comic.id, showNotification, onCancel]);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-        }));
+        
+        if (!formData) return;
+
+        setFormData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+            };
+        });
     };
     
     const handleIsDigitalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-         setFormData(prev => ({
-            ...prev,
-            isDigital: e.target.value === 'digital',
-        }));
+         if (!formData) return;
+         setFormData(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                isDigital: e.target.value === 'digital',
+            };
+         });
+    };
+
+    const handleGenreChange = (genreId: number) => {
+        setSelectedGenres(prev =>
+            prev.includes(genreId) ? prev.filter(id => id !== genreId) : [...prev, genreId]
+        );
     };
 
     const handleUpdateComic = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!formData) return;
+
         setIsSubmitting(true);
         const token = localStorage.getItem('storyverse_token');
         
-        // !!! LƯU Ý: Backend của bạn chưa có API để SỬA truyện.
-        // Bạn cần tạo một endpoint `PUT /api/comics/:id` trong `comicRoutes.js`
-        // Tạm thời, tôi sẽ giả lập và thông báo.
-        
-        console.log("Dữ liệu gửi đi (Update):", formData);
-        showNotification("LƯU Ý: Chức năng `Sửa` chưa được kết nối API (PUT /api/comics/:id).", "info");
-        setTimeout(() => {
-            setIsSubmitting(false);
-            onSuccess(); // Quay lại và giả lập thành công
-        }, 1000);
-        
-        /* // --- Code thật khi có API ---
         try {
             const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, { 
                 method: 'PUT',
@@ -186,9 +244,13 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSucces
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    ...formData,
+                    genres: selectedGenres
+                })
             });
-            if (!response.ok) throw new Error('Cập nhật thất bại');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Cập nhật thất bại');
             showNotification('Cập nhật truyện thành công!', 'success');
             onSuccess();
         } catch (error: any) {
@@ -196,7 +258,6 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSucces
         } finally {
             setIsSubmitting(false);
         }
-        */
     };
 
     const handleDeleteComic = async () => {
@@ -205,26 +266,14 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSucces
         }
         setIsDeleting(true);
         const token = localStorage.getItem('storyverse_token');
-
-        // !!! LƯU Ý: Backend của bạn chưa có API để XÓA truyện.
-        // Bạn cần tạo một endpoint `DELETE /api/comics/:id` trong `comicRoutes.js`
-        // Tạm thời, tôi sẽ giả lập và thông báo.
         
-        console.log("Dữ liệu gửi đi (Delete):", comic.id);
-        showNotification("LƯU Ý: Chức năng `Xóa` chưa được kết nối API (DELETE /api/comics/:id).", "info");
-        setTimeout(() => {
-            setIsDeleting(false);
-            onSuccess(); // Quay lại và giả lập thành công
-        }, 1000);
-
-        /*
-        // --- Code thật khi có API ---
         try {
             const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, { 
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!response.ok) throw new Error('Xóa thất bại');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Xóa thất bại');
             showNotification('Xóa truyện thành công!', 'success');
             onSuccess();
         } catch (error: any) {
@@ -232,23 +281,29 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSucces
         } finally {
             setIsDeleting(false);
         }
-        */
     };
 
+    if (isLoading) {
+        return <div className="admin-form-container"><p>Đang tải chi tiết truyện...</p></div>;
+    }
 
+    if (!formData) {
+        return <div className="admin-form-container"><p>Không thể tải chi tiết truyện.</p></div>;
+    }
+    
     return (
         <div className="admin-form-container">
             <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại</button>
             <form onSubmit={handleUpdateComic} className="admin-form">
                 <h2>Sửa Truyện: {comic.title}</h2>
                 <div className="form-group"><label>Tiêu đề:</label><input type="text" name="title" value={formData.title} onChange={handleChange} required /></div>
-                <div className="form-group"><label>Tác giả:</label><input type="text" name="author" value={formData.author} onChange={handleChange} /></div>
-                <div className="form-group"><label>Mô tả:</label><textarea name="description" value={formData.description} onChange={handleChange} /></div>
+                <div className="form-group"><label>Tác giả:</label><input type="text" name="author" value={formData.author || ''} onChange={handleChange} /></div>
+                
+                <div className="form-group"><label>Mô tả:</label><textarea name="description" value={formData.description || ''} onChange={handleChange} /></div>
                 
                 <div className="form-group"><label>Ảnh bìa (URL):</label>
                     <input type="text" name="coverImageUrl" value={formData.coverImageUrl} onChange={handleChange} required />
                     {formData.coverImageUrl && <img src={formData.coverImageUrl} alt="Preview" style={{ width: '50px', verticalAlign: 'middle', marginLeft: '10px' }} />}
-                    {/* TODO: Thêm logic upload ảnh mới tại đây nếu muốn */}
                 </div>
 
                 <div className="form-group"><label>Trạng thái:</label>
@@ -266,6 +321,10 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSucces
                 </div>
                 <div className="form-group"><label>Giá (VND cho Physical, Xu cho Digital Chapter):</label><input type="number" name="price" value={formData.price} onChange={handleChange} /></div>
                 
+                <div className="form-group"><label>Thể loại:</label>
+                    <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
+                </div>
+                
                 <div className="form-actions">
                     <button type="submit" className="mgmt-btn edit" disabled={isSubmitting || isDeleting}>
                         {isSubmitting ? <FiLoader className="animate-spin" /> : <FiSave />}
@@ -281,9 +340,6 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, onCancel, onSucces
     );
 };
 
-// ===================================================================
-// ==================== KHUNG NHẬP CHƯƠNG MỚI =======================
-// ===================================================================
 interface AddChapterFormProps {
     comicId: number;
     onSuccess: () => void;
@@ -368,10 +424,9 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, onSuccess }) =
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to add chapter');
             showNotification(`Thêm chương ${chapterNumber} thành công!`, 'success');
-            // Reset form
             setChapterNumber(''); setChapterTitle('');
             setChapterImageFiles(null); setChapterImageUrls([]); setChapterPrice(0); setUploadProgress(0);
-            onSuccess(); // Tải lại danh sách chương
+            onSuccess(); 
         } catch (error: any) {
             console.error("Submit chapter error:", error);
             showNotification(`Lỗi thêm chương: ${error.message}`, 'error');
@@ -402,9 +457,6 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, onSuccess }) =
     );
 };
 
-// ===================================================================
-// ==================== KHUNG QUẢN LÝ CHƯƠNG ========================
-// ===================================================================
 interface ManageChaptersProps {
     comic: ComicSummary;
     onCancel: () => void;
@@ -433,8 +485,6 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
     }, [comic.id]);
 
     const handleEditImages = (chapter: ChapterSummary) => {
-        // Đây là chức năng phức tạp, cần một modal/trang mới
-        // Tạm thời, chúng ta sẽ thông báo
         showNotification(`Chức năng "Sửa ảnh" cho Chương ${chapter.chapterNumber} đang được phát triển.`, 'info');
     };
 
@@ -442,12 +492,20 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
         if (!window.confirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn "Chương ${chapter.chapterNumber}" không?`)) {
             return;
         }
-
-        // !!! LƯU Ý: Backend của bạn chưa có API để XÓA chương.
-        // Bạn cần tạo một endpoint `DELETE /api/comics/:comicId/chapters/:chapterId`
-        // Tạm thời, tôi sẽ giả lập và thông báo.
-        showNotification("LƯU Ý: Chức năng `Xóa Chương` chưa được kết nối API.", "info");
-        fetchComicDetails(); // Tải lại danh sách
+        
+        const token = localStorage.getItem('storyverse_token');
+        try {
+            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}/chapters/${chapter.id}`, { 
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Xóa chương thất bại');
+            showNotification('Xóa chương thành công!', 'success');
+            fetchComicDetails();
+        } catch (error: any) {
+            showNotification(error.message, 'error');
+        }
     };
 
     return (
@@ -455,10 +513,8 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
             <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại Danh Sách Truyện</button>
             <h2>Quản Lý Chương: {comic.title}</h2>
             
-            {/* Form Thêm Chương Mới */}
             <AddChapterForm comicId={comic.id} onSuccess={fetchComicDetails} />
 
-            {/* Danh Sách Chương Hiện Có */}
             <div className="chapter-management-list">
                 <h3>Các Chương Hiện Có ({comicDetails?.chapters?.length || 0})</h3>
                 {isLoadingDetails && <p>Đang tải danh sách chương...</p>}
@@ -488,10 +544,6 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
     );
 };
 
-
-// ===================================================================
-// ==================== CARD TRUYỆN (Admin) =========================
-// ===================================================================
 interface ManagementProductCardProps {
     comic: ComicSummary;
     onEdit: () => void;
@@ -522,29 +574,35 @@ const ManagementProductCard: React.FC<ManagementProductCardProps> = ({ comic, on
     );
 };
 
-
-// ===================================================================
-// ==================== COMPONENT TRANG ADMIN CHÍNH =================
-// ===================================================================
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
     const [view, setView] = useState<'list' | 'add' | 'edit' | 'chapters'>('list');
     const [comics, setComics] = useState<ComicSummary[]>([]);
+    const [allGenres, setAllGenres] = useState<Genre[]>([]);
     const [selectedComic, setSelectedComic] = useState<ComicSummary | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const isAdmin = currentUser?.email === 'admin@123'; // Logic check admin của bạn
+    const isAdmin = currentUser?.email === 'admin@123';
 
-    const fetchComics = async () => {
+    const fetchComicsAndGenres = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}/comics`);
-            if (!response.ok) throw new Error('Không thể tải danh sách truyện');
-            const data: ComicSummary[] = await response.json();
-            setComics(data.sort((a, b) => b.id - a.id)); // Sắp xếp ID mới nhất lên đầu
+            const [comicsResponse, genresResponse] = await Promise.all([
+                fetch(`${API_BASE_URL}/comics`),
+                fetch(`${API_BASE_URL}/comics/system/genres`)
+            ]);
+            
+            if (!comicsResponse.ok) throw new Error('Không thể tải danh sách truyện');
+            const comicsData: ComicSummary[] = await comicsResponse.json();
+            setComics(comicsData.sort((a, b) => b.id - a.id));
+
+            if (!genresResponse.ok) throw new Error('Không thể tải danh sách thể loại');
+            const genresData: Genre[] = await genresResponse.json();
+            setAllGenres(genresData);
+
         } catch (err: any) {
             setError(err.message);
             showNotification(err.message, 'error');
@@ -555,7 +613,7 @@ const AdminPage: React.FC = () => {
 
     useEffect(() => {
         if (isAdmin) {
-            fetchComics();
+            fetchComicsAndGenres();
         }
     }, [isAdmin]);
 
@@ -575,38 +633,35 @@ const AdminPage: React.FC = () => {
         }
         
         const token = localStorage.getItem('storyverse_token');
-        showNotification("LƯU Ý: Chức năng `Xóa` chưa được kết nối API (DELETE /api/comics/:id).", "info");
-        fetchComics(); // Tải lại danh sách (giả lập xóa thành công)
-
-        /*
-        // --- Code thật khi có API ---
         try {
             const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, { 
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!response.ok) throw new Error('Xóa thất bại');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Xóa thất bại');
             showNotification('Xóa truyện thành công!', 'success');
-            fetchComics(); // Tải lại danh sách
+            fetchComicsAndGenres();
         } catch (error: any) {
             showNotification(error.message, 'error');
         }
-        */
     };
 
     const renderContent = () => {
         switch (view) {
             case 'add':
                 return <AddComicForm 
+                            allGenres={allGenres}
                             onCancel={() => setView('list')} 
-                            onSuccess={() => { setView('list'); fetchComics(); }} 
+                            onSuccess={() => { setView('list'); fetchComicsAndGenres(); }} 
                         />;
             case 'edit':
                 if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
                 return <EditComicForm 
                             comic={selectedComic} 
+                            allGenres={allGenres}
                             onCancel={() => setView('list')} 
-                            onSuccess={() => { setView('list'); fetchComics(); }} 
+                            onSuccess={() => { setView('list'); fetchComicsAndGenres(); }} 
                         />;
             case 'chapters':
                  if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;

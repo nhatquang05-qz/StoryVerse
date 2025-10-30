@@ -21,24 +21,26 @@ export interface ComicSummary {
     status: 'Ongoing' | 'Completed' | 'Dropped';
     isDigital: boolean;
     price: number;
-    viewCount: number;
+    views: number; 
     updatedAt: string;
-    genres?: string; // Hoặc Genre[]
-    averageRating?: number;
+    genres?: Genre[]; 
+    rating?: number; 
 }
 
 export interface ComicDetail extends ComicSummary {
     description?: string;
     chapters: ChapterSummary[];
-    // averageRating?: number; // Đã có trong ComicSummary
-    // totalReviews?: number;
+    uploaderId?: string; 
 }
 
 export interface ChapterContent {
-    chapterId: number;
-    comicId: number;
+    id: number;
+    comic_id: number;
     chapterNumber: number | string;
-    contentUrls: string[]; // Mảng URL ảnh
+    title?: string;
+    price: number;
+    contentUrls: string[]; 
+    createdAt: string;
 }
 
 export interface Review {
