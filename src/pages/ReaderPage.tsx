@@ -94,7 +94,11 @@ const ReaderPage: React.FC = () => {
             
             const token = localStorage.getItem(TOKEN_STORAGE_KEY); 
             
-            fetch(`${API_URL}/comics/${comicId}/chapters/${chapterNumParam}`, {
+            // ========================================================
+            // SỬA LỖI TẠI ĐÂY:
+            // Thay thế `chapterNumParam` bằng `foundChapter.id`
+            // ========================================================
+            fetch(`${API_URL}/comics/${comicId}/chapters/${foundChapter.id}`, {
                 headers: { 
                     'Authorization': `Bearer ${token}`
                 }

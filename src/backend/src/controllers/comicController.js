@@ -1,4 +1,4 @@
-// src/backend/src/controllers/comicController.js (ĐÃ SỬA LỖI)
+// src/backend/src/controllers/comicController.js (ĐÃ SỬA LỖI TOÀN DIỆN)
 
 const { getConnection } = require('../db/connection');
 
@@ -13,7 +13,6 @@ const addComic = async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        // FIX: Đã loại bỏ 'uploaderId' khỏi câu lệnh INSERT
         const [comicResult] = await connection.execute(
             'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0]
@@ -23,8 +22,9 @@ const addComic = async (req, res) => {
 
         if (genres && Array.isArray(genres) && genres.length > 0) {
             const genreValues = genres.map(genreId => [comicId, Number(genreId)]);
+            // SỬA LỖI: Dùng camelCase
             await connection.query(
-                'INSERT INTO comic_genres (comic_id, genre_id) VALUES ?',
+                'INSERT INTO comic_genres (comicId, genreId) VALUES ?',
                 [genreValues]
             );
         }
@@ -56,12 +56,14 @@ const updateComic = async (req, res) => {
             [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0, id]
         );
 
-        await connection.execute('DELETE FROM comic_genres WHERE comic_id = ?', [id]);
+        // SỬA LỖI: Dùng camelCase
+        await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
 
         if (genres && Array.isArray(genres) && genres.length > 0) {
             const genreValues = genres.map(genreId => [id, Number(genreId)]);
+            // SỬA LỖI: Dùng camelCase
             await connection.query(
-                'INSERT INTO comic_genres (comic_id, genre_id) VALUES ?',
+                'INSERT INTO comic_genres (comicId, genreId) VALUES ?',
                 [genreValues]
             );
         }
@@ -83,9 +85,13 @@ const deleteComic = async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        await connection.execute('DELETE FROM reviews WHERE comic_id = ?', [id]);
-        await connection.execute('DELETE FROM comic_genres WHERE comic_id = ?', [id]);
-        await connection.execute('DELETE FROM chapters WHERE comic_id = ?', [id]);
+        // SỬA LỖI: Dùng camelCase (reviews.comicId)
+        await connection.execute('DELETE FROM reviews WHERE comicId = ?', [id]);
+        // SỬA LỖI: Dùng camelCase (comic_genres.comicId)
+        await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
+        // SỬA LỖI: Dùng camelCase (chapters.comicId)
+        await connection.execute('DELETE FROM chapters WHERE comicId = ?', [id]);
+        
         await connection.execute('DELETE FROM comics WHERE id = ?', [id]);
 
         await connection.commit();
@@ -112,15 +118,15 @@ const getAllGenres = async (req, res) => {
 const getAllComics = async (req, res) => {
     try {
         const connection = getConnection();
-        // FIX: Đã loại bỏ 'c.rating' và sửa 'c.views' thành 'c.viewCount'
+        // SỬA LỖI: Dùng camelCase (cg.genreId, cg.comicId)
         const [rows] = await connection.execute(
             `SELECT 
                 c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount, c.createdAt, c.updatedAt,
                 COALESCE(
                     (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
                      FROM genres g 
-                     JOIN comic_genres cg ON g.id = cg.genre_id 
-                     WHERE cg.comic_id = c.id),
+                     JOIN comic_genres cg ON g.id = cg.genreId 
+                     WHERE cg.comicId = c.id),
                     '[]'
                 ) AS genres
             FROM comics c`
@@ -142,15 +148,15 @@ const getComicById = async (req, res) => {
         const { id } = req.params;
         const connection = getConnection();
 
-        // FIX: Đã loại bỏ 'c.rating' và 'c.uploaderId', sửa 'c.views' thành 'c.viewCount'
+        // SỬA LỖI: Dùng camelCase (cg.genreId, cg.comicId)
         const [comicRows] = await connection.execute(
             `SELECT 
                 c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, c.viewCount, c.createdAt, c.updatedAt,
                 COALESCE(
                     (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
                      FROM genres g 
-                     JOIN comic_genres cg ON g.id = cg.genre_id 
-                     WHERE cg.comic_id = c.id),
+                     JOIN comic_genres cg ON g.id = cg.genreId 
+                     WHERE cg.comicId = c.id),
                     '[]'
                 ) AS genres
             FROM comics c 
@@ -162,9 +168,9 @@ const getComicById = async (req, res) => {
             return res.status(404).json({ error: 'Comic not found' });
         }
 
-        // FIX: Thêm 'viewCount' vào SELECT
+        // SỬA LỖI: Dùng camelCase (comicId)
         const [chapterRows] = await connection.execute(
-            'SELECT id, chapterNumber, title, price, createdAt, viewCount FROM chapters WHERE comic_id = ? ORDER BY chapterNumber ASC',
+            'SELECT id, chapterNumber, title, price, createdAt, viewCount FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
             [id]
         );
 
@@ -173,7 +179,6 @@ const getComicById = async (req, res) => {
         comic.genres = typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres;
         comic.chapters = chapterRows;
 
-        // Tăng viewCount cho truyện
         await connection.execute('UPDATE comics SET viewCount = viewCount + 1 WHERE id = ?', [id]);
 
         res.json(comic);
@@ -193,10 +198,10 @@ const addChapter = async (req, res) => {
 
     try {
         const connection = getConnection();
-        // FIX: Thêm cột viewCount
+        // SỬA LỖI: Dùng camelCase (comicId)
         const [result] = await connection.execute(
-            'INSERT INTO chapters (comic_id, chapterNumber, title, contentUrls, price, viewCount) VALUES (?, ?, ?, ?, ?, ?)',
-            [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0, 0] // Mặc định viewCount là 0
+            'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price, viewCount) VALUES (?, ?, ?, ?, ?, ?)',
+            [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0, 0]
         );
         res.status(201).json({ message: 'Chapter added successfully', chapterId: result.insertId });
     } catch (error) {
@@ -212,8 +217,9 @@ const deleteChapter = async (req, res) => {
     try {
         await connection.beginTransaction();
         
+        // SỬA LỖI: Dùng camelCase (comicId)
         const [result] = await connection.execute(
-            'DELETE FROM chapters WHERE id = ? AND comic_id = ?',
+            'DELETE FROM chapters WHERE id = ? AND comicId = ?',
             [chapterId, comicId]
         );
         
@@ -239,8 +245,9 @@ const getChapterContent = async (req, res) => {
     try {
         const connection = getConnection();
 
+        // SỬA LỖI: Dùng camelCase (comicId)
         const [chapterRows] = await connection.execute(
-            'SELECT * FROM chapters WHERE id = ? AND comic_id = ?',
+            'SELECT * FROM chapters WHERE id = ? AND comicId = ?',
             [chapterId, comicId]
         );
 
@@ -255,18 +262,15 @@ const getChapterContent = async (req, res) => {
             isPurchased = true;
         } 
         else if (chapter.price > 0 && userId) {
-            // (Tạm thời giả lập là đã mua, vì logic mua/bảng purchased_chapters không rõ ràng)
-            // LÝ TƯỞNG: Bạn cần một bảng `purchased_chapters` như trong file ReaderPage.tsx
-            // Ở đây tôi sẽ dùng logic của bảng `user_library`
+            // SỬA LỖI: Dùng camelCase (comicId)
              const [fullPurchase] = await connection.execute(
                  'SELECT * FROM user_library WHERE userId = ? AND comicId = ?',
                  [userId, comicId]
             );
             
             if (fullPurchase.length > 0) {
-                isPurchased = true; // Đã mua full truyện
+                isPurchased = true;
             } else {
-                // (Chưa mua full, logic mua lẻ tạm thời bị vô hiệu hóa vì thiếu bảng)
                  return res.status(401).json({ error: 'Bạn chưa mua truyện này.' });
             }
         } else if (chapter.price > 0 && !userId) {
@@ -275,7 +279,8 @@ const getChapterContent = async (req, res) => {
 
         if (isPurchased) {
             await connection.execute('UPDATE chapters SET viewCount = viewCount + 1 WHERE id = ?', [chapterId]);
-            await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comic_id = ?) WHERE id = ?', [comicId, comicId]);
+            // SỬA LỖI: Dùng camelCase (comicId)
+            await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comicId = ?) WHERE id = ?', [comicId, comicId]);
             
             chapter.contentUrls = JSON.parse(chapter.contentUrls || '[]');
             res.json(chapter);
@@ -292,7 +297,6 @@ const getChapterContent = async (req, res) => {
 const getTopComics = async (req, res) => {
     try {
         const connection = getConnection();
-        // FIX: Đổi 'views' thành 'viewCount'
         const [rows] = await connection.execute(
             'SELECT id, title, coverImageUrl, status, isDigital, price, author, viewCount FROM comics ORDER BY viewCount DESC LIMIT 10'
         );
@@ -330,12 +334,12 @@ const getComicsByGenre = async (req, res) => {
         }
         const connection = getConnection();
         
-        // FIX: Đổi 'c.views' thành 'c.viewCount' và bỏ 'c.rating'
+        // SỬA LỖI: Dùng camelCase (comicId, genreId)
         const [rows] = await connection.execute(
             `SELECT c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount
              FROM comics c
-             JOIN comic_genres cg ON c.id = cg.comic_id
-             JOIN genres g ON cg.genre_id = g.id
+             JOIN comic_genres cg ON c.id = cg.comicId
+             JOIN genres g ON cg.genreId = g.id
              WHERE g.name = ?`,
             [genre]
         );
@@ -350,6 +354,7 @@ const getReviews = async (req, res) => {
     try {
         const { comicId } = req.params;
         const connection = getConnection();
+        // SỬA LỖI: Dùng camelCase (r.comicId)
         const [rows] = await connection.execute(
             `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
              FROM reviews r
@@ -377,6 +382,7 @@ const postReview = async (req, res) => {
         
         const connection = getConnection();
 
+        // SỬA LỖI: Dùng camelCase (comicId)
         const [existing] = await connection.execute(
             'SELECT * FROM reviews WHERE comicId = ? AND userId = ?',
             [comicId, userId]
@@ -390,22 +396,13 @@ const postReview = async (req, res) => {
                 [rating, comment, reviewId]
             );
         } else {
+            // SỬA LỖI: Dùng camelCase (comicId)
             const [result] = await connection.execute(
                 'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
                 [comicId, userId, rating, comment]
             );
             reviewId = result.insertId;
         }
-
-        // FIX: Loại bỏ việc cập nhật cột 'rating' không tồn tại trong bảng 'comics'
-        /*
-        await connection.execute(
-            `UPDATE comics c SET c.rating = (
-                SELECT AVG(r.rating) FROM reviews r WHERE r.comicId = ?
-            ) WHERE c.id = ?`,
-            [comicId, comicId]
-        );
-        */
 
         const [newReview] = await connection.execute(
              `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
