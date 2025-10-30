@@ -12,8 +12,8 @@ export const getBotResponse = async (
 ): Promise<string> => {
     
     const formattedHistory = history.map(item => ({
-        role: item.role,
-        parts: [{ text: item.parts }] 
+        role: item.role === "model" ? "assistant" : item.role,
+        content: item.parts 
     }));
     
     try {
@@ -25,7 +25,7 @@ export const getBotResponse = async (
             },
             body: JSON.stringify({
                 message: message,
-                history: formattedHistory
+                history: formattedHistory 
             })
         });
 

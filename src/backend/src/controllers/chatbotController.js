@@ -32,7 +32,7 @@ const askChatbot = async (req, res) => {
             },
             ...history.map(item => ({
                 role: item.role,
-                content: item.parts 
+                content: item.content 
             })),
             {
                 role: "user",
