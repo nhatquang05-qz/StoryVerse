@@ -32,26 +32,36 @@
     max-width: calc(100vw - 40px);
     height: 500px;
     max-height: calc(100vh - 110px);
-    background: var(--clr-bg);
+    background: linear-gradient(135deg, #2c3e50 0%, #1a222c 100%);
     border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     z-index: 1000;
     overflow: hidden;
-    border: 1px solid var(--clr-border);
+    border: 1px solid var(--clr-border-light);
 }
 
+html[data-theme="light"] .chatbot-window {
+     background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+}
+
+
 .chatbot-header {
-    background: var(--clr-bg-secondary);
+    background: rgba(44, 62, 80, 0.7); 
+    backdrop-filter: blur(5px);
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--clr-border);
+    border-bottom: 1px solid var(--clr-border-light); 
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     flex-shrink: 0;
+}
+
+html[data-theme="light"] .chatbot-header {
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .chatbot-header h3 {
@@ -86,14 +96,25 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    background-color: rgba(0, 0, 0, 0.1);
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.01),
+        rgba(255, 255, 255, 0.01) 10px,
+        transparent 10px,
+        transparent 20px
+    );
+}
+
+html[data-theme="light"] .chatbot-messages {
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 .chatbot-messages::-webkit-scrollbar {
   width: 6px;
 }
 .chatbot-messages::-webkit-scrollbar-track {
-  background: var(--clr-bg-secondary);
-  border-radius: 10px;
+  background: transparent; 
 }
 .chatbot-messages::-webkit-scrollbar-thumb {
   background: #555;
@@ -121,6 +142,7 @@
     font-size: 1.1rem;
     margin-right: 0.75rem;
     overflow: hidden;
+    border: 2px solid var(--clr-background); 
 }
 
 .chat-message .message-icon img {
@@ -145,22 +167,24 @@
 
 .chat-message p {
     margin: 0;
-    padding: 0.6rem 0.8rem;
-    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    border-radius: 18px; 
     line-height: 1.5;
     font-size: 0.95rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
 }
 
 .chat-message.model p {
-    background: var(--clr-bg-secondary);
+    background: var(--clr-card-bg);
     color: var(--clr-text);
-    border-top-left-radius: 0;
+    border: 1px solid var(--clr-border-light); 
+    border-top-left-radius: 4px; 
 }
 
 .chat-message.user p {
-    background: var(--primary-color);
-    color: #fff;
-    border-top-right-radius: 0;
+    background: linear-gradient(135deg, #007bff 0%, #377dff 100%); 
+    color: #ffffff;
+    border-top-right-radius: 4px; 
 }
 
 .loading-dots {
@@ -178,26 +202,31 @@
 
 .chatbot-input-form {
     display: flex;
-    border-top: 1px solid var(--clr-border);
+    border-top: 1px solid var(--clr-border-light);
     padding: 0.75rem;
-    background: var(--clr-bg-secondary);
+    background: rgba(44, 62, 80, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+html[data-theme="light"] .chatbot-input-form {
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .chatbot-input-form input {
     flex-grow: 1;
     border: none;
-    padding: 0.75rem;
+    padding: 0.75rem 1rem; 
     border-radius: 20px;
-    background: var(--clr-bg);
+    background: var(--clr-background); 
     color: var(--clr-text);
     font-size: 0.95rem;
     outline: none;
-    border: 1px solid var(--clr-border);
+    border: 1px solid var(--clr-border-light);
 }
 
 .chatbot-input-form input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px var(--primary-color-light);
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 2px var(--clr-input-focus-shadow);
 }
 
 .chatbot-input-form input:disabled {
@@ -207,7 +236,7 @@
 
 .chatbot-input-form button {
     margin-left: 0.75rem;
-    background: var(--primary-color);
+    background: var(--clr-primary);
     border: none;
     color: white;
     width: 44px;
@@ -223,7 +252,7 @@
 }
 
 .chatbot-input-form button:hover {
-    background: var(--primary-color-dark);
+    background: var(--clr-primary-dark);
 }
 
 .chatbot-input-form button:disabled {
