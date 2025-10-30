@@ -6,6 +6,7 @@ import { FiChevronDown, FiUpload, FiLoader } from 'react-icons/fi';
 import './ProfilePage.css';
 import { Link } from 'react-router-dom';
 import { getLevelColor, getEquivalentLevelTitle as getEquivalentLevelTitleUtil, LEVEL_SYSTEMS } from '../../utils/authUtils'; 
+import LoadingPage from '../../components/common/Loading/LoadingScreen';
 
 interface LevelSystem {
     key: string;
@@ -42,11 +43,7 @@ const ProfilePage: React.FC = () => {
   const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
   if (loading) {
-      return (
-          <div className="profile-page-not-logged">
-              <h2>Đang tải dữ liệu người dùng...</h2>
-          </div>
-      );
+    return <LoadingPage />;
   }
 
   if (!currentUser) {

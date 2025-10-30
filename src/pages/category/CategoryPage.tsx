@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProductList from '../../components/common/ProductList/ProductList';
 import { comics, getUniqueAuthors, physicalComics, digitalComics, type Comic } from '../../data/mockData';
-import LoadingSkeleton from '../../components/common/LoadingSkeleton/LoadingSkeleton';
+import LoadingSkeleton from '../../components/common/Loading/LoadingScreen';
 import Pagination from '../../components/common/Pagination';
 import './CategoryPage.css';
 

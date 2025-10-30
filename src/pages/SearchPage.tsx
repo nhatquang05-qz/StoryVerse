@@ -3,7 +3,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 
-import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton'; 
+import LoadingSkeleton from '../components/common/Loading/LoadingScreen'; 
 import './category/CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';

@@ -10,6 +10,7 @@ import {
     ensureUserDataTypes,
     LEVEL_SYSTEMS
 } from '../utils/authUtils'; 
+import LoadingPage from '../components/common/Loading/LoadingScreen';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
@@ -335,7 +336,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [navigate]);
 
     if (loading) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.5rem', color: 'var(--clr-text)' }}>Đang tải dữ liệu người dùng...</div>;
+        return <LoadingPage />;
     }
 
     const contextValue = {

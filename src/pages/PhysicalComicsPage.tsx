@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import ProductList from '../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../types/comicTypes';
-import LoadingSkeleton from '../components/common/LoadingSkeleton/LoadingSkeleton';
+import LoadingSkeleton from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import './category/CategoryPage.css';
 
