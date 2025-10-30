@@ -359,6 +359,8 @@ const Header: React.FC = () => {
               <Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
                 <FiDollarSign /> <span>Nạp Xu</span>
               </Link>
+              <Link to="/my-library">Thư Viện Số</Link>
+              <Link to="/orders">Lịch Sử Mua Hàng</Link>
               <Link to="/settings" onClick={toggleMenu} className="nav-mobile-action">
                 <FiSettings /> <span>Cài Đặt</span>
               </Link>

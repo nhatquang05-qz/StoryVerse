@@ -1,171 +1,151 @@
-import React, { useState, useMemo } from 'react';
-import { FiChevronDown, FiEdit3 } from 'react-icons/fi';
-interface LevelSystemSelectorProps {
-    currentUserLevel: number; 
-    currentSystemKey: string; 
-    onSystemChange: (newSystemKey: string) => void; 
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { FiChevronDown, FiHelpCircle, FiSave, FiX } from 'react-icons/fi';
+import { useAuth } from '../../contexts/AuthContext';
+import { LEVEL_SYSTEMS, getEquivalentLevelTitle as getEquivalentLevelTitleUtil } from '../../utils/authUtils'; 
+import './LevelSystemSelector.css';
+
+interface LevelSelectorProps {
+    currentUserLevel: number;
+    currentSystemKey: string;
+    onSystemChange: (newSystemKey: string) => void;
+    currentLevelColor: string;
 }
 
-interface LevelSystem {
-    key: string;
-    name: string;
-    description: string;
-    levels: string[];
-    minLevels: number[]; 
-}
-
-const LEVEL_SYSTEMS: LevelSystem[] = [
-    {
-        key: 'Bình Thường', 
-        name: 'Bình Thường',
-        description: 'Cấp độ cơ bản cho người mới bắt đầu.',
-        levels: ['Cấp 0', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Cấp 4', 'Cấp 5', 'Cấp 6', 'Cấp 7', 'Cấp 8', 'Cấp 9', 'Cấp 10', 'Cấp 11', 'Cấp 12', 'Cấp 13', 'Cấp 14', 'Cấp 15','Cấp 16', 'Cấp 17','Cấp 18','Cấp 19','Cấp 20','Cấp 21','Cấp 22'],
-        minLevels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-    },
-    {
-        key: 'Tu Tiên',
-        name: 'Tu Tiên',
-        description: 'Thế giới tu luyện linh khí, truy cầu trường sinh bất tử.',
-        levels: ['Phàm nhân', 'Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Hợp Thể', 'Đại Thừa', 'Phi Thăng', 'Tiên Nhân'],
-        minLevels: [0, 1, 2, 4, 6, 7, 8, 10, 12, 15],
-    },
-    {
-        key: 'Game',
-        name: 'Game',
-        description: 'Thế giới trò chơi, nhân vật thăng cấp, săn boss, vượt nhiệm vụ.',
-        levels: ['Vô hạng', 'Đồng', 'Bạc', 'Vàng', 'Bạch Kim', 'Kim Cương', 'Huyền Thoại', 'Cao thủ', 'Thách đấu'],
-        minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15],
-    },
-    {
-        key: 'Ma Vương',
-        name: 'Ma Vương',
-        description: 'Thế giới hắc ám, ma giới, chiến đấu với anh hùng và thần linh.',
-        levels: ['Ma thường', 'Ma Nhân', 'Ma Sĩ', 'Ma Tướng', 'Ma Tôn', 'Ma Đế', 'Ma Thần', 'Ma Vương', 'Hắc Ma Vạn Tôn'],
-        minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15],
-    },
-    {
-        key: 'Pháp Sư',
-        name: 'Pháp Sư',
-        description: 'Thế giới phép thuật, học viện, chiến đấu bằng ma pháp và trí tuệ.',
-        levels: ['Học đồ', 'Pháp sư sơ cấp', 'Pháp sư trung cấp', 'Pháp sư cao cấp', 'Đại Pháp Sư', 'Pháp Thánh', 'Pháp Thần', 'Ma đạo sư'],
-        minLevels: [0, 1, 3, 6, 9, 11, 13, 15],
-    },
-    {
-        key: 'Tinh Không',
-        name: 'Tinh Không',
-        description: 'Thế giới vũ trụ, du hành giữa các hành tinh và hệ sao.',
-        levels: ['Binh lính', 'Chiến Sĩ', 'Vệ Tinh', 'Tinh Vương', 'Tinh Hoàng', 'Tinh Đế', 'Tinh Tôn', 'Vũ Trụ Chi Chủ'],
-        minLevels: [0, 1, 3, 6, 9, 11, 13, 15],
-    }
-];
-
-const getSystemLevelForUser = (userLevel: number, systemKey: string): string => {
-    const system = LEVEL_SYSTEMS.find(s => s.key === systemKey) || LEVEL_SYSTEMS[0];
-    let matchingLevel = system.levels[0]; 
-
-    for (let i = system.minLevels.length - 1; i >= 0; i--) {
-        if (userLevel >= system.minLevels[i]) {
-            matchingLevel = system.levels[i];
-            break;
-        }
-    }
-
-    return matchingLevel;
-};
-
-const LevelSystemSelector: React.FC<LevelSystemSelectorProps> = ({ currentUserLevel, currentSystemKey, onSystemChange }) => {
+const LevelSystemSelector: React.FC<LevelSelectorProps> = ({ currentUserLevel, currentSystemKey, onSystemChange, currentLevelColor }) => {
     const [isEditing, setIsEditing] = useState(false);
-    
-    const currentSystem = useMemo(() => 
-        LEVEL_SYSTEMS.find(s => s.key === currentSystemKey) || LEVEL_SYSTEMS[0]
-    , [currentSystemKey]);
-    
-    const equivalentLevel = useMemo(() => 
-        getSystemLevelForUser(currentUserLevel, currentSystemKey)
-    , [currentUserLevel, currentSystemKey]);
+    const [tempSystemKey, setTempSystemKey] = useState(currentSystemKey);
+    const selectorRef = useRef<HTMLDivElement>(null);
 
-    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        onSystemChange(e.target.value);
-        setIsEditing(false); 
+    useEffect(() => {
+        setTempSystemKey(currentSystemKey);
+    }, [currentSystemKey]);
+
+    const liveSystem = useMemo(() =>
+        LEVEL_SYSTEMS.find(s => s.key === tempSystemKey) || LEVEL_SYSTEMS[0]
+    , [tempSystemKey]);
+
+    const liveEquivalentLevel = useMemo(() => {
+        return getEquivalentLevelTitleUtil(currentUserLevel, tempSystemKey);
+    }, [currentUserLevel, tempSystemKey]);
+
+    const equivalentLevel = useMemo(() => {
+        return getEquivalentLevelTitleUtil(currentUserLevel, currentSystemKey);
+    }, [currentUserLevel, currentSystemKey]);
+
+    const handleEditClick = () => {
+        setTempSystemKey(currentSystemKey);
+        setIsEditing(true);
     };
 
-    return (
-        <div className="level-system-selector-container">
-            <h3>Chọn Hệ Thống Cấp Bậc</h3>
+    const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newKey = e.target.value;
+        setTempSystemKey(newKey);
+    };
+    
+    const handleSaveClick = () => {
+        if (tempSystemKey !== currentSystemKey) {
+            onSystemChange(tempSystemKey);
+        }
+        setIsEditing(false);
+    };
+    
+    const handleCancelClick = () => {
+        setTempSystemKey(currentSystemKey);
+        setIsEditing(false);
+    };
 
-            {!isEditing ? (
-                <div className="current-selection-display">
-                    <p className="level-label">Loại cấp bậc:</p>
-                    
-                    <div className="selection-info">
-                        <span className="system-name" title={currentSystem.description}>
-                            {currentSystem.name}
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
+                handleCancelClick(); 
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [currentSystemKey]);
+
+    const hasPendingChanges = tempSystemKey !== currentSystemKey;
+
+    return (
+        <div className="level-system-selector-wrapper" ref={selectorRef}>
+            <div className="system-current-info">
+                <span className="level-label">Hệ thống:</span>
+                 {!isEditing ? (
+                    <>
+                        <span
+                            className="system-name-display"
+                            style={{ color: currentLevelColor, borderColor: currentLevelColor }}
+                            title={liveSystem.description}
+                        >
+                            {liveSystem.name} <FiHelpCircle style={{verticalAlign: 'middle', marginLeft: '4px'}}/>
                         </span>
-                        <button 
-                            onClick={() => setIsEditing(true)} 
-                            className="change-btn"
+                        <button
+                            onClick={handleEditClick}
+                            className="change-system-btn"
+                            style={{ color: currentLevelColor, textDecoration: 'underline' }}
                             aria-label="Thay đổi loại cấp bậc"
                         >
-                            <FiEdit3 /> Thay đổi
+                            Thay đổi
+                        </button>
+                    </>
+                 ) : (
+                    <div className="system-selector-form-inline-minimal">
+                        <div className="select-wrapper">
+                            <select
+                                id="level-system-select"
+                                value={tempSystemKey}
+                                onChange={handleSelectChange}
+                            >
+                                {LEVEL_SYSTEMS.map(system => (
+                                    <option key={system.key} value={system.key}>
+                                        {system.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <FiChevronDown className="select-arrow" />
+                        </div>
+                    </div>
+                 )}
+            </div>
+             <div className="equivalent-level-display">
+                <span className="level-label">Cấp bậc tương đương:</span>
+                <span className="level-value" style={{fontWeight: 'bold', color: 'var(--clr-text)'}}>
+                    {equivalentLevel}
+                </span>
+            </div>
+            
+             {isEditing && (
+                 <div className="system-info-editing">
+                    <p className="system-description">
+                        **Mô tả:** {liveSystem.description}
+                    </p>
+                    <p className="equivalent-level-live">
+                        <span className="level-label">Cấp tương đương (Xem trước):</span>
+                        <span className="level-value-live" style={{fontWeight: 'bold'}}>
+                           {liveEquivalentLevel}
+                        </span>
+                    </p>
+                    <div className="action-buttons-group">
+                        <button 
+                            onClick={handleSaveClick} 
+                            className="btn btn-save" 
+                            disabled={!hasPendingChanges}
+                            style={{ marginRight: '1rem' }}
+                        >
+                            <FiSave style={{ marginRight: '0.5rem' }} /> Lưu
+                        </button>
+                        <button 
+                            onClick={handleCancelClick} 
+                            className="btn btn-cancel"
+                        >
+                            <FiX style={{ marginRight: '0.5rem' }} /> Hủy
                         </button>
                     </div>
-
-                    <p className="equivalent-level">
-                        <span className="level-label">Cấp bậc tương đương:</span>
-                        <span className="level-value">
-                            {equivalentLevel} 
-                            <span className="base-level-note">(Cấp {currentUserLevel})</span>
-                        </span>
-                    </p>
                 </div>
-            ) : (
-                <div className="system-selector-form">
-                    <label htmlFor="level-system-select" className="level-label">
-                        Chọn loại cấp bậc:
-                    </label>
-                    <div className="select-wrapper">
-                        <select
-                            id="level-system-select"
-                            value={currentSystemKey}
-                            onChange={handleSelectChange}
-                        >
-                            {LEVEL_SYSTEMS.map(system => (
-                                <option key={system.key} value={system.key}>
-                                    {system.name}
-                                </option>
-                            ))}
-                        </select>
-                        <FiChevronDown className="select-arrow" />
-                    </div>
-                    <button 
-                        onClick={() => setIsEditing(false)} 
-                        className="cancel-btn"
-                    >
-                        Hủy
-                    </button>
-                    <p className="system-description">{currentSystem.description}</p>
-                    <p className="equivalent-level-live">
-                        <span className="level-label">Cấp tương đương hiện tại:</span>
-                        <span className="level-value-live">
-                           {getSystemLevelForUser(currentUserLevel, currentSystemKey)}
-                        </span>
-                    </p>
-                </div>
-            )}
-
-             <div className="system-table">
-                <h4>Bảng Cấp Bậc Tương Đương ({currentSystem.name})</h4>
-                <div className="table-header">
-                    <span className="base-level-col">Cấp độ (Base)</span>
-                    <span className="system-level-col">{currentSystem.name}</span>
-                </div>
-                {currentSystem.levels.map((levelName, index) => (
-                    <div key={index} className="table-row">
-                        <span className="base-level-col">Cấp {currentSystem.minLevels[index]} {currentSystem.minLevels[index] === 15 ? '+' : ''}</span>
-                        <span className="system-level-col">{levelName}</span>
-                    </div>
-                ))}
-            </div>
+             )}
         </div>
     );
 };

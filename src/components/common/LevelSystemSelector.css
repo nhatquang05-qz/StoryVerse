@@ -38,10 +38,14 @@
     margin-bottom: 1rem;
 }
 
-.system-name {
+.system-name-display {
     font-size: 1.2rem;
     font-weight: bold;
-    color: var(--clr-error-text); /* Tương tự màu Ma Vương trong ảnh */
+    color: var(--clr-error-text);
+    padding: 0 0.5rem;
+    border: 1px solid;
+    border-radius: 4px;
+    line-height: 1.5;
 }
 
 .change-btn {
@@ -61,7 +65,7 @@
     color: var(--clr-button-text);
 }
 
-.equivalent-level {
+.equivalent-level-display {
     display: flex;
     align-items: center;
     font-size: 1.1rem;
@@ -72,30 +76,20 @@
     color: var(--clr-text);
 }
 
-.base-level-note {
-    font-size: 0.85rem;
-    color: var(--clr-text-secondary);
-    font-weight: normal;
-    margin-left: 0.5rem;
-}
-
 /* --- Editing Mode --- */
 
-.system-selector-form {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 1rem;
+.system-selector-form-inline-minimal {
+    display: flex;
+    flex-grow: 1;
     align-items: center;
-    margin-bottom: 1.5rem;
 }
 
 .select-wrapper {
     position: relative;
-    grid-column: 2 / 3;
     width: 100%;
 }
 
-.system-selector-form select {
+.system-selector-form-inline-minimal select {
     width: 100%;
     padding: 0.75rem 2rem 0.75rem 1rem;
     appearance: none;
@@ -116,37 +110,28 @@
     pointer-events: none;
 }
 
-.system-selector-form .level-label {
-    grid-column: 1 / 2;
-    margin: 0;
-}
 
-.system-selector-form .cancel-btn {
-    grid-column: 3 / 4;
-    padding: 0.7rem 1.2rem;
-    background-color: var(--clr-text-secondary);
-    color: var(--clr-button-text);
-}
-.system-selector-form .cancel-btn:hover {
-    background-color: var(--clr-border-light);
+.system-info-editing {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--clr-border-light);
 }
 
 .system-description {
-    grid-column: 1 / -1;
     font-size: 0.9rem;
     color: var(--clr-text-secondary);
-    margin: 0.5rem 0 0 0;
+    margin: 0.5rem 0 1rem 0;
     padding-left: 1rem;
     border-left: 3px solid var(--clr-primary-dark);
 }
 
 .equivalent-level-live {
-    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     font-size: 1rem;
     font-weight: 500;
     margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 .level-value-live {
     font-weight: bold;
@@ -154,7 +139,30 @@
     margin-left: 0.5rem;
 }
 
-/* --- System Table --- */
+.action-buttons-group {
+    display: flex;
+    gap: 1rem;
+}
+.btn-save {
+    background-color: var(--clr-success-text) !important;
+    color: var(--clr-button-text) !important;
+    padding: 0.6rem 1.2rem;
+    border: none;
+}
+.btn-save:hover:not(:disabled) {
+    background-color: #1a6f2c !important; /* Darker green */
+}
+.btn-cancel {
+    background-color: var(--clr-text-secondary) !important;
+    color: var(--clr-button-text) !important;
+    padding: 0.6rem 1.2rem;
+    border: none;
+}
+.btn-cancel:hover {
+    background-color: #5a6268 !important;
+}
+
+
 .system-table {
     margin-top: 2rem;
     padding-top: 1rem;

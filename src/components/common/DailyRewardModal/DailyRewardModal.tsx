@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { FiGift, FiX, FiCheckCircle, FiTag } from 'react-icons/fi';
-import { useAuth, dailyRewardsData } from '../../../contexts/AuthContext';
+import { useAuth} from '../../../contexts/AuthContext';
+import { dailyRewardsData } from '../../../utils/authUtils';
 import './DailyRewardModal.css';
 
 interface DailyRewardModalProps {
