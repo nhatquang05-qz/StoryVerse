@@ -425,14 +425,14 @@ const getTopComics = async (req, res) => {
 
 const searchComics = async (req, res) => {
     try {
-        const { query } = req.query;
+        const { q } = req.query;
+        const query = q;
         if (!query) {
             return res.status(400).json({ error: 'Query parameter is required' });
         }
         const connection = getConnection();
         const searchQuery = `%${query}%`;
         
-        // Cập nhật truy vấn để JOIN bảng genres và tìm kiếm trong tên truyện, tác giả, và thể loại
         const [rows] = await connection.execute(
             `SELECT 
                 c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
@@ -446,7 +446,7 @@ const searchComics = async (req, res) => {
                 OR c.author LIKE ? 
                 OR g.name LIKE ?
              GROUP BY c.id
-             LIMIT 20`, // Giới hạn kết quả để tối ưu (Header chỉ hiển thị 10)
+             LIMIT 20`,
             [searchQuery, searchQuery, searchQuery]
         );
         
@@ -532,13 +532,11 @@ const postReview = async (req, res) => {
         let reviewId;
         if (existing.length > 0) {
             reviewId = existing[0].id;
-            // Cập nhật đánh giá nếu đã tồn tại
             await connection.execute(
                 'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?',
                 [rating, comment, reviewId]
             );
         } else {
-            // Thêm mới đánh giá
             const [result] = await connection.execute(
                 'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
                 [comicId, userId, rating, comment]
@@ -546,7 +544,6 @@ const postReview = async (req, res) => {
             reviewId = result.insertId;
         }
 
-        // Lấy lại đánh giá mới nhất (hoặc được cập nhật) cùng thông tin người dùng
         const [newReview] = await connection.execute(
              `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
              FROM reviews r

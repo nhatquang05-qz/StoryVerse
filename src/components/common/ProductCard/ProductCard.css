@@ -154,6 +154,8 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 0.25rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .card-view-count-section {
@@ -171,26 +173,26 @@
 .star-rating-icons {
     display: flex;
     gap: 0.1rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .star-icon {
-    width: 0.9rem;
-    height: 0.9rem;
+    width: 0.8rem;
+    height: 0.8rem;
     stroke: var(--clr-coin-color);
 }
 
 .rating-text {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--clr-coin-color);
     margin-left: 0.25rem;
 }
 
 .card-view-count {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--clr-text-secondary);
-    padding: 2px 6px;
+    padding: 2px 4px;
     border: 1px solid var(--clr-text-secondary);
     border-radius: 4px;
     font-weight: 500;
