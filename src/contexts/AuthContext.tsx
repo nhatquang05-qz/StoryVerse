@@ -1,6 +1,10 @@
+// src/contexts/AuthContext.tsx
+
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
+import { useNavigate } from 'react-router-dom';
 import LevelUpPopup from '../components/popups/LevelUpPopup';
+import LoginSuccessPopup from '../components/popups/LoginSuccessPopup'; // Import Popup
 import type { User, Address } from '../types/userTypes';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -30,6 +34,8 @@ interface AuthContextType {
   isLevelUpPopupOpen: boolean;
   levelUpInfo: { newLevel: number; levelTitle: string } | null;
   closeLevelUpPopup: () => void;
+  isLoginSuccessPopupOpen: boolean;
+  closeLoginSuccessPopup: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,7 +76,6 @@ const getToken = () => localStorage.getItem(TOKEN_STORAGE_KEY);
 
 const ensureUserDataTypes = (userData: any): User => {
     if (!userData) {
-
        console.warn("ensureUserDataTypes received null or undefined userData");
        return {} as User;
     }
@@ -120,6 +125,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const { showNotification } = useNotification();
+    const navigate = useNavigate();
 
     const [selectedSystemKey, setSelectedSystemKey] = useState<string>(() => {
         return localStorage.getItem(LEVEL_SYSTEM_STORAGE_KEY) || 'Bình Thường';
@@ -127,6 +133,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const [isLevelUpPopupOpen, setIsLevelUpPopupOpen] = useState(false);
     const [levelUpInfo, setLevelUpInfo] = useState<{ newLevel: number; levelTitle: string } | null>(null);
+    
+    // STATE CHO LOGIN POPUP
+    const [isLoginSuccessPopupOpen, setIsLoginSuccessPopupOpen] = useState(false);
+    const [usernameToDisplay, setUsernameToDisplay] = useState('');
+    // END STATE CHO LOGIN POPUP
 
     useEffect(() => {
         const checkUser = async () => {
@@ -192,7 +203,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
             const userData = ensureUserDataTypes(data.user); 
             setCurrentUser(userData);
-            showNotification('Đăng nhập thành công!', 'success');
+
+            // KÍCH HOẠT POPUP
+            setUsernameToDisplay(email.split('@')[0] || 'Người dùng');
+            setIsLoginSuccessPopupOpen(true);
+            // END KÍCH HOẠT POPUP
+            
         } catch (error: any) {
              showNotification(error.message || 'Đã xảy ra lỗi khi đăng nhập.', 'error');
              throw error;
@@ -233,7 +249,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return null;
         }
 
-        setIsSaving(true);
         try {
             const response = await fetch(`${API_URL}/profile`, {
                 method: 'PUT',
@@ -404,6 +419,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsLevelUpPopupOpen(false);
         setLevelUpInfo(null);
     }, []);
+    
+    // HÀM ĐÓNG LOGIN POPUP: THỰC HIỆN CHUYỂN HƯỚNG
+    const closeLoginSuccessPopup = useCallback(() => {
+        setIsLoginSuccessPopupOpen(false);
+        // Chuyển hướng về trang chủ ngay sau khi Popup đóng
+        navigate('/', { replace: true }); 
+    }, [navigate]);
+    // END HÀM ĐÓNG LOGIN POPUP
 
     if (loading) {
         return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.5rem', color: 'var(--clr-text)' }}>Đang tải dữ liệu người dùng...</div>;
@@ -426,7 +449,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             getEquivalentLevelTitle,
             isLevelUpPopupOpen,
             levelUpInfo,
-            closeLevelUpPopup
+            closeLevelUpPopup,
+            isLoginSuccessPopupOpen,
+            closeLoginSuccessPopup
         };
 
     return (
@@ -440,6 +465,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     levelTitle={levelUpInfo.levelTitle}
                 />
              )}
+            {/* RENDER LOGIN POPUP TẠI ĐÂY */}
+            {isLoginSuccessPopupOpen && (
+                <LoginSuccessPopup 
+                    isOpen={isLoginSuccessPopupOpen} 
+                    onClose={closeLoginSuccessPopup} // Truyền hàm onClose (sẽ gọi navigate)
+                    username={usernameToDisplay}
+                />
+            )}
+            {/* END RENDER LOGIN POPUP */}
         </AuthContext.Provider>
     );
 };

@@ -8,21 +8,22 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { login, isLoginSuccessPopupOpen } = useAuth(); 
   const { showNotification } = useNotification();
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (isLoginSuccessPopupOpen) return;
+
     try {
       await login(email, password); 
-      navigate('/'); 
+ 
     } catch (err) {
-      // Lỗi sẽ được throw từ AuthContext
       const errorMessage = (err instanceof Error) ? err.message : 'Email hoặc mật khẩu không đúng.';
       setError(errorMessage);
-      showNotification(errorMessage, 'error');
       console.error('Lỗi đăng nhập:', err);
     }
   };
@@ -42,6 +43,7 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Nhập email của bạn"
+              disabled={isLoginSuccessPopupOpen} 
             />
           </div>
           <div className="form-group">
@@ -53,9 +55,10 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Nhập mật khẩu"
+              disabled={isLoginSuccessPopupOpen} 
             />
           </div>
-          <button type="submit" className="auth-button">Đăng Nhập</button>
+          <button type="submit" className="auth-button" disabled={isLoginSuccessPopupOpen}>Đăng Nhập</button>
         </form>
         <p className="auth-switch">
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
