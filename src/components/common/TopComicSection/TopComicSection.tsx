@@ -1,5 +1,3 @@
-// src/components/common/TopComicSection/TopComicSection.tsx (ĐÃ SỬA LỖI)
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import StarRating from '../StarRating';

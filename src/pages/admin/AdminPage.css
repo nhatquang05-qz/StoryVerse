@@ -1,5 +1,3 @@
-/* src/pages/admin/AdminPage.css */
-
 .admin-page {
     padding: 2rem;
     max-width: 1536px;
@@ -76,7 +74,6 @@
     margin: 0 0 0.25rem 0;
     color: var(--clr-text);
     line-height: 1.3;
-    /* Cắt ngắn tiêu đề nếu quá dài */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -226,7 +223,7 @@
     background-color: var(--clr-background);
     color: var(--clr-text);
     font-size: 1rem;
-    box-sizing: border-box; /* Quan trọng */
+    box-sizing: border-box; 
 }
 
 .admin-form .form-group textarea {
@@ -299,4 +296,37 @@
 .chapter-manage-actions {
     display: flex;
     gap: 0.75rem;
+}
+
+.genre-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border: 1px solid var(--clr-border-light);
+    border-radius: 5px;
+    background-color: var(--clr-background);
+    max-height: 250px; 
+    overflow-y: auto;
+}
+
+.genre-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--clr-text);
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.genre-checkbox-label:hover {
+    background-color: var(--clr-footer-bg);
+}
+
+.genre-checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
 }

@@ -1,5 +1,3 @@
-// backend/src/routes/uploadRoutes.js (ĐÃ SỬA LỖI)
-
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -23,7 +21,6 @@ const upload = multer({
     }
 });
 
-// FIX: Đổi '/upload' thành '/' vì tiền tố đã được định nghĩa ở file index.js
 router.post('/', authenticateToken, upload.single('image'), uploadImage);
 
 module.exports = router;

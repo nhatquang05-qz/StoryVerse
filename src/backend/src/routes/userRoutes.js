@@ -1,5 +1,3 @@
-// src/backend/src/routes/userRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const { getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters } = require('../controllers/userController');

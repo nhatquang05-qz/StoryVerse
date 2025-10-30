@@ -1,5 +1,3 @@
-// src/pages/admin/AdminPage.tsx (ĐÃ SỬA LỖI)
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
@@ -7,7 +5,6 @@ import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } 
 import { FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave } from 'react-icons/fi';
 import './AdminPage.css';
 
-// FIX: Thêm URL dự phòng 'http://localhost:3000/api'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 interface GenreSelectorProps {

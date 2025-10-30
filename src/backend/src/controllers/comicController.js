@@ -1,5 +1,3 @@
-// src/backend/src/controllers/comicController.js
-
 const { getConnection } = require('../db/connection');
 const { BASE_EXP_PER_COIN, EXP_RATE_REDUCTION_FACTOR, MIN_EXP_PER_COIN } = require('../utils/constants');
 
@@ -274,7 +272,8 @@ const getChapterContent = async (req, res) => {
             await connection.execute('UPDATE chapters SET viewCount = viewCount + 1 WHERE id = ?', [chapterId]);
             await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comicId = ?) WHERE id = ?', [comicId, comicId]);
             
-            chapter.contentUrls = JSON.parse(chapter.contentUrls || '[]');
+            chapter.contentUrls = chapter.contentUrls || [];
+
             res.json(chapter);
         } else {
             return res.status(403).json({ error: 'You do not have access to this chapter.' });
