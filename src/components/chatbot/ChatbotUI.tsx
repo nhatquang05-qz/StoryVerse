@@ -1,142 +1,116 @@
-// src/components/chatbot/ChatbotUI.tsx
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiX, FiSend } from 'react-icons/fi';
-import { useAuth } from '../../contexts/AuthContext';
-import { handleUserInput, getBotResponse, type ChatbotMessage } from './ChatbotLogic';
-import type { Comic } from '../../data/mockData';
-import { Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect, type FormEvent } from 'react';
+import { FiSend, FiX, FiUser, FiLoader } from 'react-icons/fi';
+import { getBotResponse, type ChatHistory } from './ChatbotLogic';
+import chatbotIcon from '../../assets/images/chatbot-icon.png';
 import './Chatbot.css';
-import chatbotIcon from '../../assets/images/chatbot-icon.png'; // <-- THAY ĐỔI ĐƯỜNG DẪN NẾU CẦN
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+
+const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const ChatbotUI: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatbotMessage[]>([
-    { id: Date.now(), type: 'text', content: "Chào bạn! Mình là chatbot của StoryVerse. Bạn cần giúp gì?", sender: 'bot' }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const { currentUser, getEquivalentLevelTitle } = useAuth();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [input, setInput] = useState('');
+    const [messages, setMessages] = useState<ChatHistory[]>([
+        { role: 'model', parts: "Chào bạn! Tôi là StoryVerse Bot. Tôi có thể giúp gì cho bạn?" }
+    ]);
+    const [isLoading, setIsLoading] = useState(false);
+    const chatboxRef = useRef<HTMLDivElement>(null);
+    const { currentUser } = useAuth();
+    const { showNotification } = useNotification();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    useEffect(() => {
+        if (chatboxRef.current) {
+            chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
+        }
+    }, [messages]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  const toggleChat = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleSendMessage = useCallback(async (text: string) => {
-    if (text.trim() === '') return;
-
-    const userMessage: ChatbotMessage = {
-      id: Date.now(),
-      type: 'user_input',
-      content: text,
-      sender: 'user',
+    const toggleChatbot = () => {
+        setIsOpen(!isOpen);
     };
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
 
-    const { intent, data } = handleUserInput(text, currentUser);
+    const handleSendMessage = async (e: FormEvent) => {
+        e.preventDefault();
+        const messageText = input.trim();
+        if (messageText === '' || isLoading) return;
 
-    await new Promise(resolve => setTimeout(resolve, 500));
+        if (!currentUser) {
+            showNotification("Vui lòng đăng nhập để sử dụng chatbot.", "warning");
+            setIsOpen(false);
+            return;
+        }
+        
+        const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+        if (!token) {
+             showNotification("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.", "error");
+             setIsOpen(false);
+             return;
+        }
 
-    let botResponse = getBotResponse(intent, data);
+        const userMessage: ChatHistory = { role: 'user', parts: messageText };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
 
-    if (intent === 'ask_current_level' && currentUser) {
-         const levelTitle = getEquivalentLevelTitle(currentUser.level);
-         botResponse = { type: 'text', content: `Cấp độ hiện tại của bạn là ${currentUser.level} (${levelTitle}) với ${currentUser.exp.toFixed(2)}% kinh nghiệm.`}
-    } else if (intent === 'ask_current_coin' && currentUser) {
-         botResponse = { type: 'text', content: `Số dư Xu hiện tại của bạn là ${currentUser.coinBalance} Xu.`}
-    }
-
-    const botMessage: ChatbotMessage = {
-      id: Date.now() + 1,
-      type: botResponse.type,
-      content: botResponse.content,
-      sender: 'bot',
+        const botReply = await getBotResponse(messageText, messages, token);
+        const botMessage: ChatHistory = { role: 'model', parts: botReply };
+        
+        setMessages(prev => [...prev, botMessage]);
+        setIsLoading(false);
     };
-    setMessages(prev => [...prev, botMessage]);
 
-  }, [currentUser, getEquivalentLevelTitle]);
+    return (
+        <>
+            <button className="chatbot-toggle-button" onClick={toggleChatbot} aria-label="Mở chatbot">
+                <img src={chatbotIcon} alt="Chatbot" />
+            </button>
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    handleSendMessage(inputValue);
-  };
+            {isOpen && (
+                <div className="chatbot-window">
+                    <div className="chatbot-header">
+                        <h3>StoryVerse Bot</h3>
+                        <button onClick={toggleChatbot} className="chatbot-close-btn" aria-label="Đóng chatbot">
+                            <FiX />
+                        </button>
+                    </div>
 
-  const renderMessageContent = (msg: ChatbotMessage) => {
-    if (msg.type === 'comic_list' && Array.isArray(msg.content)) {
-      const comics = msg.content as Comic[];
-      return (
-        <div>
-          <p>Đây là một vài truyện bạn có thể thích:</p>
-          <ul>
-            {comics.map(comic => (
-              <li key={comic.id}>
-                <Link to={`/comic/${comic.id}`}>{comic.title}</Link> (Tác giả: {comic.author})
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    }
-    return <p>{msg.content as string}</p>;
-  };
+                    <div className="chatbot-messages" ref={chatboxRef}>
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`chat-message ${msg.role}`}>
+                                <span className="message-icon">
+                                    {msg.role === 'model' ? <img src={chatbotIcon} alt="Bot icon" /> : <FiUser />}
+                                </span>
+                                <p>{msg.parts}</p>
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="chat-message model">
+                                <span className="message-icon">
+                                    <img src={chatbotIcon} alt="Bot icon" />
+                                </span>
+                                <p className="loading-dots">
+                                    <FiLoader className="animate-spin" />
+                                </p>
+                            </div>
+                        )}
+                    </div>
 
-  return (
-    <>
-      <button
-        className={`chatbot-toggle-button ${isOpen ? 'open' : ''}`}
-        onClick={toggleChat}
-        aria-label={isOpen ? "Đóng Chatbot" : "Mở Chatbot"}
-      >
-        {isOpen ? <FiX /> : <img src={chatbotIcon} alt="Chatbot Icon" />}
-      </button>
-
-      {isOpen && (
-        <div className="chatbot-window">
-          <div className="chatbot-header">
-            <span>StoryVerse Chatbot</span>
-            <button onClick={toggleChat} aria-label="Đóng Chatbot"><FiX /></button>
-          </div>
-          <div className="chatbot-messages">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`message ${msg.sender}`}>
-                 {renderMessageContent(msg)}
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-          <form className="chatbot-input-form" onSubmit={handleFormSubmit}>
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Nhập câu hỏi của bạn..."
-              value={inputValue}
-              onChange={handleInputChange}
-            />
-            <button type="submit" aria-label="Gửi tin nhắn"><FiSend /></button>
-          </form>
-        </div>
-      )}
-    </>
-  );
+                    <form className="chatbot-input-form" onSubmit={handleSendMessage}>
+                        <input
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder={isLoading ? "Bot đang trả lời..." : "Hỏi tôi bất cứ điều gì..."}
+                            disabled={isLoading || !currentUser}
+                        />
+                        <button type="submit" disabled={isLoading || input.trim() === ''}>
+                            <FiSend />
+                        </button>
+                    </form>
+                </div>
+            )}
+        </>
+    );
 };
 
 export default ChatbotUI;
