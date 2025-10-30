@@ -1,6 +1,7 @@
-// src/backend/src/controllers/comicController.js (ĐÃ SỬA LỖI TOÀN DIỆN)
+// src/backend/src/controllers/comicController.js
 
 const { getConnection } = require('../db/connection');
+const { BASE_EXP_PER_COIN, EXP_RATE_REDUCTION_FACTOR, MIN_EXP_PER_COIN } = require('../utils/constants');
 
 const addComic = async (req, res) => {
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
@@ -22,7 +23,6 @@ const addComic = async (req, res) => {
 
         if (genres && Array.isArray(genres) && genres.length > 0) {
             const genreValues = genres.map(genreId => [comicId, Number(genreId)]);
-            // SỬA LỖI: Dùng camelCase
             await connection.query(
                 'INSERT INTO comic_genres (comicId, genreId) VALUES ?',
                 [genreValues]
@@ -56,12 +56,10 @@ const updateComic = async (req, res) => {
             [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0, id]
         );
 
-        // SỬA LỖI: Dùng camelCase
         await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
 
         if (genres && Array.isArray(genres) && genres.length > 0) {
             const genreValues = genres.map(genreId => [id, Number(genreId)]);
-            // SỬA LỖI: Dùng camelCase
             await connection.query(
                 'INSERT INTO comic_genres (comicId, genreId) VALUES ?',
                 [genreValues]
@@ -85,11 +83,8 @@ const deleteComic = async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        // SỬA LỖI: Dùng camelCase (reviews.comicId)
         await connection.execute('DELETE FROM reviews WHERE comicId = ?', [id]);
-        // SỬA LỖI: Dùng camelCase (comic_genres.comicId)
         await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
-        // SỬA LỖI: Dùng camelCase (chapters.comicId)
         await connection.execute('DELETE FROM chapters WHERE comicId = ?', [id]);
         
         await connection.execute('DELETE FROM comics WHERE id = ?', [id]);
@@ -118,7 +113,6 @@ const getAllGenres = async (req, res) => {
 const getAllComics = async (req, res) => {
     try {
         const connection = getConnection();
-        // SỬA LỖI: Dùng camelCase (cg.genreId, cg.comicId)
         const [rows] = await connection.execute(
             `SELECT 
                 c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount, c.createdAt, c.updatedAt,
@@ -148,7 +142,6 @@ const getComicById = async (req, res) => {
         const { id } = req.params;
         const connection = getConnection();
 
-        // SỬA LỖI: Dùng camelCase (cg.genreId, cg.comicId)
         const [comicRows] = await connection.execute(
             `SELECT 
                 c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, c.viewCount, c.createdAt, c.updatedAt,
@@ -168,7 +161,6 @@ const getComicById = async (req, res) => {
             return res.status(404).json({ error: 'Comic not found' });
         }
 
-        // SỬA LỖI: Dùng camelCase (comicId)
         const [chapterRows] = await connection.execute(
             'SELECT id, chapterNumber, title, price, createdAt, viewCount FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
             [id]
@@ -198,7 +190,6 @@ const addChapter = async (req, res) => {
 
     try {
         const connection = getConnection();
-        // SỬA LỖI: Dùng camelCase (comicId)
         const [result] = await connection.execute(
             'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price, viewCount) VALUES (?, ?, ?, ?, ?, ?)',
             [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0, 0]
@@ -217,7 +208,6 @@ const deleteChapter = async (req, res) => {
     try {
         await connection.beginTransaction();
         
-        // SỬA LỖI: Dùng camelCase (comicId)
         const [result] = await connection.execute(
             'DELETE FROM chapters WHERE id = ? AND comicId = ?',
             [chapterId, comicId]
@@ -237,7 +227,6 @@ const deleteChapter = async (req, res) => {
     }
 };
 
-
 const getChapterContent = async (req, res) => {
     const { comicId, chapterId } = req.params;
     const { userId } = req; 
@@ -245,7 +234,6 @@ const getChapterContent = async (req, res) => {
     try {
         const connection = getConnection();
 
-        // SỬA LỖI: Dùng camelCase (comicId)
         const [chapterRows] = await connection.execute(
             'SELECT * FROM chapters WHERE id = ? AND comicId = ?',
             [chapterId, comicId]
@@ -262,8 +250,7 @@ const getChapterContent = async (req, res) => {
             isPurchased = true;
         } 
         else if (chapter.price > 0 && userId) {
-            // SỬA LỖI: Dùng camelCase (comicId)
-             const [fullPurchase] = await connection.execute(
+            const [fullPurchase] = await connection.execute(
                  'SELECT * FROM user_library WHERE userId = ? AND comicId = ?',
                  [userId, comicId]
             );
@@ -271,7 +258,13 @@ const getChapterContent = async (req, res) => {
             if (fullPurchase.length > 0) {
                 isPurchased = true;
             } else {
-                 return res.status(401).json({ error: 'Bạn chưa mua truyện này.' });
+                const [unlockedChapter] = await connection.execute(
+                    'SELECT 1 FROM user_unlocked_chapters WHERE userId = ? AND chapterId = ?',
+                    [userId, chapter.id]
+                );
+                if (unlockedChapter.length > 0) {
+                    isPurchased = true;
+                }
             }
         } else if (chapter.price > 0 && !userId) {
             return res.status(401).json({ error: 'You must be logged in to read this chapter' });
@@ -279,7 +272,6 @@ const getChapterContent = async (req, res) => {
 
         if (isPurchased) {
             await connection.execute('UPDATE chapters SET viewCount = viewCount + 1 WHERE id = ?', [chapterId]);
-            // SỬA LỖI: Dùng camelCase (comicId)
             await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comicId = ?) WHERE id = ?', [comicId, comicId]);
             
             chapter.contentUrls = JSON.parse(chapter.contentUrls || '[]');
@@ -291,6 +283,102 @@ const getChapterContent = async (req, res) => {
     } catch (error) {
         console.error('Error fetching chapter content:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const unlockChapter = async (req, res) => {
+    const { userId } = req;
+    const { chapterId } = req.body;
+
+    if (!chapterId) {
+        return res.status(400).json({ error: 'chapterId is required.' });
+    }
+
+    const connection = getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const [chapterRows] = await connection.execute('SELECT price FROM chapters WHERE id = ?', [chapterId]);
+        if (chapterRows.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'Chapter not found.' });
+        }
+        const chapterPrice = parseInt(chapterRows[0].price);
+
+        const [userRows] = await connection.execute('SELECT coinBalance, level, exp FROM users WHERE id = ? FOR UPDATE', [userId]);
+        if (userRows.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        
+        let { coinBalance, level, exp } = userRows[0];
+        coinBalance = parseInt(coinBalance);
+        level = parseInt(level);
+        exp = parseFloat(exp);
+        const initialLevel = level;
+
+        if (coinBalance < chapterPrice) {
+            await connection.rollback();
+            return res.status(400).json({ error: 'Số dư Xu không đủ. Vui lòng nạp thêm Xu.' });
+        }
+
+        const [existingUnlock] = await connection.execute('SELECT 1 FROM user_unlocked_chapters WHERE userId = ? AND chapterId = ?', [userId, chapterId]);
+        if (existingUnlock.length > 0) {
+            await connection.commit();
+            return res.json({ message: 'Chapter already unlocked.', level, exp, coinBalance, levelUpOccurred: false });
+        }
+
+        await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId) VALUES (?, ?)', [userId, chapterId]);
+
+        const newCoinBalance = coinBalance - chapterPrice;
+        
+        let currentLevel = level;
+        let currentExp = exp;
+        let coinsToProcess = chapterPrice; 
+
+        while (coinsToProcess > 0) {
+            const modifier = Math.pow(EXP_RATE_REDUCTION_FACTOR, currentLevel - 1);
+            const expPerCoinThisLevel = BASE_EXP_PER_COIN * modifier;
+            if (expPerCoinThisLevel < MIN_EXP_PER_COIN) {
+                coinsToProcess = 0;
+                break;
+            }
+            const expNeededForNextLevel = 100.0 - currentExp;
+            if (expNeededForNextLevel < 1e-9) {
+                 currentLevel += 1;
+                 currentExp = 0;
+                 continue;
+            }
+            const coinsNeededForNextLevel = expNeededForNextLevel / expPerCoinThisLevel;
+            if (coinsToProcess >= coinsNeededForNextLevel) {
+                coinsToProcess -= coinsNeededForNextLevel;
+                currentLevel += 1;
+                currentExp = 0;
+            } else {
+                currentExp += coinsToProcess * expPerCoinThisLevel;
+                coinsToProcess = 0;
+            }
+        }
+        currentExp = Math.min(100, Math.max(0, currentExp));
+
+        await connection.execute(
+            'UPDATE users SET coinBalance = ?, level = ?, exp = ? WHERE id = ?',
+            [newCoinBalance, currentLevel, currentExp.toFixed(2), userId]
+        );
+
+        await connection.commit();
+
+        res.json({
+            level: currentLevel,
+            exp: currentExp,
+            coinBalance: newCoinBalance,
+            levelUpOccurred: currentLevel > initialLevel
+        });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Unlock chapter error:', error);
+        res.status(500).json({ error: 'Failed to unlock chapter' });
     }
 };
 
@@ -334,7 +422,6 @@ const getComicsByGenre = async (req, res) => {
         }
         const connection = getConnection();
         
-        // SỬA LỖI: Dùng camelCase (comicId, genreId)
         const [rows] = await connection.execute(
             `SELECT c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount
              FROM comics c
@@ -354,7 +441,6 @@ const getReviews = async (req, res) => {
     try {
         const { comicId } = req.params;
         const connection = getConnection();
-        // SỬA LỖI: Dùng camelCase (r.comicId)
         const [rows] = await connection.execute(
             `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
              FROM reviews r
@@ -382,7 +468,6 @@ const postReview = async (req, res) => {
         
         const connection = getConnection();
 
-        // SỬA LỖI: Dùng camelCase (comicId)
         const [existing] = await connection.execute(
             'SELECT * FROM reviews WHERE comicId = ? AND userId = ?',
             [comicId, userId]
@@ -396,7 +481,6 @@ const postReview = async (req, res) => {
                 [rating, comment, reviewId]
             );
         } else {
-            // SỬA LỖI: Dùng camelCase (comicId)
             const [result] = await connection.execute(
                 'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
                 [comicId, userId, rating, comment]
@@ -434,5 +518,6 @@ module.exports = {
     getComicsByGenre,
     getAllGenres,
     getReviews,
-    postReview
+    postReview,
+    unlockChapter
 };

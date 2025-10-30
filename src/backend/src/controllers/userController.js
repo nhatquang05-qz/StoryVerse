@@ -1,3 +1,4 @@
+// src/backend/src/controllers/userController.js
 const { getConnection } = require('../db/connection');
 const ensureUserDataTypes = require('../utils/ensureUserDataTypes');
 
@@ -101,4 +102,19 @@ const getTopUsers = async (req, res) => {
     }
 };
 
-module.exports = { getMe, updateProfile, updateAvatar, getTopUsers };
+const getUnlockedChapters = async (req, res) => {
+    try {
+        const { userId } = req;
+        const connection = getConnection();
+        const [rows] = await connection.execute(
+            'SELECT chapterId FROM user_unlocked_chapters WHERE userId = ?',
+            [userId]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error("Get unlocked chapters error:", error);
+        res.status(500).json({ error: 'Failed to fetch unlocked chapters' });
+    }
+};
+
+module.exports = { getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters };

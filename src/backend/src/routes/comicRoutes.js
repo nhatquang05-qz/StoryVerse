@@ -1,4 +1,4 @@
-// src/backend/src/routes/comicRoutes.js (ĐÃ SỬA LỖI)
+// src/backend/src/routes/comicRoutes.js
 
 const express = require('express');
 const router = express.Router();
@@ -15,8 +15,9 @@ const {
     searchComics,
     getComicsByGenre,
     getAllGenres,
-    getReviews,  // <-- Đã thêm
-    postReview // <-- Đã thêm
+    getReviews,
+    postReview,
+    unlockChapter
 } = require('../controllers/comicController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
@@ -27,7 +28,6 @@ router.get('/by-genre', getComicsByGenre);
 router.get('/system/genres', getAllGenres);
 router.get('/:id', getComicById);
 
-// FIX: Thêm 2 route cho reviews
 router.get('/:comicId/reviews', getReviews);
 router.post('/:comicId/reviews', authenticateToken, postReview);
 
@@ -35,6 +35,7 @@ router.get('/:comicId/chapters/:chapterId', authenticateToken, getChapterContent
 
 router.post('/', authenticateToken, addComic);
 router.post('/:comicId/chapters', authenticateToken, addChapter);
+router.post('/unlock-chapter', authenticateToken, unlockChapter);
 
 router.put('/:id', authenticateToken, updateComic);
 

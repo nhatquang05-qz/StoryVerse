@@ -4,7 +4,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { type ComicDetail, type ChapterSummary, type ChapterContent } from '../types/comicTypes';
-import { loadOrders, saveNewOrder } from '../data/mockData';
 import { FiChevronLeft, FiChevronRight, FiChevronDown, FiHome, FiLock } from 'react-icons/fi';
 import ChapterChat from '../components/common/Chat/ChapterChat';
 import './ReaderPage.css';
@@ -12,20 +11,10 @@ import './ReaderPage.css';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 
-const isChapterUnlockedGlobally = (comicId: number, chapterId: number, userId: string | undefined): boolean => {
-    if (!userId) return false;
-    const userOrders = loadOrders(userId);
-    return userOrders
-        .filter((order: any) => order.status === 'Hoàn thành')
-        .flatMap((order: any) => order.items)
-        .some((item: any) => item.id === comicId && item.quantity === chapterId); 
-};
-
-
 const ReaderPage: React.FC = () => {
     const { comicId, chapterNumber: chapterNumParam } = useParams<{ comicId: string, chapterNumber: string }>();
     const navigate = useNavigate();
-    const { currentUser, updateProfile, addExp } = useAuth();
+    const { currentUser, unlockChapter } = useAuth();
     const { showNotification } = useNotification();
     
     const [comic, setComic] = useState<ComicDetail | null>(null);
@@ -52,32 +41,54 @@ const ReaderPage: React.FC = () => {
                     price: ch.price || 0
                 }));
                 setAllChapters(chapters);
-
-                if (currentUser) {
-                    const unlockedSet = new Set<number>();
-                    chapters.forEach(chap => {
-                        if (chap.price === 0 || isChapterUnlockedGlobally(data.id, chap.id, currentUser.id)) {
-                            unlockedSet.add(chap.id);
-                        }
-                    });
-                    setUnlockedChapters(unlockedSet);
-                }
             })
             .catch(err => {
                 console.error("Lỗi tải thông tin truyện:", err);
                 navigate('/404');
             });
 
-    }, [comicId, currentUser, navigate]);
+    }, [comicId, navigate]);
+    
+    useEffect(() => {
+        if (!comic) return;
+
+        const fetchUnlockedData = async () => {
+            const unlockedSet = new Set<number>();
+            comic.chapters.forEach(chap => {
+                if (chap.price === 0) {
+                    unlockedSet.add(chap.id);
+                }
+            });
+
+            if (currentUser) {
+                try {
+                    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+                    const response = await fetch(`${API_URL}/users/unlocked-chapters`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const unlockedData: { chapterId: number }[] = await response.json();
+                        unlockedData.forEach(item => unlockedSet.add(item.chapterId));
+                    }
+                } catch (error) {
+                    console.error("Lỗi fetch unlocked chapters:", error);
+                }
+            }
+            setUnlockedChapters(unlockedSet);
+        };
+
+        fetchUnlockedData();
+    }, [comic, currentUser]);
+
 
     useEffect(() => {
-        if (allChapters.length === 0 || !chapterNumParam) return;
+        if (allChapters.length === 0 || !chapterNumParam || unlockedChapters.size === 0) return;
 
         const currentChapterNum = Number(chapterNumParam);
         const foundChapter = allChapters.find(c => c.chapterNumber === currentChapterNum);
         
         if (!foundChapter) {
-            const firstChapter = allChapters[0];
+            const firstChapter = allChapters.sort((a, b) => Number(a.chapterNumber) - Number(b.chapterNumber))[0];
             if (firstChapter) {
                 navigate(`/read/${comicId}/${firstChapter.chapterNumber}`, { replace: true });
             }
@@ -94,10 +105,6 @@ const ReaderPage: React.FC = () => {
             
             const token = localStorage.getItem(TOKEN_STORAGE_KEY); 
             
-            // ========================================================
-            // SỬA LỖI TẠI ĐÂY:
-            // Thay thế `chapterNumParam` bằng `foundChapter.id`
-            // ========================================================
             fetch(`${API_URL}/comics/${comicId}/chapters/${foundChapter.id}`, {
                 headers: { 
                     'Authorization': `Bearer ${token}`
@@ -142,11 +149,16 @@ const ReaderPage: React.FC = () => {
 
     const currentChapterIndex = useMemo(() => {
         if (!currentChapterData) return -1;
-        return allChapters.findIndex(c => c.id === currentChapterData.id);
+        const sortedChapters = [...allChapters].sort((a,b) => Number(a.chapterNumber) - Number(b.chapterNumber));
+        return sortedChapters.findIndex(c => c.id === currentChapterData.id);
     }, [allChapters, currentChapterData]);
 
-    const prevChapter = useMemo(() => (currentChapterIndex > 0) ? allChapters[currentChapterIndex - 1] : null, [allChapters, currentChapterIndex]);
-    const nextChapter = useMemo(() => (currentChapterIndex < allChapters.length - 1) ? allChapters[currentChapterIndex + 1] : null, [allChapters, currentChapterIndex]);
+    const sortedChapters = useMemo(() => {
+        return [...allChapters].sort((a,b) => Number(a.chapterNumber) - Number(b.chapterNumber));
+    }, [allChapters]);
+
+    const prevChapter = useMemo(() => (currentChapterIndex > 0) ? sortedChapters[currentChapterIndex - 1] : null, [sortedChapters, currentChapterIndex]);
+    const nextChapter = useMemo(() => (currentChapterIndex < sortedChapters.length - 1) ? sortedChapters[currentChapterIndex + 1] : null, [sortedChapters, currentChapterIndex]);
 
     const isNextChapterUnlocked = useMemo(() => {
         if (!nextChapter) return false;
@@ -177,30 +189,16 @@ const ReaderPage: React.FC = () => {
             return false;
         }
         
-        const newOrder = {
-            id: `COIN-${Date.now()}-${chapterToUnlock.id}`,
-            userId: currentUser.id,
-            date: new Date().toLocaleDateString('vi-VN'),
-            total: chapterToUnlock.price, 
-            status: 'Hoàn thành' as const, 
-            items: [{ 
-                id: comic.id,
-                title: comic.title,
-                author: comic.author || 'Không rõ tác giả',
-                price: chapterToUnlock.price, 
-                imageUrl: comic.coverImageUrl,
-                quantity: chapterToUnlock.id, 
-            }],
-        };
         try {
-            await addExp(chapterToUnlock.price, 'recharge', -chapterToUnlock.price);
-
-            saveNewOrder(newOrder);
-            setUnlockedChapters(prev => new Set(prev).add(chapterToUnlock.id));
-            showNotification(`Đã mở khóa Chương ${chapterToUnlock.chapterNumber} với ${chapterToUnlock.price} Xu!`, 'success');
-            return true;
-        } catch (e) {
-            showNotification('Lỗi khi mở khóa chương.', 'error');
+            const result = await unlockChapter(chapterToUnlock.id);
+            if (result) {
+                setUnlockedChapters(prev => new Set(prev).add(chapterToUnlock.id));
+                showNotification(`Đã mở khóa Chương ${chapterToUnlock.chapterNumber} với ${chapterToUnlock.price} Xu!`, 'success');
+                return true;
+            }
+            return false;
+        } catch (e: any) {
+            showNotification(e.message || 'Lỗi khi mở khóa chương.', 'error');
             return false;
         }
     };
@@ -248,7 +246,7 @@ const ReaderPage: React.FC = () => {
                             onChange={handleChapterSelect}
                             className="chapter-select-dropdown"
                         >
-                            {allChapters.map(chap => (
+                            {sortedChapters.map(chap => (
                                 <option 
                                     key={chap.id} 
                                     value={chap.id} 
@@ -284,7 +282,6 @@ const ReaderPage: React.FC = () => {
                                 />
                             ))
                         }
-                        {/* Thêm thông báo nếu không có ảnh và không loading */}
                         {!isLoading && chapterImages.length === 0 && (
                             <p style={{color: 'white', padding: '2rem'}}>
                                 Không tải được nội dung chương. (Bạn có thể F12 xem Console Log).

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp } from 'react-icons/fi';
 import { type ComicDetail, type ChapterSummary } from '../../types/comicTypes';
-import { loadOrders, saveNewOrder } from '../../data/mockData';
+import { loadOrders } from '../../data/mockData';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
 import ReviewSection from '../../components/common/review/ReviewSection';
@@ -12,6 +12,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import './ComicDetailPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const ComicDetailSkeleton: React.FC = () => (
     <div className="detail-skeleton-wrapper">
@@ -41,7 +42,12 @@ const ComicDetailSkeleton: React.FC = () => (
 
 const fetchComicDetail = (id: number): Promise<ComicDetail | undefined> => {
     return new Promise((resolve, reject) => {
-        fetch(`${API_URL}/comics/${id}`)
+        const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+        fetch(`${API_URL}/comics/${id}`, {
+             headers: {
+                'Authorization': `Bearer ${token}`
+             }
+        })
             .then(res => {
                 if (!res.ok) {
                     throw new Error('Không tìm thấy truyện');
@@ -75,50 +81,12 @@ const isDigitalComicPurchased = (comicId: number, userId: string | undefined): b
         .some(item => item.id === comicId && item.title === 'Full Access'); 
 };
 
-const isChapterUnlocked = (comicId: number, chapterId: number, userId: string | undefined): boolean => {
-    if (!userId) return false;
-    const userOrders = loadOrders(userId);
-    const validStatuses = ['Hoàn thành', 'Đang giao hàng'];
-    return userOrders
-        .filter(order => validStatuses.includes(order.status))
-        .flatMap(order => order.items)
-        .some(item => item.id === comicId && item.quantity === chapterId); 
-};
-
-const getHighestUnlockedChapterNumber = (comicId: number, chapters: ChapterSummary[], userId: string | undefined): number => {
-    if (!userId || !chapters) return 0;
-
-    const unlockedChapters = chapters.filter(chapter => {
-        return (chapter.price === 0) || isChapterUnlocked(comicId, chapter.id, userId);
-    });
-
-    if (unlockedChapters.length === 0) return 0;
-    
-    const chapterNumbers = unlockedChapters.map(ch => Number(ch.chapterNumber));
-    const highestNumber = Math.max(...chapterNumbers);
-
-    for (let i = 1; i <= chapters.length; i++) {
-        const chapterToCheck = chapters.find(ch => Number(ch.chapterNumber) === i);
-        if (chapterToCheck) {
-            const isChUnlocked = (chapterToCheck.price === 0) || isChapterUnlocked(comicId, chapterToCheck.id, userId);
-            if (!isChUnlocked) {
-                return i - 1; 
-            }
-        } else {
-             return i - 1;
-        }
-    }
-    
-    return chapters.length;
-};
-
-
 const ComicDetailPage: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
-  const { currentUser, updateProfile, addExp } = useAuth();
+  const { currentUser, unlockChapter } = useAuth();
   const navigate = useNavigate();
   const { comicId } = useParams<{ comicId: string }>();
   const id = Number(comicId);
@@ -127,6 +95,8 @@ const ComicDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  const [unlockedChapterIds, setUnlockedChapterIds] = useState<Set<number>>(new Set());
 
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -144,6 +114,38 @@ const ComicDetailPage: React.FC = () => {
             setIsLoading(false);
         });
   }, [id, navigate]);
+  
+    useEffect(() => {
+        if (!comic) return;
+
+        const fetchUnlockedData = async () => {
+            const unlockedSet = new Set<number>();
+            comic.chapters.forEach(chap => {
+                if (chap.price === 0) {
+                    unlockedSet.add(chap.id);
+                }
+            });
+
+            if (currentUser) {
+                try {
+                    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+                    const response = await fetch(`${API_URL}/users/unlocked-chapters`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const unlockedData: { chapterId: number }[] = await response.json();
+                        unlockedData.forEach(item => unlockedSet.add(item.chapterId));
+                    }
+                } catch (error) {
+                    console.error("Lỗi fetch unlocked chapters:", error);
+                }
+            }
+            setUnlockedChapterIds(unlockedSet);
+        };
+
+        fetchUnlockedData();
+    }, [comic, currentUser]);
+
 
   const isFavorite = comic ? isWishlisted(comic.id) : false;
   
@@ -153,7 +155,26 @@ const ComicDetailPage: React.FC = () => {
     ? isDigitalComicPurchased(comic.id, currentUser?.id) 
     : false;
 
-  const highestUnlockedChapterNumber = getHighestUnlockedChapterNumber(id, chapters, currentUser?.id);
+  const highestUnlockedChapterNumber = useMemo(() => {
+        if (!comic) return 0;
+        
+        const validChapters = comic.chapters
+            .filter(ch => unlockedChapterIds.has(ch.id))
+            .map(ch => Number(ch.chapterNumber));
+            
+        if (validChapters.length === 0) return 0;
+
+        const maxUnlocked = Math.max(...validChapters);
+        
+        for (let i = 1; i <= maxUnlocked + 1; i++) {
+            const chapterToCheck = comic.chapters.find(ch => Number(ch.chapterNumber) === i);
+            if (!chapterToCheck || !unlockedChapterIds.has(chapterToCheck.id)) {
+                return i - 1;
+            }
+        }
+        
+        return maxUnlocked;
+  }, [comic, unlockedChapterIds]);
     
   const handleReadNow = (chapterNumber: number) => {
       if (comic) {
@@ -199,8 +220,15 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
       
       if (!comic || !((comic.isDigital as any) === 1)) return;
 
-      if (Number(chapter.chapterNumber) !== highestUnlockedChapterNumber + 1) {
-          showNotification(`Vui lòng mở khóa Chương ${highestUnlockedChapterNumber + 1} trước.`, 'warning');
+      const nextExpectedChapterNum = highestUnlockedChapterNumber + 1;
+      const nextChapterInSequence = chapters.find(c => Number(c.chapterNumber) === nextExpectedChapterNum);
+
+      if (Number(chapter.chapterNumber) !== nextExpectedChapterNum) {
+           if (nextChapterInSequence) {
+                showNotification(`Vui lòng mở khóa Chương ${nextChapterInSequence.chapterNumber} trước.`, 'warning');
+           } else {
+                showNotification(`Vui lòng mở khóa chương tiếp theo trong chuỗi.`, 'warning');
+           }
           return;
       }
 
@@ -210,35 +238,19 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
           return;
       }
 
-
-      const newOrder = {
-          id: `COIN-${Date.now()}-${chapter.id}`,
-          userId: currentUser.id,
-          date: new Date().toLocaleDateString('vi-VN'),
-          total: chapter.price, 
-          status: 'Hoàn thành' as const, 
-          items: [{ 
-              id: comic.id,
-              title: comic.title,
-              author: comic.author || 'Không rõ tác giả',
-              price: chapter.price, 
-              imageUrl: comic.coverImageUrl, 
-              quantity: chapter.id, 
-          }],
-      };
-      
       try {
-         
-          await addExp(chapter.price, 'recharge', -chapter.price); 
+          const result = await unlockChapter(chapter.id);
           
-          saveNewOrder(newOrder); 
+          if (result) {
+            showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.price} Xu!`, 'success');
+            setUnlockedChapterIds(prev => new Set(prev).add(chapter.id));
+            navigate(`/read/${comic.id}/${chapter.chapterNumber}`);
+          } else {
+             throw new Error('Kết quả trả về không hợp lệ');
+          }
           
-          showNotification(`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.price} Xu!`, 'success');
-          
-          navigate(`/read/${comic.id}/${chapter.chapterNumber}`); 
-          
-      } catch (e) {
-          showNotification('Lỗi khi mở khóa chương.', 'error');
+      } catch (e: any) {
+          showNotification(e.message || 'Lỗi khi mở khóa chương.', 'error');
       }
   };
   
@@ -322,7 +334,7 @@ const toggleSort = () => {
       if (!comic || !((comic.isDigital as any) === 1) || chapters.length === 0) return null;
       
       const isFullUnlocked = isDigitalComicPurchased(comic.id, currentUser?.id);
-      const highestUnlocked = getHighestUnlockedChapterNumber(comic.id, chapters, currentUser?.id);
+      const highestUnlocked = highestUnlockedChapterNumber;
       
       return (
           <div className="chapter-list-container">
@@ -358,10 +370,14 @@ const toggleSort = () => {
               <ul className="chapter-list">
                   {displayedChapters.length > 0 ? (
                       displayedChapters.map((chapter) => {
-                          const isUnlocked = isFullUnlocked || (chapter.price === 0) || (currentUser && isChapterUnlocked(comic.id, chapter.id, currentUser.id));
+                          const isUnlocked = isFullUnlocked || unlockedChapterIds.has(chapter.id);
                           
-                          const isNextInSequence = Number(chapter.chapterNumber) === highestUnlocked + 1;
-                          const canUnlock = !isUnlocked && isNextInSequence;
+                          const nextExpectedChapterNum = highestUnlocked + 1;
+                          const nextChapterInSequence = chapters.find(c => Number(c.chapterNumber) === nextExpectedChapterNum);
+                          
+                          const isNextToUnlock = nextChapterInSequence ? (chapter.id === nextChapterInSequence.id) : false;
+
+                          const canUnlock = !isUnlocked && isNextToUnlock;
                           const canRead = isUnlocked;
 
                           return (

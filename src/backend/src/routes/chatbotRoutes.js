@@ -3,6 +3,6 @@ const router = express.Router();
 const { askChatbot } = require('../controllers/chatbotController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
-router.post('/chatbot/ask', authenticateToken, askChatbot);
+router.post('/ask', authenticateToken, askChatbot);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.tsx (ĐÃ SỬA LỖI)
+// src/contexts/AuthContext.tsx
 
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
@@ -29,6 +29,12 @@ interface AuthContextType {
   updateAddresses: (addresses: Address[]) => Promise<void>;
   claimDailyReward: () => Promise<void>;
   addExp: (amount: number, source: 'reading' | 'recharge', coinIncrease?: number) => Promise<{
+    level: number;
+    exp: number;
+    coinBalance: number;
+    levelUpOccurred: boolean;
+  } | null>;
+  unlockChapter: (chapterId: number) => Promise<{
     level: number;
     exp: number;
     coinBalance: number;
@@ -70,7 +76,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const token = getToken();
             if (token) {
                 try {
-                    // FIX: Thêm /users
                     const resUser = await fetch(`${API_URL}/users/me`, { 
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -103,14 +108,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, []);
 
     const getEquivalentLevelTitle = useCallback((userLevel: number): string => {
-        // Sử dụng hàm đã import từ utils
         return getEquivalentLevelTitleUtil(userLevel, selectedSystemKey);
     }, [selectedSystemKey]);
 
     const login = async (email: string, pass: string) => {
         setLoading(true); 
         try {
-            // FIX: Thêm /auth
             const response = await fetch(`${API_URL}/auth/login`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
@@ -137,7 +140,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const register = async (email: string, pass: string) => {
          setLoading(true); 
          try {
-            // FIX: Thêm /auth
             const response = await fetch(`${API_URL}/auth/register`, { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', },
@@ -168,7 +170,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         try {
-            // FIX: Thêm /users
             const response = await fetch(`${API_URL}/users/profile`, {
                 method: 'PUT',
                 headers: {
@@ -205,7 +206,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         try {
-            // FIX: Thêm /users
             const response = await fetch(`${API_URL}/users/profile/avatar`, { 
                 method: 'PUT',
                 headers: {
@@ -239,7 +239,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!token) { return; }
 
         try {
-             // FIX: Thêm /address
              const response = await fetch(`${API_URL}/address/addresses`, { 
                 method: 'PUT',
                 headers: { 
@@ -265,7 +264,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!currentUser) { return; }
 
         try {
-            // FIX: Thêm /rewards
             const response = await fetch(`${API_URL}/rewards/claim-reward`, { 
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -300,7 +298,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!currentUser) return null; 
 
         try {
-            // FIX: Thêm /rewards
             const response = await fetch(`${API_URL}/rewards/add-exp`, { 
                 method: 'POST',
                 headers: { 
@@ -334,6 +331,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
     }, [currentUser, getEquivalentLevelTitle, showNotification]);
+    
+    const unlockChapter = useCallback(async (
+        chapterId: number
+    ): Promise<{ level: number, exp: number, coinBalance: number, levelUpOccurred: boolean } | null> => {
+        const token = getToken();
+        if (!currentUser) {
+             showNotification('Vui lòng đăng nhập để mở khóa.', 'warning');
+             throw new Error('User not logged in');
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/comics/unlock-chapter`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ chapterId })
+            });
+            
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Lỗi khi mở khóa chương');
+
+            setCurrentUser(prevUser => prevUser ? {
+                ...prevUser,
+                level: data.level,
+                exp: data.exp,
+                coinBalance: data.coinBalance
+            } : null);
+
+            if (data.levelUpOccurred) {
+                const newLevelTitle = getEquivalentLevelTitle(data.level);
+                setLevelUpInfo({ newLevel: data.level, levelTitle: newLevelTitle });
+                setIsLevelUpPopupOpen(true);
+            }
+            
+            return data; 
+
+        } catch (error: any) { 
+            showNotification(error.message || 'Đã xảy ra lỗi khi mở khóa chương.', 'error');
+            throw error;
+        }
+    }, [currentUser, getEquivalentLevelTitle, showNotification]);
+
 
     const closeLevelUpPopup = useCallback(() => {
         setIsLevelUpPopupOpen(false);
@@ -360,6 +401,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             updateAddresses,
             claimDailyReward,
             addExp,
+            unlockChapter,
             getLevelColor,
             selectedSystemKey,
             updateSelectedSystemKey,
