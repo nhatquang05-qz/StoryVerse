@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, type FormEvent } from 'react';
-import { FiSend, FiX, FiUser, FiLoader } from 'react-icons/fi';
+import { FiX, FiUser, FiLoader } from 'react-icons/fi';
 import { getBotResponse, type ChatHistory } from './ChatbotLogic';
 import chatbotIcon from '../../assets/images/chatbot-icon.png';
 import './Chatbot.css';
@@ -52,14 +52,26 @@ const ChatbotUI: React.FC = () => {
         setInput('');
         setIsLoading(true);
 
-        const botReply = await getBotResponse(messageText, messages, token);
-        const botMessage: ChatHistory = { role: 'model', parts: botReply };
-        
-        setMessages(prev => [...prev, botMessage]);
-        setIsLoading(false);
+        try {
+            const botReply = await getBotResponse(messageText, messages, token);
+            const botMessage: ChatHistory = { role: 'model', parts: botReply };
+            setMessages(prev => [...prev, botMessage]);
+        } catch (error) {
+            console.error("Lỗi khi xử lý tin nhắn:", error);
+            const errorMessage: ChatHistory = { role: 'model', parts: "Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại." };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsLoading(false);
+        }
     };
     
     const userFallbackAvatar = "https://i.imgur.com/tq9k3Yj.png";
+    
+    const getPlaceholderText = () => {
+        if (isLoading) return "Bot đang trả lời...";
+        if (!currentUser) return "Vui lòng đăng nhập để chat...";
+        return "Hỏi tôi bất cứ điều gì...";
+    };
 
     return (
         <>
@@ -109,11 +121,14 @@ const ChatbotUI: React.FC = () => {
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder={isLoading ? "Bot đang trả lời..." : "Hỏi tôi bất cứ điều gì..."}
+                            placeholder={getPlaceholderText()}
                             disabled={isLoading || !currentUser}
                         />
-                        <button type="submit" disabled={isLoading || input.trim() === ''}>
-                            <FiSend />
+                        <button 
+                            type="submit" 
+                            disabled={isLoading || input.trim() === '' || !currentUser}
+                            aria-label="Gửi tin nhắn"
+                        >
                         </button>
                     </form>
                 </div>

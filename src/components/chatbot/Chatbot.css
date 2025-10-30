@@ -1,3 +1,4 @@
+/* src/components/chatbot/Chatbot.css */
 .chatbot-toggle-button {
     position: fixed;
     bottom: 20px;
@@ -167,7 +168,7 @@ html[data-theme="light"] .chatbot-messages {
 
 .chat-message p {
     margin: 0;
-    padding: 0.7rem 1rem;
+    padding: 0.7rem 1rem; 
     border-radius: 18px; 
     line-height: 1.5;
     font-size: 0.95rem;
@@ -175,7 +176,7 @@ html[data-theme="light"] .chatbot-messages {
 }
 
 .chat-message.model p {
-    background: var(--clr-card-bg);
+    background: var(--clr-card-bg); 
     color: var(--clr-text);
     border: 1px solid var(--clr-border-light); 
     border-top-left-radius: 4px; 
@@ -234,28 +235,37 @@ html[data-theme="light"] .chatbot-input-form {
     cursor: not-allowed;
 }
 
+/* === KHU VỰC SỬA LỖI === */
 .chatbot-input-form button {
     margin-left: 0.75rem;
-    background: var(--clr-primary);
+    background-color: var(--clr-primary);
     border: none;
-    color: white;
+    
+    /* 1. Xóa color và font-size của icon cũ */
+    /* color: white; */ 
+    /* font-size: 1.2rem; */
+
     width: 44px;
     height: 44px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, opacity 0.2s;
+    background-image: url('./send-button.png'); 
+    background-size: 60%;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-.chatbot-input-form button:hover {
-    background: var(--clr-primary-dark);
+.chatbot-input-form button:hover:not(:disabled) {
+    background-color: var(--clr-primary-dark);
 }
 
 .chatbot-input-form button:disabled {
-    background: var(--clr-text-secondary);
+    background-color: var(--clr-text-secondary);
     cursor: not-allowed;
+    opacity: 0.5;
 }
