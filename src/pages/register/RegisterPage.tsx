@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
-import RegisterSuccessPopup from '../../components/popups/RegisterSuccessPopup'; 
 import '../AuthPage.css';
 
 const RegisterPage: React.FC = () => {
@@ -13,7 +12,6 @@ const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const { showNotification } = useNotification();
   const [error, setError] = useState('');
-  const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +25,7 @@ const RegisterPage: React.FC = () => {
 
     try {
       await register(email, password);
-      setIsRegisterSuccessPopupOpen(true); 
     } catch (err) {
-      // Chỉnh sửa logic bắt lỗi để hiển thị đúng thông báo từ backend
       let errorMessage = 'Không thể tạo tài khoản. Vui lòng thử lại.';
       if (err instanceof Error) {
           if (err.message.includes('Email already in use')) {
@@ -37,7 +33,7 @@ const RegisterPage: React.FC = () => {
           } else if (err.message.includes('at least 6 characters')) {
               errorMessage = 'Mật khẩu phải có ít nhất 6 ký tự.';
           } else {
-              errorMessage = err.message; // Hiển thị lỗi chung từ API
+              errorMessage = err.message; 
           }
       }
       setError(errorMessage);
@@ -45,12 +41,6 @@ const RegisterPage: React.FC = () => {
       console.error('Lỗi đăng ký:', err);
     }
   };
-
-  const handleCloseRegisterPopup = () => {
-    setIsRegisterSuccessPopupOpen(false);
-    // navigate('/login') // Bỏ comment dòng này nếu bạn muốn tự động chuyển sang trang login
-  };
-
 
   return (
     <div className="auth-page">
@@ -99,11 +89,7 @@ const RegisterPage: React.FC = () => {
         </p>
       </div>
 
-      <RegisterSuccessPopup
-        isOpen={isRegisterSuccessPopupOpen}
-        onClose={handleCloseRegisterPopup} 
-      />
-    </div>
+      </div>
   );
 };
 
