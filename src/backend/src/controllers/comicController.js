@@ -120,13 +120,17 @@ const getAllComics = async (req, res) => {
                      JOIN comic_genres cg ON g.id = cg.genreId 
                      WHERE cg.comicId = c.id),
                     '[]'
-                ) AS genres
+                ) AS genres,
+                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
             FROM comics c`
         );
         
         const comicsWithParsedGenres = rows.map(comic => ({
             ...comic,
-            genres: typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres
+            genres: typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres,
+            averageRating: parseFloat(comic.averageRating) || 0,
+            totalReviews: parseInt(comic.totalReviews) || 0
         }));
         res.json(comicsWithParsedGenres);
     } catch (error) {
@@ -149,7 +153,9 @@ const getComicById = async (req, res) => {
                      JOIN comic_genres cg ON g.id = cg.genreId 
                      WHERE cg.comicId = c.id),
                     '[]'
-                ) AS genres
+                ) AS genres,
+                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
             FROM comics c 
             WHERE c.id = ?`,
             [id]
@@ -168,6 +174,8 @@ const getComicById = async (req, res) => {
         
         comic.genres = typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres;
         comic.chapters = chapterRows;
+        comic.averageRating = parseFloat(comic.averageRating) || 0;
+        comic.totalReviews = parseInt(comic.totalReviews) || 0;
 
         await connection.execute('UPDATE comics SET viewCount = viewCount + 1 WHERE id = ?', [id]);
 
@@ -249,7 +257,7 @@ const getChapterContent = async (req, res) => {
         } 
         else if (chapter.price > 0 && userId) {
             const [fullPurchase] = await connection.execute(
-                 'SELECT * FROM user_library WHERE userId = ? AND comicId = ?',
+                 'SELECT 1 FROM user_library WHERE userId = ? AND comicId = ?',
                  [userId, comicId]
             );
             
@@ -297,12 +305,13 @@ const unlockChapter = async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        const [chapterRows] = await connection.execute('SELECT price FROM chapters WHERE id = ?', [chapterId]);
+        const [chapterRows] = await connection.execute('SELECT price, comicId FROM chapters WHERE id = ?', [chapterId]);
         if (chapterRows.length === 0) {
             await connection.rollback();
             return res.status(404).json({ error: 'Chapter not found.' });
         }
         const chapterPrice = parseInt(chapterRows[0].price);
+        const comicId = chapterRows[0].comicId;
 
         const [userRows] = await connection.execute('SELECT coinBalance, level, exp FROM users WHERE id = ? FOR UPDATE', [userId]);
         if (userRows.length === 0) {
@@ -316,6 +325,15 @@ const unlockChapter = async (req, res) => {
         exp = parseFloat(exp);
         const initialLevel = level;
 
+        if (chapterPrice === 0) {
+             const [existingFreeUnlock] = await connection.execute('SELECT 1 FROM user_unlocked_chapters WHERE userId = ? AND chapterId = ?', [userId, chapterId]);
+             if (existingFreeUnlock.length === 0) {
+                 await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId, comicId) VALUES (?, ?, ?)', [userId, chapterId, comicId]);
+             }
+             await connection.commit();
+             return res.json({ message: 'Chapter is free and unlocked.', level, exp, coinBalance, levelUpOccurred: false });
+        }
+
         if (coinBalance < chapterPrice) {
             await connection.rollback();
             return res.status(400).json({ error: 'Số dư Xu không đủ. Vui lòng nạp thêm Xu.' });
@@ -327,7 +345,7 @@ const unlockChapter = async (req, res) => {
             return res.json({ message: 'Chapter already unlocked.', level, exp, coinBalance, levelUpOccurred: false });
         }
 
-        await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId) VALUES (?, ?)', [userId, chapterId]);
+        await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId, comicId) VALUES (?, ?, ?)', [userId, chapterId, comicId]);
 
         const newCoinBalance = coinBalance - chapterPrice;
         
@@ -385,9 +403,20 @@ const getTopComics = async (req, res) => {
     try {
         const connection = getConnection();
         const [rows] = await connection.execute(
-            'SELECT id, title, coverImageUrl, status, isDigital, price, author, viewCount FROM comics ORDER BY viewCount DESC LIMIT 10'
+            `SELECT 
+                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
+                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
+            FROM comics c
+            ORDER BY c.viewCount DESC 
+            LIMIT 10`
         );
-        res.json(rows);
+        const comicsWithRating = rows.map(comic => ({
+            ...comic,
+            averageRating: parseFloat(comic.averageRating) || 0,
+            totalReviews: parseInt(comic.totalReviews) || 0
+        }));
+        res.json(comicsWithRating);
     } catch (error) {
         console.error('Error fetching top comics:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -402,11 +431,31 @@ const searchComics = async (req, res) => {
         }
         const connection = getConnection();
         const searchQuery = `%${query}%`;
+        
+        // Cập nhật truy vấn để JOIN bảng genres và tìm kiếm trong tên truyện, tác giả, và thể loại
         const [rows] = await connection.execute(
-            'SELECT id, title, coverImageUrl, status, isDigital, price, author FROM comics WHERE title LIKE ? OR author LIKE ?',
-            [searchQuery, searchQuery]
+            `SELECT 
+                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
+                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
+             FROM comics c
+             LEFT JOIN comic_genres cg ON c.id = cg.comicId
+             LEFT JOIN genres g ON cg.genreId = g.id
+             WHERE 
+                c.title LIKE ? 
+                OR c.author LIKE ? 
+                OR g.name LIKE ?
+             GROUP BY c.id
+             LIMIT 20`, // Giới hạn kết quả để tối ưu (Header chỉ hiển thị 10)
+            [searchQuery, searchQuery, searchQuery]
         );
-        res.json(rows);
+        
+        const comicsWithRating = rows.map(comic => ({
+            ...comic,
+            averageRating: parseFloat(comic.averageRating) || 0,
+            totalReviews: parseInt(comic.totalReviews) || 0
+        }));
+        res.json(comicsWithRating);
     } catch (error) {
         console.error('Error searching comics:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -422,14 +471,22 @@ const getComicsByGenre = async (req, res) => {
         const connection = getConnection();
         
         const [rows] = await connection.execute(
-            `SELECT c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount
+            `SELECT 
+                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
+                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
              FROM comics c
              JOIN comic_genres cg ON c.id = cg.comicId
              JOIN genres g ON cg.genreId = g.id
              WHERE g.name = ?`,
             [genre]
         );
-        res.json(rows);
+        const comicsWithRating = rows.map(comic => ({
+            ...comic,
+            averageRating: parseFloat(comic.averageRating) || 0,
+            totalReviews: parseInt(comic.totalReviews) || 0
+        }));
+        res.json(comicsWithRating);
     } catch (error) {
         console.error('Error fetching comics by genre:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -475,11 +532,13 @@ const postReview = async (req, res) => {
         let reviewId;
         if (existing.length > 0) {
             reviewId = existing[0].id;
+            // Cập nhật đánh giá nếu đã tồn tại
             await connection.execute(
                 'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?',
                 [rating, comment, reviewId]
             );
         } else {
+            // Thêm mới đánh giá
             const [result] = await connection.execute(
                 'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
                 [comicId, userId, rating, comment]
@@ -487,6 +546,7 @@ const postReview = async (req, res) => {
             reviewId = result.insertId;
         }
 
+        // Lấy lại đánh giá mới nhất (hoặc được cập nhật) cùng thông tin người dùng
         const [newReview] = await connection.execute(
              `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
              FROM reviews r

@@ -25,9 +25,22 @@ const SearchPage: React.FC = () => {
     const fetchSearchResults = async () => {
       setIsLoading(true);
       try {
+        // Gửi query đến API đã được cập nhật
         const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(normalizedQuery)}`);
         if (!response.ok) throw new Error('Network response was not ok');
-        const data: ComicSummary[] = await response.json();
+        const rawData: any[] = await response.json();
+        
+        // Đảm bảo dữ liệu số được parse đúng cách
+        const data: ComicSummary[] = rawData.map(comic => ({
+            ...comic,
+            id: Number(comic.id),
+            isDigital: comic.isDigital === 1,
+            price: Number(comic.price),
+            views: Number(comic.viewCount),
+            averageRating: Number(comic.averageRating) || 0,
+            totalReviews: Number(comic.totalReviews) || 0,
+        }));
+        
         setSearchResults(data);
       } catch (error) {
         console.error("Lỗi fetch search results:", error);

@@ -11,7 +11,7 @@ interface TopComic {
   title: string;
   coverImageUrl: string;
   averageRating: number | null;
-  totalViewCount: number | null;
+  viewCount: number | null; 
 }
 
 const formatViewCountSimple = (count: number | null | undefined): string => {
@@ -89,7 +89,8 @@ const TopComicsSection: React.FC = () => {
                                 <h3 className="comic-title">{comic.title}</h3>
                                 <div className="comic-meta">
                                     <StarRating rating={displayRating} />
-                                    <span className="view-count">{formatViewCountSimple(comic.totalViewCount)} lượt xem</span>
+                                    {/* SỬ DỤNG viewCount */}
+                                    <span className="view-count">{formatViewCountSimple(comic.viewCount)} lượt xem</span>
                                 </div>
                             </div>
                         </Link>

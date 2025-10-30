@@ -41,22 +41,45 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
     }, [comicId]);
 
 
+    // Tính điểm trung bình và làm tròn đến 1 chữ số thập phân
     const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
-    const roundedRating = Math.round(averageRating * 2) / 2;
+    const roundedRating = Math.round(averageRating * 10) / 10;
 
     const renderStars = useCallback((rating: number) => {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating - fullStars >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
         return Array.from({ length: 5 }, (_, index) => {
             const starValue = index + 1;
+            let fillStyle: 'full' | 'half' | 'none' = 'none';
+
+            if (starValue <= fullStars) {
+                fillStyle = 'full';
+            } else if (starValue === fullStars + 1 && hasHalfStar) {
+                fillStyle = 'half';
+            }
+
             return (
                 <FiStar
                     key={index}
                     className="star-icon"
-                    fill={starValue <= rating ? '#ffc107' : 'none'}
-                    stroke={starValue <= rating ? '#ffc107' : '#e0e0e0'}
+                    fill={fillStyle === 'full' ? '#ffc107' : fillStyle === 'half' ? `url(#half-fill-summary)` : 'none'}
+                    stroke={fillStyle === 'full' ? '#ffc107' : '#e0e0e0'}
                 />
             );
         });
     }, []);
+
+    // Gradient cho nửa ngôi sao (dùng chung cho phần Summary)
+    const halfStarGradient = (
+        <svg width="0" height="0" style={{ position: 'absolute' }}>
+            <linearGradient id="half-fill-summary" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="50%" style={{ stopColor: '#ffc107', stopOpacity: 1 }} />
+                <stop offset="50%" style={{ stopColor: 'transparent', stopOpacity: 1 }} />
+            </linearGradient>
+        </svg>
+    );
 
     const handleSubmitReview = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,8 +117,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                 throw new Error(newReviewData.error || 'Không thể gửi đánh giá');
             }
             
+            // Thay thế hoặc thêm đánh giá của người dùng hiện tại
             setReviews(prevReviews => {
                 const otherReviews = prevReviews.filter(r => r.userId !== currentUser.id);
+                // Đánh giá mới hoặc cập nhật sẽ được thêm vào đầu danh sách
                 return [newReviewData, ...otherReviews];
             });
             
@@ -111,6 +136,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
 
     return (
         <div className="review-section">
+            {halfStarGradient}
             <h2>Đánh giá về "{comicTitle}" ({reviews.length})</h2>
 
             <div className="rating-summary">
@@ -127,10 +153,17 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                 {reviews.map((review) => (
                     <div key={review.id} className="review-item">
                         <div className="review-header">
-                            <span className="review-author">{review.fullName}</span>
+                            {/* Bổ sung hiển thị avatar */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <img src={review.avatarUrl || 'https://via.placeholder.com/30'} alt="Avatar" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover' }} />
+                                <span className="review-author">{review.fullName}</span>
+                            </div>
                             <span className="review-date">{new Date(review.createdAt).toLocaleDateString('vi-VN')}</span>
                         </div>
-                        <div className="star-rating">{renderStars(review.rating)}</div>
+                        {/* Hiển thị sao của từng đánh giá */}
+                        <div className="star-rating" style={{ fontSize: '1rem' }}>
+                            {renderStars(review.rating)}
+                        </div>
                         <p className="review-text">{review.comment}</p>
                     </div>
                 ))}

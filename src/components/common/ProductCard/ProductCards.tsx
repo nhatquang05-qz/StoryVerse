@@ -30,14 +30,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   };
   
   const formatViewCount = (count: number) => {
-    if (!count) return '0 lượt xem'; // Xử lý nếu viewCount là null
-    if (count >= 1000000) {
-      return (count / 1000000).toFixed(1) + 'M lượt xem';
+    const num = Number(count) || 0; 
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M lượt xem';
     }
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'K lượt xem';
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K lượt xem';
     }
-    return count + ' lượt xem';
+    return num + ' lượt xem';
   };
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -55,7 +55,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
     );
   };
   
+  // SỬ DỤNG averageRating thay vì rating
   const displayRating = parseFloat(comicData.averageRating) || 0; 
+  const totalReviews = parseInt(comicData.totalReviews) || 0;
 
   return (
     <div 
@@ -92,9 +94,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         </h3>
         <p className="card-author">{comicData.author}</p>
         
-        {/* Hiển thị rating (tạm thời hoặc nếu có) */}
+        {/* Hiển thị rating */}
         <div className="card-rating-section">
           <StarRating rating={displayRating} />
+          {/* Hiển thị tổng lượt đánh giá thay vì lượt xem cho Digital */}
+          {totalReviews > 0 && (
+             <span className="card-view-count" style={{ marginLeft: '0.5rem' }}>({totalReviews} đánh giá)</span>
+          )}
         </div>
         
         {comicData.isDigital && (

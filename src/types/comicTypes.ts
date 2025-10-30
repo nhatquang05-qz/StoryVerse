@@ -24,7 +24,8 @@ export interface ComicSummary {
     views: number; 
     updatedAt: string;
     genres?: Genre[]; 
-    rating?: number; 
+    averageRating: number; // Đã đổi tên và xác định kiểu là number
+    totalReviews: number; // Thêm tổng số lượt đánh giá
 }
 
 export interface ComicDetail extends ComicSummary {
