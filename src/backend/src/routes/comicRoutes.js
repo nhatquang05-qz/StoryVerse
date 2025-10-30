@@ -1,3 +1,5 @@
+// src/backend/src/routes/comicRoutes.js
+// backend/src/routes/comicRoutes.js
 const express = require('express');
 const router = express.Router();
 const { 
@@ -8,7 +10,8 @@ const {
     addChapter, 
     searchComics,
     getReviews,
-    addReview
+    addReview,
+    getTopRatedComics
 } = require('../controllers/comicController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 // const { checkAdminRole } = require('../middleware/adminMiddleware'); 
@@ -17,6 +20,8 @@ const { authenticateToken } = require('../middleware/authMiddleware');
 router.get('/comics', getComics); 
 
 router.get('/comics/search', searchComics); 
+
+router.get('/comics/top-rated', getTopRatedComics);
 
 router.get('/comics/:id', getComicById); 
 

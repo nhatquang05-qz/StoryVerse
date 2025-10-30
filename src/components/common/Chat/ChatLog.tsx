@@ -1,3 +1,4 @@
+// src/components/common/Chat/ChatLog.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import './ChatLog.css';
 import ChatMessage, { type ChatMessageData } from './ChatMessage';
@@ -10,35 +11,15 @@ import StickerPicker from './StickerPicker';
 import type { Sticker } from '../../../utils/stickerUtils';
 import { getBanInfo, setBanInfo, calculateBanDurationMinutes, formatRemainingTime, type BanInfo } from '../../../utils/chatBanUtils';
 
-const CHATLOG_STORAGE_KEY = 'storyverse_chatlog_global';
-
-const mockMessagesData: ChatMessageData[] = [
-    { id: 1, userId: 'user-coconut', userName: "Coconut", avatarUrl: "https://i.imgur.com/g5V2w1D.png", timestamp: "13:40", message: "rùi", userLevel: 1, likes: ['user-ffdai'] },
-    { id: 2, userId: 'user-ffdai', userName: "ff.dai13112007", avatarUrl: "https://i.imgur.com/L30h9hZ.png", timestamp: "13:44", message: "cơm chó nhiều vầy 😡😡😡😡", userLevel: 1, likes: [] },
-    { id: 3, userId: 'user-cao', userName: "CÁO MẮT TRĂNG", avatarUrl: "https://i.imgur.com/8mVLK0f.png", timestamp: "14:00", message: "xin cảm nhận ik đứa", userLevel: 2, likes: ['user-ffdai', 'user-san'] },
-    { id: 4, userId: 'user-san', userName: "San", avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "14:53", message: "sdsds", userLevel: 5, likes: [], replyTo: 3, replyToAuthor: "CÁO MẮT TRĂNG" },
-    { id: 5, userId: 'user-duongnguyennhatquang@gmail.com', userName: "duongnguyennhatquang", avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:48", message: "sdsdsd", userLevel: 13, likes: ['user-cao'] },
-    { id: 6, userId: 'user-duongnguyennhatquang@gmail.com', userName: "duongnguyennhatquang", avatarUrl: "https://i.imgur.com/tq9k3Yj.png", timestamp: "03:49", message: "sssd", userLevel: 13, likes: [] },
-];
-
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const TOKEN_STORAGE_KEY = 'storyverse_token';
+const MAX_GLOBAL_MESSAGES = 30;
 
 const ChatLog: React.FC = () => {
     const { currentUser, getEquivalentLevelTitle } = useAuth();
     const { showNotification } = useNotification();
-    const [messages, setMessages] = useState<ChatMessageData[]>(() => {
-        try {
-            const storedMessages = localStorage.getItem(CHATLOG_STORAGE_KEY);
-            if (storedMessages) return JSON.parse(storedMessages);
-        } catch (error) { console.error("Error loading global chat messages:", error); }
-         if (currentUser && !mockMessagesData.some(m => m.userId === currentUser.id)) {
-             const userMessages: ChatMessageData[] = [
-                 { id: 7, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: currentUser.avatarUrl, timestamp: "03:50", message: "Tin nhắn cũ 1", userLevel: currentUser.level, likes: [] },
-                 { id: 8, userId: currentUser.id, userName: currentUser.fullName || currentUser.email.split('@')[0], avatarUrl: currentUser.avatarUrl, timestamp: "03:51", message: "Tin nhắn cũ 2", userLevel: currentUser.level, likes: [] }
-             ];
-             return [...mockMessagesData, ...userMessages];
-        }
-        return mockMessagesData;
-    });
+    const [messages, setMessages] = useState<ChatMessageData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [newMessage, setNewMessage] = useState('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -49,6 +30,7 @@ const ChatLog: React.FC = () => {
     const messageInputRef = useRef<HTMLInputElement>(null);
     const stickerPickerRef = useRef<HTMLDivElement>(null);
     const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
     const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
@@ -56,11 +38,25 @@ const ChatLog: React.FC = () => {
     const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
     const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default';
 
-    useEffect(() => {
-        try { localStorage.setItem(CHATLOG_STORAGE_KEY, JSON.stringify(messages)); }
-        catch (error) { console.error("Error saving global chat messages:", error); }
-    }, [messages]);
+    const fetchMessages = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/chat/global`);
+            if (!response.ok) throw new Error('Failed to fetch messages');
+            const data: ChatMessageData[] = await response.json();
+            setMessages(data);
+        } catch (error: any) {
+            console.error("Error loading global chat messages:", error);
+            showNotification(error.message, 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
+    useEffect(() => {
+        fetchMessages();
+    }, [fetchMessages]);
+    
     useEffect(() => {
         if (currentUser) {
             const banInfo = getBanInfo(currentUser.id);
@@ -128,7 +124,36 @@ const ChatLog: React.FC = () => {
         }
     };
 
-    const handleSendMessage = (sticker?: Sticker) => {
+    const postMessageToApi = async (payload: { message?: string; imageUrl?: string; stickerUrl?: string; replyToMessageId?: number }) => {
+        const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+        try {
+            const response = await fetch(`${API_URL}/chat/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    message: payload.message || null,
+                    imageUrl: payload.imageUrl || null,
+                    stickerUrl: payload.stickerUrl || null,
+                    replyToMessageId: payload.replyToMessageId || null,
+                    comicId: null,
+                    chapterId: null
+                })
+            });
+            const newMsgData = await response.json();
+            if (!response.ok) throw new Error(newMsgData.error || 'Failed to send message');
+            
+            setMessages(prev => [...prev, newMsgData].slice(-MAX_GLOBAL_MESSAGES));
+
+        } catch (error: any) {
+            console.error("Error posting message:", error);
+            showNotification(error.message, 'error');
+        }
+    };
+
+    const handleSendMessage = async (sticker?: Sticker) => {
         if (!currentUser) {
              showNotification("Bạn cần đăng nhập để nói chuyện", "warning");
             return;
@@ -147,7 +172,9 @@ const ChatLog: React.FC = () => {
         const messageContent = newMessage.trim();
         const hasContent = messageContent || selectedImage || sticker;
 
-        if (!hasContent) return;
+        if (!hasContent || isSending) return;
+        
+        setIsSending(true);
 
         const resetInputs = () => {
             setNewMessage('');
@@ -189,61 +216,40 @@ const ChatLog: React.FC = () => {
             setCurrentBanInfo(newBanInfo);
             showNotification(banMessage, banDurationMinutes > 0 ? 'error' : 'warning');
             resetInputs(); 
-
+            setIsSending(false);
             return;
         }
 
+        try {
+            let imageUrl: string | undefined = undefined;
+            if (selectedImage) {
+                const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+                const formData = new FormData();
+                formData.append('image', selectedImage);
 
-        const createMessageObject = (imgDataUrl?: string, stickerUrl?: string): ChatMessageData => ({
-            id: Date.now(),
-            userId: currentUser.id,
-            userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: currentUser.avatarUrl || "https://i.imgur.com/tq9k3Yj.png",
-            timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-            message: sticker ? '' : messageContent,
-            userLevel: currentUser.level,
-            imageUrl: imgDataUrl,
-            stickerUrl: stickerUrl,
-            likes: [],
-            replyTo: replyingTo?.id,
-            replyToAuthor: replyingTo?.author,
-        });
-
-        let messageToSendSync: ChatMessageData | null = null;
-        let requiresAsyncSave = false;
-
-        if (sticker) {
-             messageToSendSync = createMessageObject(undefined, sticker.url);
-        } else if (selectedImage) {
-            requiresAsyncSave = true;
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const asyncMessageToSend = createMessageObject(reader.result as string);
-                setMessages(prev => {
-                     const newMessages = [...prev, asyncMessageToSend];
-                     try { localStorage.setItem(CHATLOG_STORAGE_KEY, JSON.stringify(newMessages)); }
-                     catch (error) { console.error("Error saving global chat message (async):", error); }
-                     return newMessages;
-                 });
-                resetInputs();
+                const uploadRes = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                const uploadData = await uploadRes.json();
+                if (!uploadRes.ok) throw new Error(uploadData.error || 'Image upload failed');
+                imageUrl = uploadData.imageUrl;
             }
-            reader.onerror = () => { console.error("Lỗi đọc file ảnh"); alert("Không thể đọc file ảnh đã chọn."); resetInputs(); }
-            reader.readAsDataURL(selectedImage);
-        } else if (messageContent) {
-            messageToSendSync = createMessageObject();
-        }
 
-        if (messageToSendSync && !requiresAsyncSave) {
-            const finalMessage = messageToSendSync;
-            setMessages(prev => {
-                const newMessages = [...prev, finalMessage];
-                try { localStorage.setItem(CHATLOG_STORAGE_KEY, JSON.stringify(newMessages)); }
-                catch (error) { console.error("Error saving global chat message (sync):", error); }
-                return newMessages;
-             });
+            await postMessageToApi({
+                message: messageContent,
+                imageUrl,
+                stickerUrl: sticker?.url,
+                replyToMessageId: replyingTo?.id
+            });
+            
             resetInputs();
-        } else if (!requiresAsyncSave) {
-             resetInputs();
+        } catch (error: any) {
+            console.error("Error sending message:", error);
+            showNotification(error.message, 'error');
+        } finally {
+            setIsSending(false);
         }
     };
 
@@ -267,25 +273,38 @@ const ChatLog: React.FC = () => {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    const handleLikeMessage = useCallback((messageId: number) => {
+    const handleLikeMessage = useCallback(async (messageId: number) => {
         if (!currentUser) return;
-        setMessages(prevMessages => {
-            const updatedMessages = prevMessages.map(msg => {
-                if (msg.id === messageId) {
-                    const currentLikes = msg.likes || [];
-                    const isLiked = currentLikes.includes(currentUser.id);
-                    const newLikes = isLiked
-                        ? currentLikes.filter(id => id !== currentUser.id)
-                        : [...currentLikes, currentUser.id];
-                    return { ...msg, likes: newLikes };
-                }
-                return msg;
+
+        const originalMessages = messages;
+        const msgToLike = messages.find(m => m.id === messageId);
+        if (!msgToLike) return;
+
+        const currentLikes = msgToLike.likes || [];
+        const isLiked = currentLikes.includes(currentUser.id);
+        const newLikes = isLiked
+            ? currentLikes.filter(id => id !== currentUser.id)
+            : [...currentLikes, currentUser.id];
+
+        setMessages(prevMessages => 
+            prevMessages.map(msg => 
+                msg.id === messageId ? { ...msg, likes: newLikes } : msg
+            )
+        );
+
+        try {
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+            const response = await fetch(`${API_URL}/chat/like/${messageId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-            try { localStorage.setItem(CHATLOG_STORAGE_KEY, JSON.stringify(updatedMessages)); }
-            catch (error) { console.error("Error saving likes to storage:", error); }
-            return updatedMessages;
-        });
-    }, [currentUser]);
+            if (!response.ok) throw new Error('Like request failed');
+        } catch (error) {
+            console.error("Error liking message:", error);
+            showNotification('Lỗi khi thích tin nhắn.', 'error');
+            setMessages(originalMessages);
+        }
+    }, [currentUser, messages, showNotification]);
 
     const handleReplyMessage = useCallback((messageId: number, authorName: string) => {
         if (!currentUser) return;
@@ -321,6 +340,8 @@ const ChatLog: React.FC = () => {
             </div>
 
             <div className="chat-messages-list" ref={chatMessagesListRef}>
+                {isLoading && <p style={{textAlign: 'center', color: 'var(--clr-text-secondary)'}}>Đang tải tin nhắn...</p>}
+                {!isLoading && messages.length === 0 && <p style={{textAlign: 'center', color: 'var(--clr-text-secondary)'}}>Chưa có tin nhắn nào.</p>}
                 {messages.map((msg: ChatMessageData) => (
                     <ChatMessage
                         key={msg.id}
@@ -372,7 +393,7 @@ const ChatLog: React.FC = () => {
                             className="image-upload-btn sticker-picker-btn"
                             onClick={toggleStickerPicker}
                             title="Chọn sticker"
-                            disabled={!!selectedImage || isCurrentlyBanned}
+                            disabled={!!selectedImage || isCurrentlyBanned || isSending}
                         >
                            <FiSmile />
                         </button>
@@ -381,7 +402,7 @@ const ChatLog: React.FC = () => {
                             className="image-upload-btn"
                             onClick={handleImageButtonClick}
                             title="Đính kèm ảnh"
-                            disabled={!!selectedImage || isCurrentlyBanned}
+                            disabled={!!selectedImage || isCurrentlyBanned || isSending}
                         >
                            <FiImage />
                         </button>
@@ -392,11 +413,11 @@ const ChatLog: React.FC = () => {
                             placeholder={isCurrentlyBanned ? "Bạn đang bị cấm chat..." : (replyingTo ? `Trả lời ${replyingTo.author}...` : (selectedImage ? "Thêm chú thích..." : "Nhập tin nhắn..."))}
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            disabled={isCurrentlyBanned}
+                            disabled={isCurrentlyBanned || isSending}
                             className={isCurrentlyBanned ? 'input-banned' : ''}
                         />
-                        <button type="submit" className="send-btn" disabled={(!newMessage.trim() && !selectedImage && !showStickerPicker) || isCurrentlyBanned}>
-                           <FiSend />
+                        <button type="submit" className="send-btn" disabled={(!newMessage.trim() && !selectedImage && !showStickerPicker) || isCurrentlyBanned || isSending}>
+                           {isSending ? <FiClock className="animate-spin" /> : <FiSend />}
                         </button>
                     </form>
                  </>

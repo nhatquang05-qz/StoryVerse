@@ -7,6 +7,7 @@ const addressRoutes = require('./addressRoutes');
 const rewardRoutes = require('./rewardRoutes');
 const uploadRoutes = require('./uploadRoutes'); 
 const comicRoutes = require('./comicRoutes');   
+const chatRoutes = require('./chatRoutes');
 
 router.use(authRoutes);
 router.use(userRoutes);
@@ -14,5 +15,6 @@ router.use(addressRoutes);
 router.use(rewardRoutes);
 router.use(uploadRoutes); 
 router.use(comicRoutes);   
+router.use(chatRoutes);
 
 module.exports = router;

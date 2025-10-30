@@ -300,6 +300,32 @@ const addReview = async (req, res) => {
     }
 };
 
+const getTopRatedComics = async (req, res) => {
+    try {
+        const connection = getConnection();
+        
+        const [rows] = await connection.execute(`
+            SELECT 
+                c.id, 
+                c.title, 
+                c.coverImageUrl, 
+                (IFNULL(c.viewCount, 0) + (SELECT SUM(IFNULL(ch.viewCount, 0)) FROM chapters ch WHERE ch.comicId = c.id)) AS totalViewCount, 
+                AVG(r.rating) AS averageRating
+            FROM comics c
+            LEFT JOIN reviews r ON c.id = r.comicId
+            WHERE c.isDigital = 1
+            GROUP BY c.id
+            ORDER BY averageRating DESC, totalViewCount DESC
+            LIMIT 5
+        `);
+        
+        res.json(rows);
+    } catch (error) {
+        console.error("Get top rated comics error:", error);
+        res.status(500).json({ error: 'Failed to fetch top rated comics' });
+    }
+};
+
 module.exports = {
     getComics,
     getComicById,
@@ -308,5 +334,6 @@ module.exports = {
     addChapter,
     searchComics,
     getReviews,
-    addReview
+    addReview,
+    getTopRatedComics
 };

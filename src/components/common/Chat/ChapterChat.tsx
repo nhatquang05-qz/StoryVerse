@@ -1,3 +1,4 @@
+// src/components/common/Chat/ChapterChat.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -10,19 +11,19 @@ import type { Sticker } from '../../../utils/stickerUtils';
 import { getBanInfo, setBanInfo, calculateBanDurationMinutes, formatRemainingTime, type BanInfo } from '../../../utils/chatBanUtils';
 import './ChapterChat.css';
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const TOKEN_STORAGE_KEY = 'storyverse_token';
+
 interface ChapterChatProps {
     comicId: number;
     chapterId: number;
 }
 
-const getStorageKey = (comicId: number, chapterId: number) => {
-    return `storyverse_chat_${comicId}_${chapterId}`;
-};
-
 const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
     const { currentUser, getEquivalentLevelTitle } = useAuth();
     const { showNotification } = useNotification();
     const [messages, setMessages] = useState<ChatMessageData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [newMessage, setNewMessage] = useState('');
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
@@ -33,18 +34,29 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
     const messageInputRef = useRef<HTMLInputElement>(null);
     const stickerPickerRef = useRef<HTMLDivElement>(null);
     const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
     const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
 
-    const STORAGE_KEY = getStorageKey(comicId, chapterId);
+    const fetchMessages = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/chat/chapter/${comicId}/${chapterId}`);
+            if (!response.ok) throw new Error('Failed to fetch chapter messages');
+            const data: ChatMessageData[] = await response.json();
+            setMessages(data);
+        } catch (error: any) {
+            console.error("Lỗi tải tin nhắn chương:", error);
+            setMessages([]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [comicId, chapterId]);
 
     useEffect(() => {
-        try {
-            const storedMessages = localStorage.getItem(STORAGE_KEY);
-            setMessages(storedMessages ? JSON.parse(storedMessages) : []);
-        } catch (error) { console.error("Lỗi tải tin nhắn chương:", error); setMessages([]); }
-    }, [STORAGE_KEY]);
+        fetchMessages();
+    }, [fetchMessages]);
 
     useEffect(() => {
         if (currentUser) {
@@ -113,7 +125,36 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
         }
     };
 
-    const handleSendMessage = (sticker?: Sticker) => {
+    const postMessageToApi = async (payload: { message?: string; imageUrl?: string; stickerUrl?: string; replyToMessageId?: number }) => {
+        const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+        try {
+            const response = await fetch(`${API_URL}/chat/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    message: payload.message || null,
+                    imageUrl: payload.imageUrl || null,
+                    stickerUrl: payload.stickerUrl || null,
+                    replyToMessageId: payload.replyToMessageId || null,
+                    comicId: comicId,
+                    chapterId: chapterId
+                })
+            });
+            const newMsgData = await response.json();
+            if (!response.ok) throw new Error(newMsgData.error || 'Failed to send message');
+            
+            setMessages(prev => [...prev, newMsgData]);
+
+        } catch (error: any) {
+            console.error("Error posting message:", error);
+            showNotification(error.message, 'error');
+        }
+    };
+
+    const handleSendMessage = async (sticker?: Sticker) => {
         if (!currentUser) {
             showNotification("Bạn cần đăng nhập để bình luận", "warning");
             return;
@@ -132,7 +173,9 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
         const messageContent = newMessage.trim();
         const hasContent = messageContent || selectedImage || sticker;
 
-        if (!hasContent) return;
+        if (!hasContent || isSending) return;
+
+        setIsSending(true);
 
         const resetInputs = () => {
             setNewMessage('');
@@ -174,70 +217,40 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             setCurrentBanInfo(newBanInfo);
             showNotification(banMessage, banDurationMinutes > 0 ? 'error' : 'warning');
             resetInputs(); 
-
+            setIsSending(false);
             return;
         }
 
-        const createMessageObject = (imgDataUrl?: string, stickerUrl?: string): ChatMessageData => ({
-            id: Date.now(),
-            userId: currentUser.id,
-            userName: currentUser.fullName || currentUser.email.split('@')[0],
-            avatarUrl: currentUser.avatarUrl || "https://i.imgur.com/tq9k3Yj.png",
-            timestamp: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-            message: sticker ? '' : messageContent,
-            userLevel: currentUser.level,
-            imageUrl: imgDataUrl,
-            stickerUrl: stickerUrl,
-            likes: [],
-            replyTo: replyingTo?.id,
-            replyToAuthor: replyingTo?.author,
-        });
+        try {
+            let imageUrl: string | undefined = undefined;
+            if (selectedImage) {
+                const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+                const formData = new FormData();
+                formData.append('image', selectedImage);
 
-        let messageToSendSync: ChatMessageData | null = null;
-        let requiresAsyncSave = false;
-
-        if (sticker) {
-             messageToSendSync = createMessageObject(undefined, sticker.url);
-        } else if (selectedImage) {
-            requiresAsyncSave = true;
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const asyncMessageToSend = createMessageObject(reader.result as string);
-                setMessages(prev => {
-                    const newMessages = [...prev, asyncMessageToSend];
-                    try {
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(newMessages));
-                    } catch (error) {
-                        console.error("Error saving chapter chat messages (async):", error);
-                    }
-                    return newMessages;
+                const uploadRes = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
                 });
-                resetInputs();
+                const uploadData = await uploadRes.json();
+                if (!uploadRes.ok) throw new Error(uploadData.error || 'Image upload failed');
+                imageUrl = uploadData.imageUrl;
             }
-             reader.onerror = () => {
-                 console.error("Lỗi đọc file ảnh");
-                 alert("Không thể đọc file ảnh đã chọn.");
-                 resetInputs();
-             }
-            reader.readAsDataURL(selectedImage);
-        } else if (messageContent) {
-            messageToSendSync = createMessageObject();
-        }
 
-        if (messageToSendSync && !requiresAsyncSave) {
-            const finalMessage = messageToSendSync;
-            setMessages(prev => {
-                const newMessages = [...prev, finalMessage];
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(newMessages));
-                } catch (error) {
-                    console.error("Error saving chapter chat messages (sync):", error);
-                }
-                return newMessages;
+            await postMessageToApi({
+                message: messageContent,
+                imageUrl,
+                stickerUrl: sticker?.url,
+                replyToMessageId: replyingTo?.id
             });
+            
             resetInputs();
-        } else if (!requiresAsyncSave) {
-             resetInputs();
+        } catch (error: any) {
+            console.error("Error sending message:", error);
+            showNotification(error.message, 'error');
+        } finally {
+            setIsSending(false);
         }
     };
 
@@ -261,28 +274,38 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    const handleLikeMessage = useCallback((messageId: number) => {
+    const handleLikeMessage = useCallback(async (messageId: number) => {
         if (!currentUser) return;
-        setMessages(prevMessages => {
-            const updatedMessages = prevMessages.map(msg => {
-                if (msg.id === messageId) {
-                    const currentLikes = msg.likes || [];
-                    const isLiked = currentLikes.includes(currentUser.id);
-                    const newLikes = isLiked
-                        ? currentLikes.filter(id => id !== currentUser.id)
-                        : [...currentLikes, currentUser.id];
-                    return { ...msg, likes: newLikes };
-                }
-                return msg;
+
+        const originalMessages = messages;
+        const msgToLike = messages.find(m => m.id === messageId);
+        if (!msgToLike) return;
+
+        const currentLikes = msgToLike.likes || [];
+        const isLiked = currentLikes.includes(currentUser.id);
+        const newLikes = isLiked
+            ? currentLikes.filter(id => id !== currentUser.id)
+            : [...currentLikes, currentUser.id];
+
+        setMessages(prevMessages => 
+            prevMessages.map(msg => 
+                msg.id === messageId ? { ...msg, likes: newLikes } : msg
+            )
+        );
+
+        try {
+            const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+            const response = await fetch(`${API_URL}/chat/like/${messageId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-             try {
-                 localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedMessages));
-             } catch (error) {
-                 console.error("Error saving likes to storage:", error);
-             }
-            return updatedMessages;
-        });
-    }, [currentUser, STORAGE_KEY]);
+            if (!response.ok) throw new Error('Like request failed');
+        } catch (error) {
+            console.error("Error liking message:", error);
+            showNotification('Lỗi khi thích tin nhắn.', 'error');
+            setMessages(originalMessages);
+        }
+    }, [currentUser, messages, showNotification]);
 
 
     const handleReplyMessage = useCallback((messageId: number, authorName: string) => {
@@ -318,7 +341,12 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
             </div>
 
             <div className="chat-messages-list" ref={chatMessagesListRef}>
-                {messages.length > 0 ? (
+                {isLoading && <div className="chat-login-prompt" style={{border: 'none', color: 'var(--clr-text-secondary)'}}>Đang tải bình luận...</div>}
+                {!isLoading && messages.length === 0 ? (
+                    <div className="chat-login-prompt" style={{border: 'none', color: 'var(--clr-text-secondary)'}}>
+                        Chưa có bình luận nào.
+                    </div>
+                ) : (
                     messages.map(msg => (
                         <ChatMessage
                             key={msg.id}
@@ -329,10 +357,6 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                             currentUserId={currentUser?.id || null}
                         />
                     ))
-                ) : (
-                    <div className="chat-login-prompt" style={{border: 'none', color: 'var(--clr-text-secondary)'}}>
-                        Chưa có bình luận nào.
-                    </div>
                 )}
             </div>
 
@@ -375,7 +399,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                             className="image-upload-btn sticker-picker-btn"
                             onClick={toggleStickerPicker}
                             title="Chọn sticker"
-                            disabled={!!selectedImage || isCurrentlyBanned}
+                            disabled={!!selectedImage || isCurrentlyBanned || isSending}
                         >
                            <FiSmile />
                         </button>
@@ -384,7 +408,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                             className="image-upload-btn"
                             onClick={handleImageButtonClick}
                             title="Đính kèm ảnh"
-                            disabled={!!selectedImage || isCurrentlyBanned}
+                            disabled={!!selectedImage || isCurrentlyBanned || isSending}
                         >
                            <FiImage />
                         </button>
@@ -395,11 +419,11 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
                             placeholder={isCurrentlyBanned ? "Bạn đang bị cấm chat..." : (replyingTo ? `Trả lời ${replyingTo.author}...` : (selectedImage ? "Thêm chú thích..." : "Viết bình luận của bạn..."))}
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
-                            disabled={isCurrentlyBanned}
+                            disabled={isCurrentlyBanned || isSending}
                             className={isCurrentlyBanned ? 'input-banned' : ''}
                         />
-                        <button type="submit" className="send-btn" disabled={(!newMessage.trim() && !selectedImage && !showStickerPicker) || isCurrentlyBanned}>
-                           <FiSend />
+                        <button type="submit" className="send-btn" disabled={(!newMessage.trim() && !selectedImage && !showStickerPicker) || isCurrentlyBanned || isSending}>
+                           {isSending ? <FiClock className="animate-spin" /> : <FiSend />}
                         </button>
                     </form>
                  </>
