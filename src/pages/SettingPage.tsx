@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FiArrowLeft, FiSettings } from 'react-icons/fi';
+import { FiArrowLeft, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
+import { useFont } from '../contexts/FontContext';
 import './SettingPage.css';
 import mikaelaPreview from '../cursors/Mikaela_Hykuya.png';
 import krulTepesPreview from '../cursors/Krul_Tepes.png';
@@ -43,23 +44,31 @@ const applyCursorStyles = (packId: string) => {
 
 const SettingsPage: React.FC = () => {
     const { showNotification } = useNotification();
-    const [selectedPackId, setSelectedPackId] = useState<string>(() => {
+    const { selectedFont, selectFont, fontOptions } = useFont();
+
+    const [selectedCursorPackId, setSelectedCursorPackId] = useState<string>(() => {
         const storedId = localStorage.getItem(CURSOR_STORAGE_KEY);
         return (storedId && CURSOR_PACKS.find(p => p.id === storedId)) ? storedId : CURSOR_PACKS[0].id;
     });
 
     useEffect(() => {
-        applyCursorStyles(selectedPackId);
-        localStorage.setItem(CURSOR_STORAGE_KEY, selectedPackId);
-    }, [selectedPackId]);
+        applyCursorStyles(selectedCursorPackId);
+        localStorage.setItem(CURSOR_STORAGE_KEY, selectedCursorPackId);
+    }, [selectedCursorPackId]);
 
     useEffect(() => {
-        applyCursorStyles(selectedPackId);
+        applyCursorStyles(selectedCursorPackId);
     }, []);
 
-    const handlePackSelect = (packId: string) => {
-        setSelectedPackId(packId);
+    const handleCursorPackSelect = (packId: string) => {
+        setSelectedCursorPackId(packId);
         showNotification(`Đã đổi bộ con trỏ mặc định sang ${CURSOR_PACKS.find(opt => opt.id === packId)?.name}`, 'success');
+    };
+
+    const handleFontSelect = (fontId: string) => {
+        selectFont(fontId);
+        const fontName = fontOptions.find(f => f.id === fontId)?.name || 'font';
+        showNotification(`Đã đổi font chữ thành ${fontName}`, 'success');
     };
 
     return (
@@ -67,6 +76,30 @@ const SettingsPage: React.FC = () => {
             <div className="settings-content-wrapper">
                 <Link to="/profile" className="settings-back-btn"><FiArrowLeft /> Quay lại Hồ sơ</Link>
                 <h1 className="settings-page-title"><FiSettings /> Cài Đặt </h1>
+
+                <div className="settings-card" style={{ marginBottom: '2rem' }}>
+                    <h2>Tùy Chỉnh Font Chữ</h2>
+                    <p className="description">
+                        Chọn font chữ bạn muốn sử dụng trên toàn bộ trang web.
+                    </p>
+                    <div className="font-pack-options">
+                        {fontOptions.map(font => (
+                            <div
+                                key={font.id}
+                                className={`font-option ${selectedFont.id === font.id ? 'selected' : ''}`}
+                                onClick={() => handleFontSelect(font.id)}
+                            >
+                                <div className="font-option-name" style={{ fontFamily: font.cssVariable }}>{font.name}</div>
+                                <p className="font-option-preview" style={{ fontFamily: font.cssVariable }}>
+                                    StoryVerse
+                                </p>
+                                {selectedFont.id === font.id && (
+                                    <FiCheckCircle className="font-option-check" />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 <div className="settings-card">
                     <h2>Tùy Chỉnh Con Trỏ Chuột Anime</h2>
@@ -77,8 +110,8 @@ const SettingsPage: React.FC = () => {
                         {CURSOR_PACKS.map(pack => (
                             <div
                                 key={pack.id}
-                                className={`cursor-option ${selectedPackId === pack.id ? 'selected' : ''}`}
-                                onClick={() => handlePackSelect(pack.id)}
+                                className={`cursor-option ${selectedCursorPackId === pack.id ? 'selected' : ''}`}
+                                onClick={() => handleCursorPackSelect(pack.id)}
                             >
                                 <img
                                     src={pack.previewImage}

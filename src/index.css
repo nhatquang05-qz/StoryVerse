@@ -1,5 +1,42 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('/src/assets/fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/src/assets/fonts/Inter-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  src: url('/src/assets/fonts/Merriweather-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  src: url('/src/assets/fonts/Merriweather-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-serif: 'Merriweather', Georgia, serif;
+  
+  --font-family-base: var(--font-sans);
+
+  font-family: var(--font-family-base);
   line-height: 1.5;
   font-weight: 400;
 
@@ -300,7 +337,7 @@ input::placeholder, textarea::placeholder {
 .status-cancelled {
     background-color: var(--clr-error-bg);
     color: var(--clr-error-text);
-    border-color: var(--clr-error-text);
+    border-color: var(--clr-error-border);
 }
 .status-pending {
     background-color: var(--clr-info-bg);
