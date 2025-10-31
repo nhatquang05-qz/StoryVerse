@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { type Comic } from '../../../data/mockData';
+import { type ComicSummary } from '../../../types/comicTypes'; 
 import ProductCard from '../ProductCard/ProductCards';
 import './ProductList.css';
 
 interface ProductListProps {
-  comics: Comic[];
+  comics: ComicSummary[]; 
   pageIndex?: number; 
   itemsPerPage?: number;
 }
