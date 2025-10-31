@@ -31,6 +31,8 @@ html[data-theme="night"] .chapter-chat-container {
   overflow-y: auto;
   padding-right: 5px;
   margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
 }
 
 .chapter-chat-container .chat-messages-list::-webkit-scrollbar {
@@ -67,6 +69,7 @@ html[data-theme="night"] .chapter-chat-container .chat-messages-list::-webkit-sc
   border-top: 1px solid var(--clr-border-light);
   position: relative; 
   flex-wrap: wrap; 
+  z-index: 2;
 }
 
 .chapter-chat-container .chat-input-form input[type="text"] {
@@ -134,7 +137,6 @@ html[data-theme="night"] .chapter-chat-container .chat-messages-list::-webkit-sc
     margin-top: 10px;
 }
 
-/* Copied Styles */
 .image-upload-btn {
   background: none;
   border: none;

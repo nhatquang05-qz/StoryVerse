@@ -223,6 +223,11 @@ html[data-theme="dark"] .chapter-select-dropdown option:disabled {
     background-color: var(--clr-background);
 }
 
+.chapter-chat-wrapper {
+    position: relative;
+    z-index: 1001; 
+}
+
 
 @media (max-width: 768px) {
     .reader-header-bar {

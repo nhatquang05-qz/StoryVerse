@@ -12,6 +12,7 @@ interface TopComic {
   coverImageUrl: string;
   averageRating: number | null;
   viewCount: number | null; 
+  isDigital: boolean | number; 
 }
 
 const formatViewCountSimple = (count: number | null | undefined): string => {
@@ -36,13 +37,31 @@ const TopComicsSection: React.FC = () => {
             setIsLoading(true);
             setError(null);
             try {
-                // FIX: Sửa /comics/top-rated thành /comics/top
-                const response = await fetch(`${API_URL}/comics/top`);
+                const response = await fetch(`${API_URL}/comics/top`); 
                 if (!response.ok) {
                     throw new Error('Không thể tải top truyện');
                 }
                 const data: TopComic[] = await response.json();
-                setTopComics(data);
+                
+                const digitalComics = data.filter(comic => (comic.isDigital as any) === 1);
+             
+                digitalComics.sort((a, b) => {
+                    const ratingA = Number(a.averageRating) || 0;
+                    const ratingB = Number(b.averageRating) || 0;
+
+                    if (ratingA !== ratingB) {
+                        return ratingB - ratingA; 
+                    }
+
+                    const viewA = Number(a.viewCount) || 0;
+                    const viewB = Number(b.viewCount) || 0;
+                    
+                    return viewB - viewA;
+                });
+
+                const finalTop5 = digitalComics.slice(0, 5); 
+
+                setTopComics(finalTop5); 
             } catch (err: any) {
                 console.error("Lỗi tải top truyện:", err);
                 setError(err.message || 'Lỗi không xác định');
@@ -89,7 +108,6 @@ const TopComicsSection: React.FC = () => {
                                 <h3 className="comic-title">{comic.title}</h3>
                                 <div className="comic-meta">
                                     <StarRating rating={displayRating} />
-                                    {/* SỬ DỤNG viewCount */}
                                     <span className="view-count">{formatViewCountSimple(comic.viewCount)} lượt xem</span>
                                 </div>
                             </div>

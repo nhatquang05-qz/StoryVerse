@@ -12,7 +12,7 @@ const ChatbotUI: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<ChatHistory[]>([
-        { role: 'model', parts: "Chào bạn! Tôi là StoryVerse Bot. Tôi có thể giúp gì cho bạn?" }
+        { role: 'model', parts: "<p>Chào bạn! Tôi là StoryVerse Bot. Tôi có thể giúp gì cho bạn?</p>" }
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const chatboxRef = useRef<HTMLDivElement>(null);
@@ -47,18 +47,24 @@ const ChatbotUI: React.FC = () => {
              return;
         }
 
-        const userMessage: ChatHistory = { role: 'user', parts: messageText };
+        const userMessage: ChatHistory = { role: 'user', parts: `<p>${messageText}</p>` };
+        
+        const historyForBot = messages.map(msg => ({
+            ...msg,
+            content: msg.parts.replace(/<[^>]*>?/gm, ' ') 
+        }));
+
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
 
         try {
-            const botReply = await getBotResponse(messageText, messages, token);
-            const botMessage: ChatHistory = { role: 'model', parts: botReply };
+            const botReplyHtml = await getBotResponse(messageText, historyForBot, token);
+            const botMessage: ChatHistory = { role: 'model', parts: botReplyHtml };
             setMessages(prev => [...prev, botMessage]);
         } catch (error) {
             console.error("Lỗi khi xử lý tin nhắn:", error);
-            const errorMessage: ChatHistory = { role: 'model', parts: "Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại." };
+            const errorMessage: ChatHistory = { role: 'model', parts: "<p>Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại.</p>" };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
@@ -101,7 +107,12 @@ const ChatbotUI: React.FC = () => {
                                         />
                                     )}
                                 </span>
-                                <p>{msg.parts}</p>
+                                
+                                <div 
+                                    className="chatbot-message-content" 
+                                    dangerouslySetInnerHTML={{ __html: msg.parts }} 
+                                />
+
                             </div>
                         ))}
                         {isLoading && (

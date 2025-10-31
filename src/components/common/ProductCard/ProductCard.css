@@ -64,7 +64,6 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--clr-primary);
-  margin-top: auto;
 }
 
 .card-image-overlay {
@@ -153,6 +152,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: auto; 
     margin-bottom: 0.25rem;
     flex-wrap: nowrap;
     white-space: nowrap;

@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { type ComicSummary } from '../../types/comicTypes'; 
+import { type ComicSummary, type Genre } from '../../types/comicTypes'; 
 import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
 import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
 import coinIcon from '../../assets/images/coin.png';
@@ -26,6 +26,8 @@ const Header: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false); 
   
+  const [allGenres, setAllGenres] = useState<Genre[]>([]);
+  
   const { cartCount, setCartIconRect } = useCart();
   const { currentUser, logout } = useAuth();
   const cartIconRef = useRef<HTMLAnchorElement>(null);
@@ -43,6 +45,13 @@ const Header: React.FC = () => {
       setCartIconRect(cartIconRef.current.getBoundingClientRect());
     }
   }, [setCartIconRect]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/comics/system/genres`)
+      .then(res => res.json())
+      .then((data: Genre[]) => setAllGenres(data))
+      .catch(err => console.error("Failed to fetch genres:", err));
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -154,25 +163,28 @@ const Header: React.FC = () => {
         <nav className="nav-desktop">
           <Link to="/physical-comics">Truyện In</Link>
           <Link to="/digital-comics">Đọc Online</Link>
+          
+          {/* === BẮT ĐẦU SỬA MEGA-MENU THỂ LOẠI === */}
           <div className="dropdown mega-dropdown">
             <button className="dropdown-btn">Thể Loại</button>
-            <div className="dropdown-content mega-content">
-              <div className="dropdown-column">
-                <h4>Truyện In (Vật Lý)</h4>
-                <Link to="/genres/action">Hành Động</Link>
-                <Link to="/genres/fantasy">Fantasy</Link>
-                <Link to="/genres/sci-fi">Khoa Học Viễn Tưởng</Link>
-                <Link to="/genres/trinh-tham">Trinh Thám</Link>
-              </div>
-              <div className="dropdown-column">
-                <h4>Đọc Online (Digital)</h4>
-                <Link to="/genres/romance">Tình Cảm</Link>
-                <Link to="/genres/huyen-bi">Huyền Bí</Link>
-                <Link to="/genres/the-thao">Thể Thao</Link>
-                <Link to="/genres/sieu-anh-hung">Siêu Anh Hùng</Link>
-              </div>
+            <div className="dropdown-content genre-list">
+                {allGenres.length > 0 ? (
+                  allGenres.map(genre => (
+                    <Link 
+                        key={genre.id} 
+                        to={`/genres/${genre.name}`} 
+                        onClick={() => setIsMenuOpen(false)} // Đóng menu (nếu ở mobile)
+                    >
+                      {genre.name}
+                    </Link>
+                  ))
+                ) : (
+                  <span style={{ padding: '12px 16px', display: 'block', color: 'var(--clr-text-secondary)' }}>Đang tải...</span>
+                )}
             </div>
           </div>
+          {/* === KẾT THÚC SỬA MEGA-MENU THỂ LOẠI === */}
+          
           <Link to="/new-releases">Mới Phát Hành</Link>
         </nav>
 
@@ -326,8 +338,24 @@ const Header: React.FC = () => {
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
           <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>
-          <Link to="/genres" onClick={toggleMenu}>Thể Loại</Link>
+          
           <div className="nav-mobile-separator"></div>
+           <h4 className="nav-mobile-genres-title">Thể Loại</h4>
+           <div className="nav-mobile-genres-grid">
+                {allGenres.slice(0, 8).map(genre => ( 
+                    <Link 
+                        key={genre.id} 
+                        to={`/genres/${genre.name}`} 
+                        onClick={toggleMenu}
+                        className="nav-mobile-genre-link"
+                    >
+                      {genre.name}
+                    </Link>
+                ))}
+           </div>
+           {/* ===================== */}
+
+           <div className="nav-mobile-separator"></div>
            <div style={{ padding: '0 2rem', marginBottom: '1rem' }}>
               <ThemeToggleButton />
            </div>

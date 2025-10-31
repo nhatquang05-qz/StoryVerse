@@ -328,7 +328,7 @@ const unlockChapter = async (req, res) => {
         if (chapterPrice === 0) {
              const [existingFreeUnlock] = await connection.execute('SELECT 1 FROM user_unlocked_chapters WHERE userId = ? AND chapterId = ?', [userId, chapterId]);
              if (existingFreeUnlock.length === 0) {
-                 await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId, comicId) VALUES (?, ?, ?)', [userId, chapterId, comicId]);
+                 await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId) VALUES (?, ?)', [userId, chapterId]);
              }
              await connection.commit();
              return res.json({ message: 'Chapter is free and unlocked.', level, exp, coinBalance, levelUpOccurred: false });
@@ -345,7 +345,7 @@ const unlockChapter = async (req, res) => {
             return res.json({ message: 'Chapter already unlocked.', level, exp, coinBalance, levelUpOccurred: false });
         }
 
-        await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId, comicId) VALUES (?, ?, ?)', [userId, chapterId, comicId]);
+        await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId) VALUES (?, ?)', [userId, chapterId]);
 
         const newCoinBalance = coinBalance - chapterPrice;
         

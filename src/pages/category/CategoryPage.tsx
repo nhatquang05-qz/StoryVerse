@@ -29,50 +29,45 @@ const CategoryPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([]);
+  
+  const [activeTab, setActiveTab] = useState<'digital' | 'physical'>('digital');
 
   useEffect(() => {
     setIsLoading(true);
     setCurrentPage(1); 
     setFilterAuthor('all'); 
     setSortBy('newest'); 
+    setActiveTab('digital'); 
     
     const slug = categorySlug || 'all'; 
+    let fetchUrl: string;
+    let isGenreFetch = false;
 
-    fetch(`${API_URL}/comics`)
+    if (slug === 'new-releases') {
+        fetchUrl = `${API_URL}/comics`; 
+        setCategoryTitle('Mới Phát Hành');
+        setCategoryDescription('Cập nhật những tập truyện mới nhất vừa ra mắt.');
+    } else {
+        fetchUrl = `${API_URL}/comics/by-genre?genre=${encodeURIComponent(slug)}`;
+        setCategoryTitle(`Thể loại: ${slug}`);
+        setCategoryDescription(`Khám phá các truyện thuộc thể loại ${slug}.`);
+        isGenreFetch = true;
+    }
+
+    fetch(fetchUrl)
       .then(res => {
           if (!res.ok) throw new Error('Không thể tải truyện');
           return res.json();
       })
       .then((allApiComics: ComicSummary[]) => {
           let sourceComics: ComicSummary[] = allApiComics;
-          let title: string;
-          let description: string;
           
-          switch (slug) {
-            case 'new-releases':
-              title = 'Mới Phát Hành';
-              description = 'Cập nhật những tập truyện mới nhất vừa ra mắt.';
-              sourceComics = allApiComics.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 30);
-              break;
-            case 'action':
-              title = 'Thể loại: Hành Động';
-              description = 'Những trận chiến mãn nhãn và kịch tính.';
-              sourceComics = allApiComics.filter(c => c.genres && c.genres.toLowerCase().includes('hành động'));
-              break;
-            case 'romance':
-              title = 'Thể loại: Tình Cảm';
-              description = 'Những câu chuyện tình yêu lãng mạn và cảm động.';
-              sourceComics = allApiComics.filter(c => c.genres && c.genres.toLowerCase().includes('tình cảm'));
-              break;
-            default:
-              title = 'Danh Mục Truyện';
-              description = 'Khám phá tất cả các bộ truyện hiện có.';
-              sourceComics = allApiComics;
-              break;
+          if (slug === 'new-releases') {
+              sourceComics = allApiComics
+                  .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                  .slice(0, 30);
           }
           
-          setCategoryTitle(title);
-          setCategoryDescription(description);
           setAllComics(sourceComics);
 
           const authors = Array.from(new Set(sourceComics.map(c => c.author).filter(Boolean) as string[]));
@@ -90,6 +85,12 @@ const CategoryPage: React.FC = () => {
   
   const processedComics = useMemo(() => {
     let currentComics = [...allComics];
+    
+    if (activeTab === 'digital') {
+        currentComics = currentComics.filter(comic => (comic.isDigital as any) === 1);
+    } else { 
+        currentComics = currentComics.filter(comic => (comic.isDigital as any) === 0);
+    }
 
     if (filterAuthor !== 'all') {
         currentComics = currentComics.filter(comic => comic.author === filterAuthor);
@@ -112,7 +113,7 @@ const CategoryPage: React.FC = () => {
     });
     
     return currentComics;
-  }, [allComics, filterAuthor, sortBy]);
+  }, [allComics, filterAuthor, sortBy, activeTab]); 
 
   const totalItems = processedComics.length;
   const totalPages = useMemo(() => {
@@ -120,7 +121,7 @@ const CategoryPage: React.FC = () => {
   }, [totalItems]);
   
   const currentComics = useMemo(() => {
-    const safeCurrentPage = Math.min(currentPage, totalPages > 0 ? totalPages : 1); 
+    const safeCurrentPage = Math.min(currentPage, totalPages > 0 ? totalPages : 1);
     const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     
@@ -141,9 +142,9 @@ const CategoryPage: React.FC = () => {
   };
   
   useEffect(() => {
-      if (currentPage > totalPages || currentPage < 1) {
-          setCurrentPage(totalPages > 0 ? 1 : 1);
-      }
+    if (currentPage > totalPages) {
+        setCurrentPage(totalPages > 0 ? 1 : 1);
+    }
   }, [currentPage, totalPages]);
   
   const handleFilterAuthorChange = (value: string) => {
@@ -156,6 +157,11 @@ const CategoryPage: React.FC = () => {
       setCurrentPage(1); 
   };
 
+  const handleTabChange = (tab: 'digital' | 'physical') => {
+      setActiveTab(tab);
+      setCurrentPage(1); 
+  };
+
   if (isLoading) {
     return <LoadingPage />;
   }
@@ -165,6 +171,21 @@ const CategoryPage: React.FC = () => {
       <div className="category-header">
         <h1>{categoryTitle}</h1>
         <p>{categoryDescription}</p>
+      </div>
+
+      <div className="category-tabs">
+          <button
+              className={`tab-button ${activeTab === 'digital' ? 'active' : ''}`}
+              onClick={() => handleTabChange('digital')}
+          >
+              Truyện Online (Digital)
+          </button>
+          <button
+              className={`tab-button ${activeTab === 'physical' ? 'active' : ''}`}
+              onClick={() => handleTabChange('physical')}
+          >
+              Truyện In (Vật Lý)
+          </button>
       </div>
 
       <>

@@ -1,8 +1,7 @@
-// src/components/common/ProductCard/ProductCards.tsx
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart } from 'react-icons/fi';
-import { type ComicSummary } from '../../../types/comicTypes'; // Import kiểu dữ liệu chuẩn
+import { type ComicSummary } from '../../../types/comicTypes'; 
 import { useCart } from '../../../contexts/CartContext';
 import { useWishlist } from '../../../contexts/WishListContext';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -20,7 +19,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const { showNotification } = useNotification();
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // Ép kiểu 'comic' thành 'any' để dễ dàng truy cập các thuộc tính
   const comicData: any = comic;
 
   const isFavorite = isWishlisted(comicData.id);
@@ -55,7 +53,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
     );
   };
   
-  // SỬ DỤNG averageRating thay vì rating
   const displayRating = parseFloat(comicData.averageRating) || 0; 
   const totalReviews = parseInt(comicData.totalReviews) || 0;
 
@@ -64,13 +61,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         className={`product-card ${isCarousel ? 'carousel-item' : ''}`}
     >
       <Link to={`/comic/${comicData.id}`} className="card-image-container">
-        {/* SỬ DỤNG coverImageUrl TỪ API */}
         <img ref={imgRef} src={comicData.coverImageUrl} alt={comicData.title} className="card-image" /> 
-        
-        {comicData.isDigital && (
-            <span className="digital-badge">DIGITAL</span>
-        )}
-        
+
         <div className="card-image-overlay">
           <button 
             className={`card-action-button wishlist-btn ${isFavorite ? 'favorite' : ''}`} 
@@ -94,10 +86,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         </h3>
         <p className="card-author">{comicData.author}</p>
         
-        {/* Hiển thị rating */}
         <div className="card-rating-section">
           <StarRating rating={displayRating} />
-          {/* Hiển thị tổng lượt đánh giá thay vì lượt xem cho Digital */}
           {totalReviews > 0 && (
              <span className="card-view-count" style={{ marginLeft: '0.5rem' }}>({totalReviews} đánh giá)</span>
           )}
