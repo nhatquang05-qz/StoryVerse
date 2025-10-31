@@ -152,8 +152,16 @@
   gap: 1rem;
 }
 
+.search-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; 
+}
+
 .search-wrapper {
     position: relative;
+    display: flex; 
+    align-items: center;
 }
 
 .search-bar {
@@ -164,6 +172,7 @@
   padding-left: 0.8rem;
   height: 40px;
   background-color: var(--clr-card-bg);
+  flex-grow: 1; 
 }
 
 .search-bar input {
@@ -186,6 +195,24 @@
   padding: 0.5rem;
   cursor: pointer;
   display: flex;
+}
+
+.advanced-search-btn-wrapper {
+    flex-shrink: 0;
+}
+
+.action-icon.advanced-search-btn {
+    margin-left: 0;
+    height: 40px;
+    width: 40px;
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.action-icon.advanced-search-btn:hover {
+    color: var(--clr-primary);
 }
 
 .search-suggestions-dropdown {
@@ -467,7 +494,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 
 @media (max-width: 1150px) {
   .nav-desktop,
-  .search-wrapper:not(.mobile-search-wrapper),
+  .search-filter-group:not(.mobile-search-group),
   .coin-balance-display:not(.mobile-coin-balance),
   .header-actions .action-icon:not(.daily-reward-icon-wrapper),
   .header-actions .dropdown,
@@ -574,7 +601,6 @@ html[data-theme='night'] .daily-reward-tooltip {
 
 .dropdown-content.genre-list a {
   display: block;
-  /* Cập nhật padding: Giữ 8px trên, giảm 2px dưới để bù cho border-bottom */
   padding: 8px 12px 6px 12px;
   color: var(--clr-text);
   border-radius: 4px;

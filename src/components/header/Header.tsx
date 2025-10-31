@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
@@ -187,26 +187,23 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="header-actions">
-          <div className="search-wrapper" ref={searchBarRef}>
-            <form onSubmit={handleSearchSubmit} className="search-bar">
-              <input
-                type="text"
-                placeholder="Tìm kiếm truyện..."
-                value={searchTerm}
-                onChange={(e) => handleSearchTermChange(e.target.value)}
-                onFocus={handleSearchFocus}
-              />
-              <button type="submit" className="search-btn"><FiSearch /></button>
-            </form>
-            
-            <Link to="/search?advanced=true" className="action-icon advanced-search-btn" title="Lọc Nâng Cao" style={{ marginLeft: '0.5rem', height: '40px', width: '40px', border: '1px solid var(--clr-border-light)', borderRadius: 'var(--border-radius)' }}>
-                <FiFilter style={{ fontSize: '1.2rem', color: 'var(--clr-text-secondary)' }} />
-            </Link>
-
-
-            {showSuggestionsDropdown && (
-              <div className="search-suggestions-dropdown">
-                {isLoadingSearch && <div className="suggestion-item">Đang tìm...</div>}
+          
+          <div className="search-filter-group">
+            <div className="search-wrapper" ref={searchBarRef}>
+              <form onSubmit={handleSearchSubmit} className="search-bar">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm truyện..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchTermChange(e.target.value)}
+                  onFocus={handleSearchFocus}
+                />
+                <button type="submit" className="search-btn"><FiSearch /></button>
+              </form>
+              
+              {showSuggestionsDropdown && (
+                <div className="search-suggestions-dropdown">
+                  {isLoadingSearch && <div className="suggestion-item">Đang tìm...</div>}
                 
                 {!isLoadingSearch && searchTerm.trim().length > 1 && suggestions.length === 0 && (
                      <div className="suggestion-item">Không tìm thấy kết quả nào.</div>
@@ -268,8 +265,15 @@ const Header: React.FC = () => {
                     Xem tất cả kết quả cho "{searchTerm}"
                   </Link>
                 )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+            
+            <div className="advanced-search-btn-wrapper">
+                 <Link to="/search?advanced=true" className="action-icon advanced-search-btn" title="Lọc Nâng Cao">
+                    <FiFilter style={{ fontSize: '1.2rem', color: 'var(--clr-text-secondary)' }} />
+                 </Link>
+            </div>
           </div>
           
           <ThemeToggleButton />
@@ -328,16 +332,22 @@ const Header: React.FC = () => {
 
       {isMenuOpen && (
         <nav className="nav-mobile">
-          <form onSubmit={handleSearchSubmit} className="search-bar mobile-search-bar">
-            <input
-              type="text"
-              placeholder="Tìm kiếm truyện..."
-              value={searchTerm}
-              onChange={(e) => handleSearchTermChange(e.target.value)}
-              onFocus={handleSearchFocus}
-            />
-            <button type="submit" className="search-btn"><FiSearch /></button>
-          </form>
+          <div className="search-filter-group mobile-search-group">
+            <form onSubmit={handleSearchSubmit} className="search-bar mobile-search-bar">
+              <input
+                type="text"
+                placeholder="Tìm kiếm truyện..."
+                value={searchTerm}
+                onChange={(e) => handleSearchTermChange(e.target.value)}
+                onFocus={handleSearchFocus}
+              />
+              <button type="submit" className="search-btn"><FiSearch /></button>
+            </form>
+            <Link to="/search?advanced=true" className="action-icon advanced-search-btn" title="Lọc Nâng Cao" style={{ margin: '0 2rem 0 0', flexShrink: 0 }}>
+                <FiFilter style={{ fontSize: '1.2rem', color: 'var(--clr-text-secondary)' }} />
+            </Link>
+          </div>
+
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
           <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>
