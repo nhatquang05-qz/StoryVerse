@@ -214,7 +214,9 @@ button:hover {
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+    outline: none; 
+    box-shadow: 0 0 0 3px var(--clr-input-focus-shadow), 0 0 0 1px var(--clr-primary);
+    border-color: var(--clr-primary);
 }
 
 input[type="text"],
@@ -471,4 +473,14 @@ html[data-theme="dark"] .cancel-btn:hover {
         box-shadow: 0 0 5px var(--clr-primary), 0 0 10px var(--clr-primary);
         border-color: var(--clr-primary);
     }
+}
+a:focus,
+.action-icon:focus,
+.dropdown-btn:focus,
+.daily-reward-icon-wrapper:focus,
+.card-image-container:focus,
+.cursor-option:focus {
+    outline: none !important;
+    box-shadow: none !important; 
+    border-color: transparent !important; 
 }
