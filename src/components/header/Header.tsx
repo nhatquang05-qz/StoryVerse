@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter } from 'react-icons/fi';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { type ComicSummary, type Genre } from '../../types/comicTypes'; 
@@ -164,7 +164,6 @@ const Header: React.FC = () => {
           <Link to="/physical-comics">Truyện In</Link>
           <Link to="/digital-comics">Đọc Online</Link>
           
-          {/* === BẮT ĐẦU SỬA MEGA-MENU THỂ LOẠI === */}
           <div className="dropdown mega-dropdown">
             <button className="dropdown-btn">Thể Loại</button>
             <div className="dropdown-content genre-list">
@@ -173,7 +172,7 @@ const Header: React.FC = () => {
                     <Link 
                         key={genre.id} 
                         to={`/genres/${genre.name}`} 
-                        onClick={() => setIsMenuOpen(false)} // Đóng menu (nếu ở mobile)
+                        onClick={() => setIsMenuOpen(false)} 
                     >
                       {genre.name}
                     </Link>
@@ -183,7 +182,6 @@ const Header: React.FC = () => {
                 )}
             </div>
           </div>
-          {/* === KẾT THÚC SỬA MEGA-MENU THỂ LOẠI === */}
           
           <Link to="/new-releases">Mới Phát Hành</Link>
         </nav>
@@ -200,6 +198,11 @@ const Header: React.FC = () => {
               />
               <button type="submit" className="search-btn"><FiSearch /></button>
             </form>
+            
+            <Link to="/search?advanced=true" className="action-icon advanced-search-btn" title="Lọc Nâng Cao" style={{ marginLeft: '0.5rem', height: '40px', width: '40px', border: '1px solid var(--clr-border-light)', borderRadius: 'var(--border-radius)' }}>
+                <FiFilter style={{ fontSize: '1.2rem', color: 'var(--clr-text-secondary)' }} />
+            </Link>
+
 
             {showSuggestionsDropdown && (
               <div className="search-suggestions-dropdown">
@@ -353,7 +356,7 @@ const Header: React.FC = () => {
                     </Link>
                 ))}
            </div>
-           {/* ===================== */}
+           
 
            <div className="nav-mobile-separator"></div>
            <div style={{ padding: '0 2rem', marginBottom: '1rem' }}>
@@ -373,7 +376,7 @@ const Header: React.FC = () => {
                   </button>
 
                   <div className="coin-balance-display mobile-coin-balance">
-                      <img src={coinIcon} alt="Xu" className="coin-icon" />
+                      <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
                       <span className="coin-amount">{currentUser.coinBalance} Xu</span>
                   </div>
               </>

@@ -3,34 +3,48 @@ import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen'; 
+import AdvancedFilterModal from '../components/popups/AdvancedFilterModal';
 import './category/CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
+interface FilterState {
+    authors: string[];
+    genres: string[];
+    mediaType: 'all' | 'digital' | 'physical';
+}
+
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
+  const isAdvancedSearch = searchParams.get('advanced') === 'true';
   const normalizedQuery = query.toLowerCase().trim();
 
   const [searchResults, setSearchResults] = useState<ComicSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({ authors: [], genres: [], mediaType: 'all' });
+
 
   useEffect(() => {
-    if (!normalizedQuery) {
-      setSearchResults([]);
-      setIsLoading(false);
-      return;
+    if (isAdvancedSearch) {
+        setIsFilterModalOpen(true);
     }
+  }, [isAdvancedSearch]);
 
-    const fetchSearchResults = async () => {
+  const fetchAndFilterResults = async (q: string, currentFilters: FilterState) => {
+      if (!q && currentFilters.authors.length === 0 && currentFilters.genres.length === 0 && currentFilters.mediaType === 'all') {
+          setSearchResults([]);
+          setIsLoading(false);
+          return;
+      }
+      
       setIsLoading(true);
       try {
-        // Gửi query đến API đã được cập nhật
-        const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(normalizedQuery)}`);
+        const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(q)}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const rawData: any[] = await response.json();
         
-        // Đảm bảo dữ liệu số được parse đúng cách
         const data: ComicSummary[] = rawData.map(comic => ({
             ...comic,
             id: Number(comic.id),
@@ -41,17 +55,42 @@ const SearchPage: React.FC = () => {
             totalReviews: Number(comic.totalReviews) || 0,
         }));
         
-        setSearchResults(data);
+        let filteredData = data;
+        
+        if (currentFilters.mediaType !== 'all') {
+             const isDigitalFilter = currentFilters.mediaType === 'digital';
+             filteredData = filteredData.filter(comic => comic.isDigital === isDigitalFilter);
+        }
+        
+        if (currentFilters.authors.length > 0) {
+             filteredData = filteredData.filter(comic => 
+                 comic.author && currentFilters.authors.includes(comic.author)
+             );
+        }
+        
+        if (currentFilters.genres.length > 0) {
+             filteredData = filteredData.filter(comic => 
+                 comic.genres && comic.genres.some(g => currentFilters.genres.includes(g.name))
+             );
+        }
+
+        setSearchResults(filteredData);
       } catch (error) {
         console.error("Lỗi fetch search results:", error);
         setSearchResults([]);
       } finally {
         setIsLoading(false);
       }
-    };
+  };
 
-    fetchSearchResults();
-  }, [normalizedQuery]); 
+  useEffect(() => {
+    fetchAndFilterResults(normalizedQuery, filters);
+  }, [normalizedQuery, filters]); 
+
+  const handleApplyAdvancedFilters = (newFilters: FilterState) => {
+      setFilters(newFilters);
+      setIsFilterModalOpen(false);
+  };
 
   if (isLoading) {
     return <LoadingPage />;
@@ -74,6 +113,13 @@ const SearchPage: React.FC = () => {
           <p>Vui lòng thử lại với từ khóa khác hoặc kiểm tra chính tả.</p>
         </div>
       )}
+      
+       <AdvancedFilterModal 
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          onApply={handleApplyAdvancedFilters}
+          initialFilters={filters}
+       />
     </div>
   );
 };

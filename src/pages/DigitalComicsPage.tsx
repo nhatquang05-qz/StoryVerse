@@ -3,6 +3,7 @@ import ProductList from '../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../types/comicTypes';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
+import AdvancedFilterModal from '../components/popups/AdvancedFilterModal';
 import './category/CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -23,35 +24,40 @@ const fetchDigitalComics = (): Promise<ComicSummary[]> => {
 
 const ITEMS_PER_PAGE = 25; 
 
+interface FilterState {
+    authors: string[];
+    genres: string[];
+    mediaType: 'all' | 'digital' | 'physical';
+}
+
 const DigitalComicsPage: React.FC = () => {
   const [categoryTitle] = useState('Đọc Truyện Online');
   const [categoryDescription] = useState('Thư viện truyện tranh số khổng lồ, đọc mọi lúc mọi nơi.');
   const [allComics, setAllComics] = useState<ComicSummary[]>([]);
 
   const [sortBy, setSortBy] = useState('newest');
-  const [filterAuthor, setFilterAuthor] = useState('all');
-  const [filterGenre, setFilterGenre] = useState('all'); 
+  const [filters, setFilters] = useState<FilterState>({ authors: [], genres: [], mediaType: 'digital' }); 
   
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   
   const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([]);
   const [uniqueGenres, setUniqueGenres] = useState<string[]>([]);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
 
   useEffect(() => {
     setIsLoading(true);
     setCurrentPage(1); 
-    setFilterAuthor('all'); 
+    setFilters({ authors: [], genres: [], mediaType: 'digital' }); 
     setSortBy('newest'); 
-    setFilterGenre('all');
     
     fetchDigitalComics()
       .then(data => {
         setAllComics(data);
         
         const authors = Array.from(new Set(data.map(c => c.author).filter(Boolean) as string[]));
-        const genres = Array.from(new Set(data.flatMap(c => c.genres ? c.genres.split(', ') : []).filter(Boolean) as string[]));
+        const genres = Array.from(new Set(data.flatMap(c => c.genres ? c.genres.map(g => g.name) : []).filter(Boolean) as string[]));
         setUniqueAuthors(authors.sort());
         setUniqueGenres(genres.sort());
       })
@@ -63,14 +69,22 @@ const DigitalComicsPage: React.FC = () => {
   const processedComics = useMemo(() => {
     let currentComics = [...allComics];
 
-    if (filterAuthor !== 'all') {
-        currentComics = currentComics.filter(comic => comic.author === filterAuthor);
+    // Lọc theo mediaType (chỉ hiển thị digital)
+    currentComics = currentComics.filter(comic => (comic.isDigital as any) === 1);
+    
+    // Lọc theo Authors
+    if (filters.authors.length > 0) {
+        currentComics = currentComics.filter(comic => 
+            comic.author && filters.authors.includes(comic.author)
+        );
     }
 
-    if (filterGenre !== 'all') {
-        currentComics = currentComics.filter(comic => comic.genres && comic.genres.includes(filterGenre));
+    // Lọc theo Genres
+    if (filters.genres.length > 0) {
+        currentComics = currentComics.filter(comic => 
+            comic.genres && comic.genres.some(g => filters.genres.includes(g.name))
+        );
     }
-
 
     currentComics.sort((a, b) => {
       switch (sortBy) {
@@ -89,7 +103,7 @@ const DigitalComicsPage: React.FC = () => {
     });
     
     return currentComics;
-  }, [allComics, filterAuthor, filterGenre, sortBy]);
+  }, [allComics, filters, sortBy]);
 
   const totalItems = processedComics.length;
   const totalPages = useMemo(() => {
@@ -123,13 +137,8 @@ const DigitalComicsPage: React.FC = () => {
       }
   }, [currentPage, totalPages]);
   
-  const handleFilterAuthorChange = (value: string) => {
-      setFilterAuthor(value);
-      setCurrentPage(1); 
-  };
-
-  const handleFilterGenreChange = (value: string) => {
-      setFilterGenre(value);
+  const handleApplyAdvancedFilters = (newFilters: FilterState) => {
+      setFilters(newFilters);
       setCurrentPage(1); 
   };
 
@@ -152,23 +161,14 @@ const DigitalComicsPage: React.FC = () => {
       <>
         <div className="filter-sort-bar">
             <div className="filter-sort-group">
-                <span>Lọc theo Thể loại:</span>
-                <select value={filterGenre} onChange={(e) => handleFilterGenreChange(e.target.value)}>
-                    <option value="all">Tất cả</option>
-                    {uniqueGenres.map(genre => (
-                        <option key={genre} value={genre}>{genre}</option>
-                    ))}
-                </select>
-            </div>
-
-            <div className="filter-sort-group">
-                <span>Lọc theo Tác giả:</span>
-                <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>
-                    <option value="all">Tất cả</option>
-                    {uniqueAuthors.map(author => (
-                        <option key={author} value={author}>{author}</option>
-                    ))}
-                </select>
+                <span>Bộ Lọc:</span>
+                <button 
+                    onClick={() => setIsFilterModalOpen(true)} 
+                    className="detail-order-btn" 
+                    style={{ padding: '0.5rem 1rem' }}
+                >
+                    Lọc Nâng Cao ({filters.authors.length + filters.genres.length})
+                </button>
             </div>
             
             <div className="filter-sort-group">
@@ -200,6 +200,12 @@ const DigitalComicsPage: React.FC = () => {
             </div>
         )}
       </>
+       <AdvancedFilterModal 
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          onApply={handleApplyAdvancedFilters}
+          initialFilters={filters}
+       />
     </div>
   );
 };

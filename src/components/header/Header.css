@@ -154,6 +154,9 @@
 
 .search-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .search-bar {
@@ -186,6 +189,27 @@
   padding: 0.5rem;
   cursor: pointer;
   display: flex;
+}
+
+.advanced-search-btn {
+    border: 1px solid var(--clr-border-light); 
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.advanced-search-btn:hover {
+    background-color: var(--clr-footer-bg);
+}
+
+.advanced-search-btn svg {
+    color: var(--clr-text-secondary);
 }
 
 .search-suggestions-dropdown {
@@ -467,7 +491,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 
 @media (max-width: 1150px) {
   .nav-desktop,
-  .search-wrapper:not(.mobile-search-wrapper),
+  .search-bar,
   .coin-balance-display:not(.mobile-coin-balance),
   .header-actions .action-icon:not(.daily-reward-icon-wrapper),
   .header-actions .dropdown,
@@ -476,9 +500,16 @@ html[data-theme='night'] .daily-reward-tooltip {
         display: none;
     }
   }
-  .header-actions .daily-reward-icon-wrapper {
+  
+  .search-wrapper {
       display: flex;
+      gap: 0.5rem; 
+      margin-right: 0.5rem; 
   }
+  .advanced-search-btn {
+      display: none; 
+  }
+  
   .daily-reward-tooltip {
       display: none;
   }
@@ -642,21 +673,6 @@ html[data-theme='night'] .daily-reward-tooltip {
     font-size: 0.75rem;
     color: var(--clr-text-secondary);
     margin-top: 2px;
-}
-
-.search-suggestions-dropdown {
-    position: absolute;
-    top: 45px;
-    left: 0;
-    width: 300px;
-    background-color: var(--clr-header-bg);
-    border: 1px solid var(--clr-border-light);
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
-    padding: 0.5rem 0;
-    max-height: 400px;
-    overflow-y: auto;
 }
 
 .suggestion-section {

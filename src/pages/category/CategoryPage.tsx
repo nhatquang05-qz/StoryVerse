@@ -4,17 +4,18 @@ import ProductList from '../../components/common/ProductList/ProductList';
 import { type ComicSummary } from '../../types/comicTypes';
 import LoadingPage from '../../components/common/Loading/LoadingScreen';
 import Pagination from '../../components/common/Pagination';
+import AdvancedFilterModal from '../../components/popups/AdvancedFilterModal';
 import './CategoryPage.css';
-
-interface CategoryData {
-  title: string;
-  description: string;
-  sourceComics: ComicSummary[];
-}
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ITEMS_PER_PAGE = 25; 
+
+interface FilterState {
+    authors: string[];
+    genres: string[];
+    mediaType: 'all' | 'digital' | 'physical';
+}
 
 const CategoryPage: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -25,23 +26,25 @@ const CategoryPage: React.FC = () => {
 
   const [sortBy, setSortBy] = useState('newest');
   const [filterAuthor, setFilterAuthor] = useState('all');
+  const [filters, setFilters] = useState<FilterState>({ authors: [], genres: [], mediaType: 'all' });
   
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([]);
   
   const [activeTab, setActiveTab] = useState<'digital' | 'physical'>('digital');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
     setCurrentPage(1); 
     setFilterAuthor('all'); 
     setSortBy('newest'); 
+    setFilters({ authors: [], genres: [], mediaType: 'all' });
     setActiveTab('digital'); 
     
     const slug = categorySlug || 'all'; 
     let fetchUrl: string;
-    let isGenreFetch = false;
 
     if (slug === 'new-releases') {
         fetchUrl = `${API_URL}/comics`; 
@@ -51,7 +54,6 @@ const CategoryPage: React.FC = () => {
         fetchUrl = `${API_URL}/comics/by-genre?genre=${encodeURIComponent(slug)}`;
         setCategoryTitle(`Thể loại: ${slug}`);
         setCategoryDescription(`Khám phá các truyện thuộc thể loại ${slug}.`);
-        isGenreFetch = true;
     }
 
     fetch(fetchUrl)
@@ -86,22 +88,44 @@ const CategoryPage: React.FC = () => {
   const processedComics = useMemo(() => {
     let currentComics = [...allComics];
     
-    if (activeTab === 'digital') {
-        currentComics = currentComics.filter(comic => (comic.isDigital as any) === 1);
-    } else { 
-        currentComics = currentComics.filter(comic => (comic.isDigital as any) === 0);
+    // Lọc theo Media Type từ Advanced Filters
+    if (filters.mediaType !== 'all') {
+        const isDigitalFilter = filters.mediaType === 'digital';
+        currentComics = currentComics.filter(comic => comic.isDigital === isDigitalFilter);
+    } else {
+        // Lọc theo tab
+         if (activeTab === 'digital') {
+            currentComics = currentComics.filter(comic => (comic.isDigital as any) === 1);
+        } else { 
+            currentComics = currentComics.filter(comic => (comic.isDigital as any) === 0);
+        }
     }
 
-    if (filterAuthor !== 'all') {
+
+    // Lọc theo Tác giả từ Advanced Filters
+    if (filters.authors.length > 0) {
+        currentComics = currentComics.filter(comic => 
+            comic.author && filters.authors.includes(comic.author)
+        );
+    } else if (filterAuthor !== 'all') {
+        // Lọc theo Tác giả từ dropdown (nếu không dùng advanced filter)
         currentComics = currentComics.filter(comic => comic.author === filterAuthor);
     }
+    
+     // Lọc theo Thể loại từ Advanced Filters (chỉ lọc trong trường hợp không phải là trang genre chính)
+    if (filters.genres.length > 0 && categorySlug !== filters.genres[0]) { 
+        currentComics = currentComics.filter(comic => 
+            comic.genres && comic.genres.some(g => filters.genres.includes(g.name))
+        );
+    }
+
 
     currentComics.sort((a, b) => {
       switch (sortBy) {
         case 'price-asc':
-          return a.price - b.price;
+          return Number(a.price) - Number(b.price);
         case 'price-desc':
-          return b.price - a.price;
+          return Number(b.price) - Number(a.price);
         case 'title-asc':
           return a.title.localeCompare(b.title, 'vi');
         case 'title-desc':
@@ -113,7 +137,7 @@ const CategoryPage: React.FC = () => {
     });
     
     return currentComics;
-  }, [allComics, filterAuthor, sortBy, activeTab]); 
+  }, [allComics, filterAuthor, sortBy, activeTab, filters, categorySlug]); 
 
   const totalItems = processedComics.length;
   const totalPages = useMemo(() => {
@@ -149,6 +173,7 @@ const CategoryPage: React.FC = () => {
   
   const handleFilterAuthorChange = (value: string) => {
       setFilterAuthor(value);
+      setFilters(prev => ({ ...prev, authors: [] })); // Clear advanced filter author when using dropdown
       setCurrentPage(1); 
   };
 
@@ -159,8 +184,19 @@ const CategoryPage: React.FC = () => {
 
   const handleTabChange = (tab: 'digital' | 'physical') => {
       setActiveTab(tab);
+      setFilters(prev => ({ ...prev, mediaType: tab === 'digital' ? 'digital' : 'physical' }));
       setCurrentPage(1); 
   };
+  
+  const handleApplyAdvancedFilters = (newFilters: FilterState) => {
+      setFilters(newFilters);
+      if (newFilters.authors.length > 0) {
+          setFilterAuthor('all'); 
+      }
+      setActiveTab(newFilters.mediaType as any);
+      setCurrentPage(1);
+  };
+
 
   if (isLoading) {
     return <LoadingPage />;
@@ -192,7 +228,11 @@ const CategoryPage: React.FC = () => {
         <div className="filter-sort-bar">
             <div className="filter-sort-group">
                 <span>Lọc theo Tác giả:</span>
-                <select value={filterAuthor} onChange={(e) => handleFilterAuthorChange(e.target.value)}>
+                <select 
+                    value={filterAuthor} 
+                    onChange={(e) => handleFilterAuthorChange(e.target.value)}
+                    disabled={filters.authors.length > 0} 
+                >
                     <option value="all">Tất cả</option>
                     {uniqueAuthors.map(author => (
                         <option key={author} value={author}>{author}</option>
@@ -229,6 +269,12 @@ const CategoryPage: React.FC = () => {
             </div>
         )}
       </>
+       <AdvancedFilterModal 
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          onApply={handleApplyAdvancedFilters}
+          initialFilters={{ ...filters, mediaType: activeTab as any }}
+       />
     </div>
   );
 };
