@@ -1,39 +1,28 @@
 @font-face {
-  font-family: 'Inter';
-  src: url('/src/assets/fonts/Inter-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inter';
-  src: url('/src/assets/fonts/Inter-Bold.woff2') format('woff2');
+  font-family: 'AnimeAceiCiel';
+  src: url('/src/assets/fonts/000AnimeAceiCiel-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+  size-adjust: 85%;
 }
 
 @font-face {
-  font-family: 'Merriweather';
-  src: url('/src/assets/fonts/Merriweather-Regular.woff2') format('woff2');
+  font-family: 'CaptainComic';
+  src: url('/src/assets/fonts/000CaptainComic-Regular.otf') format('opentype');
   font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Merriweather';
-  src: url('/src/assets/fonts/Merriweather-Bold.woff2') format('woff2');
-  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
   --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --font-serif: 'Merriweather', Georgia, serif;
-  
+  --font-anime-ace: 'AnimeAceiCiel', var(--font-sans);
+  --font-avegaeance: 'AvegaeanceiCiel', var(--font-sans);
+  --font-belisa: 'Belisa', var(--font-sans);
+  --font-captain-comic: 'CaptainComic', var(--font-sans);
+  --font-rangsun: 'RangSun', var(--font-sans);
+
   --font-family-base: var(--font-sans);
 
   font-family: var(--font-family-base);
@@ -477,7 +466,7 @@ html[data-theme="dark"] .cancel-btn:hover {
   transform: translate(-50%, -50%) scale(0);
   animation: ripple-effect 0.6s ease-out;
   pointer-events: none;
-  z-index: 99999;
+  z-index: 9999;
   width: 30px;
   height: 30px;
 }

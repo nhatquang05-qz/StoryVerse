@@ -10,7 +10,8 @@ interface FontOption {
 
 export const FONT_OPTIONS: FontOption[] = [
     { id: 'Inter', name: 'Inter (Mặc định)', cssVariable: 'var(--font-sans)' },
-    { id: 'Merriweather', name: 'Merriweather (Chân)', cssVariable: 'var(--font-serif)' },
+    { id: 'AnimeAceiCiel', name: 'Anime Ace', cssVariable: 'var(--font-anime-ace)' },
+    { id: 'CaptainComic', name: 'Captain Comic', cssVariable: 'var(--font-captain-comic)' },
 ];
 
 interface FontContextType {
