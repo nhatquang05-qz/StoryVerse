@@ -31,7 +31,7 @@ import ChatbotUI from './components/chatbot/ChatbotUI';
 import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
 import './App.css';
-
+import PaymentCallbackPage from './pages/PaymentCallbackPage';
 function App() {
   const { animationData, clearAnimation } = useCart();
   const location = useLocation();
@@ -92,6 +92,8 @@ function App() {
           <Route path="/new-releases" element={<CategoryPage />} />
           <Route path="/genres/:categorySlug" element={<CategoryPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/payment/callback" element={<PaymentCallbackPage />} />
+          
         </Routes>
       </main>
       <Footer />
