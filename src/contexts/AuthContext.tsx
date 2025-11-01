@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import type { CredentialResponse } from '@react-oauth/google'; // Thêm import
 import LevelUpPopup from '../components/popups/LevelUpPopup';
 import LoginSuccessPopup from '../components/popups/LoginSuccessPopup';
 import type { User, Address } from '../types/userTypes';
@@ -24,6 +25,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithGoogle: (credentialResponse: CredentialResponse) => Promise<void>; // Thêm hàm mới
   updateProfile: (profileData: Partial<User>) => Promise<User | null>;
   updateAvatar: (avatarUrl: string) => Promise<User | null>; 
   updateAddresses: (addresses: Address[]) => Promise<void>;
@@ -136,6 +138,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setLoading(false); 
         }
     };
+
+    // --- BẮT ĐẦU CODE MỚI ---
+    const loginWithGoogle = async (credentialResponse: CredentialResponse) => {
+        if (!credentialResponse.credential) {
+            throw new Error("Không nhận được thông tin xác thực từ Google.");
+        }
+        
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/auth/google-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: credentialResponse.credential }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Đăng nhập Google thất bại');
+
+            localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+            const userData = ensureUserDataTypes(data.user);
+            setCurrentUser(userData);
+
+            // Sử dụng fullName từ user data (có thể đã được set từ Google name)
+            setUsernameToDisplay(userData.fullName || userData.email.split('@')[0] || 'Người dùng');
+            setIsLoginSuccessPopupOpen(true);
+
+        } catch (error: any) {
+            showNotification(error.message || 'Đã xảy ra lỗi khi đăng nhập Google.', 'error');
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+    // --- KẾT THÚC CODE MỚI ---
 
     const register = async (email: string, pass: string) => {
          setLoading(true); 
@@ -396,6 +431,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             login,
             register,
             logout,
+            loginWithGoogle, // Thêm vào context
             updateProfile,
             updateAvatar,
             updateAddresses,

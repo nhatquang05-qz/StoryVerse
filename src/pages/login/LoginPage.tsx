@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'; // Thêm import
 import { useAuth } from '../../contexts/AuthContext'; 
 import { useNotification } from '../../contexts/NotificationContext'; 
 import '../AuthPage.css'; 
@@ -8,7 +9,8 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { login, isLoginSuccessPopupOpen } = useAuth(); 
+  // Thêm loginWithGoogle từ useAuth
+  const { login, isLoginSuccessPopupOpen, loginWithGoogle } = useAuth(); 
   const { showNotification } = useNotification();
   const [error, setError] = useState('');
 
@@ -27,6 +29,29 @@ const LoginPage: React.FC = () => {
       console.error('Lỗi đăng nhập:', err);
     }
   };
+
+  // --- BẮT ĐẦU CODE MỚI ---
+  const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    setError('');
+    if (isLoginSuccessPopupOpen) return;
+
+    try {
+      await loginWithGoogle(credentialResponse);
+      // Popup sẽ tự động mở bởi AuthContext
+    } catch (err) {
+      const errorMessage = (err instanceof Error) ? err.message : 'Đăng nhập Google thất bại.';
+      setError(errorMessage);
+      showNotification(errorMessage, 'error');
+      console.error('Lỗi đăng nhập Google:', err);
+    }
+  };
+
+  const handleGoogleLoginError = () => {
+    const errorMessage = 'Đăng nhập Google thất bại. Vui lòng thử lại.';
+    setError(errorMessage);
+    showNotification(errorMessage, 'error');
+  };
+  // --- KẾT THÚC CODE MỚI ---
 
   return (
     <div className="auth-page">
@@ -60,6 +85,27 @@ const LoginPage: React.FC = () => {
           </div>
           <button type="submit" className="auth-button" disabled={isLoginSuccessPopupOpen}>Đăng Nhập</button>
         </form>
+
+        {/* --- BẮT ĐẦU CODE MỚI --- */}
+        <div className="auth-divider">
+          <span>HOẶC</span>
+        </div>
+        
+        {/* Thêm data-disabled để xử lý CSS khi popup đang mở */}
+        <div className="google-login-container" data-disabled={isLoginSuccessPopupOpen}>
+          <GoogleLogin
+            onSuccess={handleGoogleLoginSuccess}
+            onError={handleGoogleLoginError}
+            theme="outline" // 'outline', 'filled_blue', 'filled_black'
+            size="large"
+            text="signin_with" // 'signin_with', 'signup_with', 'continue_with'
+            shape="rectangular" // 'rectangular', 'pill', 'circle'
+            locale="vi" // Hiển thị tiếng Việt
+            width="100%" // Cần set width cho wrapper
+          />
+        </div>
+        {/* --- KẾT THÚC CODE MỚI --- */}
+
         <p className="auth-switch">
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </p>
