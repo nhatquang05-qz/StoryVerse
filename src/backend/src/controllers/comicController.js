@@ -166,7 +166,7 @@ const getComicById = async (req, res) => {
         }
 
         const [chapterRows] = await connection.execute(
-            'SELECT id, chapterNumber, title, price, createdAt, viewCount FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
+            'SELECT id, chapterNumber, title, price, createdAt, chapterViewCount FROM chapters WHERE comicId = ? ORDER BY chapterNumber ASC',
             [id]
         );
 
@@ -197,7 +197,7 @@ const addChapter = async (req, res) => {
     try {
         const connection = getConnection();
         const [result] = await connection.execute(
-            'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price, viewCount) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price, chapterViewCount) VALUES (?, ?, ?, ?, ?, ?)',
             [comicId, chapterNumber, title || null, JSON.stringify(contentUrls), price || 0, 0]
         );
         res.status(201).json({ message: 'Chapter added successfully', chapterId: result.insertId });
@@ -277,8 +277,8 @@ const getChapterContent = async (req, res) => {
         }
 
         if (isPurchased) {
-            await connection.execute('UPDATE chapters SET viewCount = viewCount + 1 WHERE id = ?', [chapterId]);
-            await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comicId = ?) WHERE id = ?', [comicId, comicId]);
+            await connection.execute('UPDATE chapters SET chapterViewCount = chapterViewCount + 1 WHERE id = ?', [chapterId]);
+            await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(chapterViewCount) FROM chapters WHERE comicId = ?) WHERE id = ?', [comicId, comicId]);
             
             chapter.contentUrls = chapter.contentUrls || [];
 

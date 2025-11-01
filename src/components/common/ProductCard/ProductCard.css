@@ -125,7 +125,7 @@
 }
 
 .wishlist-btn.favorite {
-  background-color: var(--clr-error-text);
+  background-color: rgb(226, 78, 78);
   border-color: var(--clr-error-text);
 }
 
