@@ -11,7 +11,7 @@ import './index.css';
 import App from './App.tsx';
 
 // Thêm dòng này
-const googleClientId = '668337772467-i14hf0ddj03duirqk1p2v758g4lbibhr.apps.googleusercontent.com';
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 console.log('TẤT CẢ BIẾN MÔI TRƯỜNG:', import.meta.env);
 if (!googleClientId) {
   console.error("Lỗi: VITE_GOOGLE_CLIENT_ID chưa được cấu hình trong file .env");
