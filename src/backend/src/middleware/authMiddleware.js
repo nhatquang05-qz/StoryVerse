@@ -12,7 +12,13 @@ const authenticateToken = (req, res, next) => {
       console.error("JWT Verification Error:", err.message);
       return res.sendStatus(403);
     }
-    req.userId = user.id;
+    
+    // SỬA DÒNG NÀY:
+    // Gán cả object user (chứa id, username, v.v.) vào req.user
+    req.user = user; 
+    
+    // Dòng cũ của bạn là: req.userId = user.id;
+
     next();
   });
 };
