@@ -38,6 +38,9 @@ function App() {
   const isReaderPage = location.pathname.startsWith('/read/');
   const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
+  // Thêm biến kiểm tra trang admin
+  const isAdminPage = location.pathname.startsWith('/admin');
+
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
       const targetElement = event.target as Element;
@@ -67,7 +70,7 @@ function App() {
   return (
     <div className="app-container">
       <ScrollToTop />
-      <Header />
+      {!isAdminPage && <Header />}
       <main className={isReaderPage ? "main-content reader-mode" : "main-content"}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -94,7 +97,8 @@ function App() {
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
-      <Footer />
+      {/* Ẩn Footer nếu là trang admin */}
+      {!isAdminPage && <Footer />}
 
       <FlyingImage
         src={animationData.src}
@@ -113,7 +117,7 @@ function App() {
         />
       )}
 
-      <ChatbotUI />
+      {!isAdminPage && <ChatbotUI />}
     </div>
   );
 }

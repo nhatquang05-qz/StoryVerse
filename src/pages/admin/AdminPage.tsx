@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } from '../../types/comicTypes';
 import {
     FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave,
-    FiBookOpen, FiArchive, FiUsers
+    FiBookOpen, FiArchive, FiUsers, FiSearch
 } from 'react-icons/fi';
 import './AdminPage.css';
 
@@ -39,8 +39,9 @@ interface AddComicFormProps {
     allGenres: Genre[];
     onCancel: () => void;
     onSuccess: () => void;
+    initialIsDigital: boolean;
 }
-const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSuccess }) => {
+const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSuccess, initialIsDigital }) => {
     const { showNotification } = useNotification();
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
@@ -50,7 +51,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
     const [isUploadingCover, setIsUploadingCover] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<'Ongoing' | 'Completed' | 'Dropped'>('Ongoing');
-    const [isDigital, setIsDigital] = useState(true);
+    const [isDigital, setIsDigital] = useState(initialIsDigital);
     const [price, setPrice] = useState(0);
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
@@ -93,6 +94,14 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
         );
     };
 
+    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const digital = e.target.value === 'digital';
+        setIsDigital(digital);
+        if (digital) {
+            setPrice(0);
+        }
+    };
+
     const handleSubmitComic = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!title || !coverImageUrl) {
@@ -110,7 +119,8 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title, author, description, coverImageUrl, status, isDigital, price,
+                    title, author, description, coverImageUrl, status, isDigital,
+                    price: isDigital ? 0 : price,
                     genres: selectedGenres
                 })
             });
@@ -149,13 +159,17 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
                     </select>
                 </div>
                 <div className="form-group"><label>Loại:</label>
-                    <select value={isDigital ? 'digital' : 'physical'} onChange={e => setIsDigital(e.target.value === 'digital')}>
+                    <select value={isDigital ? 'digital' : 'physical'} onChange={handleTypeChange}>
                         <option value="digital">Digital (Đọc Online)</option>
                         <option value="physical">Physical (Truyện In)</option>
                     </select>
                 </div>
-                <div className="form-group"><label>Giá (VND cho Physical, Xu cho Digital Chapter):</label><input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} /></div>
-
+                {!isDigital && (
+                    <div className="form-group">
+                        <label>Giá (VND cho Physical):</label>
+                        <input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} />
+                    </div>
+                )}
                 <div className="form-group"><label>Thể loại:</label>
                     <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
                 </div>
@@ -220,11 +234,13 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 
     const handleIsDigitalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         if (!formData) return;
+        const digital = e.target.value === 'digital';
         setFormData(prev => {
             if (!prev) return null;
             return {
                 ...prev,
-                isDigital: e.target.value === 'digital',
+                isDigital: digital,
+                price: digital ? 0 : prev.price
             };
         });
     };
@@ -251,6 +267,7 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
                 },
                 body: JSON.stringify({
                     ...formData,
+                    price: formData.isDigital ? 0 : formData.price,
                     genres: selectedGenres
                 })
             });
@@ -324,8 +341,12 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
                         <option value="physical">Physical (Truyện In)</option>
                     </select>
                 </div>
-                <div className="form-group"><label>Giá (VND cho Physical, Xu cho Digital Chapter):</label><input type="number" name="price" value={formData.price} onChange={handleChange} /></div>
-
+                {!formData.isDigital && (
+                    <div className="form-group">
+                        <label>Giá (VND cho Physical):</label>
+                        <input type="number" name="price" value={formData.price} onChange={handleChange} />
+                    </div>
+                )}
                 <div className="form-group"><label>Thể loại:</label>
                     <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
                 </div>
@@ -607,10 +628,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
             >
                 <FiUsers /> Quản lý Người Dùng
             </button>
-
-            <button className="sidebar-btn add-new" onClick={() => onNavigate('add')}>
-                <FiPlus /> Thêm Truyện Mới
-            </button>
         </nav>
     );
 };
@@ -625,6 +642,7 @@ interface ComicManagementListProps {
 const ComicManagementList: React.FC<ComicManagementListProps> = ({ comics, onEdit, onDelete, onManageChapters }) => {
     return (
         <div className="admin-comic-list">
+            {comics.length === 0 && <p>Không tìm thấy truyện nào phù hợp.</p>}
             {comics.map(comic => (
                 <ManagementProductCard
                     key={comic.id}
@@ -634,6 +652,53 @@ const ComicManagementList: React.FC<ComicManagementListProps> = ({ comics, onEdi
                     onManageChapters={() => onManageChapters(comic)}
                 />
             ))}
+        </div>
+    );
+};
+
+type SortOrder = 'newest' | 'oldest' | 'title-az' | 'title-za';
+
+interface AdminFilterBarProps {
+    searchTerm: string;
+    onSearchChange: (term: string) => void;
+    statusFilter: string;
+    onStatusChange: (status: string) => void;
+    sortOrder: SortOrder;
+    onSortChange: (order: SortOrder) => void;
+}
+
+const AdminFilterBar: React.FC<AdminFilterBarProps> = ({
+    searchTerm, onSearchChange, statusFilter, onStatusChange, sortOrder, onSortChange
+}) => {
+    return (
+        <div className="admin-filter-bar">
+            <div className="filter-group search-bar">
+                <FiSearch />
+                <input
+                    type="text"
+                    placeholder="Tìm theo tên truyện..."
+                    value={searchTerm}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                />
+            </div>
+            <div className="filter-group">
+                <label>Trạng thái:</label>
+                <select value={statusFilter} onChange={(e) => onStatusChange(e.target.value)}>
+                    <option value="all">Tất cả</option>
+                    <option value="Ongoing">Ongoing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+            </div>
+            <div className="filter-group">
+                <label>Sắp xếp:</label>
+                <select value={sortOrder} onChange={(e) => onSortChange(e.target.value as SortOrder)}>
+                    <option value="newest">Mới nhất</option>
+                    <option value="oldest">Cũ nhất</option>
+                    <option value="title-az">Tên A-Z</option>
+                    <option value="title-za">Tên Z-A</option>
+                </select>
+            </div>
         </div>
     );
 };
@@ -648,13 +713,18 @@ const UserManagementPlaceholder = () => (
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
-    
+
     const [activeView, setActiveView] = useState<AdminView>('digital');
     const [comics, setComics] = useState<ComicSummary[]>([]);
     const [allGenres, setAllGenres] = useState<Genre[]>([]);
     const [selectedComic, setSelectedComic] = useState<ComicSummary | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [addFormType, setAddFormType] = useState<'digital' | 'physical'>('digital');
+    
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
 
     const isAdmin = currentUser?.email === 'admin@123';
 
@@ -669,7 +739,7 @@ const AdminPage: React.FC = () => {
 
             if (!comicsResponse.ok) throw new Error('Không thể tải danh sách truyện');
             const comicsData: ComicSummary[] = await comicsResponse.json();
-            setComics(comicsData.sort((a, b) => b.id - a.id));
+            setComics(comicsData);
 
             if (!genresResponse.ok) throw new Error('Không thể tải danh sách thể loại');
             const genresData: Genre[] = await genresResponse.json();
@@ -688,6 +758,38 @@ const AdminPage: React.FC = () => {
             fetchComicsAndGenres();
         }
     }, [isAdmin]);
+    
+    const filteredComics = useMemo(() => {
+        let comicsToFilter = [...comics];
+
+        if (searchTerm) {
+            comicsToFilter = comicsToFilter.filter(comic =>
+                comic.title.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        if (statusFilter !== 'all') {
+            comicsToFilter = comicsToFilter.filter(comic => comic.status === statusFilter);
+        }
+        
+        switch (sortOrder) {
+            case 'newest':
+                comicsToFilter.sort((a, b) => b.id - a.id);
+                break;
+            case 'oldest':
+                comicsToFilter.sort((a, b) => a.id - b.id);
+                break;
+            case 'title-az':
+                comicsToFilter.sort((a, b) => a.title.localeCompare(b.title));
+                break;
+            case 'title-za':
+                comicsToFilter.sort((a, b) => b.title.localeCompare(a.title));
+                break;
+        }
+
+        return comicsToFilter;
+    }, [comics, searchTerm, statusFilter, sortOrder]);
+
 
     const handleSelectEdit = (comic: ComicSummary) => {
         setSelectedComic(comic);
@@ -725,21 +827,26 @@ const AdminPage: React.FC = () => {
         setActiveView(defaultView);
         setSelectedComic(null);
     };
-    
+
     const handleFormCancel = () => {
         const defaultView = (selectedComic && !selectedComic.isDigital) ? 'physical' : 'digital';
         setActiveView(defaultView);
         setSelectedComic(null);
     };
 
+    const handleShowAddForm = (type: 'digital' | 'physical') => {
+        setAddFormType(type);
+        setActiveView('add');
+    };
+
     const handleAddSuccess = () => {
         fetchComicsAndGenres();
-        setActiveView('digital'); 
+        setActiveView(addFormType);
         setSelectedComic(null);
     };
-    
+
     const handleAddCancel = () => {
-        setActiveView('digital');
+        setActiveView(addFormType);
         setSelectedComic(null);
     };
 
@@ -748,15 +855,36 @@ const AdminPage: React.FC = () => {
         if (isLoading) return <p>Đang tải dữ liệu quản trị...</p>;
         if (error) return <p style={{ color: 'var(--clr-error-text)' }}>{error}</p>;
 
-        const digitalComics = comics.filter(c => c.isDigital);
-        const physicalComics = comics.filter(c => !c.isDigital);
+        const digitalComics = filteredComics.filter(c => c.isDigital);
+        const physicalComics = filteredComics.filter(c => !c.isDigital);
+        
+        const filterBar = (
+            <AdminFilterBar
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                statusFilter={statusFilter}
+                onStatusChange={setStatusFilter}
+                sortOrder={sortOrder}
+                onSortChange={setSortOrder}
+            />
+        );
 
         switch (activeView) {
             case 'add':
-                return <AddComicForm allGenres={allGenres} onCancel={handleAddCancel} onSuccess={handleAddSuccess} />;
+                return <AddComicForm
+                    allGenres={allGenres}
+                    onCancel={handleAddCancel}
+                    onSuccess={handleAddSuccess}
+                    initialIsDigital={addFormType === 'digital'}
+                />;
             case 'edit':
                 if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
-                return <EditComicForm comic={selectedComic} allGenres={allGenres} onCancel={handleFormCancel} onSuccess={handleFormSuccess} />;
+                return <EditComicForm
+                    comic={selectedComic}
+                    allGenres={allGenres}
+                    onCancel={handleFormCancel}
+                    onSuccess={handleFormSuccess}
+                />;
             case 'chapters':
                 if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
                 return <ManageChapters comic={selectedComic} onCancel={handleFormCancel} />;
@@ -767,7 +895,11 @@ const AdminPage: React.FC = () => {
                     <>
                         <div className="admin-header">
                             <h2>Quản Lý Truyện In ({physicalComics.length})</h2>
+                            <button className="mgmt-btn add" onClick={() => handleShowAddForm('physical')}>
+                                <FiPlus /> Thêm Truyện In
+                            </button>
                         </div>
+                        {filterBar}
                         <ComicManagementList comics={physicalComics} onEdit={handleSelectEdit} onDelete={handleDeleteComic} onManageChapters={handleSelectChapters} />
                     </>
                 );
@@ -777,7 +909,11 @@ const AdminPage: React.FC = () => {
                     <>
                         <div className="admin-header">
                             <h2>Quản Lý Truyện Online ({digitalComics.length})</h2>
+                            <button className="mgmt-btn add" onClick={() => handleShowAddForm('digital')}>
+                                <FiPlus /> Thêm Truyện Online
+                            </button>
                         </div>
+                        {filterBar}
                         <ComicManagementList comics={digitalComics} onEdit={handleSelectEdit} onDelete={handleDeleteComic} onManageChapters={handleSelectChapters} />
                     </>
                 );
