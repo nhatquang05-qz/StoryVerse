@@ -10,7 +10,6 @@ import { FontProvider } from './contexts/FontContext';
 import './index.css';
 import App from './App.tsx';
 
-// Thêm dòng này
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 console.log('TẤT CẢ BIẾN MÔI TRƯỜNG:', import.meta.env);
 if (!googleClientId) {
