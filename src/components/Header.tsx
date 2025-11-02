@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiSearch, FiUser, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter } from 'react-icons/fi';
-import { useCart } from '../../contexts/CartContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { type ComicSummary, type Genre } from '../../types/comicTypes'; 
-import ThemeToggleButton from '../common/ThemeToggleButton/ThemeToggleButton';
-import DailyRewardModal from '../common/DailyRewardModal/DailyRewardModal';
-import coinIcon from '../../assets/images/coin.png';
-import './Header.css';
+import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
+import { type ComicSummary, type Genre } from '../types/comicTypes'; 
+import ThemeToggleButton from './common/ThemeToggleButton';
+import DailyRewardModal from './common/DailyRewardModal';
+import coinIcon from '../assets/images/coin.png';
+import '../styles/Header.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const MAX_SUGGESTIONS_TOTAL = 10; 

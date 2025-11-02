@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import ProfileSidebar from '../components/common/ProfileSideBar';
-import { useAuth, type Address } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import '../pages/profile/ProfilePage.css';
+import '../styles/ProfilePage.css';
 import { FiMapPin, FiTrash2, FiSave } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
+
+type Address = {
+    id: string;
+    isDefault: boolean;
+    street: string;
+    ward: string;
+    district: string;
+    city: string;
+};
 
 const NewAddressForm: React.FC<{ onSave: (address: Omit<Address, 'id' | 'isDefault'>) => void, onCancel: () => void, isSaving: boolean }> = ({ onSave, onCancel, isSaving }) => {
     const [formData, setFormData] = useState({ street: '', ward: '', district: '', city: '' });

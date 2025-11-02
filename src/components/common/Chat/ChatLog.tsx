@@ -1,6 +1,5 @@
-// src/components/common/Chat/ChatLog.tsx
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import './ChatLog.css';
+import '../../../styles/ChatLog.css';
 import ChatMessage, { type ChatMessageData } from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';

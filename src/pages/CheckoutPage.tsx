@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useNotification } from '../contexts/NotificationContext';
-import '../pages/AuthPage.css';
+import '../styles/AuthPage.css';
 
 const CheckoutPage: React.FC = () => {
     const { currentUser } = useAuth();

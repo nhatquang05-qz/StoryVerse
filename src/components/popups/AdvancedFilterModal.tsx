@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { FiX, FiFilter, FiSave } from 'react-icons/fi';
 import { LEVEL_SYSTEMS, type LevelSystem } from '../../utils/authUtils'; 
 import { getUniqueAuthors, getUniqueGenres } from '../../data/mockData';
-import '../../pages/category/CategoryPage.css';
+import '../../styles/CategoryPage.css';
 
 interface FilterState {
     authors: string[];

@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiShoppingCart, FiHeart } from 'react-icons/fi';
-import { type ComicSummary } from '../../../types/comicTypes'; 
-import { useCart } from '../../../contexts/CartContext';
-import { useWishlist } from '../../../contexts/WishListContext';
-import { useNotification } from '../../../contexts/NotificationContext';
-import StarRating from '../StarRating';
-import './ProductCard.css';
+import { type ComicSummary } from '../../types/comicTypes'; 
+import { useCart } from '../../contexts/CartContext';
+import { useWishlist } from '../../contexts/WishListContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import StarRating from './StarRating';
+import '../../styles/ProductCard.css';
 
 interface ProductCardProps {
   comic: ComicSummary; 

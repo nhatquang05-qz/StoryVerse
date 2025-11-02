@@ -1,9 +1,7 @@
-// src/contexts/AuthContext.tsx
-
 import React, { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from 'react';
 import { useNotification } from './NotificationContext';
 import { useNavigate } from 'react-router-dom';
-import type { CredentialResponse } from '@react-oauth/google'; // Thêm import
+import type { CredentialResponse } from '@react-oauth/google'; 
 import LevelUpPopup from '../components/popups/LevelUpPopup';
 import LoginSuccessPopup from '../components/popups/LoginSuccessPopup';
 import type { User, Address } from '../types/userTypes';
@@ -25,7 +23,7 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
-  loginWithGoogle: (credentialResponse: CredentialResponse) => Promise<void>; // Thêm hàm mới
+  loginWithGoogle: (credentialResponse: CredentialResponse) => Promise<void>; 
   updateProfile: (profileData: Partial<User>) => Promise<User | null>;
   updateAvatar: (avatarUrl: string) => Promise<User | null>; 
   updateAddresses: (addresses: Address[]) => Promise<void>;
@@ -139,7 +137,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    // --- BẮT ĐẦU CODE MỚI ---
     const loginWithGoogle = async (credentialResponse: CredentialResponse) => {
         if (!credentialResponse.credential) {
             throw new Error("Không nhận được thông tin xác thực từ Google.");
@@ -158,8 +155,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
             const userData = ensureUserDataTypes(data.user);
             setCurrentUser(userData);
-
-            // Sử dụng fullName từ user data (có thể đã được set từ Google name)
             setUsernameToDisplay(userData.fullName || userData.email.split('@')[0] || 'Người dùng');
             setIsLoginSuccessPopupOpen(true);
 
@@ -170,7 +165,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setLoading(false);
         }
     };
-    // --- KẾT THÚC CODE MỚI ---
 
     const register = async (email: string, pass: string) => {
          setLoading(true); 
@@ -431,7 +425,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             login,
             register,
             logout,
-            loginWithGoogle, // Thêm vào context
+            loginWithGoogle, 
             updateProfile,
             updateAvatar,
             updateAddresses,

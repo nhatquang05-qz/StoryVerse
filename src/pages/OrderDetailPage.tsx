@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getOrderById, type Order } from '../data/mockData';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
-import '../pages/profile/ProfilePage.css';
+import '../styles/ProfilePage.css';
 
 const OrderDetailPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();

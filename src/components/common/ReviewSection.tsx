@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FiStar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useNotification } from '../../../contexts/NotificationContext';
-import { type Review } from '../../../types/comicTypes';
-import './ReviewSection.css';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import { type Review } from '../../types/comicTypes';
+import '../../styles/ReviewSection.css';
 
 interface ReviewSectionProps {
     comicId: number;

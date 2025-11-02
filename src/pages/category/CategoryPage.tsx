@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import ProductList from '../../components/common/ProductList/ProductList';
+import ProductList from '../../components/common/ProductList';
 import { type ComicSummary } from '../../types/comicTypes';
 import LoadingPage from '../../components/common/Loading/LoadingScreen';
 import Pagination from '../../components/common/Pagination';
 import AdvancedFilterModal from '../../components/popups/AdvancedFilterModal';
-import './CategoryPage.css';
+import '../../styles/CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 

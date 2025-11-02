@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import StarRating from '../StarRating';
-import './TopComicSection.css';
+import StarRating from './StarRating';
+import '../../styles/TopComicSection.css';
 import { FiLoader } from 'react-icons/fi';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import Header from './components/header/Header';
-import Footer from './components/footer/Footer';
+import Header from './components/Header';
+import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import ComicDetailPage from './pages/physical/ComicDetailPage';
 import CartPage from './pages/CartPage';
@@ -24,13 +24,13 @@ import CoinRechargePage from './pages/CoinRechargePage';
 import SettingsPage from './pages/SettingPage';
 import AdminPage from './pages/admin/AdminPage';
 import ScrollToTop from './components/common/ScrollToTop';
-import FlyingImage from './components/common/FlyingImage/FlyingImage';
-import ScrollToTopButton from './components/common/ScrollToTopButton/ScrollToTopButton';
+import FlyingImage from './components/common/FlyingImage';
+import ScrollToTopButton from './components/common/ScrollToTopButton';
 import LevelUpPopup from './components/popups/LevelUpPopup';
 import ChatbotUI from './components/chatbot/ChatbotUI';
 import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
-import './App.css';
+import './styles/App.css';
 
 function App() {
   const { animationData, clearAnimation } = useCart();
@@ -97,7 +97,6 @@ function App() {
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </main>
-      {/* Ẩn Footer nếu là trang admin */}
       {!isAdminPage && <Footer />}
 
       <FlyingImage

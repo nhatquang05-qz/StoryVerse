@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import RechargeSuccessPopup from '../components/popups/RechargeSuccessPopup'; 
-import '../pages/AuthPage.css';
-import './CoinRechargePage.css';
+import '../styles/AuthPage.css';
+import '../styles/CoinRechargePage.css';
 
 const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },

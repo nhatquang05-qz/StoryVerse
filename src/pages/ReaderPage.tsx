@@ -5,7 +5,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import { type ComicDetail, type ChapterSummary, type ChapterContent } from '../types/comicTypes';
 import { FiChevronLeft, FiChevronRight, FiChevronDown, FiHome, FiLock } from 'react-icons/fi';
 import ChapterChat from '../components/common/Chat/ChapterChat';
-import './ReaderPage.css';
+import '../styles/ReaderPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';

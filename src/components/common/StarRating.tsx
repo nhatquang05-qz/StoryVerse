@@ -1,4 +1,3 @@
-// src/components/common/StarRating.tsx
 import React from 'react';
 import { FiStar } from 'react-icons/fi';
 
@@ -35,7 +34,6 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
         });
     };
     
-    // Tạo gradient cho nửa ngôi sao
     const halfStarGradient = (
         <svg width="0" height="0" className="hidden-gradient">
             {Array.from({ length: 5 }).map((_, index) => (

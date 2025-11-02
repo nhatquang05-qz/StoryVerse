@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { FiCheckCircle, FiX } from 'react-icons/fi';
-import './SuccessPopup.css';
+import '../../styles/SuccessPopup.css';
 
 interface LoginSuccessPopupProps {
   isOpen: boolean;

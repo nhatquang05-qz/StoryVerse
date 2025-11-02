@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import ProfileSidebar from '../../components/common/ProfileSideBar';
 import { useNotification } from '../../contexts/NotificationContext';
 import { FiChevronDown, FiUpload, FiLoader } from 'react-icons/fi';
-import './ProfilePage.css';
+import '../../styles/ProfilePage.css';
 import { Link } from 'react-router-dom';
 import { getLevelColor, getEquivalentLevelTitle as getEquivalentLevelTitleUtil, LEVEL_SYSTEMS } from '../../utils/authUtils'; 
 import LoadingPage from '../../components/common/Loading/LoadingScreen';

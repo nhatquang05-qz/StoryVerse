@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRightCircle } from 'react-icons/fi'; 
-import './FeaturedTagsSection.css';
+import '../../../styles/FeaturedTagsSection.css';
 import action from './action.png';
 import romance from './romance.png';
 import comedy from './comedy.png';

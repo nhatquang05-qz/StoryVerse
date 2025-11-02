@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import ProductList from '../components/common/ProductList/ProductList';
+import ProductList from '../components/common/ProductList';
 import Hero from '../components/common/Hero/Hero';
 import { type ComicSummary } from '../types/comicTypes';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import FeaturedTagsSection from '../components/common/FeaturedTagsSection/FeaturedTagsSection';
-import TopComicsSection from '../components/common/TopComicSection/TopComicSection';
-import TopMembersSection from '../components/common/TopMembersSection/TopMembersSection';
+import TopComicsSection from '../components/common/TopComicSection';
+import TopMembersSection from '../components/common/TopMembersSection';
 import ChatLog from '../components/common/Chat/ChatLog';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
-import './HomePage.css';
+import '../styles/HomePage.css';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
                 setTrendingComics(
                     [...allComics]
                         .filter(c => (c.isDigital as any) === 0) 
-                        .sort((a, b) => b.viewCount - a.viewCount) 
+                        .sort((a, b) => ((b as any).viewCount ?? 0) - ((a as any).viewCount ?? 0)) 
                         .slice(0, 12) 
                 );
 

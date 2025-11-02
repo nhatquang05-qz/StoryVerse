@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, type FormEvent } from 'react';
 import { FiX, FiUser, FiLoader } from 'react-icons/fi';
 import { getBotResponse, type ChatHistory } from './ChatbotLogic';
 import chatbotIcon from '../../assets/images/chatbot-icon.png';
-import './Chatbot.css';
+import '../../styles/Chatbot.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 

@@ -3,7 +3,7 @@ import { FiArrowLeft, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 import { useFont } from '../contexts/FontContext';
-import './SettingPage.css';
+import '../styles/SettingPage.css';
 import mikaelaPreview from '../cursors/Mikaela_Hykuya.png';
 import krulTepesPreview from '../cursors/Krul_Tepes.png';
 import enePreview from '../cursors/Ene.png';

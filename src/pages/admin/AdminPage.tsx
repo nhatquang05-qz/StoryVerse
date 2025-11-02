@@ -6,7 +6,7 @@ import {
     FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave,
     FiBookOpen, FiArchive, FiUsers, FiSearch, FiSlash, FiCheckCircle, FiDownload, FiX
 } from 'react-icons/fi';
-import './AdminPage.css';
+import '../../styles/AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 

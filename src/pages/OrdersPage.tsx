@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
 import { loadOrders, type Order } from '../data/mockData';
-import '../pages/profile/ProfilePage.css'; 
+import '../styles/ProfilePage.css'; 
 
 const OrdersPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -14,7 +14,6 @@ const OrdersPage: React.FC = () => {
   useEffect(() => {
     if (currentUser) {
         setIsLoading(true);
-        // Giả lập tải đơn hàng
         setTimeout(() => {
             const userOrders = loadOrders(currentUser.id);
             setOrders(userOrders);

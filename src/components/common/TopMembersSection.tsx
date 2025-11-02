@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import './TopMembersSection.css';
+import { useAuth } from '../../contexts/AuthContext';
+import '../../styles/TopMembersSection.css';
 import { Link } from 'react-router-dom';
 import { FiLoader } from 'react-icons/fi';
 
@@ -8,20 +8,16 @@ interface TopMember {
     id: string;
     fullName: string;
     level: number;
-    // *** BỔ SUNG: Thêm avatarUrl và score ***
-    avatarUrl?: string; // URL ảnh đại diện, có thể không có
-    score?: number;     // Điểm số, có thể không có
-    // *** KẾT THÚC BỔ SUNG ***
+    avatarUrl?: string; 
+    score?: number;    
 }
 
 interface RawTopMember {
     id: string | number;
     fullName: string;
     level: string | number;
-    // *** BỔ SUNG: Thêm các trường tương ứng từ API nếu có ***
     avatarUrl?: string;
     score?: string | number;
-    // *** KẾT THÚC BỔ SUNG ***
 }
 
 const TopMembersSection: React.FC = () => {
@@ -35,7 +31,6 @@ const TopMembersSection: React.FC = () => {
             setApiLoading(true);
             setError(null);
             try {
-                // Đảm bảo API của bạn trả về cả avatarUrl và score
                 const response = await fetch('http://localhost:3000/api/users/top?limit=10');
                 if (!response.ok) {
                     let errorMsg = 'Không thể tải danh sách thành viên';
@@ -49,17 +44,13 @@ const TopMembersSection: React.FC = () => {
 
                 const processedData = rawData.map(member => {
                     const level = parseInt(String(member.level));
-                    // *** BỔ SUNG: Xử lý score ***
                     const score = parseInt(String(member.score));
-                    // *** KẾT THÚC BỔ SUNG ***
                     return {
                         id: String(member.id),
                         fullName: member.fullName || 'Người dùng ẩn danh',
                         level: !isNaN(level) && level >= 1 ? level : 1,
-                        // *** BỔ SUNG: Gán avatarUrl và score ***
-                        avatarUrl: member.avatarUrl || 'https://via.placeholder.com/45', // Ảnh mặc định nếu không có
-                        score: !isNaN(score) ? score : undefined // Gán undefined nếu không phải số
-                        // *** KẾT THÚC BỔ SUNG ***
+                        avatarUrl: member.avatarUrl || 'https://via.placeholder.com/45', 
+                        score: !isNaN(score) ? score : undefined 
                     }
                 }).filter(member => member !== null) as TopMember[];
 
@@ -83,16 +74,15 @@ const TopMembersSection: React.FC = () => {
 
     const isLoading = authLoading || apiLoading;
 
-    // Hàm format điểm số
     const formatScore = (score: number | undefined) => {
         if (score === undefined) return '';
-        return score.toLocaleString('vi-VN'); // Format số theo kiểu Việt Nam (31.250)
+        return score.toLocaleString('vi-VN'); 
     };
 
     return (
         <div className="top-members-section">
             <h2 className="top-members-title">
-                 Top thành viên {/* Sửa lại title giống ảnh */}
+                 Top thành viên 
             </h2>
             {isLoading && (
                 <div className="loading-indicator">
@@ -102,7 +92,6 @@ const TopMembersSection: React.FC = () => {
             {error && <p className="error-message" style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
             {!isLoading && !error && topMembers.length === 0 && <p style={{ textAlign: 'center' }}>Chưa có dữ liệu xếp hạng.</p>}
             {!isLoading && !error && topMembers.length > 0 && (
-                // *** Dùng lại <ol> như ban đầu ***
                 <ol className="top-members-list">
                     {topMembers.map((member, index) => {
                         if (!member || typeof member.level !== 'number' || member.level < 1) {
@@ -111,29 +100,21 @@ const TopMembersSection: React.FC = () => {
                         }
 
                         const rank = index + 1;
-                        // *** Dùng lại rank số thay vì icon ***
                         const rankDisplay = <span className="rank-number">{String(rank).padStart(2, '0')}</span>;
-                        // *** KẾT THÚC THAY ĐỔI ***
 
                         const levelColor = getLevelColor(member.level);
                         const levelTitle = getEquivalentLevelTitle(member.level);
 
                         return (
-                             // *** Dùng lại <li> như ban đầu ***
                             <li key={member.id || index} className={`top-member-item`}>
-                                {/* *** Phần Rank *** */}
                                 <span className="member-rank">{rankDisplay}</span>
 
-                                {/* *** BỔ SUNG: Avatar *** */}
                                 <img src={member.avatarUrl} alt={member.fullName} className="member-avatar" />
-                                {/* *** KẾT THÚC BỔ SUNG *** */}
 
-                                {/* *** BỔ SUNG: Container cho Tên, Cấp, Điểm *** */}
                                 <div className="member-info">
                                     <span className="member-name">
                                         {member.fullName}
                                     </span>
-                                    {/* *** BỔ SUNG: Container cho Cấp và Điểm *** */}
                                     <div className="member-stats">
                                         <span
                                             className="member-level-badge"
@@ -142,17 +123,13 @@ const TopMembersSection: React.FC = () => {
                                         >
                                             {levelTitle}
                                         </span>
-                                        {/* *** BỔ SUNG: Điểm số *** */}
                                         {member.score !== undefined && (
                                             <span className="member-score">
                                                 {formatScore(member.score)}
                                             </span>
                                         )}
-                                        {/* *** KẾT THÚC BỔ SUNG *** */}
                                     </div>
-                                    {/* *** KẾT THÚC BỔ SUNG *** */}
                                 </div>
-                                {/* *** KẾT THÚC BỔ SUNG *** */}
                             </li>
                         );
                     })}

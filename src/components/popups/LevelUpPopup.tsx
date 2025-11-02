@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiAward, FiX } from 'react-icons/fi'; 
 import { useAuth } from '../../contexts/AuthContext'; 
-import './SuccessPopup.css';
+import '../../styles/SuccessPopup.css';
 
 interface LevelUpPopupProps {
   isOpen: boolean;

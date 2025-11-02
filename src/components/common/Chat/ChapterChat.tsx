@@ -1,4 +1,3 @@
-// src/components/common/Chat/ChapterChat.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';
@@ -9,7 +8,7 @@ import { isProfane } from '../../../utils/profanityList';
 import StickerPicker from './StickerPicker';
 import type { Sticker } from '../../../utils/stickerUtils';
 import { getBanInfo, setBanInfo, calculateBanDurationMinutes, formatRemainingTime, type BanInfo } from '../../../utils/chatBanUtils';
-import './ChapterChat.css';
+import '../../../styles/ChapterChat.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';

@@ -1,5 +1,5 @@
 import React from 'react';
-import './ChatMessage.css';
+import '../../../styles/ChatMessage.css';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FiHeart, FiMessageSquare } from 'react-icons/fi';
 

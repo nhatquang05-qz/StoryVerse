@@ -1,7 +1,6 @@
-// src/components/popups/ErrorPopup.tsx
 import React from 'react';
 import { FiX, FiAlertTriangle } from 'react-icons/fi';
-import './SuccessPopup.css'; // Sử dụng lại CSS chung
+import '../../styles/SuccessPopup.css'; 
 
 interface ErrorPopupProps {
   isOpen: boolean;
