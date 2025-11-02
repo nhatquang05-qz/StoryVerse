@@ -56,20 +56,15 @@ export const setBanInfo = (userId: string, info: BanInfo): void => {
     }
 };
 
-// Danh sách thời gian ban theo số lần vi phạm (index = violations - 1)
-// 0, 1, 2 vi phạm -> 0 phút
-// 3, 4, 5 vi phạm -> 5 phút
-// 6, 7, 8 vi phạm -> 15 phút
-// ...
 const BAN_DURATIONS_MINUTES = [
-    0, 0, 0,          // 1-3
-    5, 0, 0,          // 4-6
-    15, 0, 0,         // 7-9
-    30, 0, 0,         // 10-12
-    60, 0, 0,         // 13-15 (1 hour)
-    180, 0, 0,        // 16-18 (3 hours)
-    300, 0, 0,        // 19-21 (5 hours)
-    420, 0, 0,        // 22-24 (7 hours)
+    0, 0, 0,          
+    5, 0, 0,          
+    15, 0, 0,         
+    30, 0, 0,         
+    60, 0, 0,         
+    180, 0, 0,        
+    300, 0, 0,       
+    420, 0, 0,        
     600, 0, 0                 
 ];
 

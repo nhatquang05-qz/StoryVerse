@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNotification } from '../../contexts/NotificationContext';
-import '../../styles/AuthPage.css';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../contexts/NotificationContext';
+import '../styles/AuthPage.css';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');

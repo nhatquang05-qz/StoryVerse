@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNotification } from '../../contexts/NotificationContext';
-import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } from '../../types/comicTypes';
+import { useAuth } from '../contexts/AuthContext';
+import { useNotification } from '../contexts/NotificationContext';
+import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } from '../types/comicTypes';
 import {
     FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave,
     FiBookOpen, FiArchive, FiUsers, FiSearch, FiSlash, FiCheckCircle, FiDownload, FiX
 } from 'react-icons/fi';
-import '../../styles/AdminPage.css';
+import '../styles/AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 

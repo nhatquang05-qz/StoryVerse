@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'; 
-import { useAuth } from '../../contexts/AuthContext'; 
-import { useNotification } from '../../contexts/NotificationContext'; 
-import '../../styles/AuthPage.css'; 
+import { useAuth } from '../contexts/AuthContext'; 
+import { useNotification } from '../contexts/NotificationContext'; 
+import '../styles/AuthPage.css'; 
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');

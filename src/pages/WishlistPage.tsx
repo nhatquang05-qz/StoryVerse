@@ -1,11 +1,11 @@
 import React from 'react';
-import { useWishlist } from '../../contexts/WishListContext';
-import ProductList from '../../components/common/ProductList';
+import { useWishlist } from '../contexts/WishListContext';
+import ProductList from '../components/common/ProductList';
 import { Link } from 'react-router-dom';
 import { FiHeart } from 'react-icons/fi';
-import { useAuth } from '../../contexts/AuthContext';
-import LoadingPage from '../../components/common/Loading/LoadingScreen';
-import '../../styles/WishlistPage.css';
+import { useAuth } from '../contexts/AuthContext';
+import LoadingPage from '../components/common/Loading/LoadingScreen';
+import '../styles/WishlistPage.css';
 
 const WishlistPage: React.FC = () => {
   const { wishlistItems, wishlistCount } = useWishlist();

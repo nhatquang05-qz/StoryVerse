@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp } from 'react-icons/fi';
-import { type ComicDetail, type ChapterSummary } from '../../types/comicTypes';
-import { loadOrders } from '../../data/mockData';
-import { useCart } from '../../contexts/CartContext';
-import { useWishlist } from '../../contexts/WishListContext';
-import ReviewSection from '../../components/common/ReviewSection';
-import { useNotification } from '../../contexts/NotificationContext';
-import { useAuth } from '../../contexts/AuthContext';
-import '../../styles/ComicDetailPage.css';
+import { type ComicDetail, type ChapterSummary } from '../types/comicTypes';
+import { loadOrders } from '../data/mockData';
+import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishListContext';
+import ReviewSection from '../components/common/ReviewSection';
+import { useNotification } from '../contexts/NotificationContext';
+import { useAuth } from '../contexts/AuthContext';
+import '../styles/ComicDetailPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';

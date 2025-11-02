@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import ProfileSidebar from '../../components/common/ProfileSideBar';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useAuth } from '../contexts/AuthContext';
+import ProfileSidebar from '../components/common/ProfileSideBar';
+import { useNotification } from '../contexts/NotificationContext';
 import { FiChevronDown, FiUpload, FiLoader } from 'react-icons/fi';
-import '../../styles/ProfilePage.css';
+import '../styles/ProfilePage.css';
 import { Link } from 'react-router-dom';
-import { getLevelColor, getEquivalentLevelTitle as getEquivalentLevelTitleUtil, LEVEL_SYSTEMS } from '../../utils/authUtils'; 
-import LoadingPage from '../../components/common/Loading/LoadingScreen';
+import { getLevelColor, getEquivalentLevelTitle as getEquivalentLevelTitleUtil, LEVEL_SYSTEMS } from '../utils/authUtils'; 
+import LoadingPage from '../components/common/Loading/LoadingScreen';
 
 interface LevelSystem {
     key: string;
@@ -23,7 +23,7 @@ interface LevelSelectorProps {
     currentLevelColor: string;
 }
 
-const LevelSystemSelector: React.FC<LevelSelectorProps> = React.lazy(() => import('../../components/common/LevelSystemSelector'));
+const LevelSystemSelector: React.FC<LevelSelectorProps> = React.lazy(() => import('../components/common/LevelSystemSelector'));
 
 
 const ProfilePage: React.FC = () => {
