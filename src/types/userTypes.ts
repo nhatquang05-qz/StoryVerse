@@ -1,5 +1,3 @@
-// src/types/userTypes.ts
-
 export interface Address {
     id: string;
     street: string;
@@ -10,18 +8,16 @@ export interface Address {
 }
 
 export interface User {
-  id: string; // Hoặc number tùy CSDL của bạn trả về gì, nhưng string an toàn hơn
+  id: string; 
   email: string;
   fullName: string;
   phone: string;
   addresses: Address[];
   coinBalance: number;
-  lastDailyLogin: string; // Hoặc Date nếu bạn parse nó
+  lastDailyLogin: string; 
   consecutiveLoginDays: number;
   level: number;
-  exp: number; // Đảm bảo đây là number
+  exp: number; 
   avatarUrl: string;
-  // Thêm các trường khác nếu có, ví dụ: role: 'admin' | 'user';
 }
 
-// Bạn có thể định nghĩa thêm các kiểu liên quan đến user ở đây
