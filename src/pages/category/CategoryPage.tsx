@@ -88,12 +88,10 @@ const CategoryPage: React.FC = () => {
   const processedComics = useMemo(() => {
     let currentComics = [...allComics];
     
-    // Lọc theo Media Type từ Advanced Filters
     if (filters.mediaType !== 'all') {
         const isDigitalFilter = filters.mediaType === 'digital';
         currentComics = currentComics.filter(comic => comic.isDigital === isDigitalFilter);
     } else {
-        // Lọc theo tab
          if (activeTab === 'digital') {
             currentComics = currentComics.filter(comic => (comic.isDigital as any) === 1);
         } else { 
@@ -102,17 +100,14 @@ const CategoryPage: React.FC = () => {
     }
 
 
-    // Lọc theo Tác giả từ Advanced Filters
     if (filters.authors.length > 0) {
         currentComics = currentComics.filter(comic => 
             comic.author && filters.authors.includes(comic.author)
         );
     } else if (filterAuthor !== 'all') {
-        // Lọc theo Tác giả từ dropdown (nếu không dùng advanced filter)
         currentComics = currentComics.filter(comic => comic.author === filterAuthor);
     }
     
-     // Lọc theo Thể loại từ Advanced Filters (chỉ lọc trong trường hợp không phải là trang genre chính)
     if (filters.genres.length > 0 && categorySlug !== filters.genres[0]) { 
         currentComics = currentComics.filter(comic => 
             comic.genres && comic.genres.some(g => filters.genres.includes(g.name))
@@ -173,7 +168,7 @@ const CategoryPage: React.FC = () => {
   
   const handleFilterAuthorChange = (value: string) => {
       setFilterAuthor(value);
-      setFilters(prev => ({ ...prev, authors: [] })); // Clear advanced filter author when using dropdown
+      setFilters(prev => ({ ...prev, authors: [] })); 
       setCurrentPage(1); 
   };
 

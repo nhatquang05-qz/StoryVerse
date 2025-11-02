@@ -1,5 +1,4 @@
-// backend/server.js
-require('dotenv').config(); // Load .env ngay từ đầu
+require('dotenv').config();
 const app = require('./src/app');
 const { connectDB, closeDB } = require('./src/db/connection');
 const { PORT } = require('./src/config/appConfig');
