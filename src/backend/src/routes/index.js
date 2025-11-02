@@ -1,21 +1,24 @@
 const express = require('express');
 const router = express.Router();
+
 const authRoutes = require('./authRoutes');
-const userRoutes = require('./userRoutes');
 const comicRoutes = require('./comicRoutes');
+const userRoutes = require('./userRoutes');
+const addressRoutes = require('./addressRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const rewardRoutes = require('./rewardRoutes');
-const addressRoutes = require('./addressRoutes');
 const chatRoutes = require('./chatRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
+const adminRoutes = require('./adminRoutes');
 
 router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
 router.use('/comics', comicRoutes);
+router.use('/users', userRoutes);
+router.use('/addresses', addressRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/rewards', rewardRoutes);
-router.use('/address', addressRoutes);
 router.use('/chat', chatRoutes);
 router.use('/chatbot', chatbotRoutes);
+router.use('/admin', adminRoutes);
 
 module.exports = router;

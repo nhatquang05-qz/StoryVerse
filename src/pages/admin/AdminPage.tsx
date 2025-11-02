@@ -4,7 +4,7 @@ import { useNotification } from '../../contexts/NotificationContext';
 import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } from '../../types/comicTypes';
 import {
     FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave,
-    FiBookOpen, FiArchive, FiUsers, FiSearch
+    FiBookOpen, FiArchive, FiUsers, FiSearch, FiSlash, FiCheckCircle, FiDownload, FiX
 } from 'react-icons/fi';
 import './AdminPage.css';
 
@@ -703,12 +703,319 @@ const AdminFilterBar: React.FC<AdminFilterBarProps> = ({
     );
 };
 
-const UserManagementPlaceholder = () => (
-    <div className="admin-form-container">
-        <h2>Quản Lý Người Dùng</h2>
-        <p>Chức năng này đang được phát triển và sẽ sớm ra mắt.</p>
-    </div>
-);
+interface AdminManagedUser {
+    id: string;
+    fullName: string;
+    email: string;
+    coinBalance: number;
+    level: number;
+    exp: number;
+    isBanned: boolean;
+}
+
+interface UserEditModalProps {
+    user: AdminManagedUser;
+    onClose: () => void;
+    onSave: (updatedUser: AdminManagedUser) => void;
+    token: string;
+}
+
+const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onSave, token }) => {
+    const [formData, setFormData] = useState(user);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showNotification } = useNotification();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'number' ? Number(value) : value,
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    coinBalance: formData.coinBalance,
+                    level: formData.level,
+                    exp: formData.exp,
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Cập nhật thất bại');
+            showNotification('Cập nhật người dùng thành công!', 'success');
+            onSave(formData);
+        } catch (error: any) {
+            showNotification(`Lỗi cập nhật: ${error.message}`, 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="user-edit-modal-overlay" onClick={onClose}>
+            <div className="user-edit-modal-content" onClick={(e) => e.stopPropagation()}>
+                <form onSubmit={handleSubmit}>
+                    <h2>Sửa Người Dùng: {user.fullName}</h2>
+                    <button type="button" className="modal-close-btn" onClick={onClose}><FiX /></button>
+                    <div className="form-group">
+                        <label>Email (Không thể sửa):</label>
+                        <input type="email" value={formData.email} disabled />
+                    </div>
+                    <div className="form-group">
+                        <label>Số Xu:</label>
+                        <input type="number" name="coinBalance" value={formData.coinBalance} onChange={handleChange} />
+                    </div>
+                    <div className="form-group">
+                        <label>Cấp độ (Level):</label>
+                        <input type="number" name="level" value={formData.level} onChange={handleChange} />
+                    </div>
+                    <div className="form-group">
+                        <label>Kinh nghiệm (EXP):</label>
+                        <input type="number" name="exp" value={formData.exp} onChange={handleChange} />
+                    </div>
+                    <div className="form-actions">
+                        <button type="button" className="mgmt-btn" onClick={onClose} disabled={isSubmitting}>Hủy</button>
+                        <button type="submit" className="mgmt-btn edit" disabled={isSubmitting}>
+                            {isSubmitting ? <FiLoader className="animate-spin" /> : <FiSave />}
+                            Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+const UserManagement: React.FC = () => {
+    const { showNotification } = useNotification();
+    const token = localStorage.getItem('storyverse_token');
+
+    const [users, setUsers] = useState<AdminManagedUser[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedUser, setSelectedUser] = useState<AdminManagedUser | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const fetchUsers = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Không thể tải danh sách người dùng');
+            const data: AdminManagedUser[] = await response.json();
+            setUsers(data);
+        } catch (err: any) {
+            setError(err.message);
+            showNotification(err.message, 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const filteredUsers = useMemo(() => {
+        return users.filter(user =>
+            user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [users, searchTerm]);
+
+    const stats = useMemo(() => {
+        const totalUsers = users.length;
+        const bannedUsers = users.filter(u => u.isBanned).length;
+        return { totalUsers, bannedUsers };
+    }, [users]);
+
+    const handleEditClick = (user: AdminManagedUser) => {
+        setSelectedUser(user);
+        setIsModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleModalSave = (updatedUser: AdminManagedUser) => {
+        setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+        handleModalClose();
+    };
+
+    const handleToggleBan = async (user: AdminManagedUser) => {
+        const action = user.isBanned ? 'Bỏ cấm' : 'Cấm';
+        if (!window.confirm(`Bạn có chắc muốn ${action} tài khoản ${user.fullName} không?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/ban`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ isBanned: !user.isBanned })
+            });
+            if (!response.ok) throw new Error(`Thất bại khi ${action} tài khoản`);
+            showNotification(`${action} tài khoản thành công!`, 'success');
+            fetchUsers();
+        } catch (error: any) {
+            showNotification(error.message, 'error');
+        }
+    };
+
+    const handleDelete = async (userId: string, fullName: string) => {
+        if (!window.confirm(`HÀNH ĐỘNG NGUY HIỂM! Bạn có chắc muốn XÓA VĨNH VIỄN tài khoản ${fullName} không? Mọi dữ liệu sẽ bị mất.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Xóa tài khoản thất bại');
+            showNotification('Xóa tài khoản thành công!', 'success');
+            fetchUsers();
+        } catch (error: any) {
+            showNotification(error.message, 'error');
+        }
+    };
+
+    const handleExportCSV = () => {
+        const headers = ["ID", "Username", "Email", "Coins", "Level", "EXP", "IsBanned", "CreatedAt"];
+        const csvRows = [headers.join(',')];
+
+        filteredUsers.forEach(user => {
+            const values = [
+                user.id,
+                user.fullName,
+                user.email,
+                user.coinBalance,
+                user.level,
+                user.exp,
+                user.isBanned,
+            ];
+            csvRows.push(values.join(','));
+        });
+
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `storyverse_users_report_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification('Đã xuất báo cáo CSV!', 'success');
+    };
+
+    if (isLoading) return <p>Đang tải danh sách người dùng...</p>;
+    if (error) return <p style={{ color: 'var(--clr-error-text)' }}>{error}</p>;
+
+    return (
+        <div className="user-management-container">
+            <h2>Quản Lý Người Dùng</h2>
+            <div className="user-stats">
+                <div className="stat-card">
+                    <h4>Tổng số tài khoản</h4>
+                    <p>{stats.totalUsers}</p>
+                </div>
+                <div className="stat-card banned">
+                    <h4>Đã cấm</h4>
+                    <p>{stats.bannedUsers}</p>
+                </div>
+            </div>
+
+            <div className="admin-filter-bar">
+                <div className="filter-group search-bar">
+                    <FiSearch />
+                    <input
+                        type="text"
+                        placeholder="Tìm theo tên hoặc email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button className="mgmt-btn chapters export-btn" onClick={handleExportCSV}>
+                    <FiDownload /> Xuất Báo Cáo
+                </button>
+            </div>
+
+            <div className="admin-table-container">
+                <table className="admin-user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người dùng</th>
+                            <th>Email</th>
+                            <th>Xu</th>
+                            <th>Level</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredUsers.map(user => (
+                            <tr key={user.id} className={user.isBanned ? 'banned-row' : ''}>
+                                <td>{user.id.substring(0, 8)}...</td>
+                                <td>{user.fullName}</td>
+                                <td>{user.email}</td>
+                                <td>{user.coinBalance}</td>
+                                <td>{user.level}</td>
+                                <td>
+                                    {user.isBanned ? (
+                                        <span className="status-tag banned"><FiSlash /> Bị cấm</span>
+                                    ) : (
+                                        <span className="status-tag active"><FiCheckCircle /> Hoạt động</span>
+                                    )}
+                                </td>
+                                <td className="action-buttons">
+                                    <button className="mgmt-btn edit" onClick={() => handleEditClick(user)}><FiEdit /></button>
+                                    <button
+                                        className={`mgmt-btn ${user.isBanned ? 'chapters' : 'ban-btn'}`}
+                                        onClick={() => handleToggleBan(user)}
+                                    >
+                                        {user.isBanned ? <FiCheckCircle /> : <FiSlash />}
+                                    </button>
+                                    <button className="mgmt-btn delete" onClick={() => handleDelete(user.id, user.fullName)}><FiTrash2 /></button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            {isModalOpen && selectedUser && (
+                <UserEditModal
+                    user={selectedUser}
+                    onClose={handleModalClose}
+                    onSave={handleModalSave}
+                    token={token || ''}
+                />
+            )}
+        </div>
+    );
+};
+
+
+// ========================================================================
+// === COMPONENT ADMINPAGE CHÍNH ===
+// ========================================================================
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -721,7 +1028,7 @@ const AdminPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [addFormType, setAddFormType] = useState<'digital' | 'physical'>('digital');
-    
+
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
@@ -758,7 +1065,7 @@ const AdminPage: React.FC = () => {
             fetchComicsAndGenres();
         }
     }, [isAdmin]);
-    
+
     const filteredComics = useMemo(() => {
         let comicsToFilter = [...comics];
 
@@ -771,7 +1078,7 @@ const AdminPage: React.FC = () => {
         if (statusFilter !== 'all') {
             comicsToFilter = comicsToFilter.filter(comic => comic.status === statusFilter);
         }
-        
+
         switch (sortOrder) {
             case 'newest':
                 comicsToFilter.sort((a, b) => b.id - a.id);
@@ -852,12 +1159,12 @@ const AdminPage: React.FC = () => {
 
 
     const renderContent = () => {
-        if (isLoading) return <p>Đang tải dữ liệu quản trị...</p>;
+        if (isLoading && activeView !== 'users') return <p>Đang tải dữ liệu quản trị...</p>;
         if (error) return <p style={{ color: 'var(--clr-error-text)' }}>{error}</p>;
 
         const digitalComics = filteredComics.filter(c => c.isDigital);
         const physicalComics = filteredComics.filter(c => !c.isDigital);
-        
+
         const filterBar = (
             <AdminFilterBar
                 searchTerm={searchTerm}
@@ -889,7 +1196,7 @@ const AdminPage: React.FC = () => {
                 if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
                 return <ManageChapters comic={selectedComic} onCancel={handleFormCancel} />;
             case 'users':
-                return <UserManagementPlaceholder />;
+                return <UserManagement />;
             case 'physical':
                 return (
                     <>

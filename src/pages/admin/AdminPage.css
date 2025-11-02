@@ -490,7 +490,211 @@
     border: none;
     padding-left: 0.5rem;
 }
+
 .filter-group.search-bar input[type="text"]:focus {
     outline: none;
     box-shadow: none;
+}
+
+/* === STYLE QUẢN LÝ NGƯỜI DÙNG (MỚI) === */
+
+.user-management-container h2 {
+    border: none;
+    padding-bottom: 0;
+}
+
+.user-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: var(--clr-text-secondary);
+    text-transform: uppercase;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--clr-text);
+}
+
+.stat-card.banned p {
+    color: var(--clr-error-text);
+}
+
+.admin-filter-bar .export-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+}
+
+.admin-table-container {
+    width: 100%;
+    overflow-x: auto;
+    background-color: var(--clr-card-bg);
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+}
+
+.admin-user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-user-table th,
+.admin-user-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--clr-border-light);
+    vertical-align: middle;
+}
+
+.admin-user-table th {
+    background-color: var(--clr-footer-bg);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.admin-user-table td {
+    font-size: 0.95rem;
+}
+
+.admin-user-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-user-table tr:hover {
+    background-color: var(--clr-footer-bg);
+}
+
+.admin-user-table .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-tag.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-tag.banned {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.admin-user-table .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-user-table .action-buttons .mgmt-btn {
+    padding: 0.5rem;
+}
+
+.mgmt-btn.ban-btn {
+    background-color: #ffc107;
+    color: #333;
+}
+.mgmt-btn.ban-btn:hover:not(:disabled) {
+    background-color: #e0a800;
+}
+
+.admin-user-table tr.banned-row td {
+    color: var(--clr-text-secondary);
+    text-decoration: line-through;
+}
+
+.admin-user-table tr.banned-row {
+    background-color: #fdf2f2;
+}
+[data-theme="dark"] .admin-user-table tr.banned-row {
+    background-color: #2a2121;
+}
+
+/* === MODAL SỬA NGƯỜI DÙNG === */
+.user-edit-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.user-edit-modal-content {
+    background-color: var(--clr-card-bg);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid var(--clr-border-light);
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.user-edit-modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.user-edit-modal-content .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.user-edit-modal-content .form-group label {
+    font-weight: 600;
+}
+.user-edit-modal-content .form-group input {
+     width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--clr-border-light);
+    border-radius: 5px;
+    background-color: var(--clr-background);
+    color: var(--clr-text);
+    font-size: 1rem;
+    box-sizing: border-box; 
+}
+.user-edit-modal-content .form-group input:disabled {
+    background-color: var(--clr-footer-bg);
+    opacity: 0.7;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--clr-text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+}
+.modal-close-btn:hover {
+    color: var(--clr-primary);
 }

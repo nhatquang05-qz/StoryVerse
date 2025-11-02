@@ -190,5 +190,107 @@ const toggleWishlist = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+    try {
+        const connection = getConnection();
+        const [rows] = await connection.execute(
+            'SELECT id, fullName, email, coinBalance, level, exp, isBanned  FROM users'
+        );
+        
+        const users = rows.map(user => ({
+            ...user,
+            id: String(user.id),
+            coinBalance: parseInt(user.coinBalance) || 0,
+            level: parseInt(user.level) || 1,
+            exp: parseFloat(user.exp) || 0,
+            isBanned: user.isBanned === 1,
+        }));
 
-module.exports = { getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist };
+        res.json(users);
+    } catch (error) {
+        console.error("Admin Get All Users error:", error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+};
+
+const updateUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { coinBalance, level, exp } = req.body;
+
+        if (coinBalance === undefined || level === undefined || exp === undefined) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp đủ thông tin coinBalance, level, và exp' });
+        }
+
+        const connection = getConnection();
+        await connection.execute(
+            'UPDATE users SET coinBalance = ?, level = ?, exp = ? WHERE id = ?',
+            [Number(coinBalance), Number(level), Number(exp), id]
+        );
+
+        res.json({ message: 'Cập nhật người dùng thành công' });
+    } catch (error) {
+        console.error("Admin Update User error:", error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
+};
+
+const toggleUserBan = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { isBanned } = req.body;
+
+        if (isBanned === undefined) {
+            return res.status(400).json({ error: 'Trạng thái isBanned là bắt buộc' });
+        }
+        
+        const connection = getConnection();
+        await connection.execute(
+            'UPDATE users SET isBanned = ? WHERE id = ?',
+            [isBanned ? 1 : 0, id]
+        );
+
+        const actionText = isBanned ? 'Cấm' : 'Bỏ cấm';
+        res.json({ message: `${actionText} người dùng thành công` });
+    } catch (error) {
+        console.error("Admin Toggle Ban error:", error);
+        res.status(500).json({ error: 'Failed to update user ban status' });
+    }
+};
+
+const deleteUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const connection = getConnection();
+        
+        await connection.execute('DELETE FROM user_wishlist WHERE userId = ?', [id]);
+        await connection.execute('DELETE FROM user_unlocked_chapters WHERE userId = ?', [id]);
+        await connection.execute('DELETE FROM user_addresses WHERE userId = ?', [id]);
+
+        const [result] = await connection.execute('DELETE FROM users WHERE id = ?', [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Người dùng không tồn tại' });
+        }
+
+        res.json({ message: 'Xóa vĩnh viễn người dùng thành công' });
+    } catch (error) {
+        console.error("Admin Delete User error:", error);
+        res.status(500).json({ error: 'Failed to delete user' });
+    }
+};
+
+module.exports = { 
+    getMe, 
+    updateProfile, 
+    updateAvatar, 
+    getTopUsers, 
+    getUnlockedChapters, 
+    getWishlist, 
+    toggleWishlist,
+    getAllUsers,
+    updateUserById,
+    toggleUserBan,
+    deleteUserById
+};
