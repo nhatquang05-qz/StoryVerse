@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { type ComicSummary, type ComicDetail, type ChapterSummary, type Genre } from '../../types/comicTypes';
-import { FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave } from 'react-icons/fi';
+import {
+    FiPlus, FiArrowLeft, FiEdit, FiTrash2, FiList, FiLoader, FiSave,
+    FiBookOpen, FiArchive, FiUsers
+} from 'react-icons/fi';
 import './AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+
+type AdminView = 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters';
 
 interface GenreSelectorProps {
     allGenres: Genre[];
@@ -64,7 +69,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
         formData.append('image', coverImageFile);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/upload`, { 
+            const response = await fetch(`${API_BASE_URL}/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -98,7 +103,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
         const token = localStorage.getItem('storyverse_token');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/comics`, { 
+            const response = await fetch(`${API_BASE_URL}/comics`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +135,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
                 <div className="form-group"><label>Tác giả:</label><input type="text" value={author} onChange={e => setAuthor(e.target.value)} /></div>
                 <div className="form-group"><label>Mô tả:</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
                 <div className="form-group"><label>Ảnh bìa:</label>
-                    <input type="file" accept="image/*" onChange={handleCoverImageChange} style={{ marginLeft: '5px' }}/>
+                    <input type="file" accept="image/*" onChange={handleCoverImageChange} style={{ marginLeft: '5px' }} />
                     <button type="button" onClick={handleUploadCover} disabled={!coverImageFile || isUploadingCover || !!coverImageUrl} className="mgmt-btn edit">
                         {isUploadingCover ? 'Đang tải...' : (coverImageUrl ? 'Đã tải lên ✓' : 'Upload ảnh bìa')}
                     </button>
@@ -150,11 +155,11 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
                     </select>
                 </div>
                 <div className="form-group"><label>Giá (VND cho Physical, Xu cho Digital Chapter):</label><input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} /></div>
-                
+
                 <div className="form-group"><label>Thể loại:</label>
                     <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
                 </div>
-                
+
                 <button type="submit" className="mgmt-btn add" disabled={isSubmitting || !coverImageUrl || isUploadingCover}>
                     {isSubmitting ? 'Đang thêm...' : 'Thêm Truyện'}
                 </button>
@@ -171,10 +176,10 @@ interface EditComicFormProps {
 }
 const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCancel, onSuccess }) => {
     const { showNotification } = useNotification();
-    
+
     const [formData, setFormData] = useState<ComicDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
@@ -201,7 +206,7 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        
+
         if (!formData) return;
 
         setFormData(prev => {
@@ -212,16 +217,16 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
             };
         });
     };
-    
+
     const handleIsDigitalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-         if (!formData) return;
-         setFormData(prev => {
+        if (!formData) return;
+        setFormData(prev => {
             if (!prev) return null;
             return {
                 ...prev,
                 isDigital: e.target.value === 'digital',
             };
-         });
+        });
     };
 
     const handleGenreChange = (genreId: number) => {
@@ -236,9 +241,9 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 
         setIsSubmitting(true);
         const token = localStorage.getItem('storyverse_token');
-        
+
         try {
-            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, { 
+            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -266,9 +271,9 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
         }
         setIsDeleting(true);
         const token = localStorage.getItem('storyverse_token');
-        
+
         try {
-            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, { 
+            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -290,7 +295,7 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
     if (!formData) {
         return <div className="admin-form-container"><p>Không thể tải chi tiết truyện.</p></div>;
     }
-    
+
     return (
         <div className="admin-form-container">
             <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại</button>
@@ -298,9 +303,9 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
                 <h2>Sửa Truyện: {comic.title}</h2>
                 <div className="form-group"><label>Tiêu đề:</label><input type="text" name="title" value={formData.title} onChange={handleChange} required /></div>
                 <div className="form-group"><label>Tác giả:</label><input type="text" name="author" value={formData.author || ''} onChange={handleChange} /></div>
-                
+
                 <div className="form-group"><label>Mô tả:</label><textarea name="description" value={formData.description || ''} onChange={handleChange} /></div>
-                
+
                 <div className="form-group"><label>Ảnh bìa (URL):</label>
                     <input type="text" name="coverImageUrl" value={formData.coverImageUrl} onChange={handleChange} required />
                     {formData.coverImageUrl && <img src={formData.coverImageUrl} alt="Preview" style={{ width: '50px', verticalAlign: 'middle', marginLeft: '10px' }} />}
@@ -320,17 +325,17 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
                     </select>
                 </div>
                 <div className="form-group"><label>Giá (VND cho Physical, Xu cho Digital Chapter):</label><input type="number" name="price" value={formData.price} onChange={handleChange} /></div>
-                
+
                 <div className="form-group"><label>Thể loại:</label>
                     <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
                 </div>
-                
+
                 <div className="form-actions">
                     <button type="submit" className="mgmt-btn edit" disabled={isSubmitting || isDeleting}>
                         {isSubmitting ? <FiLoader className="animate-spin" /> : <FiSave />}
                         Lưu Thay Đổi
                     </button>
-                     <button type="button" className="mgmt-btn delete" onClick={handleDeleteComic} disabled={isSubmitting || isDeleting}>
+                    <button type="button" className="mgmt-btn delete" onClick={handleDeleteComic} disabled={isSubmitting || isDeleting}>
                         {isDeleting ? <FiLoader className="animate-spin" /> : <FiTrash2 />}
                         Xóa Truyện Này
                     </button>
@@ -345,15 +350,15 @@ interface AddChapterFormProps {
     onSuccess: () => void;
 }
 const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, onSuccess }) => {
-     const { showNotification } = useNotification();
-     const [chapterNumber, setChapterNumber] = useState('');
-     const [chapterTitle, setChapterTitle] = useState('');
-     const [chapterImageFiles, setChapterImageFiles] = useState<FileList | null>(null);
-     const [chapterImageUrls, setChapterImageUrls] = useState<string[]>([]);
-     const [isUploadingChapters, setIsUploadingChapters] = useState(false);
-     const [uploadProgress, setUploadProgress] = useState(0);
-     const [isSubmitting, setIsSubmitting] = useState(false);
-     const [chapterPrice, setChapterPrice] = useState(0);
+    const { showNotification } = useNotification();
+    const [chapterNumber, setChapterNumber] = useState('');
+    const [chapterTitle, setChapterTitle] = useState('');
+    const [chapterImageFiles, setChapterImageFiles] = useState<FileList | null>(null);
+    const [chapterImageUrls, setChapterImageUrls] = useState<string[]>([]);
+    const [isUploadingChapters, setIsUploadingChapters] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [chapterPrice, setChapterPrice] = useState(0);
 
     const handleChapterImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setChapterImageFiles(e.target.files);
@@ -408,7 +413,7 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, onSuccess }) =
         const token = localStorage.getItem('storyverse_token');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/comics/${comicId}/chapters`, { 
+            const response = await fetch(`${API_BASE_URL}/comics/${comicId}/chapters`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -426,7 +431,7 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, onSuccess }) =
             showNotification(`Thêm chương ${chapterNumber} thành công!`, 'success');
             setChapterNumber(''); setChapterTitle('');
             setChapterImageFiles(null); setChapterImageUrls([]); setChapterPrice(0); setUploadProgress(0);
-            onSuccess(); 
+            onSuccess();
         } catch (error: any) {
             console.error("Submit chapter error:", error);
             showNotification(`Lỗi thêm chương: ${error.message}`, 'error');
@@ -436,20 +441,20 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, onSuccess }) =
     };
 
     return (
-         <form onSubmit={handleSubmitChapter} className="admin-form" style={{borderBottom: '2px solid var(--clr-primary)', paddingBottom: '2rem'}}>
+        <form onSubmit={handleSubmitChapter} className="admin-form" style={{ borderBottom: '2px solid var(--clr-primary)', paddingBottom: '2rem' }}>
             <h3>Thêm Chương Mới</h3>
             <div className="form-group"><label>Số Chương (vd: 1, 1.5):</label><input type="number" step="0.1" value={chapterNumber} onChange={e => setChapterNumber(e.target.value)} required /></div>
             <div className="form-group"><label>Tiêu đề chương (tùy chọn):</label><input type="text" value={chapterTitle} onChange={e => setChapterTitle(e.target.value)} /></div>
             <div className="form-group"><label>Giá Xu (0 = Miễn phí):</label><input type="number" value={chapterPrice} onChange={e => setChapterPrice(Number(e.target.value) || 0)} /></div>
-            
+
             <div className="form-group"><label>Ảnh nội dung ({chapterImageUrls.length} ảnh đã upload):</label>
-                <input type="file" accept="image/*" multiple onChange={handleChapterImagesChange} style={{ marginLeft: '5px' }}/>
+                <input type="file" accept="image/*" multiple onChange={handleChapterImagesChange} style={{ marginLeft: '5px' }} />
                 <button type="button" onClick={handleUploadChapterImages} disabled={!chapterImageFiles || chapterImageFiles.length === 0 || isUploadingChapters || chapterImageUrls.length > 0} className="mgmt-btn edit">
                     {isUploadingChapters ? `Đang tải (${uploadProgress.toFixed(0)}%)...` : (chapterImageUrls.length > 0 ? `Đã tải ${chapterImageUrls.length} ảnh ✓` : 'Upload ảnh chương')}
                 </button>
                 {isUploadingChapters && <progress value={uploadProgress} max="100" style={{ width: '100%' }} />}
             </div>
-           
+
             <button type="submit" className="mgmt-btn add" disabled={isSubmitting || chapterImageUrls.length === 0 || isUploadingChapters}>
                 {isSubmitting ? 'Đang thêm...' : 'Thêm Chương'}
             </button>
@@ -492,10 +497,10 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
         if (!window.confirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn "Chương ${chapter.chapterNumber}" không?`)) {
             return;
         }
-        
+
         const token = localStorage.getItem('storyverse_token');
         try {
-            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}/chapters/${chapter.id}`, { 
+            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}/chapters/${chapter.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -512,7 +517,7 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
         <div className="admin-form-container">
             <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại Danh Sách Truyện</button>
             <h2>Quản Lý Chương: {comic.title}</h2>
-            
+
             <AddChapterForm comicId={comic.id} onSuccess={fetchComicDetails} />
 
             <div className="chapter-management-list">
@@ -520,7 +525,7 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
                 {isLoadingDetails && <p>Đang tải danh sách chương...</p>}
                 {!isLoadingDetails && comicDetails?.chapters && (
                     <ul>
-                        {comicDetails.chapters.sort((a,b) => Number(a.chapterNumber) - Number(b.chapterNumber)).map(chap => (
+                        {comicDetails.chapters.sort((a, b) => Number(a.chapterNumber) - Number(b.chapterNumber)).map(chap => (
                             <li key={chap.id} className="chapter-manage-item">
                                 <div className="chapter-manage-info">
                                     <strong>Chương {chap.chapterNumber}</strong>
@@ -574,10 +579,77 @@ const ManagementProductCard: React.FC<ManagementProductCardProps> = ({ comic, on
     );
 };
 
+interface AdminSidebarProps {
+    activeView: AdminView;
+    onNavigate: (view: AdminView) => void;
+}
+
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) => {
+    return (
+        <nav className="admin-sidebar">
+            <h3>STORYVERSE</h3>
+            <h4>Bảng Điều Khiển</h4>
+            <button
+                className={`sidebar-btn ${activeView === 'digital' ? 'active' : ''}`}
+                onClick={() => onNavigate('digital')}
+            >
+                <FiBookOpen /> Quản lý Truyện Online
+            </button>
+            <button
+                className={`sidebar-btn ${activeView === 'physical' ? 'active' : ''}`}
+                onClick={() => onNavigate('physical')}
+            >
+                <FiArchive /> Quản lý Truyện In
+            </button>
+            <button
+                className={`sidebar-btn ${activeView === 'users' ? 'active' : ''}`}
+                onClick={() => onNavigate('users')}
+            >
+                <FiUsers /> Quản lý Người Dùng
+            </button>
+
+            <button className="sidebar-btn add-new" onClick={() => onNavigate('add')}>
+                <FiPlus /> Thêm Truyện Mới
+            </button>
+        </nav>
+    );
+};
+
+interface ComicManagementListProps {
+    comics: ComicSummary[];
+    onEdit: (comic: ComicSummary) => void;
+    onDelete: (comic: ComicSummary) => void;
+    onManageChapters: (comic: ComicSummary) => void;
+}
+
+const ComicManagementList: React.FC<ComicManagementListProps> = ({ comics, onEdit, onDelete, onManageChapters }) => {
+    return (
+        <div className="admin-comic-list">
+            {comics.map(comic => (
+                <ManagementProductCard
+                    key={comic.id}
+                    comic={comic}
+                    onEdit={() => onEdit(comic)}
+                    onDelete={() => onDelete(comic)}
+                    onManageChapters={() => onManageChapters(comic)}
+                />
+            ))}
+        </div>
+    );
+};
+
+const UserManagementPlaceholder = () => (
+    <div className="admin-form-container">
+        <h2>Quản Lý Người Dùng</h2>
+        <p>Chức năng này đang được phát triển và sẽ sớm ra mắt.</p>
+    </div>
+);
+
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
-    const [view, setView] = useState<'list' | 'add' | 'edit' | 'chapters'>('list');
+    
+    const [activeView, setActiveView] = useState<AdminView>('digital');
     const [comics, setComics] = useState<ComicSummary[]>([]);
     const [allGenres, setAllGenres] = useState<Genre[]>([]);
     const [selectedComic, setSelectedComic] = useState<ComicSummary | null>(null);
@@ -594,7 +666,7 @@ const AdminPage: React.FC = () => {
                 fetch(`${API_BASE_URL}/comics`),
                 fetch(`${API_BASE_URL}/comics/system/genres`)
             ]);
-            
+
             if (!comicsResponse.ok) throw new Error('Không thể tải danh sách truyện');
             const comicsData: ComicSummary[] = await comicsResponse.json();
             setComics(comicsData.sort((a, b) => b.id - a.id));
@@ -619,22 +691,22 @@ const AdminPage: React.FC = () => {
 
     const handleSelectEdit = (comic: ComicSummary) => {
         setSelectedComic(comic);
-        setView('edit');
+        setActiveView('edit');
     };
 
     const handleSelectChapters = (comic: ComicSummary) => {
         setSelectedComic(comic);
-        setView('chapters');
+        setActiveView('chapters');
     };
 
     const handleDeleteComic = async (comic: ComicSummary) => {
         if (!window.confirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn truyện "${comic.title}" không? Hành động này không thể hoàn tác.`)) {
             return;
         }
-        
+
         const token = localStorage.getItem('storyverse_token');
         try {
-            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, { 
+            const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -647,69 +719,85 @@ const AdminPage: React.FC = () => {
         }
     };
 
+    const handleFormSuccess = () => {
+        fetchComicsAndGenres();
+        const defaultView = (selectedComic && !selectedComic.isDigital) ? 'physical' : 'digital';
+        setActiveView(defaultView);
+        setSelectedComic(null);
+    };
+    
+    const handleFormCancel = () => {
+        const defaultView = (selectedComic && !selectedComic.isDigital) ? 'physical' : 'digital';
+        setActiveView(defaultView);
+        setSelectedComic(null);
+    };
+
+    const handleAddSuccess = () => {
+        fetchComicsAndGenres();
+        setActiveView('digital'); 
+        setSelectedComic(null);
+    };
+    
+    const handleAddCancel = () => {
+        setActiveView('digital');
+        setSelectedComic(null);
+    };
+
+
     const renderContent = () => {
-        switch (view) {
+        if (isLoading) return <p>Đang tải dữ liệu quản trị...</p>;
+        if (error) return <p style={{ color: 'var(--clr-error-text)' }}>{error}</p>;
+
+        const digitalComics = comics.filter(c => c.isDigital);
+        const physicalComics = comics.filter(c => !c.isDigital);
+
+        switch (activeView) {
             case 'add':
-                return <AddComicForm 
-                            allGenres={allGenres}
-                            onCancel={() => setView('list')} 
-                            onSuccess={() => { setView('list'); fetchComicsAndGenres(); }} 
-                        />;
+                return <AddComicForm allGenres={allGenres} onCancel={handleAddCancel} onSuccess={handleAddSuccess} />;
             case 'edit':
                 if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
-                return <EditComicForm 
-                            comic={selectedComic} 
-                            allGenres={allGenres}
-                            onCancel={() => setView('list')} 
-                            onSuccess={() => { setView('list'); fetchComicsAndGenres(); }} 
-                        />;
+                return <EditComicForm comic={selectedComic} allGenres={allGenres} onCancel={handleFormCancel} onSuccess={handleFormSuccess} />;
             case 'chapters':
-                 if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
-                return <ManageChapters 
-                            comic={selectedComic} 
-                            onCancel={() => setView('list')} 
-                        />;
-            case 'list':
+                if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
+                return <ManageChapters comic={selectedComic} onCancel={handleFormCancel} />;
+            case 'users':
+                return <UserManagementPlaceholder />;
+            case 'physical':
+                return (
+                    <>
+                        <div className="admin-header">
+                            <h2>Quản Lý Truyện In ({physicalComics.length})</h2>
+                        </div>
+                        <ComicManagementList comics={physicalComics} onEdit={handleSelectEdit} onDelete={handleDeleteComic} onManageChapters={handleSelectChapters} />
+                    </>
+                );
+            case 'digital':
             default:
                 return (
                     <>
                         <div className="admin-header">
-                            <h2>Danh Sách Truyện ({comics.length})</h2>
-                            <button className="mgmt-btn add" onClick={() => setView('add')}>
-                                <FiPlus /> Thêm Truyện Mới
-                            </button>
+                            <h2>Quản Lý Truyện Online ({digitalComics.length})</h2>
                         </div>
-                        {isLoading && <p>Đang tải danh sách truyện...</p>}
-                        {error && <p style={{color: 'var(--clr-error-text)'}}>{error}</p>}
-                        {!isLoading && !error && (
-                            <div className="admin-comic-list">
-                                {comics.map(comic => (
-                                    <ManagementProductCard
-                                        key={comic.id}
-                                        comic={comic}
-                                        onEdit={() => handleSelectEdit(comic)}
-                                        onDelete={() => handleDeleteComic(comic)}
-                                        onManageChapters={() => handleSelectChapters(comic)}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        <ComicManagementList comics={digitalComics} onEdit={handleSelectEdit} onDelete={handleDeleteComic} onManageChapters={handleSelectChapters} />
                     </>
                 );
         }
     };
 
     if (!currentUser) {
-         return <div style={{ padding: '2rem' }}>Vui lòng đăng nhập với tài khoản Admin.</div>;
+        return <div style={{ padding: '2rem' }}>Vui lòng đăng nhập với tài khoản Admin.</div>;
     }
     if (!isAdmin) {
         return <div style={{ padding: '2rem' }}>Bạn không có quyền truy cập trang này.</div>;
     }
 
     return (
-        <div className="admin-page">
-            <h1>Trang Quản Trị StoryVerse</h1>
-            {renderContent()}
+        <div className="admin-dashboard-layout">
+            <AdminSidebar activeView={activeView} onNavigate={setActiveView} />
+            <main className="admin-content">
+                <h1>Trang Quản Trị StoryVerse</h1>
+                {renderContent()}
+            </main>
         </div>
     );
 };
