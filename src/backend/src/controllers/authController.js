@@ -1,12 +1,12 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto'); // Thêm crypto để tạo mật khẩu ngẫu nhiên
-const { OAuth2Client } = require('google-auth-library'); // Thêm Google Auth Library
+const crypto = require('crypto'); 
+const { OAuth2Client } = require('google-auth-library'); 
 const { getConnection } = require('../db/connection');
-const { JWT_SECRET, GOOGLE_CLIENT_ID } = require('../config/appConfig'); // Thêm GOOGLE_CLIENT_ID
+const { JWT_SECRET, GOOGLE_CLIENT_ID } = require('../config/appConfig'); 
 const ensureUserDataTypes = require('../utils/ensureUserDataTypes');
 
-const client = new OAuth2Client(GOOGLE_CLIENT_ID); // Khởi tạo Google Client
+const client = new OAuth2Client(GOOGLE_CLIENT_ID); 
 
 const register = async (req, res) => {
   try {
@@ -57,7 +57,6 @@ const login = async (req, res) => {
   }
 };
 
-// --- BẮT ĐẦU CODE MỚI ---
 const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
@@ -81,20 +80,14 @@ const googleLogin = async (req, res) => {
     let statusCode = 200;
 
     if (rows.length > 0) {
-      // 1. Người dùng đã tồn tại -> Đăng nhập
       user = rows[0];
     } else {
-      // 2. Người dùng chưa tồn tại -> Đăng ký mới
-      // Tạo mật khẩu ngẫu nhiên an toàn (vì trường password có thể là NOT NULL)
+
       const generatedPassword = crypto.randomBytes(16).toString('hex');
-      const hashedPassword = await bcrypt.hash(generatedPassword, 10);
-      
+      const hashedPassword = await bcrypt.hash(generatedPassword, 10);      
       const defaultFullName = name || email.split('@')[0] || 'New User';
       const mockDefaultAddress = JSON.stringify([{ id: `default-${Date.now()}`, street: '123 Đường Mặc định', ward: 'Phường Mặc định', district: 'Quận Mặc định', city: 'TP Mặc định', isDefault: true }]);
-      const avatarUrl = picture || null; // Lấy avatar từ Google
-
-      // Giả sử bảng users có cột 'avatarUrl'. Nếu không, bạn cần bỏ 'avatarUrl' và '?' cuối cùng.
-      // Dựa trên AuthContext.tsx, có vẻ là có cột avatarUrl.
+      const avatarUrl = picture || null; 
       const [result] = await connection.execute(
         'INSERT INTO users (email, password, fullName, phone, coinBalance, lastDailyLogin, consecutiveLoginDays, level, exp, addresses, avatarUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [email, hashedPassword, defaultFullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', mockDefaultAddress, avatarUrl]
@@ -106,7 +99,6 @@ const googleLogin = async (req, res) => {
       statusCode = 201;
     }
 
-    // 3. Tạo JWT và trả về thông tin user (giống hệt hàm login)
     const { password: userPassword, ...userWithoutPassword } = user;
     const jwtToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
@@ -118,7 +110,5 @@ const googleLogin = async (req, res) => {
     res.status(500).json({ error: 'Failed to log in with Google' });
   }
 };
-// --- KẾT THÚC CODE MỚI ---
 
-
-module.exports = { register, login, googleLogin }; // Thêm googleLogin vào export
+module.exports = { register, login, googleLogin }; 

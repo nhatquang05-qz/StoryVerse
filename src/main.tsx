@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google'; // Thêm import
+import { GoogleOAuthProvider } from '@react-oauth/google'; 
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { WishlistProvider } from './contexts/WishListContext';
@@ -11,10 +11,6 @@ import './index.css';
 import App from './App.tsx';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-console.log('TẤT CẢ BIẾN MÔI TRƯỜNG:', import.meta.env);
-if (!googleClientId) {
-  console.error("Lỗi: VITE_GOOGLE_CLIENT_ID chưa được cấu hình trong file .env");
-}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

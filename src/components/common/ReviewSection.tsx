@@ -41,7 +41,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
     }, [comicId]);
 
 
-    // Tính điểm trung bình và làm tròn đến 1 chữ số thập phân
     const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
     const roundedRating = Math.round(averageRating * 10) / 10;
 
@@ -71,7 +70,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
         });
     }, []);
 
-    // Gradient cho nửa ngôi sao (dùng chung cho phần Summary)
     const halfStarGradient = (
         <svg width="0" height="0" style={{ position: 'absolute' }}>
             <linearGradient id="half-fill-summary" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -117,10 +115,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                 throw new Error(newReviewData.error || 'Không thể gửi đánh giá');
             }
             
-            // Thay thế hoặc thêm đánh giá của người dùng hiện tại
             setReviews(prevReviews => {
                 const otherReviews = prevReviews.filter(r => r.userId !== currentUser.id);
-                // Đánh giá mới hoặc cập nhật sẽ được thêm vào đầu danh sách
                 return [newReviewData, ...otherReviews];
             });
             
