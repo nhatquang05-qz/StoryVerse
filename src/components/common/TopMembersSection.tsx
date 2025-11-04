@@ -3,6 +3,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/TopMembersSection.css';
 import { Link } from 'react-router-dom';
 import { FiLoader } from 'react-icons/fi';
+import top1Image from '../../assets/images/top1.png'; 
+import top2Image from '../../assets/images/top2.png';
+import top3Image from '../../assets/images/top3.png'; 
+
 
 interface TopMember {
     id: string;
@@ -100,14 +104,44 @@ const TopMembersSection: React.FC = () => {
                         }
 
                         const rank = index + 1;
-                        const rankDisplay = <span className="rank-number">{String(rank).padStart(2, '0')}</span>;
-
                         const levelColor = getLevelColor(member.level);
                         const levelTitle = getEquivalentLevelTitle(member.level);
 
+                        let rankElement;
+                        if (rank === 1) {
+                            rankElement = (
+                                <img 
+                                    src={top1Image} 
+                                    alt="Top 1" 
+                                    className="rank-image rank-1-image"
+                                    style={{ width: '40px', height: '40px', objectFit: 'contain' }} 
+                                />
+                            );
+                        } else if (rank === 2) {
+                            rankElement = (
+                                <img 
+                                    src={top2Image} 
+                                    alt="Top 2" 
+                                    className="rank-image rank-2-image"
+                                    style={{ width: '35px', height: '35px', objectFit: 'contain' }}
+                                />
+                            );
+                        } else if (rank === 3) {
+                            rankElement = (
+                                <img 
+                                    src={top3Image} 
+                                    alt="Top 3" 
+                                    className="rank-image rank-3-image"
+                                    style={{ width: '30px', height: '30px', objectFit: 'contain' }}
+                                />
+                            );
+                        } else {
+                            rankElement = <span className="rank-number">{String(rank).padStart(2, '0')}</span>;
+                        }
+
                         return (
                             <li key={member.id || index} className={`top-member-item`}>
-                                <span className="member-rank">{rankDisplay}</span>
+                                <span className="member-rank">{rankElement}</span>
 
                                 <img src={member.avatarUrl} alt={member.fullName} className="member-avatar" />
 
