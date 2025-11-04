@@ -172,7 +172,7 @@ const HomePage: React.FC = () => {
                 <div className="chat-column">
                    <ChatLog />
                    <HomeSection
-                        title="Truyện Digital Đề Xuất"
+                        title="Truyện Đề Xuất"
                         comics={recommendedDigitalComics}
                         isLoading={false}
                         addSpacing={true}
@@ -185,7 +185,7 @@ const HomePage: React.FC = () => {
                 </aside>
             </div>
             <HomeSection
-                title="Truyện Bán Chạy (Truyện In)" 
+                title="Truyện Bán Chạy" 
                 comics={trendingComics}
                 isLoading={false}
                 showTabs={false} 
