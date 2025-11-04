@@ -149,14 +149,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
                 {reviews.map((review) => (
                     <div key={review.id} className="review-item">
                         <div className="review-header">
-                            {/* Bổ sung hiển thị avatar */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <img src={review.avatarUrl || 'https://via.placeholder.com/30'} alt="Avatar" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover' }} />
                                 <span className="review-author">{review.fullName}</span>
                             </div>
                             <span className="review-date">{new Date(review.createdAt).toLocaleDateString('vi-VN')}</span>
                         </div>
-                        {/* Hiển thị sao của từng đánh giá */}
                         <div className="star-rating" style={{ fontSize: '1rem' }}>
                             {renderStars(review.rating)}
                         </div>
