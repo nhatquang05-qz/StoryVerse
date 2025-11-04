@@ -79,6 +79,9 @@ const LoginPage: React.FC = () => {
               disabled={isLoginSuccessPopupOpen} 
             />
           </div>
+          <div className="auth-options">
+            <Link to="/forgot-password" className="forgot-password-link">Quên mật khẩu?</Link>
+          </div>
           <button type="submit" className="auth-button" disabled={isLoginSuccessPopupOpen}>Đăng Nhập</button>
         </form>
 

@@ -31,6 +31,8 @@ import ChatbotUI from './components/chatbot/ChatbotUI';
 import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
 import './styles/App.css';
+import ForgotPasswordPage from './pages/ForgotPasswordPage'; // Import mới
+import ResetPasswordPage from './pages/ResetPasswordPage'; // Import mới
 
 function App() {
   const { animationData, clearAnimation } = useCart();
@@ -80,6 +82,8 @@ function App() {
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Route mới */}
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> {/* Route mới */}
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/addresses" element={<AddressManagementPage />} />
           <Route path="/my-library" element={<MyLibraryPage />} />
