@@ -160,3 +160,21 @@ html[data-theme="night"] .user-name {
   display: block; 
   margin-bottom: 5px; 
 }
+@keyframes glowing-flame {
+  0% {
+    filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(255, 191, 0, 1));
+  }
+  100% {
+    filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+  }
+}
+
+.chat-rank-icon {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+  animation: glowing-flame 2s infinite ease-in-out;
+} 

@@ -8,10 +8,10 @@
 }
 
 .top-members-title {
-    font-size: 1.3rem; /* Hoặc 1.2rem tùy ý */
+    font-size: 1.3rem; 
     font-weight: 700;
     margin: 0 0 1.5rem 0;
-    color: var(--clr-primary); /* Màu xanh tím giống ảnh */
+    color: var(--clr-primary);
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--clr-border-light);
 }
@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
-    list-style: none; /* Đảm bảo không có dấu chấm */
+    list-style: none; 
     padding: 0;
     margin: 0;
 }
@@ -30,8 +30,7 @@
     align-items: center;
     gap: 1rem;
     padding-bottom: 1.2rem;
-    border-bottom: 1px solid var(--clr-border-light); /* Đường kẻ ngang mờ */
-    /* Xóa đường dashed nếu có */
+    border-bottom: 1px solid var(--clr-border-light);
 }
 
 .top-member-item:last-child {
@@ -40,91 +39,90 @@
 }
 
 .member-rank {
-    font-size: 1.1rem; /* Cỡ chữ số thứ tự */
+    font-size: 1.1rem;
     font-weight: bold;
-    color: var(--clr-text-secondary); /* Màu xám */
+    color: var(--clr-text-secondary); 
     width: 35px;
     text-align: center;
     flex-shrink: 0;
 }
 
-/* *** BỔ SUNG: Style cho avatar *** */
 .member-avatar {
-    width: 35px; /* Kích thước avatar nhỏ hơn */
+    width: 35px; 
     height: 35px;
     border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--clr-border-light);
     flex-shrink: 0;
 }
-/* *** KẾT THÚC BỔ SUNG *** */
 
-/* *** BỔ SUNG: Style cho info container *** */
 .member-info {
     display: flex;
-    flex-direction: column; /* Tên ở trên, Cấp và Điểm ở dưới */
+    flex-direction: column; 
     flex-grow: 1;
-    gap: 0.25rem; /* Khoảng cách giữa tên và dòng dưới */
-    overflow: hidden; /* Để xử lý text-overflow */
+    gap: 0.25rem; 
+    overflow: hidden; 
 }
-/* *** KẾT THÚC BỔ SUNG *** */
-
 
 .member-name {
     font-weight: 600;
-    font-size: 0.95rem; /* Cỡ chữ tên */
+    font-size: 0.95rem; 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--clr-text); /* Màu chữ tên */
-    margin-bottom: 0.1rem; /* Khoảng cách nhỏ dưới tên */
+    color: var(--clr-text);
+    margin-bottom: 0.1rem; 
 }
 
-/* *** BỔ SUNG: Style cho stats container (Cấp + Điểm) *** */
 .member-stats {
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* Khoảng cách giữa Cấp và Điểm */
+    gap: 0.5rem; 
 }
-/* *** KẾT THÚC BỔ SUNG *** */
 
 .member-level-badge {
     padding: 2px 8px;
     border-radius: 4px;
-    font-size: 0.7rem; /* Cỡ chữ trong huy hiệu */
+    font-size: 0.7rem; 
     font-weight: bold;
-    color: white; /* Chữ trắng mặc định */
+    color: white; 
     line-height: 1;
     white-space: nowrap;
-    /* Xóa margin-left nếu có */
     margin-left: 0;
 }
 
-/* Style này giữ nguyên để tự động đổi màu chữ */
 .member-level-badge[style*="background-color: rgb(255, 193, 7)"],
 .member-level-badge[style*="background-color: rgb(236, 220, 239)"]
 {
     color: #333;
 }
 
-/* *** BỔ SUNG: Style cho điểm số *** */
 .member-score {
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: bold;
-    color: var(--clr-text); /* Màu chữ của điểm */
-    border: 1px solid var(--clr-border-light); /* Viền xám */
-    background-color: var(--clr-card-bg); /* Nền trùng với card */
+    color: var(--clr-text);
+    border: 1px solid var(--clr-border-light); 
+    background-color: var(--clr-card-bg); 
     line-height: 1;
     white-space: nowrap;
 }
-/* *** KẾT THÚC BỔ SUNG *** */
+@keyframes glowing-flame {
+  0% {
+    filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(255, 191, 0, 1));
+  }
+  100% {
+    filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+  }
+}
 
-/* Xóa các style không cần thiết hoặc của giao diện cũ nếu còn */
-/* .rank-icon { ... } */
-/* .rank-icon.gold { ... } */
-/* .rank-icon.silver { ... } */
-/* .rank-icon.bronze { ... } */
-/* .top-member-item.rank-1 { ... } */
-/* ... */
+.rank-image {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+  animation: glowing-flame 2s infinite ease-in-out;
+} 

@@ -14,6 +14,11 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 const MAX_GLOBAL_MESSAGES = 30;
 
+interface TopMember {
+  id: string;
+  [key: string]: any; 
+}
+
 const ChatLog: React.FC = () => {
     const { currentUser, getEquivalentLevelTitle } = useAuth();
     const { showNotification } = useNotification();
@@ -33,9 +38,27 @@ const ChatLog: React.FC = () => {
 
     const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
     const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
+    const [topMembers, setTopMembers] = useState<TopMember[]>([]);
 
     const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
     const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default';
+
+    useEffect(() => {
+        const fetchTopMembers = async () => {
+            try {
+                const response = await fetch(`${API_URL}/users/top?limit=3`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch top members');
+                }
+                const data = await response.json();
+                setTopMembers(data);
+            } catch (error) {
+                console.error('Error fetching top members:', error);
+            }
+        };
+
+        fetchTopMembers();
+    }, []);
 
     const fetchMessages = useCallback(async () => {
         setIsLoading(true);
@@ -230,7 +253,7 @@ const ChatLog: React.FC = () => {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
                     body: formData
-                });
+                 });
                 const uploadData = await uploadRes.json();
                 if (!uploadRes.ok) throw new Error(uploadData.error || 'Image upload failed');
                 imageUrl = uploadData.imageUrl;
@@ -330,6 +353,11 @@ const ChatLog: React.FC = () => {
         }
     };
 
+    const getRank = (userId: string) => {
+        const index = topMembers.findIndex(member => member.id === userId);
+        return index !== -1 ? index + 1 : undefined;
+    };
+
     const isCurrentlyBanned = !!remainingBanTime;
 
     return (
@@ -341,7 +369,9 @@ const ChatLog: React.FC = () => {
             <div className="chat-messages-list" ref={chatMessagesListRef}>
                 {isLoading && <p style={{textAlign: 'center', color: 'var(--clr-text-secondary)'}}>Đang tải tin nhắn...</p>}
                 {!isLoading && messages.length === 0 && <p style={{textAlign: 'center', color: 'var(--clr-text-secondary)'}}>Chưa có tin nhắn nào.</p>}
-                {messages.map((msg: ChatMessageData) => (
+                {messages.map((msg: ChatMessageData) => {
+                    const rank = getRank(msg.userId);
+                    return (
                     <ChatMessage
                         key={msg.id}
                         msg={msg}
@@ -349,8 +379,9 @@ const ChatLog: React.FC = () => {
                         onLike={handleLikeMessage}
                         onReply={handleReplyMessage}
                         currentUserId={currentUser?.id || null}
+                            rank={rank}
                     />
-                ))}
+                )})}
             </div>
 
             {currentUser ? (
