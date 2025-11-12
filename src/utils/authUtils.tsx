@@ -25,8 +25,6 @@ export const LEVEL_COLORS: { [key: number]: string } = {
 };
 export const DEFAULT_LEVEL_COLOR = '#6c757d';
 
-// --- Utility Functions ---
-
 export const getLevelColor = (level: number): string => {
     const applicableLevels = Object.keys(LEVEL_COLORS).map(Number).filter(l => l <= level).sort((a, b) => b - a);
     const highestApplicableLevel = applicableLevels[0];
