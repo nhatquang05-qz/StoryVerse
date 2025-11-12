@@ -1,35 +1,42 @@
+/* src/styles/Footer.css */
 .footer {
-  background-color: var(--clr-footer-bg);
+  background: var(--clr-footer-bg);
   color: var(--clr-footer-text);
   padding-top: 4rem;
   border-top: 1px solid var(--clr-border-light);
+  position: relative;
+  overflow: hidden; 
 }
 
 .footer-container {
   max-width: 1536px;
   margin: 0 auto;
   padding: 0 1.5rem;
+  /* Quan trọng: Thêm align-items: start để căn đều các cột theo cạnh trên */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(4, 1fr); 
   gap: 2rem;
   padding-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+  align-items: start; /* Sửa đổi 1: Căn đều nội dung cột theo phía trên */
 }
 
 .footer-section {
-  min-width: 200px;
+  /* Tùy chọn: Đảm bảo section chiếm hết chiều cao có sẵn trong container */
+  height: 100%; 
 }
 
 .footer-logo {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: var(--clr-text);
-  margin: 0 0 1rem 0;
+  height: 200px; 
+  width: auto;  
+  margin: 0; 
+  transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
 }
 
-.footer-description {
-  line-height: 1.6;
-  max-width: 300px;
-  color: var(--clr-footer-text);
+.footer-logo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 8px var(--clr-primary-light, #ad7ffb));
 }
 
 .footer-title {
@@ -52,11 +59,30 @@
 .footer-links a {
   color: var(--clr-footer-text);
   text-decoration: none;
-  transition: color 0.3s ease;
+  position: relative;
+  padding-bottom: 5px;
+  transition: color 0.3s ease-in-out;
+}
+
+.footer-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--clr-footer-link-hover);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease-in-out;
 }
 
 .footer-links a:hover {
   color: var(--clr-footer-link-hover);
+}
+
+.footer-links a:hover::after {
+  transform: scaleX(1);
 }
 
 .social-icons {
@@ -67,43 +93,103 @@
 .social-icons a {
   color: var(--clr-footer-text);
   font-size: 1.5rem;
-  transition: color 0.3s ease, transform 0.3s ease;
+  transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .social-icons a:hover {
   color: var(--clr-footer-link-hover);
-  transform: translateY(-3px);
+  transform: scale(1.25) translateY(-3px);
 }
 
 .footer-bottom {
-  text-align: center;
-  padding: 1.5rem;
-  margin-top: 2rem;
   border-top: 1px solid var(--clr-border-light);
+  padding: 1.5rem 1.5rem;
+  text-align: center;
   font-size: 0.9rem;
-  color: var(--clr-text-secondary);
+  color: var(--clr-footer-text);
+  position: relative;
+  z-index: 1;
+  background-color: var(--clr-footer-bg);
 }
 
-@media (max-width: 600px) {
-  .footer-container {
-    grid-template-columns: 1fr;
-    padding: 0 1rem;
-  }
 
-  .footer-section {
-    text-align: center;
-  }
+/* --- CSS CHO CỘT ẢNH GIF MỚI --- */
 
-  .footer-description {
-    max-width: none;
-    margin: 0 auto 1rem auto;
-  }
+.footer-gif-section {
+    /* Đảm bảo nội dung căn sang phải trong cột cuối */
+    display: flex;
+    /* Quan trọng: căn chỉnh nội dung ảnh theo chiều dọc (để ảnh GIF nằm ở trên cùng) */
+    align-items: flex-start; 
+    justify-content: flex-end; 
+}
 
-  .footer-links {
-    text-align: center;
-  }
-  .social-icons {
-    justify-content: center;
-    margin-top: 1rem;
-  }
+.footer-ad-wrapper {
+    margin-top: 0; 
+    text-align: right; 
+}
+
+.footer-ad-gif {
+    max-width: 100%; 
+    height: auto;
+    width: 500px; 
+    display: block; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+}
+
+
+@media (max-width: 1200px) {
+    .footer-container {
+        grid-template-columns: repeat(3, 1fr); 
+    }
+    .footer-gif-section {
+        grid-column: 3 / 4; 
+        justify-content: flex-start; 
+        margin-top: 1.5rem;
+        text-align: left;
+        align-items: flex-start; 
+    }
+    .footer-ad-gif {
+        width: 150px;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr 1fr; 
+    }
+    .footer-section {
+        min-width: unset;
+        text-align: center;
+    }
+    .footer-section:nth-child(1), 
+    .footer-section:nth-child(2) { 
+        grid-column: span 2; 
+    }
+    .footer-section:nth-child(3), 
+    .footer-section:nth-child(4) { 
+        grid-column: span 1; 
+        margin-top: 0;
+        text-align: center;
+        justify-content: center;
+    }
+    .social-icons {
+        justify-content: center;
+    }
+    .footer-ad-gif {
+        width: 100px; 
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-container {
+        grid-template-columns: 1fr; 
+    }
+    .footer-section {
+        grid-column: span 1; 
+        margin-bottom: 2rem;
+    }
+    .footer-section:last-child {
+        margin-bottom: 0;
+    }
 }

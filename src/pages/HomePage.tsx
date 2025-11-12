@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import ProductList from '../components/common/ProductList';
 import Hero from '../components/common/Hero/Hero';
 import { type ComicSummary } from '../types/comicTypes';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import Pagination from '../components/common/Pagination';
 import FeaturedTagsSection from '../components/common/FeaturedTagsSection/FeaturedTagsSection';
 import TopComicsSection from '../components/common/TopComicSection';
 import TopMembersSection from '../components/common/TopMembersSection';
@@ -22,7 +22,7 @@ interface HomeSectionProps {
 }
 
 const HomeSection: React.FC<HomeSectionProps> = ({ title, comics, isLoading, addSpacing = false, showTabs = false }) => {
-    const [pageIndex, setPageIndex] = useState(0);
+    const [pageIndex, setPageIndex] = useState(0); 
     const [activeTab, setActiveTab] = useState<'physical' | 'digital'>('digital');
 
     const filteredComics = useMemo(() => {
@@ -48,12 +48,13 @@ const HomeSection: React.FC<HomeSectionProps> = ({ title, comics, isLoading, add
     const endIndex = startIndex + ITEMS_PER_SECTION_PAGE;
     const currentComics = filteredComics.slice(startIndex, endIndex);
 
-    const handlePrev = () => setPageIndex(prev => Math.max(0, prev - 1));
-    const handleNext = () => setPageIndex(prev => Math.min(totalPages - 1, prev + 1));
-
     const handleTabClick = (tab: 'physical' | 'digital') => {
         setActiveTab(tab);
         setPageIndex(0); 
+    };
+
+    const handlePageChange = (page: number) => {
+        setPageIndex(page - 1); 
     };
 
     const sectionStyle: React.CSSProperties = addSpacing ? { marginTop: '2rem' } : { marginBottom: '4rem' };
@@ -83,17 +84,11 @@ const HomeSection: React.FC<HomeSectionProps> = ({ title, comics, isLoading, add
                 
                 {totalPages > 1 && (
                     <div className="home-section-pagination">
-                        <span style={{ fontSize: '0.9rem', color: 'var(--clr-text-secondary)', marginRight: '1rem' }}>
-                            Trang {pageIndex + 1}/{totalPages}
-                        </span>
-                        <div>
-                            <button onClick={handlePrev} disabled={pageIndex === 0} className="detail-order-btn" style={{ padding: '0.5rem', marginRight: '0.5rem', width: '40px' }}>
-                                <FiChevronLeft style={{ verticalAlign: 'middle' }} />
-                            </button>
-                            <button onClick={handleNext} disabled={pageIndex >= totalPages - 1} className="detail-order-btn" style={{ padding: '0.5rem', width: '40px' }}>
-                                <FiChevronRight style={{ verticalAlign: 'middle' }} />
-                            </button>
-                        </div>
+                        <Pagination
+                            currentPage={pageIndex + 1} 
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
                     </div>
                 )}
             </div>
@@ -180,16 +175,16 @@ const HomePage: React.FC = () => {
                 </div>
 
                  <aside className="top-comics-column">
-                     <TopComicsSection />
-                     <TopMembersSection />
-                </aside>
+                       <TopComicsSection />
+                       <TopMembersSection />
+                 </aside>
             </div>
             <HomeSection
                 title="Truyện Bán Chạy" 
                 comics={trendingComics}
                 isLoading={false}
                 showTabs={false} 
-            />        
+            /> 
         </React.Fragment>
     );
 };

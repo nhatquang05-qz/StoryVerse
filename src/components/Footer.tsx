@@ -1,7 +1,10 @@
+// src/components/Footer.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa';
 import '../styles/Footer.css';
+import logoImage from '../assets/images/logo.png';
+import footerAdGif from '../assets/images/cute.gif'; 
 
 const Footer: React.FC = () => {
   return (
@@ -9,10 +12,9 @@ const Footer: React.FC = () => {
       <div className="footer-container">
         
         <div className="footer-section">
-          <h3 className="footer-logo">StoryVerse</h3>
-          <p className="footer-description">
-            Khám phá thế giới truyện tranh vô tận, từ những tác phẩm kinh điển đến những bộ truyện mới nhất.
-          </p>
+          <Link to="/" aria-label="Trang chủ StoryVerse">
+            <img src={logoImage} alt="StoryVerse Logo" className="footer-logo" />
+          </Link>                
         </div>
 
         <div className="footer-section">
@@ -25,19 +27,26 @@ const Footer: React.FC = () => {
           </ul>
         </div>
 
-        <div className="footer-section">
+        <div className="footer-section"> 
           <h4 className="footer-title">Theo Dõi Chúng Tôi</h4>
           <div className="social-icons">
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><FaFacebook /></a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><FaTwitter /></a>
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><FaInstagram /></a>
             <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><FaYoutube /></a>
           </div>
         </div>
         
+        <div className="footer-section footer-gif-section">
+            <div className="footer-ad-wrapper">
+                <a>
+                    <img src={footerAdGif} alt="Promotion GIF" className="footer-ad-gif" />
+                </a>
+            </div>
+        </div>
+        
       </div>
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} StoryVerse. All Rights Reserved.</p>
+        <p>&copy; {new Date().getFullYear()} StoryVerse. Đã đăng ký Bản quyền.</p>
       </div>
     </footer>
   );

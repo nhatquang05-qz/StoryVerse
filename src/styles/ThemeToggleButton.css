@@ -24,6 +24,7 @@
   font-size: 1em; 
   border: none;
   overflow: hidden;
+  outline: none;
   box-shadow:
     var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
     var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
@@ -159,4 +160,10 @@
 
 body {
   transition: none; 
+}
+.theme-toggle-button-wrapper:focus,
+.theme-toggle-button-wrapper:focus-visible,
+.theme-toggle-button-wrapper:active {
+  outline: none;
+  box-shadow: none; 
 }
