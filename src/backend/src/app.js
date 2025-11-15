@@ -4,8 +4,9 @@ const apiRoutes = require('./routes');
 
 const app = express();
 
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 app.use(cors({
-  origin: 'http://localhost:5173', 
+  origin: corsOrigin, 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
