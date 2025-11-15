@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, type FormEvent } from 'react';
-import { FiX, FiUser, FiLoader } from 'react-icons/fi';
+import { FiX, FiLoader } from 'react-icons/fi';
 import { getBotResponse, type ChatHistory } from './ChatbotLogic';
 import chatbotIcon from '../../assets/images/chatbot-icon.png';
 import '../../styles/Chatbot.css';

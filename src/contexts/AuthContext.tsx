@@ -199,7 +199,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ email, password: pass }),
             });
-            const data = await response.json();
             if (!response.ok) throw new Error('Đăng ký thất bại');
             
             setIsRegisterSuccessPopupOpen(true);
@@ -236,7 +235,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
 
             if (!response.ok) {
-                 const errorData = await response.json();
                  throw new Error('Cập nhật hồ sơ thất bại');
             }
 
@@ -272,7 +270,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
 
              if (!response.ok) {
-                 const errorData = await response.json();
                  throw new Error('Cập nhật ảnh đại diện thất bại');
              }
 
@@ -519,6 +516,3 @@ export const useAuth = () => {
 
 export { dailyRewardsData } from '../utils/authUtils'; 
 
-function setIsSaving(arg0: boolean) {
-    throw new Error('Function not implemented.');
-}

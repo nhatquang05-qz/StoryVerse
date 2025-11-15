@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 

@@ -150,9 +150,6 @@ const ComicDetailPage: React.FC = () => {
   
   const chapters = useMemo(() => comic?.chapters || [], [comic]);
   
-  const isFullUnlocked = comic && ((comic.isDigital as any) === 1) 
-    ? isDigitalComicPurchased(comic.id, currentUser?.id) 
-    : false;
 
   const highestUnlockedChapterNumber = useMemo(() => {
         if (!comic) return 0;

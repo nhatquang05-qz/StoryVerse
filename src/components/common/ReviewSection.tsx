@@ -47,7 +47,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
     const renderStars = useCallback((rating: number) => {
         const fullStars = Math.floor(rating);
         const hasHalfStar = rating - fullStars >= 0.5;
-        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
         return Array.from({ length: 5 }, (_, index) => {
             const starValue = index + 1;

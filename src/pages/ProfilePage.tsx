@@ -1,20 +1,12 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
 import { useNotification } from '../contexts/NotificationContext';
-import { FiChevronDown, FiUpload, FiLoader } from 'react-icons/fi';
+import { FiUpload, FiLoader } from 'react-icons/fi';
 import '../styles/ProfilePage.css';
 import { Link } from 'react-router-dom';
-import { getLevelColor, getEquivalentLevelTitle as getEquivalentLevelTitleUtil, LEVEL_SYSTEMS } from '../utils/authUtils'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 
-interface LevelSystem {
-    key: string;
-    name: string;
-    description: string;
-    levels: string[];
-    minLevels: number[];
-}
 
 interface LevelSelectorProps {
     currentUserLevel: number;
@@ -164,7 +156,6 @@ const ProfilePage: React.FC = () => {
 
   const isProfileChanged = formData.fullName !== (currentUser.fullName || '') || formData.phone !== (currentUser.phone || '');
   const hasAvatarChanged = avatarFile !== null;
-  const hasChanges = isProfileChanged || hasAvatarChanged;
 
   const equivalentLevelTextOnBadge = getEquivalentLevelTitle(currentUser.level);
 

@@ -41,8 +41,8 @@ const DigitalComicsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   
-  const [uniqueAuthors, setUniqueAuthors] = useState<string[]>([]);
-  const [uniqueGenres, setUniqueGenres] = useState<string[]>([]);
+  const [, setUniqueAuthors] = useState<string[]>([]);
+  const [, setUniqueGenres] = useState<string[]>([]);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
 

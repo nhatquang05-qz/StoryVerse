@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'; 
 import { useAuth } from '../contexts/AuthContext'; 
 import '../styles/AuthPage.css'; 
@@ -7,7 +7,6 @@ import '../styles/AuthPage.css';
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
   const { login, isLoginSuccessPopupOpen, loginWithGoogle, showLoginError } = useAuth(); 
 
   const handleSubmit = async (e: React.FormEvent) => {

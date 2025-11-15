@@ -1,6 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FiChevronDown, FiHelpCircle, FiSave, FiX } from 'react-icons/fi';
-import { useAuth } from '../../contexts/AuthContext';
 import { LEVEL_SYSTEMS, getEquivalentLevelTitle as getEquivalentLevelTitleUtil } from '../../utils/authUtils'; 
 import '../../styles/LevelSystemSelector.css';
 

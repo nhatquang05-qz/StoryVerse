@@ -1,6 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiX, FiFilter, FiSave } from 'react-icons/fi';
-import { LEVEL_SYSTEMS, type LevelSystem } from '../../utils/authUtils'; 
 import { getUniqueAuthors, getUniqueGenres } from '../../data/mockData';
 import '../../styles/CategoryPage.css';
 

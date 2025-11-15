@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { FiGift, FiX, FiCheckCircle, FiTag } from 'react-icons/fi';
 import { useAuth} from '../../contexts/AuthContext';
 import { dailyRewardsData } from '../../utils/authUtils';
@@ -72,8 +72,6 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
     const currentStreak = consecutiveLoginDays; 
     
     const todayRewardIndex = isTodayClaimed ? (currentStreak - 1) % dailyRewardsData.length : currentStreak % dailyRewardsData.length;
-    const nextClaimDayDisplay = currentStreak + 1; 
-
 
     const displayedRewards = useMemo(() => {
         return Array(7).fill(0).map((_, index) => {
