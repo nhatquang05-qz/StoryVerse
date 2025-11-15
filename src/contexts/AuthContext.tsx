@@ -10,9 +10,7 @@ import type { User, Address } from '../types/userTypes';
 import {
     getLevelColor,
     getEquivalentLevelTitle as getEquivalentLevelTitleUtil, 
-    ensureUserDataTypes,
-    LEVEL_SYSTEMS
-} from '../utils/authUtils'; 
+    ensureUserDataTypes} from '../utils/authUtils'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
