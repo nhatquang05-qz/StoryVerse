@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiUser, FiBook, FiList, FiMapPin } from 'react-icons/fi';
-import '../../styles/ProfileSidebar.css';
+import '../../styles/ProfileSideBar.css';
 
 interface ProfileSidebarProps {
     activeLink: string;
