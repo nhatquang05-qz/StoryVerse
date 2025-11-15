@@ -34,7 +34,8 @@ const TopMembersSection: React.FC = () => {
             setApiLoading(true);
             setError(null);
             try {
-                const response = await fetch('http://localhost:3000/api/users/top?limit=7');
+                const apiUrl = import.meta.env.VITE_API_BASE_URL;
+                const response = await fetch(`${apiUrl}/users/top?limit=7`);
                 if (!response.ok) {
                     let errorMsg = 'Không thể tải danh sách thành viên';
                     try {
