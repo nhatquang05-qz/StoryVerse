@@ -8,6 +8,13 @@
     padding: 1.5rem;
 }
 
+.rank-comic-image {
+    width: 40px; 
+    height: 40px;
+    margin-right: 10px; 
+    animation: glowing-flame 2s infinite ease-in-out;
+}
+
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -83,9 +90,7 @@
     font-size: 1rem;
     color: white;
 }
-.rank-1 { background-color: #f7b731; }
-.rank-2 { background-color: #a9a9a9; }
-.rank-3 { background-color: #cd7f32; }
+
 .rank-badge:not(.rank-1):not(.rank-2):not(.rank-3) {
     background-color: var(--clr-text-secondary);
 }
@@ -171,4 +176,15 @@
     text-align: left;
     position: relative;
     top: -0.5rem;
+}
+@keyframes glowing-flame {
+  0% {
+    filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgba(255, 191, 0, 1));
+  }
+  100% {
+    filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+  }
 }

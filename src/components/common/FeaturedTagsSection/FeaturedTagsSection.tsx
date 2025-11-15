@@ -46,7 +46,6 @@ const FeaturedTagsSection: React.FC = () => {
                                 </div>
                             </div>
                             <img src={tag.imageUrl} alt={tag.name} className="tag-bg-image" />
-                             <div className="tag-shape-extension"></div>
                         </div>
                     </Link>
                 ))}

@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
 import '../../styles/TopComicSection.css';
 import { FiLoader } from 'react-icons/fi';
+import top1Image from '../../assets/images/top1comic.png'; 
+import top2Image from '../../assets/images/top2comic.png';
+import top3Image from '../../assets/images/top3comic.png';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -100,15 +103,28 @@ const TopComicsSection: React.FC = () => {
             <div className="top-comics-list">
                 {topComics.map((comic, index) => {
                     const displayRating = Number(comic.averageRating) || 0;
+                    
+                    let rankDisplay;
+                    if (index === 0) {
+                        rankDisplay = <img src={top1Image} alt="Top 1" className="rank-comic-image rank-1" />;
+                    } else if (index === 1) {
+                        rankDisplay = <img src={top2Image} alt="Top 2" className="rank-comic-image rank-2" />;
+                    } else if (index === 2) {
+                        rankDisplay = <img src={top3Image} alt="Top 3" className="rank-comic-image rank-3" />;
+                    } else {
+                        rankDisplay = <span className={`rank-badge rank-${index + 1}`}>{String(index + 1).padStart(2, '0')}</span>;
+                    }
+
                     return (
                         <Link to={`/comic/${comic.id}`} key={comic.id} className="top-comic-item">
-                            <span className={`rank-badge rank-${index + 1}`}>{String(index + 1).padStart(2, '0')}</span>
+                            {rankDisplay}
                             <img src={comic.coverImageUrl} alt={comic.title} className="comic-thumbnail" />
                             <div className="comic-info">
                                 <h3 className="comic-title">{comic.title}</h3>
                                 <div className="comic-meta">
                                     <StarRating rating={displayRating} />
                                     <span className="view-count">{formatViewCountSimple(comic.viewCount)} lượt xem</span>
+                                
                                 </div>
                             </div>
                         </Link>
