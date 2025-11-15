@@ -1,4 +1,4 @@
-import type { User, Address } from '../types/userTypes';
+import type { User} from '../types/userTypes';
 
 export interface LevelSystem {
     key: string;

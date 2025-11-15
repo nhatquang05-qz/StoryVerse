@@ -8,6 +8,7 @@ interface WishlistContextType {
   isWishlisted: (comicId: number) => boolean;
   toggleWishlist: (comic: ComicSummary) => void;
   wishlistCount: number;
+  
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
@@ -19,7 +20,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
   const { currentUser } = useAuth();
   const { showNotification } = useNotification();
   const [wishlistItems, setWishlistItems] = useState<ComicSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setIsLoading] = useState(true);
   
   const fetchWishlist = useCallback(async () => {
     const token = localStorage.getItem(TOKEN_STORAGE_KEY);
