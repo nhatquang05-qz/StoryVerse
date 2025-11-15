@@ -30,14 +30,14 @@ const askChatbotService = async (userId, message, history) => {
         try {
             const topViewedRows = await comicModel.getTopViewedComicsRaw();
             const topRatedRows = await comicModel.getTopRatedComicsRaw();
-            const topUserRows = await userModel.getTopUsersRaw();
+            const topUserRows = await userModel.getTopUsersRaw(5);
             const genreRows = await comicModel.getAllGenresRaw();
             
             const comicMap = new Map();
             [...topViewedRows, ...topRatedRows].forEach(c => comicMap.set(c.id, c));
             allComicsForContext = Array.from(comicMap.values());
             
-            if (genreRows.length > 0) {
+            if (genreRows.length > 0) { 
                 comicContext += "== CÁC THỂ LOẠI TRUYỆN HIỆN CÓ ==\n";
                 comicContext += genreRows.map(g => g.name).join(', ') + "\n\n";
             }
