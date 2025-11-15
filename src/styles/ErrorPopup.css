@@ -1,0 +1,117 @@
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.popup-overlay:has(.popup-content) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-content {
+  background-color: var(--clr-card-bg);
+  color: var(--clr-text);
+  padding: 2rem 2.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.popup-overlay:has(.popup-content) .popup-content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.popup-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  padding: 0.3rem;
+  line-height: 1;
+}
+
+.popup-close-btn:hover {
+  color: var(--clr-error-text);
+}
+
+.popup-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.success-icon {
+  color: var(--clr-success-text);
+}
+
+.popup-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  color: var(--clr-text);
+}
+
+.popup-message {
+  font-size: 1rem;
+  color: var(--clr-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.popup-action-btn {
+  display: inline-block;
+  background-color: var(--clr-primary);
+  color: var(--clr-button-text);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
+}
+
+.popup-action-btn:hover {
+  background-color: var(--clr-primary-dark);
+}
+
+@media (max-width: 480px) {
+  .popup-content {
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+  .popup-title {
+    font-size: 1.3rem;
+  }
+  .popup-message {
+    font-size: 0.9rem;
+  }
+  .popup-action-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}

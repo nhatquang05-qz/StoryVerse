@@ -2,51 +2,39 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'; 
 import { useAuth } from '../contexts/AuthContext'; 
-import { useNotification } from '../contexts/NotificationContext'; 
 import '../styles/AuthPage.css'; 
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { login, isLoginSuccessPopupOpen, loginWithGoogle } = useAuth(); 
-  const { showNotification } = useNotification();
-  const [error, setError] = useState('');
+  const { login, isLoginSuccessPopupOpen, loginWithGoogle, showLoginError } = useAuth(); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     
     if (isLoginSuccessPopupOpen) return;
 
     try {
       await login(email, password); 
- 
     } catch (err) {
-      const errorMessage = (err instanceof Error) ? err.message : 'Email hoặc mật khẩu không đúng.';
-      setError(errorMessage);
       console.error('Lỗi đăng nhập:', err);
     }
   };
 
   const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
-    setError('');
     if (isLoginSuccessPopupOpen) return;
 
     try {
       await loginWithGoogle(credentialResponse);
     } catch (err) {
-      const errorMessage = (err instanceof Error) ? err.message : 'Đăng nhập Google thất bại.';
-      setError(errorMessage);
-      showNotification(errorMessage, 'error');
       console.error('Lỗi đăng nhập Google:', err);
     }
   };
 
   const handleGoogleLoginError = () => {
     const errorMessage = 'Đăng nhập Google thất bại. Vui lòng thử lại.';
-    setError(errorMessage);
-    showNotification(errorMessage, 'error');
+    showLoginError('Lỗi đăng nhập Google', errorMessage);
   };
 
   return (
@@ -54,7 +42,6 @@ const LoginPage: React.FC = () => {
       <div className="auth-container">
         <h2>Đăng Nhập</h2>
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && <p className="auth-error">{error}</p>}
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -106,6 +93,7 @@ const LoginPage: React.FC = () => {
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </p>
       </div>
+
     </div>
   );
 };

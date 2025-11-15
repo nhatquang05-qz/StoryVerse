@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { FiCheckCircle, FiX } from 'react-icons/fi';
-import '../../styles/SuccessPopup.css';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'; 
+import '../../styles/SuccessPopup.css'; 
 
 interface LoginSuccessPopupProps {
   isOpen: boolean;
@@ -9,27 +10,25 @@ interface LoginSuccessPopupProps {
 }
 
 const LoginSuccessPopup: React.FC<LoginSuccessPopupProps> = ({ isOpen, onClose, username }) => {
-  
-  const timerRef = useRef<number | null>(null);
-  
+  const navigate = useNavigate();
+  const timerRef = useRef<number | null>(null); 
+
   useEffect(() => {
     if (isOpen) {
-      timerRef.current = window.setTimeout(() => {
-        onClose(); 
-      }, 2000); 
+      timerRef.current = window.setTimeout(() => { 
+        onClose();
+        navigate('/', { replace: true });
+      }, 3000); 
     }
-    
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, navigate]);
 
-  if (!isOpen) {
-    return null;
-  }
-  
+  if (!isOpen) return null;
+
   const handleImmediateClose = (e: React.MouseEvent) => {
       e.stopPropagation();
       if (timerRef.current) {
@@ -39,22 +38,24 @@ const LoginSuccessPopup: React.FC<LoginSuccessPopupProps> = ({ isOpen, onClose, 
   };
 
   return (
-    <div className="popup-overlay" onClick={handleImmediateClose}>
-      <div className="popup-content success-popup" onClick={(e) => e.stopPropagation()}>
+    <div className={`popup-overlay ${isOpen ? 'show' : ''}`} onClick={handleImmediateClose}>
+      <div className="popup-content login-success-popup" onClick={(e) => e.stopPropagation()}> 
         <button className="popup-close-btn" onClick={handleImmediateClose}>
-          <FiX />
+          <XCircleFill /> 
         </button>
-        <FiCheckCircle className="popup-icon success-icon" />
-        <h2 className="popup-title">Đăng Nhập Thành Công!</h2>
-        <p className="popup-message">Chào mừng trở lại, **{username}**!</p>
+        
+        <div className="popup-icon success-icon">
+          <CheckCircleFill /> 
+        </div>
+
+        <h3 className="popup-title">Đăng Nhập Thành Công!</h3>
         <p className="popup-message">
-            Bạn sẽ được chuyển hướng sau giây lát...
+          Chào mừng trở lại, <strong>{username}</strong>!
+          <br />
+          Bạn sẽ được chuyển hướng sau giây lát...
         </p>
-        <button 
-            className="popup-action-btn" 
-            onClick={handleImmediateClose} 
-            style={{ marginTop: '0.5rem' }}
-        >
+        
+        <button className="popup-action-btn primary-btn" onClick={handleImmediateClose}>
           Tiếp tục
         </button>
       </div>

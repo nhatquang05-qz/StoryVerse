@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import type { CredentialResponse } from '@react-oauth/google'; 
 import LevelUpPopup from '../components/popups/LevelUpPopup';
 import LoginSuccessPopup from '../components/popups/LoginSuccessPopup';
+import ErrorPopup from '../components/popups/ErrorPopup'; 
+import RegisterSuccessPopup from '../components/popups/RegisterSuccessPopup'; 
 import type { User, Address } from '../types/userTypes';
 import {
     getLevelColor,
@@ -49,6 +51,9 @@ interface AuthContextType {
   closeLevelUpPopup: () => void;
   isLoginSuccessPopupOpen: boolean;
   closeLoginSuccessPopup: () => void;
+  showLoginError: (title: string, message: string) => void;
+  isRegisterSuccessPopupOpen: boolean; 
+  closeRegisterSuccessPopup: () => void; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +75,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     const [isLoginSuccessPopupOpen, setIsLoginSuccessPopupOpen] = useState(false);
     const [usernameToDisplay, setUsernameToDisplay] = useState('');
+
+    const [isLoginErrorPopupOpen, setIsLoginErrorPopupOpen] = useState(false);
+    const [loginErrorTitle, setLoginErrorTitle] = useState('');
+    const [loginErrorMessage, setLoginErrorMessage] = useState('');
+
+    const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -111,6 +122,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return getEquivalentLevelTitleUtil(userLevel, selectedSystemKey);
     }, [selectedSystemKey]);
 
+    const showLoginError = useCallback((title: string, message: string) => {
+        setLoginErrorTitle(title);
+        setLoginErrorMessage(message);
+        setIsLoginErrorPopupOpen(true);
+    }, []);
+
+    const closeLoginErrorPopup = useCallback(() => {
+        setIsLoginErrorPopupOpen(false);
+        setLoginErrorTitle('');
+        setLoginErrorMessage('');
+    }, []);
+
+    const closeRegisterSuccessPopup = useCallback(() => {
+        setIsRegisterSuccessPopupOpen(false);
+    }, []);
+
     const login = async (email: string, pass: string) => {
         setLoading(true); 
         try {
@@ -120,7 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 body: JSON.stringify({ email, password: pass }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Đăng nhập thất bại');
+            if (!response.ok) throw new Error(data.error || 'Email hoặc mật khẩu không đúng.');
 
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
             const userData = ensureUserDataTypes(data.user); 
@@ -130,8 +157,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setIsLoginSuccessPopupOpen(true);
             
         } catch (error: any) {
-             showNotification(error.message || 'Đã xảy ra lỗi khi đăng nhập.', 'error');
-             throw error;
+             showLoginError('Đăng nhập không thành công','Tài khoản hoặc mật khẩu không đúng. Vui lòng thử lại.');
+             throw error; 
         } finally {
             setLoading(false); 
         }
@@ -150,7 +177,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 body: JSON.stringify({ token: credentialResponse.credential }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Đăng nhập Google thất bại');
+            if (!response.ok) throw new Error('Đăng nhập Google thất bại');
 
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
             const userData = ensureUserDataTypes(data.user);
@@ -159,8 +186,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setIsLoginSuccessPopupOpen(true);
 
         } catch (error: any) {
-            showNotification(error.message || 'Đã xảy ra lỗi khi đăng nhập Google.', 'error');
-            throw error;
+            showLoginError('Lỗi đăng nhập Google', 'Đăng nhập Google thất bại.');
+            throw error; 
         } finally {
             setLoading(false);
         }
@@ -175,10 +202,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 body: JSON.stringify({ email, password: pass }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Đăng ký thất bại');
-            showNotification('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
+            if (!response.ok) throw new Error('Đăng ký thất bại');
+            
+            setIsRegisterSuccessPopupOpen(true);
+
          } catch (error: any) {
-              showNotification(error.message || 'Đã xảy ra lỗi khi đăng ký.', 'error');
+              showLoginError('Đăng ký thất bại',  'Tài khoản đã tồn tại.');
               throw error;
          } finally {
              setLoading(false);
@@ -210,7 +239,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
             if (!response.ok) {
                  const errorData = await response.json();
-                 throw new Error(errorData.error || 'Cập nhật hồ sơ thất bại');
+                 throw new Error('Cập nhật hồ sơ thất bại');
             }
 
             const rawUpdatedUser = await response.json();
@@ -221,7 +250,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return updatedUser;
 
         } catch (error: any) {
-            showNotification(error.message || 'Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
+            showNotification('Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
             return null; 
         } finally {
         }
@@ -246,7 +275,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
              if (!response.ok) {
                  const errorData = await response.json();
-                 throw new Error(errorData.error || 'Cập nhật ảnh đại diện thất bại');
+                 throw new Error('Cập nhật ảnh đại diện thất bại');
              }
 
             const data = await response.json(); 
@@ -256,7 +285,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return updatedUser;
 
         } catch (error: any) {
-            showNotification(error.message || 'Đã xảy ra lỗi khi cập nhật ảnh đại diện.', 'error');
+            showNotification('Đã xảy ra lỗi khi cập nhật ảnh đại diện.', 'error');
             return null;
         } finally {
         }
@@ -284,7 +313,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             showNotification('Cập nhật địa chỉ thành công!', 'success');
 
         } catch (error: any) { 
-            showNotification(error.message || 'Lỗi cập nhật địa chỉ.', 'error');
+            showNotification('Lỗi cập nhật địa chỉ.', 'error');
         }
     };
 
@@ -298,7 +327,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Nhận thưởng thất bại');
+            if (!response.ok) throw new Error('Nhận thưởng thất bại');
 
             setCurrentUser(prevUser => prevUser ? {
                 ...prevUser,
@@ -314,7 +343,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
         } catch (error: any) { 
-            showNotification(error.message || 'Lỗi khi nhận thưởng.', 'error');
+            showNotification('Lỗi khi nhận thưởng.', 'error');
         }
     };
 
@@ -337,7 +366,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Lỗi khi cộng EXP');
+            if (!response.ok) throw new Error('Lỗi khi cộng EXP');
 
             setCurrentUser(prevUser => prevUser ? {
                 ...prevUser,
@@ -355,7 +384,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return data; 
 
         } catch (error: any) { 
-            showNotification(error.message || 'Đã xảy ra lỗi khi cập nhật EXP/Xu.', 'error');
+            showNotification('Đã xảy ra lỗi khi cập nhật EXP/Xu.', 'error');
             return null; 
         }
 
@@ -381,7 +410,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Lỗi khi mở khóa chương');
+            if (!response.ok) throw new Error('Lỗi khi mở khóa chương');
 
             setCurrentUser(prevUser => prevUser ? {
                 ...prevUser,
@@ -399,7 +428,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return data; 
 
         } catch (error: any) { 
-            showNotification(error.message || 'Đã xảy ra lỗi khi mở khóa chương.', 'error');
+            showNotification('Đã xảy ra lỗi khi mở khóa chương.', 'error');
             throw error;
         }
     }, [currentUser, getEquivalentLevelTitle, showNotification]);
@@ -440,7 +469,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             levelUpInfo,
             closeLevelUpPopup,
             isLoginSuccessPopupOpen,
-            closeLoginSuccessPopup
+            closeLoginSuccessPopup,
+            showLoginError,
+            isRegisterSuccessPopupOpen,
+            closeRegisterSuccessPopup 
         };
 
     return (
@@ -459,6 +491,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     isOpen={isLoginSuccessPopupOpen} 
                     onClose={closeLoginSuccessPopup}
                     username={usernameToDisplay}
+                />
+            )}
+            {isLoginErrorPopupOpen && (
+                <ErrorPopup
+                    isOpen={isLoginErrorPopupOpen}
+                    onClose={closeLoginErrorPopup}
+                    title={loginErrorTitle}
+                    message={loginErrorMessage}
+                />
+            )}
+            {isRegisterSuccessPopupOpen && (
+                <RegisterSuccessPopup
+                    isOpen={isRegisterSuccessPopupOpen}
+                    onClose={closeRegisterSuccessPopup}
                 />
             )}
         </AuthContext.Provider>
