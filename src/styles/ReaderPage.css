@@ -120,15 +120,27 @@ html[data-theme="dark"] .chapter-select-dropdown option:disabled {
 
 .reader-content {
     flex-grow: 1; 
-    overflow-y: auto; 
+    overflow-y: visible; 
     text-align: center;
+    position: relative; 
+    z-index: 0; 
+    overflow-x: auto; 
+    scrollbar-width: none; 
+    -ms-overflow-style: none;  
 }
+
+.reader-content::-webkit-scrollbar {
+    display: none; 
+}
+
 
 .chapter-images-container {
     width: 100%;
     max-width: 800px; 
     margin: 0 auto;
-    background-color: #FFF; 
+    /* background-color: #FFF;  <--- DÒNG NÀY BỊ XOÁ ĐI */
+    transition: transform 0.2s ease-in-out;
+    transform-origin: center top;
 }
 
 .chapter-image {
@@ -136,6 +148,7 @@ html[data-theme="dark"] .chapter-select-dropdown option:disabled {
     height: auto;
     display: block; 
     margin: 0 auto; 
+    background-color: #FFF; /* <--- CHUYỂN NỀN TRẮNG VÀO ĐÂY */
 }
 
 .chapter-locked-overlay {
@@ -265,5 +278,50 @@ html[data-theme="dark"] .chapter-select-dropdown option:disabled {
     .reader-footer-bar .unlock-next-btn {
         font-size: 0.75rem;
         padding: 0.5rem 0.6rem;
+    }
+}
+
+.zoom-controls {
+  position: fixed;
+  bottom: 80px; 
+  left: 20px;
+  z-index: 1001; 
+  display: flex;
+  flex-direction: column; 
+  gap: 10px; 
+}
+
+.zoom-btn {
+  background-color: #fff;
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border-light);
+  border-radius: 50%; 
+  width: 45px; 
+  height: 45px; 
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease;
+}
+
+.zoom-btn:hover {
+  border-color: var(--clr-primary);
+}
+
+.zoom-btn img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .zoom-controls {
+        bottom: 70px;
+        left: 10px;
+    }
+    .zoom-btn {
+        width: 40px;
+        height: 40px;
     }
 }

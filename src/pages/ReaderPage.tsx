@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { type ComicDetail, type ChapterSummary, type ChapterContent } from '../types/comicTypes';
-import { FiChevronLeft, FiChevronRight, FiChevronDown, FiHome, FiLock } from 'react-icons/fi';
+import { 
+    FiChevronLeft, 
+    FiChevronRight, 
+    FiChevronDown, 
+    FiHome, 
+    FiLock
+} from 'react-icons/fi';
 import ChapterChat from '../components/common/Chat/ChapterChat';
 import '../styles/ReaderPage.css';
+import minusImage from '../assets/images/minus.png'; 
+import plusImage from '../assets/images/plus.png';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
@@ -22,6 +30,34 @@ const ReaderPage: React.FC = () => {
     const [chapterImages, setChapterImages] = useState<string[]>([]);
     const [unlockedChapters, setUnlockedChapters] = useState<Set<number>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
+
+    const [scale, setScale] = useState(1);
+    const MIN_SCALE = 1; 
+    const SCALE_STEP = 0.1;
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const zoomIn = () => {
+        if (!containerRef.current) return;
+        
+        const baseWidth = containerRef.current.scrollWidth;
+        const screenWidth = document.documentElement.clientWidth;
+        
+        if (baseWidth === 0) return;
+
+        const maxScale = screenWidth / baseWidth;
+        
+        setScale((prevScale) => {
+            const nextScale = prevScale + SCALE_STEP;
+            if (nextScale > maxScale) {
+                return maxScale;
+            }
+            return nextScale;
+        });
+    };
+
+    const zoomOut = () => {
+        setScale((prevScale) => Math.max(prevScale - SCALE_STEP, MIN_SCALE));
+    };
     
     useEffect(() => {
         if (!comicId) {
@@ -270,7 +306,11 @@ const ReaderPage: React.FC = () => {
 
             <div className="reader-content">
                 {isUnlocked ? (
-                    <div className="chapter-images-container">
+                    <div 
+                        className="chapter-images-container"
+                        style={{ transform: `scale(${scale})` }}
+                        ref={containerRef}
+                    >
                         {isLoading ? <p style={{color: 'white', padding: '2rem'}}>Đang tải ảnh...</p> : 
                             chapterImages.map((src, index) => (
                                 <img 
@@ -329,6 +369,15 @@ const ReaderPage: React.FC = () => {
                         Mở khóa Chương {nextChapter.chapterNumber} ({nextChapter.price} Xu)
                     </button>
                 )}
+            </div>
+
+            <div className="zoom-controls">
+                <button onClick={zoomIn} className="zoom-btn" title="Phóng to">
+                    <img src={plusImage} alt="Phóng to" />
+                </button>
+                <button onClick={zoomOut} className="zoom-btn" title="Thu nhỏ">
+                    <img src={minusImage} alt="Thu nhỏ" />
+                </button>
             </div>
 
             {isUnlocked && (
