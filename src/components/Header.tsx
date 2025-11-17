@@ -183,7 +183,7 @@ const Header: React.FC = () => {
             </div>
           </div>
           
-          <Link to="/new-releases">Mới Phát Hành</Link>
+          <Link to="/about-us">Giới thiệu</Link>
         </nav>
 
         <div className="header-actions">
@@ -350,7 +350,7 @@ const Header: React.FC = () => {
 
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
-          <Link to="/new-releases" onClick={toggleMenu}>Mới Phát Hành</Link>
+          <Link to="/about-us" onClick={toggleMenu}>Giới thiệu</Link>
           
           <div className="nav-mobile-separator"></div>
            <h4 className="nav-mobile-genres-title">Thể Loại</h4>

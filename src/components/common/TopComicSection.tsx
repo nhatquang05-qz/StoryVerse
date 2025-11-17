@@ -40,22 +40,14 @@ const TopComicsSection: React.FC = () => {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await fetch(`${API_URL}/comics/top`); 
+                const response = await fetch(`${API_URL}/comics/top?period=${activeTab}`); 
                 if (!response.ok) {
                     throw new Error('Không thể tải top truyện');
                 }
-                const data: TopComic[] = await response.json();
-                
+                const data: TopComic[] = await response.json();                
                 const digitalComics = data.filter(comic => (comic.isDigital as any) === 1);
-             
+               
                 digitalComics.sort((a, b) => {
-                    const ratingA = Number(a.averageRating) || 0;
-                    const ratingB = Number(b.averageRating) || 0;
-
-                    if (ratingA !== ratingB) {
-                        return ratingB - ratingA; 
-                    }
-
                     const viewA = Number(a.viewCount) || 0;
                     const viewB = Number(b.viewCount) || 0;
                     
@@ -74,7 +66,7 @@ const TopComicsSection: React.FC = () => {
         };
 
         fetchTopComics();
-    }, []); 
+    }, [activeTab]); 
 
     const currentDate = useMemo(() => {
         const today = new Date();
@@ -96,7 +88,7 @@ const TopComicsSection: React.FC = () => {
         }
 
         if (topComics.length === 0) {
-            return <p style={{ textAlign: 'center' }}>Chưa có dữ liệu xếp hạng.</p>;
+            return <p style={{ textAlign: 'center' }}>Chưa có dữ liệu xếp hạng cho mục này.</p>;
         }
 
         return (

@@ -198,7 +198,6 @@ const getChapterContentService = async (comicId, chapterId, userId) => {
 
         if (isPurchased) {
             await comicModel.incrementChapterViewCount(comicId, chapterId); 
-            
             chapter.contentUrls = chapter.contentUrls || [];
 
             return chapter;
@@ -265,7 +264,7 @@ const unlockChapterService = async (userId, chapterId) => {
 
         const newCoinBalance = coinBalance - chapterPrice;
         
-        // EXP CALCULATION LOGIC (Business Logic)
+        // EXP CALCULATION LOGIC 
         let currentLevel = level;
         let currentExp = exp;
         let coinsToProcess = chapterPrice; 
@@ -314,15 +313,35 @@ const unlockChapterService = async (userId, chapterId) => {
 };
 
 // --- SEARCH/STATS ---
-
-const getTopComicsService = async () => {
+const getTopComicsService = async (period) => {
     try {
-        const rows = await comicModel.getTopComicsRaw();
-        // Data Formatting Logic
+        let startDate = null;
+        let endDate = null;
+        const now = new Date();
+
+        if (period === 'day') {
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+            endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 1);
+
+        } else if (period === 'week') {
+            const firstDayOfWeek = now.getDate() - now.getDay();
+            startDate = new Date(now.getFullYear(), now.getMonth(), firstDayOfWeek, 0, 0, 0, 0);
+            endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 7);
+
+        } else if (period === 'month') {
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+        }
+
+        const rows = await comicModel.getTopComicsRaw(startDate, endDate);
+        
         const comicsWithRating = rows.map(comic => ({
             ...comic,
             averageRating: parseFloat(comic.averageRating) || 0,
             totalReviews: parseInt(comic.totalReviews) || 0
+
         }));
         return comicsWithRating;
     } catch (error) {

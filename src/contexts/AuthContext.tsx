@@ -146,6 +146,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Email hoặc mật khẩu không đúng.');
+            if (data.user && data.user.isBanned === 1) {
+                showLoginError('Đăng nhập không thành công', 'Tài khoản đã bị cấm!');
+                return; 
+            }
 
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
             const userData = ensureUserDataTypes(data.user); 
@@ -177,6 +181,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const data = await response.json();
             if (!response.ok) throw new Error('Đăng nhập Google thất bại');
 
+            if (data.user && data.user.isBanned === 1) {
+                showLoginError('Đăng nhập không thành công', 'Tài khoản đã bị cấm!');
+                return; 
+            }
+
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
             const userData = ensureUserDataTypes(data.user);
             setCurrentUser(userData);
@@ -204,8 +213,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setIsRegisterSuccessPopupOpen(true);
 
          } catch (error: any) {
-              showLoginError('Đăng ký thất bại',  'Tài khoản đã tồn tại.');
-              throw error;
+             showLoginError('Đăng ký thất bại',  'Tài khoản đã tồn tại.');
+             throw error;
          } finally {
              setLoading(false);
          }
@@ -514,5 +523,4 @@ export const useAuth = () => {
     return context;
 };
 
-export { dailyRewardsData } from '../utils/authUtils'; 
-
+export { dailyRewardsData } from '../utils/authUtils';

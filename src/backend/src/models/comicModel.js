@@ -27,6 +27,11 @@ const updateComicRaw = async (id, title, author, description, coverImageUrl, sta
 
 const deleteComicRaw = async (id) => {
     const connection = getConnection();
+    
+    // Xóa khỏi bảng stats
+    await connection.execute('DELETE FROM daily_comic_stats WHERE comic_id = ?', [id]);
+    
+    // (Code cũ)
     await connection.execute('DELETE FROM reviews WHERE comicId = ?', [id]);
     await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
     await connection.execute('DELETE FROM chapters WHERE comicId = ?', [id]);
@@ -65,7 +70,7 @@ const getComicListRaw = async () => {
             ) AS genres,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
-        FROM comics c`
+         FROM comics c`
     );
     return rows;
 };
@@ -84,8 +89,8 @@ const getComicDetailRaw = async (id) => {
             ) AS genres,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
-        FROM comics c 
-        WHERE c.id = ?`,
+         FROM comics c 
+         WHERE c.id = ?`,
         [id]
     );
     return rows.length > 0 ? rows[0] : null;
@@ -101,8 +106,18 @@ const getComicChaptersRaw = async (comicId) => {
 };
 
 const incrementComicViewCount = async (id) => {
-    const connection = getConnection();
-    await connection.execute('UPDATE comics SET viewCount = viewCount + 1 WHERE id = ?', [id]);
+    const connection = getConnection();   
+    await connection.execute('UPDATE comics SET viewCount = viewCount + 1 WHERE id = ?', [id]);    
+    try {
+        await connection.execute(
+            `INSERT INTO daily_comic_stats (comic_id, view_date, daily_view_count) 
+             VALUES (?, CURDATE(), 1)
+             ON DUPLICATE KEY UPDATE daily_view_count = daily_view_count + 1`,
+            [id]
+        );
+    } catch (logError) {
+        console.error('Failed to log daily comic view:', logError.message);
+    }
 };
 
 const getTopViewedComicsRaw = async () => {
@@ -192,6 +207,16 @@ const incrementChapterViewCount = async (comicId, chapterId) => {
     const connection = getConnection();
     await connection.execute('UPDATE chapters SET viewCount = viewCount + 1 WHERE id = ?', [chapterId]);
     await connection.execute('UPDATE comics SET viewCount = (SELECT SUM(viewCount) FROM chapters WHERE comicId = ?) WHERE id = ?', [comicId, comicId]);
+    try {
+        await connection.execute(
+            `INSERT INTO daily_comic_stats (comic_id, view_date, daily_view_count) 
+             VALUES (?, CURDATE(), 1)
+             ON DUPLICATE KEY UPDATE daily_view_count = daily_view_count + 1`,
+            [comicId] 
+        );
+    } catch (logError) {
+        console.error('Failed to log daily chapter view:', logError.message);
+    }
 };
 
 const findChapterForUnlock = async (chapterId) => {
@@ -206,8 +231,31 @@ const insertUnlockedChapter = async (userId, chapterId) => {
 };
 
 // --- STATS/SEARCH OPERATIONS ---
-const getTopComicsRaw = async () => {
+
+const getTopComicsRaw = async (startDate, endDate) => {
     const connection = getConnection();
+    
+    if (startDate && endDate) {
+        const [rows] = await connection.execute(
+            `SELECT 
+                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author,
+                c.viewCount, -- Lấy TỔNG VIEW (để hiển thị)
+                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews,
+                SUM(s.daily_view_count) AS periodViewCount -- Chỉ dùng để SẮP XẾP
+            FROM daily_comic_stats s
+            JOIN comics c ON s.comic_id = c.id
+            WHERE 
+                s.view_date >= ? AND s.view_date < ?
+            GROUP BY c.id -- Group by ID của truyện
+            ORDER BY periodViewCount DESC -- Sắp xếp theo view của Ngày/Tuần/Tháng
+            LIMIT 10`,
+            [startDate, endDate]
+        );
+
+        return rows;
+    }
+
     const [rows] = await connection.execute(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,

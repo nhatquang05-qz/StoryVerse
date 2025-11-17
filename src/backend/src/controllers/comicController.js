@@ -135,7 +135,8 @@ const unlockChapter = async (req, res) => {
 
 const getTopComics = async (req, res) => {
     try {
-        const comics = await comicService.getTopComicsService();
+        const { period } = req.query;
+        const comics = await comicService.getTopComicsService(period);
         res.json(comics);
     } catch (error) {
         const status = error.status || 500;
