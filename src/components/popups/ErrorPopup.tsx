@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiX, FiAlertTriangle } from 'react-icons/fi';
-import '../../styles/ErrorPopup.css'; 
+import '../../assets/styles/ErrorPopup.css'; 
 
 interface ErrorPopupProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { stickerPacks, type Sticker } from '../../../utils/stickerUtils';
-import '../../../styles/StickerPicker.css';
+import '../../../assets/styles/StickerPicker.css';
 
 interface StickerPickerProps {
   onStickerSelect: (sticker: Sticker) => void;

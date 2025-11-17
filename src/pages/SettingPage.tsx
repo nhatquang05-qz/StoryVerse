@@ -3,11 +3,11 @@ import { FiArrowLeft, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 import { useFont } from '../contexts/FontContext';
-import '../styles/SettingPage.css';
-import mikaelaPreview from '../cursors/Mikaela_Hykuya.png';
-import krulTepesPreview from '../cursors/Krul_Tepes.png';
-import enePreview from '../cursors/Ene.png';
-import YuichiroPreview from '../cursors/Yuichiro.png';
+import '../assets/styles/SettingPage.css';
+import mikaelaPreview from '../assets/cursors/Mikaela_Hykuya.png';
+import krulTepesPreview from '../assets/cursors/Krul_Tepes.png';
+import enePreview from '../assets/cursors/Ene.png';
+import YuichiroPreview from '../assets/cursors/Yuichiro.png';
 
 const CURSOR_STORAGE_KEY = 'storyverse_custom_cursor_pack';
 
@@ -26,10 +26,10 @@ const CURSOR_FILE_NAMES: { [key: string]: string } = {
 };
 
 const CURSOR_PACKS: CursorPack[] = [
-    { id: 'Mikaela', name: 'Mikaela Hyakuya', basePath: '../../src/cursors/Mikaela_Hykuya_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: mikaelaPreview, },
-    { id: 'KrulTepes', name: 'Krul Tepes', basePath: '../../src/cursors/Krul_Tepes_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: krulTepesPreview, },
-    { id: 'Ene', name: 'Ene', basePath: '../../src/cursors/Ene_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: enePreview, },
-    { id: 'YuichiroHyakuya', name: 'Yuichiro Hyakuya', basePath: '../../src/cursors/Yuichiro_Hyakuya_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: YuichiroPreview, },
+    { id: 'Mikaela', name: 'Mikaela Hyakuya', basePath: '../../src/assets/cursors/Mikaela_Hykuya_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: mikaelaPreview, },
+    { id: 'KrulTepes', name: 'Krul Tepes', basePath: '../../src/assets/cursors/Krul_Tepes_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: krulTepesPreview, },
+    { id: 'Ene', name: 'Ene', basePath: '../../src/assets/cursors/Ene_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: enePreview, },
+    { id: 'YuichiroHyakuya', name: 'Yuichiro Hyakuya', basePath: '../../src/assets/cursors/Yuichiro_Hyakuya_Cursor', defaultFile: CURSOR_FILE_NAMES['default'], previewImage: YuichiroPreview, },
 ];
 
 const applyCursorStyles = (packId: string) => {

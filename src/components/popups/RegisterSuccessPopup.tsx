@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiCheckCircle, FiX } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import '../../styles/SuccessPopup.css';
+import '../../assets/styles/SuccessPopup.css';
 
 interface RegisterSuccessPopupProps {
   isOpen: boolean;

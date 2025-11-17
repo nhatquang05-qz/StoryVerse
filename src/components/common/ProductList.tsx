@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { type ComicSummary } from '../../types/comicTypes'; 
 import ProductCard from '../../components/common/ProductCards';
-import '../../styles/ProductList.css';
+import '../../assets/styles/ProductList.css';
 
 interface ProductListProps {
   comics: ComicSummary[]; 

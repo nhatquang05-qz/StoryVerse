@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { FiGift, FiX, FiCheckCircle, FiTag } from 'react-icons/fi';
 import { useAuth} from '../../contexts/AuthContext';
 import { dailyRewardsData } from '../../utils/authUtils';
-import '../../styles/DailyRewardModal.css';
+import '../../assets/styles/DailyRewardModal.css';
 
 interface DailyRewardModalProps {
     isOpen: boolean;

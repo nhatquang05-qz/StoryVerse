@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
 import { useNotification } from '../contexts/NotificationContext';
 import { FiUpload, FiLoader } from 'react-icons/fi';
-import '../styles/ProfilePage.css';
+import '../assets/styles/ProfilePage.css';
 import { Link } from 'react-router-dom';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 

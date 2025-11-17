@@ -8,7 +8,7 @@ import { useWishlist } from '../contexts/WishListContext';
 import ReviewSection from '../components/common/ReviewSection';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
-import '../styles/ComicDetailPage.css';
+import '../assets/styles/ComicDetailPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';

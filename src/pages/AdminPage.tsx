@@ -13,16 +13,11 @@ import ManageChapters from '../components/admin/ManageChapters';
 import ComicManagementList from '../components/admin/ComicManagementList';
 import AdminFilterBar, { type SortOrder } from '../components/admin/AdminFilterBar';
 
-import '../styles/AdminPage.css';
+import '../assets/styles/AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-// Export type này để AdminSidebar có thể import
 export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters';
-
-// ========================================================================
-// === COMPONENT ADMINPAGE CHÍNH ===
-// ========================================================================
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -40,11 +35,10 @@ const AdminPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
 
-    const isAdmin = currentUser?.email === 'admin@123'; // Sửa logic này nếu cần
+    const isAdmin = currentUser?.email === 'admin@123';
 
     const fetchComicsAndGenres = async () => {
-        // Chỉ fetch khi không ở trang dashboard (để tối ưu)
-        if(activeView === 'dashboard') {
+         if(activeView === 'dashboard') {
              setIsLoading(false);
              return;
         }
@@ -75,14 +69,13 @@ const AdminPage: React.FC = () => {
 
     useEffect(() => {
         if (isAdmin) {
-            // Chỉ fetch comic/genre nếu chúng ta *không* ở trang dashboard
             if (activeView !== 'dashboard' && activeView !== 'users') {
                 fetchComicsAndGenres();
             } else {
-                setIsLoading(false); // Dashboard và UserManagement tự quản lý loading
+                setIsLoading(false); 
             }
         }
-    }, [isAdmin, activeView]); // Thêm activeView vào dependency
+    }, [isAdmin, activeView]); 
 
     const filteredComics = useMemo(() => {
         let comicsToFilter = [...comics];
@@ -140,7 +133,6 @@ const AdminPage: React.FC = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Xóa thất bại');
             showNotification('Xóa truyện thành công!', 'success');
-            // Refetch lại comics sau khi xóa
             setComics(prev => prev.filter(c => c.id !== comic.id));
         } catch (error: any) {
             showNotification(error.message, 'error');
@@ -151,7 +143,6 @@ const AdminPage: React.FC = () => {
         const defaultView = (selectedComic && !selectedComic.isDigital) ? 'physical' : 'digital';
         setSelectedComic(null);
         setActiveView(defaultView);
-        // Tải lại dữ liệu khi quay về
         if (defaultView === 'digital' || defaultView === 'physical') {
             fetchComicsAndGenres();
         }
@@ -171,7 +162,6 @@ const AdminPage: React.FC = () => {
     const handleAddSuccess = () => {
         setActiveView(addFormType);
         setSelectedComic(null);
-         // Tải lại dữ liệu khi quay về
         if (addFormType === 'digital' || addFormType === 'physical') {
             fetchComicsAndGenres();
         }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import '../../styles/ThemeToggleButton.css';
+import '../../assets/styles/ThemeToggleButton.css';
 
 interface Star {
   x: number;

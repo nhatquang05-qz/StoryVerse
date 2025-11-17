@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
-import '../../styles/TopComicSection.css';
+import '../../assets/styles/TopComicSection.css';
 import { FiLoader } from 'react-icons/fi';
 import top1Image from '../../assets/images/top1comic.png'; 
 import top2Image from '../../assets/images/top2comic.png';

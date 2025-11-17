@@ -7,7 +7,7 @@ import { type ComicSummary, type Genre } from '../types/comicTypes';
 import ThemeToggleButton from './common/ThemeToggleButton';
 import DailyRewardModal from './common/DailyRewardModal';
 import coinIcon from '../assets/images/coin.png';
-import '../styles/Header.css';
+import '../assets/styles/Header.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const MAX_SUGGESTIONS_TOTAL = 10; 

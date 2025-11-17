@@ -8,7 +8,7 @@ import TopComicsSection from '../components/common/TopComicSection';
 import TopMembersSection from '../components/common/TopMembersSection';
 import ChatLog from '../components/common/Chat/ChatLog';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
-import '../styles/HomePage.css';
+import '../assets/styles/HomePage.css';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';

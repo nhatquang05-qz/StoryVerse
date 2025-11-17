@@ -4,8 +4,8 @@ import { FiBook } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
 import { loadOrders, type OrderItem } from '../data/mockData';
-import '../styles/ProfilePage.css';
-import '../styles/MyLibraryPage.css';
+import '../assets/styles/ProfilePage.css';
+import '../assets/styles/MyLibraryPage.css';
 
 const MyLibraryPage: React.FC = () => {
   const { currentUser } = useAuth();

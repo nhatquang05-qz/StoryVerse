@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import '../../styles/TopMembersSection.css';
+import '../../assets/styles/TopMembersSection.css';
 import { FiLoader } from 'react-icons/fi';
 import top1Image from '../../assets/images/top1.png'; 
 import top2Image from '../../assets/images/top2.png';

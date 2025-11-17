@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiAlertTriangle, FiX } from 'react-icons/fi';
-import '../../styles/SuccessPopup.css'; 
+import '../../assets/styles/SuccessPopup.css'; 
 
 interface ProfanityWarningPopupProps {
   isOpen: boolean;

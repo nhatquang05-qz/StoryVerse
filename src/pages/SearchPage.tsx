@@ -4,7 +4,7 @@ import ProductList from '../components/common/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen'; 
 import AdvancedFilterModal from '../components/popups/AdvancedFilterModal';
-import '../styles/CategoryPage.css';
+import '../assets/styles/CategoryPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 

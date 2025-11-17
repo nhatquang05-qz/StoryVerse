@@ -4,7 +4,7 @@ import { FiPlus, FiMinus, FiTrash2, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import '../styles/CartPage.css';
+import '../assets/styles/CartPage.css';
 
 const CartPage: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');

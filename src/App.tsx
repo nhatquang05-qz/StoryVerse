@@ -30,7 +30,7 @@ import LevelUpPopup from './components/popups/LevelUpPopup';
 import ChatbotUI from './components/chatbot/ChatbotUI';
 import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
-import './styles/App.css';
+import './assets/styles/App.css';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage'; 
 

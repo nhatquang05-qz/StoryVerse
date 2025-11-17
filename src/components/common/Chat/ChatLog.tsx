@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import '../../../styles/ChatLog.css';
+import '../../../assets/styles/ChatLog.css';
 import ChatMessage, { type ChatMessageData } from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotification } from '../../../contexts/NotificationContext';

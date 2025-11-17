@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleFill, XCircleFill } from 'react-bootstrap-icons'; 
-import '../../styles/SuccessPopup.css'; 
+import '../../assets/styles/SuccessPopup.css'; 
 
 interface LoginSuccessPopupProps {
   isOpen: boolean;

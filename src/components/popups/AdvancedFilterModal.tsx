@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiX, FiFilter, FiSave } from 'react-icons/fi';
 import { getUniqueAuthors, getUniqueGenres } from '../../data/mockData';
-import '../../styles/CategoryPage.css';
+import '../../assets/styles/CategoryPage.css';
 
 interface FilterState {
     authors: string[];

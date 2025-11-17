@@ -11,7 +11,7 @@ import {
     FiLock
 } from 'react-icons/fi';
 import ChapterChat from '../components/common/Chat/ChapterChat';
-import '../styles/ReaderPage.css';
+import '../assets/styles/ReaderPage.css';
 import minusImage from '../assets/images/minus.png'; 
 import plusImage from '../assets/images/plus.png';
 

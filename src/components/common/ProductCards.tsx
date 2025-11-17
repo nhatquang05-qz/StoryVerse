@@ -6,7 +6,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import StarRating from './StarRating';
-import '../../styles/ProductCard.css';
+import '../../assets/styles/ProductCard.css';
 
 interface ProductCardProps {
   comic: ComicSummary; 

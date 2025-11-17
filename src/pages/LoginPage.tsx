@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'; 
 import { useAuth } from '../contexts/AuthContext'; 
-import '../styles/AuthPage.css'; 
+import '../assets/styles/AuthPage.css'; 
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');

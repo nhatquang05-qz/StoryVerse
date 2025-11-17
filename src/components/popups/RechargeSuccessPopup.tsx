@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiCheckCircle, FiX } from 'react-icons/fi';
-import '../../styles/SuccessPopup.css';
+import '../../assets/styles/SuccessPopup.css';
 
 interface RechargeSuccessPopupProps {
   isOpen: boolean;

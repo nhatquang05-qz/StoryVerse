@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/FlyingImage.css';
+import '../../assets/styles/FlyingImage.css';
 
 interface FlyingImageProps {
   src: string | null;

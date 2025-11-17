@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProfileSidebar from '../components/common/ProfileSideBar';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import '../styles/ProfilePage.css';
+import '../assets/styles/ProfilePage.css';
 import { FiMapPin, FiTrash2, FiSave } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
 

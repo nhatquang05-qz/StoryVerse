@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import "../../../styles/Hero.css";
+import "../../../assets/styles/Hero.css";
 import bgSlide1 from './bg-slide1.png';
 import bgSlide2 from './bg-slide2.png';
 import bgSlide3 from './bg-slide3.png';

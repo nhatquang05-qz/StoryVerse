@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSidebar from '../components/common/ProfileSideBar';
 import { loadOrders, type Order } from '../data/mockData';
-import '../styles/ProfilePage.css'; 
+import '../assets/styles/ProfilePage.css'; 
 
 const OrdersPage: React.FC = () => {
   const { currentUser } = useAuth();

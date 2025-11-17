@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
-import '../styles/AuthPage.css';
+import '../assets/styles/AuthPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 

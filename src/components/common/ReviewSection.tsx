@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import { type Review } from '../../types/comicTypes';
-import '../../styles/ReviewSection.css';
+import '../../assets/styles/ReviewSection.css';
 
 interface ReviewSectionProps {
     comicId: number;
