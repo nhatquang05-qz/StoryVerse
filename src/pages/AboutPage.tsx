@@ -14,7 +14,7 @@ const AnimatedCounter = ({ from = 0, to, suffix = "" }: { from?: number, to: num
     if (isInView) {
       const node = nodeRef.current;
       const controls = animate(from, to, {
-        duration: 2,
+        duration: 1,
         ease: "easeOut", 
         onUpdate(value) {
           if (node) {
