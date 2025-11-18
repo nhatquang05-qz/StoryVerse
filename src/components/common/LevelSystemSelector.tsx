@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FiChevronDown, FiHelpCircle, FiSave, FiX } from 'react-icons/fi';
 import { LEVEL_SYSTEMS, getEquivalentLevelTitle as getEquivalentLevelTitleUtil } from '../../utils/authUtils'; 
-import '../../styles/LevelSystemSelector.css';
+import '../../assets/styles/LevelSystemSelector.css';
 
 interface LevelSelectorProps {
     currentUserLevel: number;

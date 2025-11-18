@@ -86,17 +86,31 @@ const getAllGenresService = async () => {
     }
 };
 
-
-const getAllComicsService = async () => {
+const getAllComicsService = async (page = 1, limit = 24) => {
     try {
-        const rows = await comicModel.getComicListRaw();
+        const offset = (page - 1) * limit;
+        
+        const totalItems = await comicModel.getComicCountRaw();
+        const totalPages = Math.ceil(totalItems / limit);
+
+        const rows = await comicModel.getComicListRaw(limit, offset);
+
         const comicsWithParsedGenres = rows.map(comic => ({
             ...comic,
             genres: typeof comic.genres === 'string' ? JSON.parse(comic.genres) : comic.genres,
             averageRating: parseFloat(comic.averageRating) || 0,
             totalReviews: parseInt(comic.totalReviews) || 0
         }));
-        return comicsWithParsedGenres;
+
+        return {
+            data: comicsWithParsedGenres,
+            pagination: {
+                page,
+                limit,
+                totalItems,
+                totalPages
+            }
+        };
     } catch (error) {
         console.error('Error fetching comics in service:', error);
         throw { status: 500, error: 'Internal server error' };
@@ -180,13 +194,11 @@ const getChapterContentService = async (comicId, chapterId, userId) => {
             isPurchased = true;
         } 
         else if (chapter.price > 0 && userId) {
-            // Check full comic purchase
             const fullPurchase = await comicModel.findFullPurchase(userId, comicId);
             
             if (fullPurchase) {
                 isPurchased = true;
             } else {
-                // Check single chapter unlock
                 const unlockedChapter = await comicModel.findUnlockedChapter(userId, chapter.id);
                 if (unlockedChapter) {
                     isPurchased = true;
@@ -264,7 +276,6 @@ const unlockChapterService = async (userId, chapterId) => {
 
         const newCoinBalance = coinBalance - chapterPrice;
         
-        // EXP CALCULATION LOGIC 
         let currentLevel = level;
         let currentExp = exp;
         let coinsToProcess = chapterPrice; 
@@ -312,7 +323,6 @@ const unlockChapterService = async (userId, chapterId) => {
     }
 };
 
-// --- SEARCH/STATS ---
 const getTopComicsService = async (period) => {
     try {
         let startDate = null;
@@ -350,44 +360,60 @@ const getTopComicsService = async (period) => {
     }
 };
 
-const searchComicsService = async (query) => {
+const searchComicsService = async (query, page = 1, limit = 24) => {
     if (!query) {
         throw { status: 400, error: 'Query parameter is required' };
     }
     try {
+        const offset = (page - 1) * limit;
         const searchQuery = `%${query}%`;
-        const rows = await comicModel.searchComicsRaw(searchQuery);
+        const totalItems = await comicModel.getSearchComicsCountRaw(searchQuery);
+        const totalPages = Math.ceil(totalItems / limit);
+        const rows = await comicModel.searchComicsRaw(searchQuery, limit, offset);
+
         const comicsWithRating = rows.map(comic => ({
             ...comic,
             averageRating: parseFloat(comic.averageRating) || 0,
             totalReviews: parseInt(comic.totalReviews) || 0
         }));
-        return comicsWithRating;
+
+        return {
+            data: comicsWithRating,
+            pagination: { page, limit, totalItems, totalPages }
+        };
     } catch (error) {
         console.error('Error searching comics in service:', error);
         throw { status: 500, error: 'Internal server error' };
     }
 };
 
-const getComicsByGenreService = async (genre) => {
+const getComicsByGenreService = async (genre, page = 1, limit = 24) => {
     if (!genre) {
         throw { status: 400, error: 'Genre parameter is required' };
     }
     try {
-        const rows = await comicModel.getComicsByGenreRaw(genre);
+        const offset = (page - 1) * limit;
+
+        const totalItems = await comicModel.getComicsByGenreCountRaw(genre);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        const rows = await comicModel.getComicsByGenreRaw(genre, limit, offset);
+
         const comicsWithRating = rows.map(comic => ({
             ...comic,
             averageRating: parseFloat(comic.averageRating) || 0,
             totalReviews: parseInt(comic.totalReviews) || 0
         }));
-        return comicsWithRating;
+        
+        return {
+            data: comicsWithRating,
+            pagination: { page, limit, totalItems, totalPages }
+        };
     } catch (error) {
         console.error('Error fetching comics by genre in service:', error);
         throw { status: 500, error: 'Internal server error' };
     }
 };
-
-// --- REVIEW LOGIC ---
 
 const getReviewsService = async (comicId) => {
     try {
@@ -428,14 +454,14 @@ module.exports = {
     addComicService,
     updateComicService,
     deleteComicService,
-    getAllComicsService,
+    getAllComicsService, 
     getComicByIdService,
     addChapterService,
     deleteChapterService,
     getChapterContentService,
     getTopComicsService,
-    searchComicsService,
-    getComicsByGenreService,
+    searchComicsService, 
+    getComicsByGenreService, 
     getAllGenresService,
     getReviewsService,
     postReviewService,

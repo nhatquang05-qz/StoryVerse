@@ -4,7 +4,7 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  size-adjust: 85%;
+  size-adjust: 75%;
 }
 
 @font-face {
@@ -111,14 +111,14 @@ html[data-theme="night"] {
 }
 
 :root {
-  --cursor-path-default: url('../src/cursors/Mikaela_Hykuya_Cursor/Alternative.cur');
-  --cursor-path-pointer: url('../src/cursors/Mikaela_Hykuya_Cursor/link.cur');
-  --cursor-path-text: url('../src/cursors/Mikaela_Hykuya_Cursor/Escritura a Mano.cur');
-  --cursor-path-move: url('../src/cursors/Mikaela_Hykuya_Cursor/movec.cur');
-  --cursor-path-help: url('../src/cursors/Mikaela_Hykuya_Cursor/ayuda.cur');
-  --cursor-path-nwse: url('../src/cursors/Mikaela_Hykuya_Cursor/diagonal resize 1.cur');
-  --cursor-path-nesw: url('../src/cursors/Mikaela_Hykuya_Cursor/diagonal resize 2.cur');
-  --cursor-path-ew: url('../src/cursors/Mikaela_Hykuya_Cursor/horizontal.cur');
+  --cursor-path-default: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/Alternative.cur');
+  --cursor-path-pointer: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/link.cur');
+  --cursor-path-text: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/Escritura a Mano.cur');
+  --cursor-path-move: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/movec.cur');
+  --cursor-path-help: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/ayuda.cur');
+  --cursor-path-nwse: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/diagonal resize 1.cur');
+  --cursor-path-nesw: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/diagonal resize 2.cur');
+  --cursor-path-ew: url('../src/assets/cursors/Mikaela_Hykuya_Cursor/horizontal.cur');
 }
 
 html, body, .app-container {

@@ -114,11 +114,15 @@ const HomePage: React.FC = () => {
         const fetchAllComics = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch(`${API_URL}/comics`); 
+                const response = await fetch(`${API_URL}/comics?limit=100`); 
                 if (!response.ok) {
                     throw new Error('Không thể tải truyện từ backend');
                 }
-                const allComics: ComicSummary[] = await response.json();
+                
+                const responseData = await response.json();
+                const allComics: ComicSummary[] = Array.isArray(responseData) 
+                    ? responseData 
+                    : responseData.data || [];
 
                 setNewReleasesComics(
                     [...allComics].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())

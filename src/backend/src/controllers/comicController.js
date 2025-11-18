@@ -50,8 +50,11 @@ const getAllGenres = async (req, res) => {
 
 const getAllComics = async (req, res) => {
     try {
-        const comics = await comicService.getAllComicsService();
-        res.json(comics);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 24; 
+
+        const result = await comicService.getAllComicsService(page, limit);
+        res.json(result);
     } catch (error) {
         const status = error.status || 500;
         console.error('Error fetching comics:', error);
@@ -137,6 +140,7 @@ const getTopComics = async (req, res) => {
     try {
         const { period } = req.query;
         const comics = await comicService.getTopComicsService(period);
+        res.set('Cache-Control', 'public, max-age=300'); 
         res.json(comics);
     } catch (error) {
         const status = error.status || 500;
@@ -148,7 +152,10 @@ const getTopComics = async (req, res) => {
 const searchComics = async (req, res) => {
     try {
         const { q } = req.query;
-        const comics = await comicService.searchComicsService(q);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 24;
+
+        const comics = await comicService.searchComicsService(q, page, limit);
         res.json(comics);
     } catch (error) {
         const status = error.status || 500;
@@ -160,7 +167,10 @@ const searchComics = async (req, res) => {
 const getComicsByGenre = async (req, res) => {
     try {
         const { genre } = req.query;
-        const comics = await comicService.getComicsByGenreService(genre);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 24;
+
+        const comics = await comicService.getComicsByGenreService(genre, page, limit);
         res.json(comics);
     } catch (error) {
         const status = error.status || 500;

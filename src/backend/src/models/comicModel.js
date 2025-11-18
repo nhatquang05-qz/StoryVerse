@@ -28,10 +28,7 @@ const updateComicRaw = async (id, title, author, description, coverImageUrl, sta
 const deleteComicRaw = async (id) => {
     const connection = getConnection();
     
-    // Xóa khỏi bảng stats
     await connection.execute('DELETE FROM daily_comic_stats WHERE comic_id = ?', [id]);
-    
-    // (Code cũ)
     await connection.execute('DELETE FROM reviews WHERE comicId = ?', [id]);
     await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
     await connection.execute('DELETE FROM chapters WHERE comicId = ?', [id]);
@@ -55,10 +52,23 @@ const insertComicGenresRaw = async (genreValues) => {
     }
 };
 
-// --- COMIC READ OPERATIONS ---
-const getComicListRaw = async () => {
+// --- COMIC READ OPERATIONS (FIXED PAGINATION ERROR) ---
+
+// 1. Đếm tổng số truyện
+const getComicCountRaw = async () => {
     const connection = getConnection();
-    const [rows] = await connection.execute(
+    const [rows] = await connection.execute('SELECT COUNT(*) as total FROM comics');
+    return rows[0].total;
+};
+
+// 2. Lấy danh sách có phân trang (DÙNG QUERY THAY VÌ EXECUTE)
+const getComicListRaw = async (limit, offset) => {
+    const connection = getConnection();
+    const limitInt = Number(limit) || 20;
+    const offsetInt = Number(offset) || 0;
+
+    // [FIX]: Sử dụng .query() thay vì .execute() để tránh lỗi 'Incorrect arguments to mysqld_stmt_execute' với LIMIT
+    const [rows] = await connection.query(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount, c.createdAt, c.updatedAt,
             COALESCE(
@@ -70,7 +80,10 @@ const getComicListRaw = async () => {
             ) AS genres,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
-         FROM comics c`
+         FROM comics c
+         ORDER BY c.updatedAt DESC
+         LIMIT ? OFFSET ?`, 
+        [limitInt, offsetInt]
     );
     return rows;
 };
@@ -239,20 +252,19 @@ const getTopComicsRaw = async (startDate, endDate) => {
         const [rows] = await connection.execute(
             `SELECT 
                 c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author,
-                c.viewCount, -- Lấy TỔNG VIEW (để hiển thị)
+                c.viewCount,
                 (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
                 (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews,
-                SUM(s.daily_view_count) AS periodViewCount -- Chỉ dùng để SẮP XẾP
+                SUM(s.daily_view_count) AS periodViewCount
             FROM daily_comic_stats s
             JOIN comics c ON s.comic_id = c.id
             WHERE 
                 s.view_date >= ? AND s.view_date < ?
-            GROUP BY c.id -- Group by ID của truyện
-            ORDER BY periodViewCount DESC -- Sắp xếp theo view của Ngày/Tuần/Tháng
+            GROUP BY c.id
+            ORDER BY periodViewCount DESC
             LIMIT 10`,
             [startDate, endDate]
         );
-
         return rows;
     }
 
@@ -268,9 +280,13 @@ const getTopComicsRaw = async (startDate, endDate) => {
     return rows;
 };
 
-const searchComicsRaw = async (searchQuery) => {
+// 3. Tìm kiếm có phân trang (DÙNG QUERY)
+const searchComicsRaw = async (searchQuery, limit, offset) => {
     const connection = getConnection();
-    const [rows] = await connection.execute(
+    const limitInt = Number(limit) || 20;
+    const offsetInt = Number(offset) || 0;
+
+    const [rows] = await connection.query(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
@@ -283,15 +299,36 @@ const searchComicsRaw = async (searchQuery) => {
             OR c.author LIKE ? 
             OR g.name LIKE ?
          GROUP BY c.id
-         LIMIT 20`,
-        [searchQuery, searchQuery, searchQuery]
+         LIMIT ? OFFSET ?`,
+        [searchQuery, searchQuery, searchQuery, limitInt, offsetInt]
     );
     return rows;
 };
 
-const getComicsByGenreRaw = async (genre) => {
+// 4. Đếm kết quả tìm kiếm
+const getSearchComicsCountRaw = async (searchQuery) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
+        `SELECT COUNT(DISTINCT c.id) as total
+         FROM comics c
+         LEFT JOIN comic_genres cg ON c.id = cg.comicId
+         LEFT JOIN genres g ON cg.genreId = g.id
+         WHERE 
+            c.title LIKE ? 
+            OR c.author LIKE ? 
+            OR g.name LIKE ?`,
+        [searchQuery, searchQuery, searchQuery]
+    );
+    return rows[0].total;
+};
+
+// 5. Lấy theo thể loại có phân trang (DÙNG QUERY)
+const getComicsByGenreRaw = async (genre, limit, offset) => {
+    const connection = getConnection();
+    const limitInt = Number(limit) || 20;
+    const offsetInt = Number(offset) || 0;
+
+    const [rows] = await connection.query(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
@@ -299,10 +336,25 @@ const getComicsByGenreRaw = async (genre) => {
          FROM comics c
          JOIN comic_genres cg ON c.id = cg.comicId
          JOIN genres g ON cg.genreId = g.id
+         WHERE g.name = ?
+         LIMIT ? OFFSET ?`,
+        [genre, limitInt, offsetInt]
+    );
+    return rows;
+};
+
+// 6. Đếm kết quả theo thể loại
+const getComicsByGenreCountRaw = async (genre) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+        `SELECT COUNT(DISTINCT c.id) as total
+         FROM comics c
+         JOIN comic_genres cg ON c.id = cg.comicId
+         JOIN genres g ON cg.genreId = g.id
          WHERE g.name = ?`,
         [genre]
     );
-    return rows;
+    return rows[0].total;
 };
 
 // --- REVIEW OPERATIONS ---
@@ -357,15 +409,17 @@ const getReviewByIdRaw = async (reviewId) => {
     return rows.length > 0 ? rows[0] : null;
 };
 
-
 module.exports = {
     getAllGenresRaw,
     createComicRaw, updateComicRaw, deleteComicRaw,
     deleteComicGenresRaw, insertComicGenresRaw,
-    getComicListRaw, getComicDetailRaw, getComicChaptersRaw, incrementComicViewCount,
+    getComicListRaw, getComicCountRaw,
+    getComicDetailRaw, getComicChaptersRaw, incrementComicViewCount,
     getTopViewedComicsRaw, getTopRatedComicsRaw,
     createChapterRaw, deleteChapterRaw, 
     getChapterRaw, findFullPurchase, findUnlockedChapter, incrementChapterViewCount, findChapterForUnlock, insertUnlockedChapter,
-    getTopComicsRaw, searchComicsRaw, getComicsByGenreRaw,
+    getTopComicsRaw, 
+    searchComicsRaw, getSearchComicsCountRaw,
+    getComicsByGenreRaw, getComicsByGenreCountRaw,
     getReviewsRaw, findExistingReview, updateReviewRaw, insertReviewRaw, getReviewByIdRaw,
 };
