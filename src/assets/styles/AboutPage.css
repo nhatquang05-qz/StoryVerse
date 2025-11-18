@@ -48,7 +48,6 @@
     padding-right: 1.5rem;
 }
 
-/* --- Hero Section --- */
 .hero-section {
     position: relative;
     height: 90vh;
@@ -156,7 +155,6 @@
     border-radius: 9999px;
 }
 
-/* --- Story Section --- */
 .story-section {
     padding: 5rem 0;
 }
@@ -257,12 +255,12 @@
 
 /* --- Founder Section --- */
 .founder-section {
-    padding: 6rem 0;
+    padding-top: 0rem;
 }
 
 .founder-header {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: 2rem;
 }
 
 .founder-eyebrow {
@@ -349,7 +347,7 @@
 
 .founder-quote {
     font-size: 1.2rem;
-    color: var(--clr-text-secondary);
+    color: rgb(192, 191, 191);
     font-style: italic;
     border-left: 4px solid var(--clr-primary);
     padding-left: 1.5rem;
@@ -359,22 +357,44 @@
 .founder-contact-btn {
     padding: 0.8rem 2rem;
     background: transparent;
-    border: 1px solid var(--clr-border-light);
+    border: 1px solid rgb(185, 185, 185) !important; 
     color: white;
     border-radius: 50px;
-    cursor: pointer;
     transition: all 0.3s;
 }
 
 .founder-contact-btn:hover {
     background: var(--clr-primary);
     border-color: var(--clr-primary);
-    box-shadow: 0 0 15px var(--clr-input-focus-shadow);
+    color: white;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important; 
+}
+.founder-contact-btn,
+.founder-contact-btn:link,
+.founder-contact-btn:visited {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    border: 2px solid var(--clr-accent); 
+    color: var(--clr-accent);
+    transition: all 0.3s ease;
 }
 
-/* --- Values Section --- */
+.founder-contact-btn:focus,
+.founder-contact-btn:active,
+.founder-contact-btn:focus-visible {
+    outline: none !important;    
+    box-shadow: none !important;
+    border: 1px solid rgb(185, 185, 185) !important; 
+}
+
+.founder-contact-btn:active {
+    transform: scale(0.95);
+}
+
 .values-section {
-    padding: 6rem 0;
+    padding-top: 3rem;
+    padding-bottom: 6rem;
     background: linear-gradient(to bottom, var(--clr-hero-bg), rgba(168, 85, 247, 0.05));
 }
 
@@ -460,18 +480,17 @@
     font-size: 0.9rem;
 }
 
-/* --- CTA Section --- */
 .cta-section {
-    padding: 6rem 0;
+    padding: 3rem;
     text-align: center;
 }
 
 .cta-box {
     background: linear-gradient(135deg, var(--clr-primary-dark), #245d74);
     border-radius: 2rem;
-    padding: 4rem 2rem;
+    padding: 6rem 2rem;
     position: relative;
-    overflow: hidden;
+    overflow: hidden;;
 }
 
 .cta-title {
@@ -493,8 +512,8 @@
 
 .cta-button {
     padding: 1rem 2.5rem;
-    background: white;
-    color: var(--clr-primary-dark);
+    background: rgba(0, 0, 0, 0.70);
+    color: white;
     font-weight: 700;
     border-radius: 50px;
     border: none;
@@ -508,3 +527,4 @@
     transform: scale(1.05);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
+

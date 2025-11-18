@@ -1,10 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion';
 import { BookOpen, Users, Zap, Heart, Target, Globe } from 'lucide-react';
 import logo from '../assets/images/logo.png'; 
 import backgroundAboutUs from '../assets/images/background-aboutus.jpg';
 import '../assets/styles/AboutPage.css'; 
 import avatar from '../assets/images/nquang.png';
+import bgDiscover from '../assets/images/bg-discover.jpg';
+import galaxyGif from '../assets/images/galaxy.gif';
 
 const AnimatedCounter = ({ from = 0, to, suffix = "" }: { from?: number, to: number, suffix?: string }) => {
   const nodeRef = useRef<HTMLSpanElement>(null);
@@ -127,7 +130,18 @@ const AboutPage: React.FC = () => {
         </section>
 
         {/* 4. FOUNDER SECTION */}
-        <section className="founder-section section-container">
+        <section className="founder-section section-container" 
+        style={{
+            backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.92), rgb(83, 91, 242, 0.7)), url(${galaxyGif})`,
+            backgroundSize: 'cover',      
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            borderRadius: '2rem',         
+            padding: '3rem',            
+            marginTop: '2rem',           
+            marginBottom: '2rem',      
+            color: '#fff'               
+          }}>
           <InViewAnimation>
             <div className="founder-header">
               <span className="founder-eyebrow">Visionary</span>
@@ -147,7 +161,14 @@ const AboutPage: React.FC = () => {
               <h3 className="founder-name">Dương Nguyễn Nhật Quang</h3>
               <p className="founder-role">CEO & Lead Developer</p>
               <blockquote className="founder-quote">"Tôi tạo ra StoryVerse không chỉ để bán truyện tranh, mà để tạo ra một vũ trụ nơi trí tưởng tượng được tôn vinh. Mỗi dòng code là một viên gạch xây dựng nên giấc mơ này."</blockquote>
-              <button className="founder-contact-btn">Liên hệ với tôi</button>
+              <a 
+                  href="https://www.facebook.com/nhtqug.05/"  
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="founder-contact-btn"
+              >
+                  Liên hệ với tôi
+              </a>
             </InViewAnimation>
           </div>
         </section>
@@ -171,10 +192,20 @@ const AboutPage: React.FC = () => {
         {/* 6. CTA SECTION */}
         <section className="cta-section section-container">
            <InViewAnimation delay={0.1}>
-             <div className="cta-box">
+             <div 
+               className="cta-box"
+               style={{
+                 backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(36, 93, 116, 0.55)), url(${bgDiscover})`,
+                 backgroundSize: 'cover',
+                 backgroundPosition: 'center',
+                 backgroundRepeat: 'no-repeat'
+               }}
+             >
                <h2 className="cta-title">Sẵn sàng khám phá thế giới mới?</h2>
                <p className="cta-subtitle">Tham gia cộng đồng StoryVerse ngay hôm nay để mở khóa hàng ngàn bộ truyện tranh độc quyền.</p>
-               <button className="cta-button">Khám Phá Ngay</button>
+               <Link to="/" className="cta-button" style={{ display: 'inline-block', textDecoration: 'none' }}>
+                 Khám Phá Ngay
+               </Link>
              </div>
            </InViewAnimation>
         </section>
