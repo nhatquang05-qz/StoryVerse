@@ -93,7 +93,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
           )}
         </div>
         
-        {comicData.isDigital && (
+        {comicData.isDigital === 1 && (
           <div className="card-view-count-section">
             <span className="card-view-count">{formatViewCount(comicData.viewCount)}</span>
           </div>

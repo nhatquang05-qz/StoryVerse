@@ -10,13 +10,14 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 
 const fetchPhysicalComics = (): Promise<ComicSummary[]> => {
   return new Promise((resolve, reject) => {
-    fetch(`${API_URL}/comics`)
+    fetch(`${API_URL}/comics?limit=1000`)
         .then(res => {
             if (!res.ok) throw new Error('Không thể tải truyện');
             return res.json();
         })
-        .then((allComics: ComicSummary[]) => {
-            resolve(allComics.filter(c => (c.isDigital as any) === 0));
+        .then((responseData: any) => {
+            const comicsArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+            resolve(comicsArray.filter((c: any) => (c.isDigital as any) === 0));
         })
         .catch(reject);
   });

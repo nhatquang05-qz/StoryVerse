@@ -46,6 +46,14 @@ function App() {
   const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
   useEffect(() => {
+    if (isAdminPage) {
+      document.body.classList.add('admin-cursor-mode');
+    } else {
+      document.body.classList.remove('admin-cursor-mode');
+    }
+  }, [isAdminPage]);
+
+  useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
       const targetElement = event.target as Element;
       const interactiveSelector = 'a, button, input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"]), .suggestion-item, .tag-card-link, .cursor-option';

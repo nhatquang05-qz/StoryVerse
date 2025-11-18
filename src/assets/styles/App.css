@@ -26,3 +26,21 @@
   min-height: 100vh;
   background-color: var(--clr-background);
 }
+
+body.admin-cursor-mode,
+body.admin-cursor-mode * {
+  cursor: auto !important; 
+}
+
+body.admin-cursor-mode a, 
+body.admin-cursor-mode button,
+body.admin-cursor-mode input[type="submit"],
+body.admin-cursor-mode [role="button"],
+body.admin-cursor-mode .cursor-pointer {
+  cursor: pointer !important;
+}
+
+body.admin-cursor-mode input,
+body.admin-cursor-mode textarea {
+  cursor: text !important;
+}

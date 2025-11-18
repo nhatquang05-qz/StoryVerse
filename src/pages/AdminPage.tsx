@@ -37,7 +37,7 @@ const AdminPage: React.FC = () => {
 
     const isAdmin = currentUser?.email === 'admin@123';
 
-    const fetchComicsAndGenres = async () => {
+const fetchComicsAndGenres = async () => {
          if(activeView === 'dashboard') {
              setIsLoading(false);
              return;
@@ -47,12 +47,16 @@ const AdminPage: React.FC = () => {
         setError(null);
         try {
             const [comicsResponse, genresResponse] = await Promise.all([
-                fetch(`${API_BASE_URL}/comics`),
+                fetch(`${API_BASE_URL}/comics?limit=1000`), 
                 fetch(`${API_BASE_URL}/comics/system/genres`)
             ]);
 
-            if (!comicsResponse.ok) throw new Error('Không thể tải danh sách truyện');
-            const comicsData: ComicSummary[] = await comicsResponse.json();
+            if (!comicsResponse.ok) throw new Error('Không thể tải danh sách truyện');            
+            const responseData = await comicsResponse.json();
+            const comicsData: ComicSummary[] = Array.isArray(responseData) 
+                ? responseData 
+                : (responseData.data || []);
+            
             setComics(comicsData);
 
             if (!genresResponse.ok) throw new Error('Không thể tải danh sách thể loại');
