@@ -35,109 +35,111 @@ const ReaderPage = lazy(() => import('./pages/ReaderPage'));
 const CoinRechargePage = lazy(() => import('./pages/CoinRechargePage'));
 const SettingsPage = lazy(() => import('./pages/SettingPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
+const AboutUsPage = lazy(() => import('./pages/AboutPage')); 
 
 function App() {
-  const { animationData, clearAnimation } = useCart();
-  const location = useLocation();
-  
-  const isReaderPage = location.pathname.startsWith('/read/');
-  const isAdminPage = location.pathname.startsWith('/admin');
-  
-  const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
+  const { animationData, clearAnimation } = useCart();
+  const location = useLocation();
+  
+  const isReaderPage = location.pathname.startsWith('/read/');
+  const isAdminPage = location.pathname.startsWith('/admin');
+  
+  const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
-  useEffect(() => {
-    if (isAdminPage) {
-      document.body.classList.add('admin-cursor-mode');
-    } else {
-      document.body.classList.remove('admin-cursor-mode');
-    }
-  }, [isAdminPage]);
+  useEffect(() => {
+    if (isAdminPage) {
+      document.body.classList.add('admin-cursor-mode');
+    } else {
+      document.body.classList.remove('admin-cursor-mode');
+    }
+  }, [isAdminPage]);
 
-  useEffect(() => {
-    const handleGlobalClick = (event: MouseEvent) => {
-      const targetElement = event.target as Element;
-      const interactiveSelector = 'a, button, input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"]), .suggestion-item, .tag-card-link, .cursor-option';
-      
-      if (targetElement.closest(interactiveSelector)) {
-        return;
-      }
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      const targetElement = event.target as Element;
+      const interactiveSelector = 'a, button, input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"]), .suggestion-item, .tag-card-link, .cursor-option';
+      
+      if (targetElement.closest(interactiveSelector)) {
+        return;
+      }
 
-      const ripple = document.createElement('div');
-      ripple.className = 'click-ripple';
-      document.body.appendChild(ripple);
+      const ripple = document.createElement('div');
+      ripple.className = 'click-ripple';
+      document.body.appendChild(ripple);
 
-      ripple.style.left = `${event.clientX}px`;
-      ripple.style.top = `${event.clientY}px`;
+      ripple.style.left = `${event.clientX}px`;
+      ripple.style.top = `${event.clientY}px`;
 
-      ripple.addEventListener('animationend', () => {
-        ripple.remove();
-      });
-    };
-    document.addEventListener('click', handleGlobalClick);
-    return () => {
-      document.removeEventListener('click', handleGlobalClick);
-    };
-  }, []);
+      ripple.addEventListener('animationend', () => {
+        ripple.remove();
+      });
+    };
+    document.addEventListener('click', handleGlobalClick);
+    return () => {
+      document.removeEventListener('click', handleGlobalClick);
+    };
+  }, []);
 
-  return (
-    <div className="app-container">
-      <ScrollToTop />
-      
-      {!isAdminPage && <Header />}
+  return (
+    <div className="app-container">
+      <ScrollToTop />
+      
+      {!isAdminPage && <Header />}
 
-      <main className={isReaderPage ? "main-content reader-mode" : "main-content"}>
-        <Suspense fallback={<LoadingScreen />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/comic/:comicId" element={<ComicDetailPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} /> 
-            <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> 
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/addresses" element={<AddressManagementPage />} />
-            <Route path="/my-library" element={<MyLibraryPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/orders/:orderId" element={<OrderDetailPage />} />
-            <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/read/:comicId/:chapterNumber" element={<ReaderPage />} />
-            <Route path="/recharge" element={<CoinRechargePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/physical-comics" element={<PhysicalComicsPage />} />
-            <Route path="/digital-comics" element={<DigitalComicsPage />} />
-            <Route path="/new-releases" element={<CategoryPage />} />
-            <Route path="/genres/:categorySlug" element={<CategoryPage />} />
-            <Route path="/admin/*" element={<AdminPage />} /> 
-          </Routes>
-        </Suspense>
-      </main>
+      <main className={isReaderPage ? "main-content reader-mode" : "main-content"}>
+        <Suspense fallback={<LoadingScreen />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/comic/:comicId" element={<ComicDetailPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} /> 
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} /> 
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/addresses" element={<AddressManagementPage />} />
+            <Route path="/my-library" element={<MyLibraryPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/orders/:orderId" element={<OrderDetailPage />} />
+            <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/read/:comicId/:chapterNumber" element={<ReaderPage />} />
+            <Route path="/recharge" element={<CoinRechargePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/physical-comics" element={<PhysicalComicsPage />} />
+            <Route path="/digital-comics" element={<DigitalComicsPage />} />
+            <Route path="/new-releases" element={<CategoryPage />} />
+            <Route path="/genres/:categorySlug" element={<CategoryPage />} />
+            <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/admin/*" element={<AdminPage />} /> 
+          </Routes>
+        </Suspense>
+      </main>
 
-      {!isAdminPage && <Footer />}
+      {!isAdminPage && <Footer />}
 
-      <FlyingImage
-        src={animationData.src}
-        startRect={animationData.startRect}
-        endRect={animationData.endRect}
-        onAnimationEnd={clearAnimation}
-      />
-      <ScrollToTopButton />
+      <FlyingImage
+        src={animationData.src}
+        startRect={animationData.startRect}
+        endRect={animationData.endRect}
+        onAnimationEnd={clearAnimation}
+      />
+      <ScrollToTopButton />
 
-      {levelUpInfo && (
-        <LevelUpPopup
-          isOpen={isLevelUpPopupOpen}
-          onClose={closeLevelUpPopup}
-          newLevel={levelUpInfo.newLevel}
-          levelTitle={levelUpInfo.levelTitle}
-        />
-      )}
+      {levelUpInfo && (
+        <LevelUpPopup
+          isOpen={isLevelUpPopupOpen}
+          onClose={closeLevelUpPopup}
+          newLevel={levelUpInfo.newLevel}
+          levelTitle={levelUpInfo.levelTitle}
+        />
+      )}
 
-      {!isAdminPage && <ChatbotUI />}
-    </div>
-  );
+      {!isAdminPage && <ChatbotUI />}
+    </div>
+  );
 }
 
 export default App;
