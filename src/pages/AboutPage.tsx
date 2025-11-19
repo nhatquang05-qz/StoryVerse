@@ -93,7 +93,7 @@ const AboutPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative z-20" style={{ backgroundColor: 'var(--clr-hero-bg)' }}>
+      <div className="relative z-20">
         
         <section className="story-section section-container">
           <div className="story-grid">
