@@ -510,3 +510,18 @@ a:focus,
     box-shadow: none !important; 
     border-color: transparent !important; 
 }
+
+:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none !important;
+    box-shadow: none !important; 
+}
