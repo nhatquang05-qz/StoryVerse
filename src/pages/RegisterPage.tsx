@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import '../assets/styles/AuthPage.css';
-import bgRegister from '../assets/images/bg-login.webp';
+import bgRegister from '../assets/images/bg-reg.jpg';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
