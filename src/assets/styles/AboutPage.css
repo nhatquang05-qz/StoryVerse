@@ -383,7 +383,7 @@
 .founder-contact-btn:focus,
 .founder-contact-btn:active,
 .founder-contact-btn:focus-visible {
-    outline: none !important;    
+    outline: none !important;     
     box-shadow: none !important;
     border: 1px solid rgb(185, 185, 185) !important; 
 }
@@ -393,23 +393,39 @@
 }
 
 .values-section {
-    padding-top: 3rem;
-    padding-bottom: 6rem;
-    background: linear-gradient(to bottom, var(--clr-hero-bg), rgba(168, 85, 247, 0.05));
+    padding-top: 5rem;
+    padding-bottom: 8rem;
+    background: radial-gradient(circle at center, #1e293b 0%, var(--clr-hero-bg) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.values-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--clr-primary), transparent);
+    opacity: 0.5;
 }
 
 .values-title {
     text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 3rem;
+    font-weight: 800;
     margin-bottom: 4rem;
     color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 .values-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
 @media (min-width: 640px) {
@@ -425,59 +441,101 @@
 }
 
 .core-value-card {
-    background: var(--clr-card-bg);
-    padding: 2rem;
-    border-radius: 1rem;
-    border: 1px solid var(--clr-border-light);
-    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    background: rgba(30, 41, 59, 0.4); 
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 2.5rem 2rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    z-index: 1;
 }
 
 .core-value-card:hover {
-    transform: translateY(-10px);
-    border-color: var(--clr-primary);
-    box-shadow: 0 10px 30px var(--clr-input-focus-shadow);
+    transform: translateY(-12px);
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 .value-icon-wrapper {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 12px;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 1.5rem;
+    font-size: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.core-value-card:hover .value-icon-wrapper {
+    transform: scale(1.1) rotate(-5deg);
+    color: #fff;
 }
 
 .bg-red-light {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
+    box-shadow: 0 0 0px rgba(239, 68, 68, 0);
+}
+.core-value-card:hover .bg-red-light {
+    background: #ef4444;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+    border-color: #ef4444;
 }
 
 .bg-yellow-light {
-    background: rgba(245, 158, 11, 0.15);
+    background: rgba(245, 158, 11, 0.1);
     color: #f59e0b;
+}
+.core-value-card:hover .bg-yellow-light {
+    background: #f59e0b;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+    border-color: #f59e0b;
 }
 
 .bg-blue-light {
-    background: rgba(59, 130, 246, 0.15);
+    background: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
+}
+.core-value-card:hover .bg-blue-light {
+    background: #3b82f6;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+    border-color: #3b82f6;
 }
 
 .bg-green-light {
-    background: rgba(16, 185, 129, 0.15);
+    background: rgba(16, 185, 129, 0.1);
     color: #10b981;
+}
+.core-value-card:hover .bg-green-light {
+    background: #10b981;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+    border-color: #10b981;
 }
 
 .value-card-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--clr-text);
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 0.75rem;
+    transition: color 0.3s;
+}
+
+.core-value-card:hover .value-card-title {
+    color: #fff;
 }
 
 .value-card-desc {
-    color: var(--clr-text-secondary);
-    font-size: 0.9rem;
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 .cta-section {
@@ -527,4 +585,3 @@
     transform: scale(1.05);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
-

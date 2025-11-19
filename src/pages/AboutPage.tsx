@@ -70,7 +70,6 @@ const AboutPage: React.FC = () => {
   return (
     <div className="about-container">
       
-      {/* 1. HERO SECTION */}
       <div className="hero-section" ref={ref}>
         <div 
           className="hero-bg-image" 
@@ -96,7 +95,6 @@ const AboutPage: React.FC = () => {
 
       <div className="relative z-20" style={{ backgroundColor: 'var(--clr-hero-bg)' }}>
         
-        {/* 2. STORY SECTION */}
         <section className="story-section section-container">
           <div className="story-grid">
             <InViewAnimation delay={0.1}>
@@ -112,7 +110,6 @@ const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 3. STATS SECTION */}
         <section className="stats-section">
           <div className="section-container">
             <div className="stats-grid">
@@ -129,7 +126,6 @@ const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 4. FOUNDER SECTION */}
         <section className="founder-section section-container" 
         style={{
             backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.92), rgb(83, 91, 242, 0.7)), url(${galaxyGif})`,
@@ -173,14 +169,15 @@ const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 5. CORE VALUES */}
         <section className="values-section">
           <div className="section-container">
             <InViewAnimation><h2 className="values-title">Giá Trị Cốt Lõi</h2></InViewAnimation>
             <div className="values-grid">
               {coreValues.map((item, index) => (
                 <InViewAnimation key={index} delay={index * 0.1} className="core-value-card">
-                  <div className={`value-icon-wrapper ${item.colorClass}`}><item.icon size={28} /></div>
+                  <div className={`value-icon-wrapper ${item.colorClass}`}>
+                    <item.icon size={32} strokeWidth={2} />
+                  </div>
                   <h4 className="value-card-title">{item.title}</h4>
                   <p className="value-card-desc">{item.desc}</p>
                 </InViewAnimation>
@@ -189,7 +186,6 @@ const AboutPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 6. CTA SECTION */}
         <section className="cta-section section-container">
            <InViewAnimation delay={0.1}>
              <div 
