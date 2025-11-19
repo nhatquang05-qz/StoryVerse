@@ -12,6 +12,7 @@ const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const { showNotification } = useNotification();
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +24,7 @@ const RegisterPage: React.FC = () => {
       return; 
     }
 
+    setIsSubmitting(true);
     try {
       await register(email, password);
     } catch (err) {
@@ -32,28 +34,22 @@ const RegisterPage: React.FC = () => {
               errorMessage = 'Email này đã được sử dụng. Vui lòng chọn email khác.';
           } else if (err.message.includes('at least 6 characters')) {
               errorMessage = 'Mật khẩu phải có ít nhất 6 ký tự.';
-          } else {
-              errorMessage = err.message; 
           }
       }
       setError(errorMessage);
-      showNotification(errorMessage, 'error');
-      console.error('Lỗi đăng ký:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="auth-page"
-      style={{
-        backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(36, 93, 116, 0.6)), url(${bgRegister})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-    }}>
+    <div className="auth-page" style={{ backgroundImage: `url(${bgRegister})` }}>
       <div className="auth-container">
-        <h2>Đăng Ký Tài Khoản</h2>
-        <form onSubmit={handleSubmit} className="auth-form">
-          {error && <p className="auth-error">{error}</p>}
+        <h2>Tạo Tài Khoản Mới</h2>
+        
+        {error && <div className="auth-error">⚠️ {error}</div>}
+        
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -63,6 +59,7 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Nhập email của bạn"
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
@@ -74,7 +71,8 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Tạo mật khẩu (ít nhất 6 ký tự)"
-              minLength={6} 
+              minLength={6}
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
@@ -86,16 +84,20 @@ const RegisterPage: React.FC = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               placeholder="Xác nhận lại mật khẩu"
+              disabled={isSubmitting}
             />
           </div>
-          <button type="submit" className="auth-button">Đăng Ký</button>
+          
+          <button type="submit" className="auth-button" disabled={isSubmitting}>
+            {isSubmitting ? 'Đang Đăng Ký...' : 'Đăng Ký Ngay'}
+          </button>
         </form>
+        
         <p className="auth-switch">
           Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
         </p>
       </div>
-
-      </div>
+    </div>
   );
 };
 

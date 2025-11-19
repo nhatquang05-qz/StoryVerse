@@ -46,6 +46,7 @@ function App() {
   const isAboutPage = location.pathname === '/about-us';
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
+  const isForgotPassPage = location.pathname === '/forgot-password';
 
   
   const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
@@ -92,7 +93,7 @@ function App() {
 
       <main 
         className={isReaderPage ? "main-content reader-mode" : "main-content"}
-        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage) ? '0' : undefined }}
+        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage) ? '0' : undefined }}
       >
         <Suspense fallback={<LoadingScreen />}>
           <Routes>

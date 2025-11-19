@@ -328,16 +328,28 @@
 }
 
 .login-btn {
-  background-color: var(--clr-primary);
-  color: var(--clr-button-text);
+  background: var(--primary-gradient);  
+  color: white;
   padding: 0.6rem 1.2rem;
   border-radius: var(--border-radius);
   text-decoration: none;
   font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3) ;
+  
 }
  .login-btn:hover {
-    background-color: var(--clr-primary-dark);
+    color: rgb(30, 14, 90);
  }
+
+.login-btn:focus {
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3) !important; 
+    outline: none; 
+}
+
+.login-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 10px rgba(0, 210, 255, 0.2);
+}
 
 .menu-toggle {
   display: none;

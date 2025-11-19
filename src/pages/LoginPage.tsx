@@ -38,16 +38,11 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-page"
-      style={{
-        backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(36, 93, 116, 0.6)), url(${bgLogin})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-    }}>
+    <div className="auth-page" style={{ backgroundImage: `url(${bgLogin})` }}>
       <div className="auth-container">
-        <h2>Đăng Nhập</h2>
-        <form onSubmit={handleSubmit} className="auth-form">
+        <h2>Chào Mừng Trở Lại</h2>
+        
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -58,6 +53,7 @@ const LoginPage: React.FC = () => {
               required
               placeholder="Nhập email của bạn"
               disabled={isLoginSuccessPopupOpen} 
+              autoComplete="email"
             />
           </div>
           <div className="form-group">
@@ -70,12 +66,17 @@ const LoginPage: React.FC = () => {
               required
               placeholder="Nhập mật khẩu"
               disabled={isLoginSuccessPopupOpen} 
+              autoComplete="current-password"
             />
           </div>
+          
           <div className="auth-options">
-            <Link to="/forgot-password" className="forgot-password-link">Quên mật khẩu?</Link>
+            <Link to="/forgot-password">Quên mật khẩu?</Link>
           </div>
-          <button type="submit" className="auth-button" disabled={isLoginSuccessPopupOpen}>Đăng Nhập</button>
+
+          <button type="submit" className="auth-button" disabled={isLoginSuccessPopupOpen}>
+            {isLoginSuccessPopupOpen ? 'Đang xử lý...' : 'Đăng Nhập'}
+          </button>
         </form>
 
         <div className="auth-divider">
@@ -86,10 +87,10 @@ const LoginPage: React.FC = () => {
           <GoogleLogin
             onSuccess={handleGoogleLoginSuccess}
             onError={handleGoogleLoginError}
-            theme="outline" 
+            theme="filled_black" 
             size="large"
             text="signin_with" 
-            shape="rectangular" 
+            shape="pill" 
             locale="vi" 
             width="100%" 
           />
@@ -99,7 +100,6 @@ const LoginPage: React.FC = () => {
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </p>
       </div>
-
     </div>
   );
 };
