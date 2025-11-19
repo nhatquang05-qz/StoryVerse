@@ -248,7 +248,7 @@ html[data-theme="light"] .chatbot-input-form {
     justify-content: center;
     flex-shrink: 0;
     transition: background-color 0.2s, opacity 0.2s;
-    background-image: url('../components/chatbot/send-button.png'); 
+    background-image: url('../../components/chatbot/send-button.png'); 
     background-size: 60%;
     background-repeat: no-repeat;
     background-position: center;

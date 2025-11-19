@@ -7,8 +7,8 @@ export const options = {
   // Giai đoạn 2: Duy trì 1000 user trong 30s (Plateau)
   // Giai đoạn 3: Giảm từ 1000 về 0 user trong 10s (Ramp-down)
   stages: [
-    { duration: '10s', target: 1000 }, 
-    { duration: '30s', target: 1000 },
+    { duration: '10s', target: 2000 }, 
+    { duration: '30s', target: 5000 },
     { duration: '10s', target: 0 },
   ],
   

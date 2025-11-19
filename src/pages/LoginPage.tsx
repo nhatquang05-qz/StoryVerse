@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'; 
 import { useAuth } from '../contexts/AuthContext'; 
 import '../assets/styles/AuthPage.css'; 
+import bgLogin from '../assets/images/bg-login.webp';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -37,7 +38,13 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(36, 93, 116, 0.6)), url(${bgLogin})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+    }}>
       <div className="auth-container">
         <h2>Đăng Nhập</h2>
         <form onSubmit={handleSubmit} className="auth-form">
