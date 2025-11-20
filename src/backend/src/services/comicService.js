@@ -8,22 +8,13 @@ const addComicService = async ({ title, author, description, coverImageUrl, stat
         throw { status: 400, error: 'Title and Cover Image URL are required' };
     }
 
-    const connection = getConnection();
     try {
-        await connection.beginTransaction();
+        const comicId = await comicModel.createComicRaw({
+            title, author, description, coverImageUrl, status, isDigital, price, genres
+        });
 
-        const comicId = await comicModel.createComicRaw(title, author, description, coverImageUrl, status, isDigital, price);
-
-        if (genres && Array.isArray(genres) && genres.length > 0) {
-            const genreValues = genres.map(genreId => [comicId, Number(genreId)]);
-            await comicModel.insertComicGenresRaw(genreValues);
-        }
-
-        await connection.commit();
         return { message: 'Comic added successfully', comicId: comicId, status: 201 };
-
     } catch (error) {
-        await connection.rollback();
         console.error('Error adding comic in service:', error);
         throw { status: 500, error: 'Failed to add comic' };
     }
@@ -34,44 +25,27 @@ const updateComicService = async (id, { title, author, description, coverImageUr
         throw { status: 400, error: 'Title and Cover Image URL are required' };
     }
 
-    const connection = getConnection();
     try {
-        await connection.beginTransaction();
+        await comicModel.updateComicRaw(id, {
+            title, author, description, coverImageUrl, status, isDigital, price, genres
+        });
 
-        await comicModel.updateComicRaw(id, title, author, description, coverImageUrl, status, isDigital, price);
-
-        await comicModel.deleteComicGenresRaw(id);
-
-        if (genres && Array.isArray(genres) && genres.length > 0) {
-            const genreValues = genres.map(genreId => [id, Number(genreId)]);
-            await comicModel.insertComicGenresRaw(genreValues);
-        }
-
-        await connection.commit();
         return { message: 'Comic updated successfully', status: 200 };
-
     } catch (error) {
-        await connection.rollback();
         console.error('Error updating comic in service:', error);
         throw { status: 500, error: 'Failed to update comic' };
     }
 };
 
 const deleteComicService = async (id) => {
-    const connection = getConnection();
     try {
-        await connection.beginTransaction();
-        
         const affectedRows = await comicModel.deleteComicRaw(id);
 
-        await connection.commit();
         if (affectedRows === 0) {
             throw { status: 404, error: 'Comic not found' };
         }
         return { message: 'Comic deleted successfully', status: 200 };
-
     } catch (error) {
-        await connection.rollback();
         console.error('Error deleting comic in service:', error);
         throw { status: error.status || 500, error: error.error || 'Failed to delete comic' };
     }
@@ -132,7 +106,7 @@ const getComicByIdService = async (id) => {
         comic.averageRating = parseFloat(comic.averageRating) || 0;
         comic.totalReviews = parseInt(comic.totalReviews) || 0;
 
-        await comicModel.incrementComicViewCount(id); 
+        comicModel.incrementComicViewCount(id).catch(err => console.error("View increment fail", err));
 
         return comic;
     } catch (error) {
@@ -141,7 +115,6 @@ const getComicByIdService = async (id) => {
     }
 };
 
-
 const addChapterService = async (comicId, { chapterNumber, title, contentUrls, price }) => {
     if (!chapterNumber || !contentUrls || !Array.isArray(contentUrls) || contentUrls.length === 0) {
         throw { status: 400, error: 'Chapter number and content URLs are required' };
@@ -149,7 +122,14 @@ const addChapterService = async (comicId, { chapterNumber, title, contentUrls, p
 
     try {
         const contentUrlsJson = JSON.stringify(contentUrls);
-        const chapterId = await comicModel.createChapterRaw(comicId, chapterNumber, title, contentUrlsJson, price);
+        
+        const chapterId = await comicModel.createChapterRaw(comicId, {
+            chapterNumber, 
+            title, 
+            contentUrls: contentUrlsJson,
+            price
+        });
+
         return { message: 'Chapter added successfully', chapterId: chapterId, status: 201 };
     } catch (error) {
         console.error('Error adding chapter in service:', error);
@@ -158,13 +138,8 @@ const addChapterService = async (comicId, { chapterNumber, title, contentUrls, p
 };
 
 const deleteChapterService = async (comicId, chapterId) => {
-    const connection = getConnection();
     try {
-        await connection.beginTransaction();
-        
         const affectedRows = await comicModel.deleteChapterRaw(comicId, chapterId);
-        
-        await connection.commit();
 
         if (affectedRows === 0) {
             throw { status: 404, error: 'Chapter not found or not associated with this comic' };
@@ -172,13 +147,10 @@ const deleteChapterService = async (comicId, chapterId) => {
 
         return { message: 'Chapter deleted successfully', status: 200 };
     } catch (error) {
-        await connection.rollback();
         console.error('Error deleting chapter in service:', error);
         throw { status: error.status || 500, error: error.error || 'Failed to delete chapter' };
     }
 };
-
-// --- CHAPTER CONTENT & UNLOCK LOGIC ---
 
 const getChapterContentService = async (comicId, chapterId, userId) => {
     try {
@@ -209,7 +181,14 @@ const getChapterContentService = async (comicId, chapterId, userId) => {
         }
 
         if (isPurchased) {
-            await comicModel.incrementChapterViewCount(comicId, chapterId); 
+            await comicModel.incrementChapterViewCount(comicId, chapterId);             
+            try {
+                if (typeof chapter.contentUrls === 'string') {
+                    chapter.contentUrls = JSON.parse(chapter.contentUrls);
+                }
+            } catch (e) {
+                chapter.contentUrls = [];
+            }
             chapter.contentUrls = chapter.contentUrls || [];
 
             return chapter;
@@ -228,21 +207,16 @@ const unlockChapterService = async (userId, chapterId) => {
         throw { status: 400, error: 'chapterId is required.' };
     }
 
-    const connection = getConnection();
     try {
-        await connection.beginTransaction();
-
         const chapterData = await comicModel.findChapterForUnlock(chapterId);
         if (!chapterData) {
-            await connection.rollback();
             throw { status: 404, error: 'Chapter not found.' };
         }
         const chapterPrice = parseInt(chapterData.price);
-        const comicId = chapterData.comicId;
+        const comicId = chapterData.comicId; 
 
-        const user = await userModel.findUserById(userId, true); 
+        const user = await userModel.findUserById(userId, false); 
         if (!user) {
-            await connection.rollback();
             throw { status: 404, error: 'User not found.' };
         }
         
@@ -257,25 +231,20 @@ const unlockChapterService = async (userId, chapterId) => {
              if (!existingFreeUnlock) {
                  await comicModel.insertUnlockedChapter(userId, chapterId);
              }
-             await connection.commit();
              return { message: 'Chapter is free and unlocked.', level, exp, coinBalance, levelUpOccurred: false };
         }
 
         if (coinBalance < chapterPrice) {
-            await connection.rollback();
             throw { status: 400, error: 'Số dư Xu không đủ. Vui lòng nạp thêm Xu.' };
         }
 
         const existingUnlock = await comicModel.findUnlockedChapter(userId, chapterId);
         if (existingUnlock) {
-            await connection.commit();
             return { message: 'Chapter already unlocked.', level, exp, coinBalance, levelUpOccurred: false };
         }
-
         await comicModel.insertUnlockedChapter(userId, chapterId);
 
         const newCoinBalance = coinBalance - chapterPrice;
-        
         let currentLevel = level;
         let currentExp = exp;
         let coinsToProcess = chapterPrice; 
@@ -284,7 +253,7 @@ const unlockChapterService = async (userId, chapterId) => {
             const modifier = Math.pow(EXP_RATE_REDUCTION_FACTOR, currentLevel - 1);
             const expPerCoinThisLevel = BASE_EXP_PER_COIN * modifier;
             if (expPerCoinThisLevel < MIN_EXP_PER_COIN) {
-                coinsToProcess = 0;
+                coinsToProcess = 0; 
                 break;
             }
             const expNeededForNextLevel = 100.0 - currentExp;
@@ -307,8 +276,6 @@ const unlockChapterService = async (userId, chapterId) => {
 
         await userModel.updateUserBalanceAndExpRaw(userId, newCoinBalance, currentLevel, currentExp);
 
-        await connection.commit();
-
         return {
             level: currentLevel,
             exp: currentExp,
@@ -317,11 +284,11 @@ const unlockChapterService = async (userId, chapterId) => {
         };
 
     } catch (error) {
-        await connection.rollback();
         console.error('Unlock chapter error in service:', error);
         throw { status: error.status || 500, error: error.error || 'Failed to unlock chapter' };
     }
 };
+
 
 const getTopComicsService = async (period) => {
     try {
@@ -351,7 +318,6 @@ const getTopComicsService = async (period) => {
             ...comic,
             averageRating: parseFloat(comic.averageRating) || 0,
             totalReviews: parseInt(comic.totalReviews) || 0
-
         }));
         return comicsWithRating;
     } catch (error) {

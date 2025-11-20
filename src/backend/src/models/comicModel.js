@@ -1,42 +1,93 @@
 const { getConnection } = require('../db/connection');
 
-// --- GENRE OPERATIONS ---
 const getAllGenresRaw = async () => {
     const connection = getConnection();
     const [rows] = await connection.execute('SELECT id, name FROM genres ORDER BY name');
     return rows;
 };
 
-// --- COMIC CRUD OPERATIONS ---
-const createComicRaw = async (title, author, description, coverImageUrl, status, isDigital, price) => {
+const createComicRaw = async (comicData) => {
     const connection = getConnection();
+    const { title, author, description, coverImageUrl, status, isDigital, price, genres } = comicData;
+
+    const safeTitle = title || null;
+    const safeAuthor = author || null;
+    const safeDescription = description || null;
+    const safeCover = coverImageUrl || null;
+    const safeStatus = status || 'Ongoing';
+    const safeIsDigital = isDigital ? 1 : 0;
+    const safePrice = price || 0;
+
     const [result] = await connection.execute(
-        'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0]
+        'INSERT INTO comics (title, author, description, coverImageUrl, status, isDigital, price, viewCount, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW(), NOW())',
+        [safeTitle, safeAuthor, safeDescription, safeCover, safeStatus, safeIsDigital, safePrice]
     );
-    return result.insertId;
+    const newComicId = result.insertId;
+
+    if (genres && Array.isArray(genres) && genres.length > 0) {
+        const genreValues = genres.map(gId => [newComicId, gId]);
+        await connection.query(
+            'INSERT INTO comic_genres (comicId, genreId) VALUES ?',
+            [genreValues]
+        );
+    }
+
+    return newComicId;
 };
 
-const updateComicRaw = async (id, title, author, description, coverImageUrl, status, isDigital, price) => {
+const updateComicRaw = async (id, comicData) => {
     const connection = getConnection();
+    const { title, author, description, coverImageUrl, status, isDigital, price, genres } = comicData;
+
+    const safeTitle = title || null;
+    const safeAuthor = author || null;
+    const safeDescription = description || null;
+    const safeCover = coverImageUrl || null;
+    const safeStatus = status || 'Ongoing';
+    const safeIsDigital = isDigital ? 1 : 0;
+    const safePrice = price || 0;
+
     await connection.execute(
-        'UPDATE comics SET title = ?, author = ?, description = ?, coverImageUrl = ?, status = ?, isDigital = ?, price = ? WHERE id = ?',
-        [title, author || null, description || null, coverImageUrl, status || 'Ongoing', isDigital ? 1 : 0, price || 0, id]
+        'UPDATE comics SET title = ?, author = ?, description = ?, coverImageUrl = ?, status = ?, isDigital = ?, price = ?, updatedAt = NOW() WHERE id = ?',
+        [safeTitle, safeAuthor, safeDescription, safeCover, safeStatus, safeIsDigital, safePrice, id]
     );
+
+    if (genres !== undefined) {
+        await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
+
+        if (Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(gId => [id, gId]);
+            await connection.query(
+                'INSERT INTO comic_genres (comicId, genreId) VALUES ?',
+                [genreValues]
+            );
+        }
+    }
 };
 
 const deleteComicRaw = async (id) => {
     const connection = getConnection();
     
-    await connection.execute('DELETE FROM daily_comic_stats WHERE comic_id = ?', [id]);
+    await connection.execute('DELETE FROM user_wishlist WHERE comicId = ?', [id]);
+    await connection.execute(
+        'DELETE FROM user_unlocked_chapters WHERE chapterId IN (SELECT id FROM chapters WHERE comicId = ?)', 
+        [id]
+    );
+
+    try {
+        await connection.execute('DELETE FROM daily_comic_stats WHERE comic_id = ?', [id]);
+    } catch (error) {
+        
+    }
+
     await connection.execute('DELETE FROM reviews WHERE comicId = ?', [id]);
     await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [id]);
     await connection.execute('DELETE FROM chapters WHERE comicId = ?', [id]);
+    
     const [result] = await connection.execute('DELETE FROM comics WHERE id = ?', [id]);
     return result.affectedRows;
 };
 
-// --- COMIC GENRE OPERATIONS ---
 const deleteComicGenresRaw = async (comicId) => {
     const connection = getConnection();
     await connection.execute('DELETE FROM comic_genres WHERE comicId = ?', [comicId]);
@@ -52,22 +103,17 @@ const insertComicGenresRaw = async (genreValues) => {
     }
 };
 
-// --- COMIC READ OPERATIONS (FIXED PAGINATION ERROR) ---
-
-// 1. Đếm tổng số truyện
 const getComicCountRaw = async () => {
     const connection = getConnection();
     const [rows] = await connection.execute('SELECT COUNT(*) as total FROM comics');
     return rows[0].total;
 };
 
-// 2. Lấy danh sách có phân trang (DÙNG QUERY THAY VÌ EXECUTE)
 const getComicListRaw = async (limit, offset) => {
     const connection = getConnection();
     const limitInt = Number(limit) || 20;
     const offsetInt = Number(offset) || 0;
 
-    // [FIX]: Sử dụng .query() thay vì .execute() để tránh lỗi 'Incorrect arguments to mysqld_stmt_execute' với LIMIT
     const [rows] = await connection.query(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount, c.createdAt, c.updatedAt,
@@ -129,7 +175,7 @@ const incrementComicViewCount = async (id) => {
             [id]
         );
     } catch (logError) {
-        console.error('Failed to log daily comic view:', logError.message);
+        
     }
 };
 
@@ -169,18 +215,32 @@ const getTopRatedComicsRaw = async () => {
     return rows;
 };
 
-// --- CHAPTER CRUD OPERATIONS ---
-const createChapterRaw = async (comicId, chapterNumber, title, contentUrlsJson, price) => {
+const createChapterRaw = async (comicId, chapterData) => {
     const connection = getConnection();
+    const { chapterNumber, title, contentUrls, price } = chapterData;
+
+    let contentJson;
+    if (typeof contentUrls === 'string') {
+        contentJson = contentUrls;
+    } else {
+        contentJson = JSON.stringify(contentUrls || []);
+    }
+
+    const safeTitle = title || `Chapter ${chapterNumber}`;
+    const safePrice = price || 0;
+
     const [result] = await connection.execute(
-        'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price, viewCount) VALUES (?, ?, ?, ?, ?, ?)',
-        [comicId, chapterNumber, title || null, contentUrlsJson, price || 0, 0]
+        'INSERT INTO chapters (comicId, chapterNumber, title, contentUrls, price, viewCount, createdAt) VALUES (?, ?, ?, ?, ?, 0, NOW())',
+        [comicId, chapterNumber, safeTitle, contentJson, safePrice]
     );
+    
+    await connection.execute('UPDATE comics SET updatedAt = NOW() WHERE id = ?', [comicId]);
     return result.insertId;
 };
 
 const deleteChapterRaw = async (comicId, chapterId) => {
     const connection = getConnection();
+    await connection.execute('DELETE FROM user_unlocked_chapters WHERE chapterId = ?', [chapterId]);
     const [result] = await connection.execute(
         'DELETE FROM chapters WHERE id = ? AND comicId = ?',
         [chapterId, comicId]
@@ -188,7 +248,6 @@ const deleteChapterRaw = async (comicId, chapterId) => {
     return result.affectedRows;
 };
 
-// --- CHAPTER CONTENT & UNLOCK OPERATIONS ---
 const getChapterRaw = async (comicId, chapterId) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
@@ -200,11 +259,13 @@ const getChapterRaw = async (comicId, chapterId) => {
 
 const findFullPurchase = async (userId, comicId) => {
     const connection = getConnection();
-    const [rows] = await connection.execute(
-        'SELECT 1 FROM user_library WHERE userId = ? AND comicId = ?',
-        [userId, comicId]
-    );
-    return rows.length > 0;
+    try {
+        const [rows] = await connection.execute(
+            'SELECT 1 FROM user_library WHERE userId = ? AND comicId = ?',
+            [userId, comicId]
+        );
+        return rows.length > 0;
+    } catch (e) { return false; }
 };
 
 const findUnlockedChapter = async (userId, chapterId) => {
@@ -227,9 +288,7 @@ const incrementChapterViewCount = async (comicId, chapterId) => {
              ON DUPLICATE KEY UPDATE daily_view_count = daily_view_count + 1`,
             [comicId] 
         );
-    } catch (logError) {
-        console.error('Failed to log daily chapter view:', logError.message);
-    }
+    } catch (logError) {}
 };
 
 const findChapterForUnlock = async (chapterId) => {
@@ -243,31 +302,28 @@ const insertUnlockedChapter = async (userId, chapterId) => {
     await connection.execute('INSERT INTO user_unlocked_chapters (userId, chapterId) VALUES (?, ?)', [userId, chapterId]);
 };
 
-// --- STATS/SEARCH OPERATIONS ---
-
 const getTopComicsRaw = async (startDate, endDate) => {
     const connection = getConnection();
-    
     if (startDate && endDate) {
-        const [rows] = await connection.execute(
-            `SELECT 
-                c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author,
-                c.viewCount,
-                (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
-                (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews,
-                SUM(s.daily_view_count) AS periodViewCount
-            FROM daily_comic_stats s
-            JOIN comics c ON s.comic_id = c.id
-            WHERE 
-                s.view_date >= ? AND s.view_date < ?
-            GROUP BY c.id
-            ORDER BY periodViewCount DESC
-            LIMIT 10`,
-            [startDate, endDate]
-        );
-        return rows;
+        try {
+            const [rows] = await connection.execute(
+                `SELECT 
+                    c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author,
+                    c.viewCount,
+                    (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
+                    (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews,
+                    SUM(s.daily_view_count) AS periodViewCount
+                FROM daily_comic_stats s
+                JOIN comics c ON s.comic_id = c.id
+                WHERE s.view_date >= ? AND s.view_date < ?
+                GROUP BY c.id
+                ORDER BY periodViewCount DESC
+                LIMIT 10`,
+                [startDate, endDate]
+            );
+            return rows;
+        } catch (e) { }
     }
-
     const [rows] = await connection.execute(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
@@ -280,7 +336,6 @@ const getTopComicsRaw = async (startDate, endDate) => {
     return rows;
 };
 
-// 3. Tìm kiếm có phân trang (DÙNG QUERY)
 const searchComicsRaw = async (searchQuery, limit, offset) => {
     const connection = getConnection();
     const limitInt = Number(limit) || 20;
@@ -294,10 +349,7 @@ const searchComicsRaw = async (searchQuery, limit, offset) => {
          FROM comics c
          LEFT JOIN comic_genres cg ON c.id = cg.comicId
          LEFT JOIN genres g ON cg.genreId = g.id
-         WHERE 
-            c.title LIKE ? 
-            OR c.author LIKE ? 
-            OR g.name LIKE ?
+         WHERE c.title LIKE ? OR c.author LIKE ? OR g.name LIKE ?
          GROUP BY c.id
          LIMIT ? OFFSET ?`,
         [searchQuery, searchQuery, searchQuery, limitInt, offsetInt]
@@ -305,7 +357,6 @@ const searchComicsRaw = async (searchQuery, limit, offset) => {
     return rows;
 };
 
-// 4. Đếm kết quả tìm kiếm
 const getSearchComicsCountRaw = async (searchQuery) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
@@ -313,21 +364,16 @@ const getSearchComicsCountRaw = async (searchQuery) => {
          FROM comics c
          LEFT JOIN comic_genres cg ON c.id = cg.comicId
          LEFT JOIN genres g ON cg.genreId = g.id
-         WHERE 
-            c.title LIKE ? 
-            OR c.author LIKE ? 
-            OR g.name LIKE ?`,
+         WHERE c.title LIKE ? OR c.author LIKE ? OR g.name LIKE ?`,
         [searchQuery, searchQuery, searchQuery]
     );
     return rows[0].total;
 };
 
-// 5. Lấy theo thể loại có phân trang (DÙNG QUERY)
 const getComicsByGenreRaw = async (genre, limit, offset) => {
     const connection = getConnection();
     const limitInt = Number(limit) || 20;
     const offsetInt = Number(offset) || 0;
-
     const [rows] = await connection.query(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
@@ -343,7 +389,6 @@ const getComicsByGenreRaw = async (genre, limit, offset) => {
     return rows;
 };
 
-// 6. Đếm kết quả theo thể loại
 const getComicsByGenreCountRaw = async (genre) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
@@ -357,7 +402,6 @@ const getComicsByGenreCountRaw = async (genre) => {
     return rows[0].total;
 };
 
-// --- REVIEW OPERATIONS ---
 const getReviewsRaw = async (comicId) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
@@ -373,27 +417,18 @@ const getReviewsRaw = async (comicId) => {
 
 const findExistingReview = async (comicId, userId) => {
     const connection = getConnection();
-    const [rows] = await connection.execute(
-        'SELECT * FROM reviews WHERE comicId = ? AND userId = ?',
-        [comicId, userId]
-    );
+    const [rows] = await connection.execute('SELECT * FROM reviews WHERE comicId = ? AND userId = ?', [comicId, userId]);
     return rows.length > 0 ? rows[0] : null;
 };
 
 const updateReviewRaw = async (id, rating, comment) => {
     const connection = getConnection();
-    await connection.execute(
-        'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?',
-        [rating, comment, id]
-    );
+    await connection.execute('UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?', [rating, comment, id]);
 };
 
 const insertReviewRaw = async (comicId, userId, rating, comment) => {
     const connection = getConnection();
-    const [result] = await connection.execute(
-        'INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)',
-        [comicId, userId, rating, comment]
-    );
+    const [result] = await connection.execute('INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)', [comicId, userId, rating, comment]);
     return result.insertId;
 };
 

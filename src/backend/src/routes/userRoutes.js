@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist } = require('../controllers/userController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { 
+    getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist,
+    getAllUsers, updateUserById, toggleUserBan, deleteUserById 
+} = require('../controllers/userController');
+const { authenticateToken, authenticateAdmin } = require('../middleware/authMiddleware');
 
 // --- 1. PUBLIC ROUTES ---
 router.get('/top', getTopUsers); 
@@ -14,5 +17,11 @@ router.put('/profile/avatar', updateAvatar);
 router.get('/unlocked-chapters', getUnlockedChapters);
 router.get('/wishlist', getWishlist);
 router.post('/wishlist/toggle', toggleWishlist);
+
+// --- 3. ADMIN ROUTES ---
+router.get('/', authenticateAdmin, getAllUsers); 
+router.put('/:id', authenticateAdmin, updateUserById); 
+router.post('/:id/ban', authenticateAdmin, toggleUserBan); 
+router.delete('/:id', authenticateAdmin, deleteUserById); 
 
 module.exports = router;

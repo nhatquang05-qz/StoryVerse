@@ -1,6 +1,5 @@
 const { getConnection } = require('../db/connection');
 
-// --- READ OPERATIONS (General & Auth) ---
 const findUserByEmail = async (email) => {
     const connection = getConnection();
     const [rows] = await connection.execute('SELECT * FROM users WHERE email = ?', [email]);
@@ -168,9 +167,24 @@ const toggleUserBanRaw = async (id, isBanned) => {
 
 const deleteUserDependenciesRaw = async (id) => {
     const connection = getConnection();
+    
+    try {
+        await connection.execute('DELETE FROM chat_messages WHERE userId = ?', [id]);
+    } catch (error) {
+    }
+
     await connection.execute('DELETE FROM user_wishlist WHERE userId = ?', [id]);
     await connection.execute('DELETE FROM user_unlocked_chapters WHERE userId = ?', [id]);
-    await connection.execute('DELETE FROM user_addresses WHERE userId = ?', [id]); 
+
+    try {
+        await connection.execute('DELETE FROM reviews WHERE userId = ?', [id]);
+    } catch (error) {
+    }
+
+    try {
+        await connection.execute('DELETE FROM user_library WHERE userId = ?', [id]);
+    } catch (error) {
+    }
 };
 
 const deleteUserRaw = async (id) => {

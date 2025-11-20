@@ -20,7 +20,7 @@ const UserManagement: React.FC = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/users`, {
+            const response = await fetch(`${API_BASE_URL}/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) throw new Error('Không thể tải danh sách người dùng');
@@ -73,7 +73,7 @@ const UserManagement: React.FC = () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}/ban`, {
+            const response = await fetch(`${API_BASE_URL}/users/${user.id}/ban`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const UserManagement: React.FC = () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -114,7 +114,7 @@ const UserManagement: React.FC = () => {
         filteredUsers.forEach(user => {
             const values = [
                 user.id,
-                `"${user.fullName}"`, // Handle names with commas
+                `"${user.fullName}"`, 
                 user.email,
                 user.coinBalance,
                 user.level,
@@ -125,7 +125,7 @@ const UserManagement: React.FC = () => {
         });
 
         const csvString = csvRows.join('\n');
-        const blob = new Blob([`\uFEFF${csvString}`], { type: 'text/csv;charset=utf-8;' }); // Add BOM for Excel
+        const blob = new Blob([`\uFEFF${csvString}`], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

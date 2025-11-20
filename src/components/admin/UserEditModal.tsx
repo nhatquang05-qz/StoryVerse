@@ -38,7 +38,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onSave, to
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}`, {
+            const response = await fetch(`${API_BASE_URL}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

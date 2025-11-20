@@ -126,7 +126,7 @@ const unlockChapter = async (req, res) => {
             exp: result.exp,
             coinBalance: result.coinBalance,
             levelUpOccurred: result.levelUpOccurred,
-            message: result.message
+            message: result.message || 'Unlock successful'
         });
 
     } catch (error) {
@@ -155,8 +155,8 @@ const searchComics = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 24;
 
-        const comics = await comicService.searchComicsService(q, page, limit);
-        res.json(comics);
+        const result = await comicService.searchComicsService(q, page, limit);
+        res.json(result);
     } catch (error) {
         const status = error.status || 500;
         console.error('Error searching comics:', error);
@@ -170,8 +170,8 @@ const getComicsByGenre = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 24;
 
-        const comics = await comicService.getComicsByGenreService(genre, page, limit);
-        res.json(comics);
+        const result = await comicService.getComicsByGenreService(genre, page, limit);
+        res.json(result);
     } catch (error) {
         const status = error.status || 500;
         console.error('Error fetching comics by genre:', error);
