@@ -87,8 +87,14 @@ const Header: React.FC = () => {
             try {
                 const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(value.trim())}&limit=${MAX_SUGGESTIONS_TOTAL}`);
                 if (!response.ok) throw new Error('Network response was not ok');
-                const data: ComicSummary[] = await response.json();
-                setSuggestions(data);
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    setSuggestions(data);
+                } else {
+                    console.warn("API search response is not an array:", data);
+                    setSuggestions([]);
+                }
             } catch (error) {
                 console.error("Lỗi fetch search suggestions:", error);
                 setSuggestions([]);
@@ -161,10 +167,12 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchBarRef]);
 
-  const showSuggestionsDropdown = (suggestions.length > 0 || isLoadingSearch) && isSearchFocused;
+  // FIX 2: Đảm bảo safeSuggestions luôn là mảng để tránh lỗi .filter is not a function
+  const safeSuggestions = Array.isArray(suggestions) ? suggestions : [];
+  const showSuggestionsDropdown = (safeSuggestions.length > 0 || isLoadingSearch) && isSearchFocused;
 
-  const digitalSuggestions = suggestions.filter(comic => (comic as any).isDigital === 1);
-  const physicalSuggestions = suggestions.filter(comic => (comic as any).isDigital === 0);
+  const digitalSuggestions = safeSuggestions.filter(comic => (comic as any).isDigital === 1);
+  const physicalSuggestions = safeSuggestions.filter(comic => (comic as any).isDigital === 0);
 
   return (
     <header className={`header ${isReaderPage ? 'header-no-sticky' : ''}`}>
@@ -216,7 +224,7 @@ const Header: React.FC = () => {
                 <div className="search-suggestions-dropdown">
                   {isLoadingSearch && <div className="suggestion-item">Đang tìm...</div>}
                 
-                {!isLoadingSearch && searchTerm.trim().length > 1 && suggestions.length === 0 && (
+                {!isLoadingSearch && searchTerm.trim().length > 1 && safeSuggestions.length === 0 && (
                      <div className="suggestion-item">Không tìm thấy kết quả nào.</div>
                 )}
 

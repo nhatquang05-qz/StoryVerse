@@ -152,11 +152,20 @@ const getTopComics = async (req, res) => {
 const searchComics = async (req, res) => {
     try {
         const { q } = req.query;
+
+        const isPaginationRequest = req.query.page !== undefined;        
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 24;
-
         const result = await comicService.searchComicsService(q, page, limit);
-        res.json(result);
+
+        if (!isPaginationRequest) {
+            return res.json(result.data);
+        }
+
+        res.json({
+            comics: result.data,
+            pagination: result.pagination
+        });
     } catch (error) {
         const status = error.status || 500;
         console.error('Error searching comics:', error);

@@ -41,11 +41,22 @@ const SearchPage: React.FC = () => {
       
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(q)}`);
+        const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(q)}&limit=100`);
         if (!response.ok) throw new Error('Network response was not ok');
-        const rawData: any[] = await response.json();
         
-        const data: ComicSummary[] = rawData.map(comic => ({
+        const rawData: any = await response.json();
+        let comicsArray: any[] = [];
+
+        if (Array.isArray(rawData)) {
+            comicsArray = rawData;
+        } else if (rawData && rawData.comics && Array.isArray(rawData.comics)) {
+            comicsArray = rawData.comics;
+        } else {
+            console.warn("Cấu trúc phản hồi API không mong đợi:", rawData);
+            comicsArray = [];
+        }
+        
+        const data: ComicSummary[] = comicsArray.map((comic: any) => ({
             ...comic,
             id: Number(comic.id),
             isDigital: comic.isDigital === 1,
