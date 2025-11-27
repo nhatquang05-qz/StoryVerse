@@ -149,7 +149,10 @@ html[data-theme="night"] .exp-progress-bar-fill {
 }
 
 .form-group {
-    margin-bottom: 1.5rem; 
+    display: flex;          
+    flex-direction: column; 
+    gap: 0.5rem;            
+    margin-bottom: 1.5rem;  
 }
 
 .form-group input:disabled {
@@ -352,7 +355,7 @@ html[data-theme="dark"] .address-display-group {
 .profile-actions {
     display: flex;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
 }
 .default-address-card {
     border: 2px solid var(--clr-primary) !important;

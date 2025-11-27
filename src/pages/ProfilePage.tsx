@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import ProfileSidebar from '../components/common/ProfileSideBar'; 
+import ProfileSideBar from '../components/common/ProfileSideBar'; 
 import { useNotification } from '../contexts/NotificationContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; 
 import { FiUpload, FiLoader } from 'react-icons/fi';
 import '../assets/styles/ProfilePage.css';
-import { Link, useNavigate } from 'react-router-dom';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import TransactionHistory from '../components/common/TransactionHistory'; 
+
 interface LevelSelectorProps {
     currentUserLevel: number;
     currentSystemKey: string;
@@ -21,8 +22,20 @@ const ProfilePage: React.FC = () => {
   const { showNotification } = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState('info'); 
+
+  // Tự động chuyển tab dựa vào URL (?tab=history)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam && ['info', 'history'].includes(tabParam)) {
+        setActiveTab(tabParam);
+    } else {
+        setActiveTab('info');
+    }
+  }, [location.search]);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -157,9 +170,8 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="profile-page-container">
 
-      <ProfileSidebar 
+      <ProfileSideBar 
           activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
           onLogout={handleLogout} 
       />
       
@@ -223,7 +235,8 @@ const ProfilePage: React.FC = () => {
                             <label>SĐT</label>
                             <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required />
                         </div>
-                        <div className="profile-actions">
+                        {/* Đã thêm marginTop để nút không bị dính vào input */}
+                        <div className="profile-actions" style={{ marginTop: '2rem' }}>
                             <button type="submit" className="save-btn" disabled={isSaving || !isProfileChanged}>
                                 {isSaving ? 'Đang lưu...' : 'Lưu Thông Tin'}
                             </button>
@@ -240,7 +253,7 @@ const ProfilePage: React.FC = () => {
              <div className="profile-info-card">
                  <h3>Quản Lý Địa Chỉ</h3>
                  <p style={{color: '#666', textAlign: 'center', padding: '20px'}}>
-                     <Link to="/addresses" className="save-btn" style={{textDecoration: 'none'}}>Đến trang Quản lý địa chỉ</Link>
+                     Đang chuyển hướng...
                  </p>
              </div>
         )}

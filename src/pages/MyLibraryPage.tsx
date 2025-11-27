@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiBook } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
-import ProfileSidebar from '../components/common/ProfileSideBar';
+import ProfileSideBar from '../components/common/ProfileSideBar';
 import { loadOrders, type OrderItem } from '../data/mockData';
 import '../assets/styles/ProfilePage.css';
 import '../assets/styles/MyLibraryPage.css';
 
 const MyLibraryPage: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth(); 
   const navigate = useNavigate();
   const [purchasedComics, setPurchasedComics] = useState<OrderItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +46,11 @@ const MyLibraryPage: React.FC = () => {
     navigate(`/read/${comicId}`);
   };
 
+  const handleLogout = async () => {
+      await logout();
+      navigate('/login');
+  };
+
   if (!currentUser) {
     return (
       <div className="profile-page-not-logged">
@@ -56,7 +61,11 @@ const MyLibraryPage: React.FC = () => {
 
   return (
     <div className="profile-page-container">
-      <ProfileSidebar activeLink="/my-library" />
+      <ProfileSideBar 
+        activeTab="my-library" 
+        onLogout={handleLogout} 
+      />
+      
       <div className="profile-content">
         <h1>Thư Viện Truyện Kỹ Thuật Số</h1>
         <div className="profile-info-card" style={{ marginBottom: '2rem' }}>
