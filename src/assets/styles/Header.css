@@ -298,7 +298,7 @@
   position: absolute;
   top: -5px;
   right: -8px;
-  background-color: var(--clr-error-text);
+  background-color: rgb(231, 84, 84);
   color: white;
   border-radius: 50%;
   width: 18px;

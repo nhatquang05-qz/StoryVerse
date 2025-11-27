@@ -1,11 +1,12 @@
 import React, { createContext, useState, useContext, type ReactNode, useMemo, useEffect, useCallback } from 'react';
 import { type Comic, type Order } from '../data/mockData';
 import { useAuth } from './AuthContext';
-import { saveNewOrder, type OrderItem } from '../data/mockData';
+import { saveNewOrder } from '../data/mockData';
 import { useNotification } from './NotificationContext';
 
 export interface CartItem extends Comic {
   quantity: number;
+  coverImageUrl?: string;
 }
 
 interface AnimationData {
@@ -16,7 +17,7 @@ interface AnimationData {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (comic: Comic, quantity: number, startElementRect: DOMRect | null) => void;
+  addToCart: (comic: Comic | any, quantity: number, startElementRect: DOMRect | null) => void; 
   updateQuantity: (comicId: number, newQuantity: number) => void;
   removeFromCart: (comicId: number) => void;
   clearCart: () => void;
@@ -36,7 +37,7 @@ const DISCOUNT_PERCENTAGE = 0.20;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { currentUser, token } = useAuth(); // Lấy thêm token
+  const { currentUser, token } = useAuth();
   const { showNotification } = useNotification();
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -60,7 +61,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           });
           if (response.ok) {
               const data = await response.json();
-              setCartItems(data);
+              const mappedData = data.map((item: any) => ({
+                  ...item,
+                  imageUrl: item.imageUrl || item.coverImageUrl 
+              }));
+              setCartItems(mappedData);
           }
       } catch (error) {
           console.error("Failed to fetch cart:", error);
@@ -71,15 +76,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       fetchCart();
   }, [fetchCart]);
 
-  const addToCart = async (comic: Comic, quantity: number, startElementRect: DOMRect | null) => {
+  const addToCart = async (comic: Comic | any, quantity: number, startElementRect: DOMRect | null) => {
     if (comic.isDigital) {
         showNotification(`Truyện Digital không được thêm vào giỏ hàng.`, 'info');
         return;
     }
 
-    if (startElementRect && cartIconRect && comic.imageUrl) {
+    const imageSrc = comic.coverImageUrl || comic.imageUrl;
+
+    if (startElementRect && cartIconRect && imageSrc) {
       setAnimationData({
-        src: comic.imageUrl,
+        src: imageSrc,
         startRect: startElementRect,
         endRect: cartIconRect,
       });
@@ -98,7 +105,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             
             if (response.ok) {
                 const updatedCart = await response.json();
-                setCartItems(updatedCart);
+                // Map lại dữ liệu trả về từ API
+                const mappedCart = updatedCart.map((item: any) => ({
+                    ...item,
+                    imageUrl: item.imageUrl || item.coverImageUrl
+                }));
+                setCartItems(mappedCart);
                 showNotification(`Đã thêm ${comic.title} vào giỏ hàng.`, 'success');
             } else {
                 showNotification('Lỗi khi thêm vào giỏ hàng.', 'error');
@@ -126,7 +138,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (response.ok) {
             const updatedCart = await response.json();
-            setCartItems(updatedCart);
+            const mappedCart = updatedCart.map((item: any) => ({
+                ...item,
+                imageUrl: item.imageUrl || item.coverImageUrl
+            }));
+            setCartItems(mappedCart);
         }
     } catch (error) {
         console.error("Update cart error:", error);
@@ -144,7 +160,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (response.ok) {
             const updatedCart = await response.json();
-            setCartItems(updatedCart);
+            const mappedCart = updatedCart.map((item: any) => ({
+                ...item,
+                imageUrl: item.imageUrl || item.coverImageUrl
+            }));
+            setCartItems(mappedCart);
             showNotification('Đã xóa sản phẩm khỏi giỏ hàng.', 'success');
         }
     } catch (error) {
@@ -201,7 +221,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         date: new Date().toLocaleDateString('vi-VN'),
         total: finalTotal,
         status: 'Đang chờ' as const,
-        items: physicalItems.map(item => ({...item, imageUrl: item.imageUrl || ''})),
+        items: physicalItems.map(item => ({
+            ...item, 
+            imageUrl: item.imageUrl || item.coverImageUrl || ''
+        })),
     };
     
     saveNewOrder(newOrder);

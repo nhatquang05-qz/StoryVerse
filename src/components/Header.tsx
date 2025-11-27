@@ -20,30 +20,41 @@ const formatPrice = (price: number) => {
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  
+  const [searchTerm, setSearchTerm] = useState('');  
   const [suggestions, setSuggestions] = useState<ComicSummary[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [isLoadingSearch, setIsLoadingSearch] = useState(false); 
-  
-  const [allGenres, setAllGenres] = useState<Genre[]>([]);
-  
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);   
+  const [allGenres, setAllGenres] = useState<Genre[]>([]);  
   const { cartCount, setCartIconRect } = useCart();
   const { currentUser, logout } = useAuth();
   const cartIconRef = useRef<HTMLAnchorElement>(null);
   const navigate = useNavigate();
   const searchBarRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<number | null>(null); 
-
   const location = useLocation();
   const isReaderPage = location.pathname.startsWith('/read/');
-
   const toggleMenu = () => { setIsMenuOpen(!isMenuOpen); };
 
   useEffect(() => {
-    if (cartIconRef.current) {
-      setCartIconRect(cartIconRef.current.getBoundingClientRect());
-    }
+    const updateCartPosition = () => {
+      if (cartIconRef.current) {
+        const rect = cartIconRef.current.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            setCartIconRect(rect);
+        }
+      }
+    };
+
+    updateCartPosition();
+
+    const timer = setTimeout(updateCartPosition, 500);
+
+    window.addEventListener('resize', updateCartPosition);
+
+    return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', updateCartPosition);
+    };
   }, [setCartIconRect]);
 
   useEffect(() => {
@@ -234,7 +245,7 @@ const Header: React.FC = () => {
 
                 {physicalSuggestions.length > 0 && (
                   <div className="suggestion-section">
-                     <h5 className="suggestion-section-title">Truyện Vật Lý</h5>
+                      <h5 className="suggestion-section-title">Truyện Vật Lý</h5>
                     {physicalSuggestions.map((comic) => (
                       <div
                         key={`physical-${comic.id}`}
@@ -294,6 +305,8 @@ const Header: React.FC = () => {
           <Link to="/wishlist" className="action-icon" aria-label="Danh sách yêu thích">
             <FiHeart />
           </Link>
+          
+          {/* Gắn ref vào icon giỏ hàng để lấy tọa độ */}
           <Link ref={cartIconRef} to="/cart" className="action-icon cart-icon-link" aria-label="Giỏ hàng">
             <FiShoppingCart />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
@@ -400,8 +413,12 @@ const Header: React.FC = () => {
               <Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
                 <FiDollarSign /> <span>Nạp Xu</span>
               </Link>
-              <Link to="/my-library">Thư Viện Số</Link>
-              <Link to="/orders">Lịch Sử Mua Hàng</Link>
+              <Link to="/my-library" onClick={toggleMenu} className="nav-mobile-action"> 
+                 <span>Thư Viện Số</span>
+              </Link>
+              <Link to="/orders" onClick={toggleMenu} className="nav-mobile-action">
+                 <span>Lịch Sử Mua Hàng</span>
+              </Link>
               <Link to="/settings" onClick={toggleMenu} className="nav-mobile-action">
                 <FiSettings /> <span>Cài Đặt</span>
               </Link>
