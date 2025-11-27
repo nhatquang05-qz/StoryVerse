@@ -6,14 +6,14 @@ const {
     toggleUserBan, 
     deleteUserById 
 } = require('../controllers/userController');
+
+const { getDashboardData } = require('../controllers/dashboardController');
 const { authenticateAdmin } = require('../middleware/authMiddleware');
 
+router.get('/dashboard-stats', authenticateAdmin, getDashboardData);
 router.get('/users', authenticateAdmin, getAllUsers);
-
 router.put('/users/:id', authenticateAdmin, updateUserById);
-
 router.post('/users/:id/ban', authenticateAdmin, toggleUserBan);
-
 router.delete('/users/:id', authenticateAdmin, deleteUserById);
 
 module.exports = router;
