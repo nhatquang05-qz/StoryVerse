@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { VNP_TMN_CODE, VNP_HASH_SECRET, VNP_URL, VNP_RETURN_URL } = require('../config/appConfig');
 const userModel = require('../models/userModel');
 const rewardService = require('../services/rewardService');
+const paymentModel = require('../models/paymentModel');
 
 const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },
@@ -32,21 +33,36 @@ function sortObject(obj) {
 
 const createPaymentUrl = async (req, res) => {
     try {
-        const { packId } = req.body;
+        const { paymentType, packId, amount, orderReference } = req.body;
         
         if (!req.userId) {
             return res.status(401).json({ message: 'Không tìm thấy thông tin người dùng' });
         }
         const userId = req.userId;
         
-        const pack = rechargePacks.find(p => p.id === packId);
-        if (!pack) {
-            return res.status(400).json({ message: 'Gói nạp không hợp lệ' });
+        let finalAmount = 0;
+        let orderInfo = '';
+
+        if (paymentType === 'RECHARGE') {
+            const pack = rechargePacks.find(p => p.id === packId);
+            if (!pack) return res.status(400).json({ message: 'Gói nạp không hợp lệ' });
+            
+            finalAmount = pack.price;
+            orderInfo = `Nap xu goi ${packId} cho user ${userId}`; 
+
+        } else if (paymentType === 'PURCHASE') {
+            if (!amount || amount <= 0) return res.status(400).json({ message: 'Số tiền không hợp lệ' });
+            
+            finalAmount = amount;          
+            const ref = orderReference || moment().format('HHmmss'); 
+            orderInfo = `Thanh toan don hang ${ref} user ${userId}`;
+        } else {
+            return res.status(400).json({ message: 'Loại thanh toán không hợp lệ' });
         }
 
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
-        const orderId = moment(date).format('DDHHmmss');
+        const orderId = moment(date).format('DDHHmmss'); 
         
         const ipAddr = req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
@@ -60,9 +76,9 @@ const createPaymentUrl = async (req, res) => {
         vnp_Params['vnp_Locale'] = 'vn';
         vnp_Params['vnp_CurrCode'] = 'VND';
         vnp_Params['vnp_TxnRef'] = orderId;
-        vnp_Params['vnp_OrderInfo'] = `Nap xu goi ${packId} cho user ${userId}`;
+        vnp_Params['vnp_OrderInfo'] = orderInfo;
         vnp_Params['vnp_OrderType'] = 'other';
-        vnp_Params['vnp_Amount'] = pack.price * 100;
+        vnp_Params['vnp_Amount'] = finalAmount * 100;
         vnp_Params['vnp_ReturnUrl'] = VNP_RETURN_URL;
         vnp_Params['vnp_IpAddr'] = ipAddr;
         vnp_Params['vnp_CreateDate'] = createDate;
@@ -101,48 +117,69 @@ const vnpayReturn = async (req, res) => {
             try {
                 let orderInfo = vnp_Params['vnp_OrderInfo'];
                 try { orderInfo = decodeURIComponent(orderInfo); } catch(e) {}
-                orderInfo = orderInfo.replace(/\+/g, ' ');
+                orderInfo = orderInfo.replace(/\+/g, ' '); 
 
-                const packIdMatch = orderInfo.match(/goi\s*(\d+)/);
-                const userIdMatch = orderInfo.match(/user\s*(\d+)/);
-
-                if (packIdMatch && userIdMatch) {
-                    const packId = parseInt(packIdMatch[1]);
-                    const userId = parseInt(userIdMatch[1]);
+                const vnpTxnRef = vnp_Params['vnp_TxnRef']; 
+                const vnpAmount = parseInt(vnp_Params['vnp_Amount']) / 100;
+              
+                const rechargeMatch = orderInfo.match(/Nap xu goi\s*(\d+)\s*cho user\s*(\d+)/);
+                
+                if (rechargeMatch) {
+                    const packId = parseInt(rechargeMatch[1]);
+                    const userId = parseInt(rechargeMatch[2]);
                     const pack = rechargePacks.find(p => p.id === packId);
 
                     if (pack) {
                         const totalCoinsToAdd = pack.coins + pack.bonus;
                         const expToAdd = totalCoinsToAdd; 
-
-                        // [SỬA LỖI TẠI ĐÂY]: Gọi đúng tên hàm addExpService và truyền Object
                         const result = await rewardService.addExpService(userId, {
                             amount: expToAdd,
                             source: 'recharge',
                             coinIncrease: totalCoinsToAdd
                         });
+
+                        await paymentModel.createTransactionRaw(
+                            userId, vnpTxnRef, vnpAmount, 'SUCCESS', 'RECHARGE',
+                            `Nạp gói ${packId}: ${totalCoinsToAdd} Xu`
+                        );
                         
                         return res.json({ 
                             status: 'success', 
+                            type: 'RECHARGE',
                             message: 'Nạp xu thành công', 
                             data: { 
                                 amount: totalCoinsToAdd, 
                                 newBalance: result.coinBalance,
                                 level: result.level,
-                                exp: result.exp,
                                 levelUpOccurred: result.levelUpOccurred 
                             } 
                         });
                     }
                 }
-                res.status(400).json({ status: 'error', message: 'Dữ liệu đơn hàng không khớp' });
+                const purchaseMatch = orderInfo.match(/Thanh toan don hang\s*([a-zA-Z0-9]+)\s*user\s*(\d+)/);
+                
+                if (purchaseMatch) {
+                    const orderRef = purchaseMatch[1];
+                    const userId = parseInt(purchaseMatch[2]);
+
+                    await paymentModel.createTransactionRaw(
+                        userId, vnpTxnRef, vnpAmount, 'SUCCESS', 'PURCHASE',
+                        `Thanh toán đơn hàng #${orderRef}`
+                    );
+                  
+                    return res.json({ 
+                        status: 'success', 
+                        type: 'PURCHASE',
+                        message: 'Thanh toán đơn hàng thành công',
+                        data: { orderId: orderRef, amount: vnpAmount }
+                    });
+                }
+
+                res.status(400).json({ status: 'error', message: 'Không nhận diện được loại giao dịch: ' + orderInfo });
+
             } catch (error) {
                 console.error('DB Update Error:', error);
-                // Trả về chi tiết lỗi để dễ debug
-                res.status(500).json({ 
-                    status: 'error', 
-                    message: 'Lỗi cập nhật dữ liệu: ' + (error.error || error.message) 
-                });
+                res.status(500).json({ status: 'error', message: 'Lỗi cập nhật dữ liệu: ' + error.message });
             }
         } else {
             res.json({ status: 'error', message: 'Giao dịch không thành công' });

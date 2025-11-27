@@ -11,6 +11,7 @@ const chatRoutes = require('./chatRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
 const adminRoutes = require('./adminRoutes');
 const paymentRoutes = require('./paymentRoutes');
+const cartRoutes = require('./cartRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/comics', comicRoutes);
@@ -22,5 +23,6 @@ router.use('/chat', chatRoutes);
 router.use('/chatbot', chatbotRoutes);
 router.use('/admin', adminRoutes);
 router.use('/payment', paymentRoutes);
+router.use('/cart', cartRoutes);
 
 module.exports = router;

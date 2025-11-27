@@ -1,182 +1,208 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from 'react';
 import { useCart } from '../contexts/CartContext';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import '../assets/styles/AuthPage.css';
+import '../assets/styles/CartPage.css';
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const CheckoutPage: React.FC = () => {
-    const { currentUser } = useAuth();
-    const { cartItems, totalPrice, discount, checkout } = useCart();
+    const { cartItems, totalPrice, clearCart } = useCart();
+    const { currentUser, token } = useAuth();
     const { showNotification } = useNotification();
     const navigate = useNavigate();
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [isLoading, setIsLoading] = useState(true); 
-    
-    const defaultAddress = currentUser?.addresses.find(a => a.isDefault);
 
-    const [formData, setFormData] = useState({
+    const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY'>('COD');
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const [shippingInfo, setShippingInfo] = useState({
         fullName: currentUser?.fullName || '',
         phone: currentUser?.phone || '',
-        paymentMethod: 'COD',
+        address: currentUser?.addresses && currentUser.addresses.length > 0 
+                 ? `${currentUser.addresses[0].specificAddress}, ${currentUser.addresses[0].ward}, ${currentUser.addresses[0].district}, ${currentUser.addresses[0].city}` 
+                 : ''
     });
 
-    useEffect(() => {
-        if (currentUser !== undefined && cartItems !== undefined) {
-             setIsLoading(false);
-        }
-        
-        if (currentUser) {
-            setFormData(prev => ({
-                ...prev,
-                fullName: currentUser.fullName || '',
-                phone: currentUser.phone || '',
-            }));
-        }
-    }, [currentUser, cartItems]);
-
-    if (isLoading) {
-        return <div className="auth-page"><h2>Đang tải thông tin...</h2></div>;
-    }
-
-    if (!currentUser || cartItems.length === 0) {
-        return <div className="auth-page"><h2>Vui lòng kiểm tra Giỏ hàng và Đăng nhập.</h2></div>;
-    }
-    
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-    };
-
-    const handleConfirmOrder = async (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (!formData.fullName || !formData.phone) {
-            showNotification('Vui lòng điền đầy đủ Họ tên và Số điện thoại.', 'warning');
+    const handlePlaceOrder = async () => {
+        if (cartItems.length === 0) {
+            showNotification('Giỏ hàng trống', 'warning');
             return;
         }
-
-        if (!defaultAddress) {
-            showNotification('Vui lòng chọn địa chỉ giao hàng mặc định.', 'warning');
+        if (!shippingInfo.address || !shippingInfo.phone) {
+            showNotification('Vui lòng nhập đầy đủ thông tin giao hàng', 'warning');
             return;
         }
 
         setIsProcessing(true);
+
         try {
-            const newOrder = await checkout();
+            const tempOrderId = 'ORD' + Date.now(); 
+
+            if (paymentMethod === 'COD') {
+                await new Promise(resolve => setTimeout(resolve, 1000)); 
+                clearCart(); 
+                showNotification('Đặt hàng thành công! (COD)', 'success');
+                navigate(`/order-success/${tempOrderId}`);
+
+            } else if (paymentMethod === 'VNPAY') {
+                
+                if (!token) {
+                    showNotification('Vui lòng đăng nhập để thanh toán online', 'error');
+                    setIsProcessing(false); 
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/payment/create_payment_url`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        paymentType: 'PURCHASE', 
+                        amount: totalPrice,      
+                        orderReference: tempOrderId 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    throw new Error(data.message || 'Lỗi tạo cổng thanh toán');
+                }
+            }
+
+        } catch (error: any) {
+            console.error('Checkout Error:', error);
+            showNotification(error.message || 'Đặt hàng thất bại', 'error');
             
-            navigate(`/order-success/${newOrder.id}`); 
-        } catch (error) {
-            console.error('Lỗi khi đặt hàng:', error);
-            showNotification('Đặt hàng thất bại. Vui lòng thử lại.', 'error');
-        } finally {
-            setIsProcessing(false);
+            setIsProcessing(false); 
         }
     };
-    
-    const finalTotal = totalPrice - discount;
+
+    if (cartItems.length === 0) {
+        return (
+            <div className="cart-page-container empty-cart">
+                <h2>Giỏ hàng của bạn đang trống</h2>
+                <Link to="/" className="continue-shopping-btn">Mua sắm ngay</Link>
+            </div>
+        );
+    }
 
     return (
-        <div className="auth-page" style={{ minHeight: 'unset', padding: '2rem 1rem' }}>
-            <div className="auth-container" style={{ maxWidth: '800px', display: 'flex', gap: '2rem', textAlign: 'left' }}>
+        <div className="cart-page-container" style={{maxWidth: '1000px', margin: '0 auto', padding: '20px'}}>
+            <h2>Thanh Toán</h2>
+            
+            <div className="checkout-grid" style={{display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px'}}>
                 
-                <div style={{ flex: 2 }}>
-                    <h2>1. Thông Tin Cá Nhân & Giao Hàng</h2>
-                    
-                    <form onSubmit={handleConfirmOrder} className="auth-form" style={{ gap: '1rem' }}>
-                        <div className="form-group">
-                            <label htmlFor="fullName">Họ và Tên</label>
-                            <input
-                                type="text"
-                                id="fullName"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                                required
+                <div className="checkout-left">
+                    <div className="checkout-section card" style={{padding: '20px', background: 'var(--card-bg)', borderRadius: '12px', marginBottom: '20px'}}>
+                        <h3>Thông tin giao hàng</h3>
+                        <div className="form-group" style={{marginBottom: '15px'}}>
+                            <label>Họ tên</label>
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                value={shippingInfo.fullName}
+                                onChange={e => setShippingInfo({...shippingInfo, fullName: e.target.value})}
+                                style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '5px'}}
+                            />
+                        </div>
+                        <div className="form-group" style={{marginBottom: '15px'}}>
+                            <label>Số điện thoại</label>
+                            <input 
+                                type="text" 
+                                className="form-control"
+                                value={shippingInfo.phone}
+                                onChange={e => setShippingInfo({...shippingInfo, phone: e.target.value})}
+                                style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '5px'}}
                             />
                         </div>
                         <div className="form-group">
-                            <label htmlFor="phone">Số Điện Thoại</label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                required
+                            <label>Địa chỉ nhận hàng</label>
+                            <textarea 
+                                className="form-control"
+                                value={shippingInfo.address}
+                                onChange={e => setShippingInfo({...shippingInfo, address: e.target.value})}
+                                style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '5px'}}
                             />
                         </div>
-                        
-                        <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                            <label style={{ margin: 0 }}>Địa Chỉ Giao Hàng (Mặc Định)</label>
-                            <Link to="/addresses?checkout=true" className="detail-order-btn" style={{ fontSize: '0.9rem', padding: '0.5rem 1rem' }}>
-                                Thay đổi/Thêm địa chỉ
-                            </Link>
-                        </div>
-
-                        <div className="address-display-group" style={{ padding: '1rem', border: defaultAddress ? '1px solid var(--primary-color)' : '1px solid #e63946', borderRadius: '6px', backgroundColor: '#f8f9fa' }}>
-                            {defaultAddress ? (
-                                <>
-                                    <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>{defaultAddress.street}</p>
-                                    <p style={{ margin: '0' }}>{defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.city}</p>
-                                </>
-                            ) : (
-                                <p style={{ margin: 0, color: '#e63946' }}>Vui lòng chọn địa chỉ mặc định.</p>
-                            )}
-                        </div>
-                        
-                    </form>
-
-                    <h2>2. Phương Thức Thanh Toán</h2>
-                    <div className="form-group">
-                        <label>
-                            <input type="radio" name="payment" value="COD" checked readOnly style={{ marginRight: '0.5rem' }} />
-                            Thanh toán khi nhận hàng (COD)
-                        </label>
                     </div>
-                </div>
 
-                <div className="cart-summary" style={{ flex: 1, padding: '1.5rem', background: '#f8f9fa', borderRadius: '8px' }}>
-                    <h2>3. Tổng Quan Đơn Hàng</h2>
-                    <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem' }}>
-                        {cartItems.map(item => (
-                            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '0.5rem', borderBottom: '1px dotted #ccc' }}>
-                                <span>{item.title} (x{item.quantity})</span>
-                                <span>{formatPrice(item.price * item.quantity)}</span>
+                    <div className="checkout-section card" style={{padding: '20px', background: 'var(--card-bg)', borderRadius: '12px'}}>
+                        <h3>Phương thức thanh toán</h3>
+                        
+                        <div 
+                            className={`payment-option ${paymentMethod === 'COD' ? 'selected' : ''}`}
+                            onClick={() => setPaymentMethod('COD')}
+                            style={{
+                                padding: '15px', 
+                                border: paymentMethod === 'COD' ? '2px solid var(--primary-color)' : '1px solid #ddd',
+                                borderRadius: '8px',
+                                marginBottom: '10px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <input type="radio" checked={paymentMethod === 'COD'} readOnly style={{marginRight: '10px'}} />
+                            <div>
+                                <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                <p style={{fontSize: '0.9rem', color: '#666', margin: 0}}>Thanh toán bằng tiền mặt khi giao hàng</p>
                             </div>
-                        ))}
-                    </div>
-
-                    <div className="summary-row" style={{ marginTop: '1rem' }}>
-                        <span>Tổng tiền hàng</span>
-                        <span>{formatPrice(totalPrice)}</span>
-                    </div>
-                    
-                    {discount > 0 && (
-                        <div className="summary-row" style={{ color: '#e63946', fontWeight: 'bold' }}>
-                            <span>Giảm giá</span>
-                            <span>- {formatPrice(discount)}</span>
                         </div>
-                    )}
-                    
-                    <div className="summary-row">
-                        <span>Phí vận chuyển</span>
-                        <span>Miễn phí</span>
+
+                        <div 
+                            className={`payment-option ${paymentMethod === 'VNPAY' ? 'selected' : ''}`}
+                            onClick={() => setPaymentMethod('VNPAY')}
+                            style={{
+                                padding: '15px', 
+                                border: paymentMethod === 'VNPAY' ? '2px solid var(--primary-color)' : '1px solid #ddd',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <input type="radio" checked={paymentMethod === 'VNPAY'} readOnly style={{marginRight: '10px'}} />
+                            <div>
+                                <strong>Thanh toán qua VNPAY</strong> <span style={{fontSize: '0.8rem', color: 'white', background: '#005ba3', padding: '2px 6px', borderRadius: '4px'}}>Khuyên dùng</span>
+                                <p style={{fontSize: '0.9rem', color: '#666', margin: 0}}>Quét mã QR hoặc dùng thẻ ATM/Visa</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="summary-total" style={{ borderTop: '1px solid #e0e0e0', paddingTop: '1rem', marginTop: '1rem' }}>
-                        <span style={{ fontSize: '1.2rem' }}>Tổng Cộng</span>
-                        <span className="total-price" style={{ fontSize: '1.2rem', color: 'var(--primary-color)' }}>{formatPrice(finalTotal)}</span>
-                    </div>
-                    <button 
-                        type="submit" 
-                        className="checkout-btn" 
-                        onClick={handleConfirmOrder} 
-                        disabled={isProcessing || !defaultAddress} 
-                        style={{ marginTop: '1rem' }}
-                    >
-                        {isProcessing ? 'Đang đặt hàng...' : 'Xác Nhận Đặt Hàng'}
-                    </button>
                 </div>
 
+                <div className="checkout-right">
+                    <div className="order-summary card" style={{padding: '20px', background: 'var(--card-bg)', borderRadius: '12px', position: 'sticky', top: '100px'}}>
+                        <h3>Đơn hàng ({cartItems.length} sản phẩm)</h3>
+                        <div className="summary-items" style={{maxHeight: '300px', overflowY: 'auto', marginBottom: '20px'}}>
+                            {cartItems.map(item => (
+                                <div key={item.id} style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px'}}>
+                                    <span>{item.quantity}x {item.title}</span>
+                                    <span>{(item.price * item.quantity).toLocaleString()}đ</span>
+                                </div>
+                            ))}
+                        </div>
+                        <hr style={{margin: '15px 0', border: 'none', borderTop: '1px solid #eee'}} />
+                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 'bold'}}>
+                            <span>Tổng cộng:</span>
+                            <span style={{color: 'var(--primary-color)'}}>{totalPrice.toLocaleString()}đ</span>
+                        </div>
+
+                        <button 
+                            className="auth-button"
+                            onClick={handlePlaceOrder}
+                            disabled={isProcessing}
+                            style={{marginTop: '20px', width: '100%', background: 'var(--primary-color)', color: 'white', cursor: isProcessing ? 'not-allowed' : 'pointer'}}
+                        >
+                            {isProcessing ? 'Đang xử lý...' : (paymentMethod === 'COD' ? 'Đặt Hàng Ngay' : 'Thanh Toán VNPAY')}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

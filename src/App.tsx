@@ -36,6 +36,7 @@ const CoinRechargePage = lazy(() => import('./pages/CoinRechargePage'));
 const SettingsPage = lazy(() => import('./pages/SettingPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const AboutUsPage = lazy(() => import('./pages/AboutPage')); 
+const PaymentReturnPage = lazy(() => import('./pages/PaymentReturnPage'));
 
 function App() {
   const { animationData, clearAnimation } = useCart();
@@ -48,7 +49,6 @@ function App() {
   const isRegisterPage = location.pathname === '/register';
   const isForgotPassPage = location.pathname === '/forgot-password';
 
-  
   const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
   useEffect(() => {
@@ -115,6 +115,7 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/read/:comicId/:chapterNumber" element={<ReaderPage />} />
             <Route path="/recharge" element={<CoinRechargePage />} />
+            <Route path="/payment-return" element={<PaymentReturnPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/physical-comics" element={<PhysicalComicsPage />} />
             <Route path="/digital-comics" element={<DigitalComicsPage />} />

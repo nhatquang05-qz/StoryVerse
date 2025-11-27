@@ -20,6 +20,9 @@ const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
+  token: string | null;
+  fetchUser: () => Promise<void>; 
+  showLevelUpPopup: (newLevel: number) => void;
   login: (email: string, pass: string) => Promise<void>;
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -61,6 +64,7 @@ const getToken = () => localStorage.getItem(TOKEN_STORAGE_KEY);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [token, setToken] = useState<string | null>(getToken()); 
     const { showNotification } = useNotification();
     const navigate = useNavigate();
 
@@ -80,36 +84,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false);
 
-    useEffect(() => {
-        const checkUser = async () => {
-            const token = getToken();
-            if (token) {
-                try {
-                    const resUser = await fetch(`${API_URL}/users/me`, { 
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+    const fetchUser = useCallback(async () => {
+        const storedToken = getToken();
+        setToken(storedToken); 
+        
+        if (storedToken) {
+            try {
+                const resUser = await fetch(`${API_URL}/users/me`, { 
+                    headers: { 'Authorization': `Bearer ${storedToken}` }
+                });
 
-                    if (resUser.ok) {
-                        const rawUserData = await resUser.json();
-                        const userData = ensureUserDataTypes(rawUserData); 
-                        setCurrentUser(userData);
-                    } else {
-                        localStorage.removeItem(TOKEN_STORAGE_KEY);
-                        setCurrentUser(null);
-                    }
-                } catch (error) {
+                if (resUser.ok) {
+                    const rawUserData = await resUser.json();
+                    const userData = ensureUserDataTypes(rawUserData); 
+                    setCurrentUser(userData);
+                } else {
                     localStorage.removeItem(TOKEN_STORAGE_KEY);
+                    setToken(null);
                     setCurrentUser(null);
-                } finally {
-                    setLoading(false);
                 }
-            } else {
-                setLoading(false); 
+            } catch (error) {
+                localStorage.removeItem(TOKEN_STORAGE_KEY);
+                setToken(null);
+                setCurrentUser(null);
+            } finally {
+                setLoading(false);
             }
-        };
+        } else {
+            setLoading(false); 
+            setToken(null);
+            setCurrentUser(null);
+        }
+    }, []);
 
-        checkUser();
-    }, []); 
+    useEffect(() => {
+        fetchUser();
+    }, [fetchUser]);
 
     const updateSelectedSystemKey = useCallback((newKey: string) => {
         setSelectedSystemKey(newKey);
@@ -119,6 +129,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const getEquivalentLevelTitle = useCallback((userLevel: number): string => {
         return getEquivalentLevelTitleUtil(userLevel, selectedSystemKey);
     }, [selectedSystemKey]);
+
+    const showLevelUpPopup = useCallback((newLevel: number) => {
+        const newLevelTitle = getEquivalentLevelTitle(newLevel);
+        setLevelUpInfo({ newLevel, levelTitle: newLevelTitle });
+        setIsLevelUpPopupOpen(true);
+    }, [getEquivalentLevelTitle]);
 
     const showLoginError = useCallback((title: string, message: string) => {
         setLoginErrorTitle(title);
@@ -152,6 +168,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+            setToken(data.token); // Cập nhật token state
             const userData = ensureUserDataTypes(data.user); 
             setCurrentUser(userData);
 
@@ -170,7 +187,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!credentialResponse.credential) {
             throw new Error("Không nhận được thông tin xác thực từ Google.");
         }
-        
         setLoading(true);
         try {
             const response = await fetch(`${API_URL}/auth/google-login`, {
@@ -187,6 +203,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+            setToken(data.token); 
             const userData = ensureUserDataTypes(data.user);
             setCurrentUser(userData);
             setUsernameToDisplay(userData.fullName || userData.email.split('@')[0] || 'Người dùng');
@@ -222,6 +239,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const logout = async () => {
         setCurrentUser(null);
+        setToken(null);
         localStorage.removeItem(TOKEN_STORAGE_KEY);
         showNotification('Đã đăng xuất.', 'info');
     };
@@ -257,7 +275,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch (error: any) {
             showNotification('Đã xảy ra lỗi khi cập nhật hồ sơ.', 'error');
             return null; 
-        } finally {
         }
     }, [showNotification]); 
 
@@ -291,7 +308,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch (error: any) {
             showNotification('Đã xảy ra lỗi khi cập nhật ảnh đại diện.', 'error');
             return null;
-        } finally {
         }
     }, [currentUser, showNotification]); 
 
@@ -454,7 +470,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const contextValue = {
             currentUser,
-            loading, 
+            loading,
+            token, 
+            fetchUser, 
+            showLevelUpPopup,
             login,
             register,
             logout,

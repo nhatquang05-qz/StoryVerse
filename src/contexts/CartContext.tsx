@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, type ReactNode, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useContext, type ReactNode, useMemo, useEffect, useCallback } from 'react';
 import { type Comic, type Order } from '../data/mockData';
 import { useAuth } from './AuthContext';
 import { saveNewOrder, type OrderItem } from '../data/mockData';
@@ -19,6 +19,7 @@ interface CartContextType {
   addToCart: (comic: Comic, quantity: number, startElementRect: DOMRect | null) => void;
   updateQuantity: (comicId: number, newQuantity: number) => void;
   removeFromCart: (comicId: number) => void;
+  clearCart: () => void;
   cartCount: number;
   totalPrice: number;
   discount: number;
@@ -30,66 +31,52 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const CART_STORAGE_KEY = 'storyverse_cart';
 const VALID_COUPON = 'STORY20';
 const DISCOUNT_PERCENTAGE = 0.20;
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth(); // Lấy thêm token
   const { showNotification } = useNotification();
 
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    try {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-      return storedCart ? JSON.parse(storedCart) : [];
-    } catch (error) {
-      console.error("Could not load cart from local storage", error);
-      return [];
-    }
-  });
-
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState(0);
-
   const [cartIconRect, setCartIconRect] = useState<DOMRect | null>(null);
   const [animationData, setAnimationData] = useState<AnimationData>({
     src: null,
     startRect: null,
     endRect: null,
   });
-  
+
+  const fetchCart = useCallback(async () => {
+      if (!currentUser || !token) {
+          setCartItems([]); 
+          return;
+      }
+
+      try {
+          const response = await fetch(`${API_URL}/cart`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+              const data = await response.json();
+              setCartItems(data);
+          }
+      } catch (error) {
+          console.error("Failed to fetch cart:", error);
+      }
+  }, [currentUser, token]);
+
   useEffect(() => {
-    try {
-      const physicalCartItems = cartItems.filter(item => !item.isDigital);
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(physicalCartItems));
-    } catch (error) {
-      console.error("Could not save cart to local storage", error);
-    }
-  }, [cartItems]);
+      fetchCart();
+  }, [fetchCart]);
 
-  const totalPrice = useMemo(() => {
-    return cartItems
-        .filter(item => !item.isDigital)
-        .reduce((total, item) => total + item.price * item.quantity, 0);
-  }, [cartItems]);
-  
-  const applyDiscountCode = (code: string) => {
-    if (code.toUpperCase() === VALID_COUPON) {
-        const calculatedDiscount = totalPrice * DISCOUNT_PERCENTAGE;
-        setDiscount(calculatedDiscount);
-        showNotification(`Áp dụng mã ${VALID_COUPON} thành công! Giảm ${DISCOUNT_PERCENTAGE * 100}% tổng đơn hàng.`, 'success');
-    } else {
-        setDiscount(0);
-        showNotification('Mã giảm giá không hợp lệ.', 'error');
-    }
-  };
-
-
-  const addToCart = (comic: Comic, quantity: number, startElementRect: DOMRect | null) => {
+  const addToCart = async (comic: Comic, quantity: number, startElementRect: DOMRect | null) => {
     if (comic.isDigital) {
-        showNotification(`Truyện Digital không được thêm vào giỏ hàng. Vui lòng mở khóa bằng Xu.`, 'info');
+        showNotification(`Truyện Digital không được thêm vào giỏ hàng.`, 'info');
         return;
     }
-    
+
     if (startElementRect && cartIconRect && comic.imageUrl) {
       setAnimationData({
         src: comic.imageUrl,
@@ -98,107 +85,136 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
     }
 
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === comic.id);
-      if (existingItem) {
-        const newQuantity = existingItem.quantity + quantity;
-        showNotification(`Đã thêm ${quantity} cuốn ${comic.title} vào giỏ hàng. Tổng: ${newQuantity}`, 'info');
-        return prevItems.map(item =>
-          item.id === comic.id
-            ? { ...item, quantity: newQuantity }
-            : item
-        );
+    if (currentUser && token) {
+        try {
+            const response = await fetch(`${API_URL}/cart/add`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ comicId: comic.id, quantity })
+            });
+            
+            if (response.ok) {
+                const updatedCart = await response.json();
+                setCartItems(updatedCart);
+                showNotification(`Đã thêm ${comic.title} vào giỏ hàng.`, 'success');
+            } else {
+                showNotification('Lỗi khi thêm vào giỏ hàng.', 'error');
+            }
+        } catch (error) {
+            console.error("Add to cart error:", error);
+        }
+    } else {
+        showNotification('Vui lòng đăng nhập để thêm vào giỏ hàng.', 'warning');
+    }
+  };
+
+  const updateQuantity = async (comicId: number, newQuantity: number) => {
+    if (!currentUser || !token) return;
+
+    try {
+        const response = await fetch(`${API_URL}/cart/update`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ comicId, quantity: newQuantity })
+        });
+
+        if (response.ok) {
+            const updatedCart = await response.json();
+            setCartItems(updatedCart);
+        }
+    } catch (error) {
+        console.error("Update cart error:", error);
+    }
+  };
+
+  const removeFromCart = async (comicId: number) => {
+    if (!currentUser || !token) return;
+
+    try {
+        const response = await fetch(`${API_URL}/cart/remove/${comicId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const updatedCart = await response.json();
+            setCartItems(updatedCart);
+            showNotification('Đã xóa sản phẩm khỏi giỏ hàng.', 'success');
+        }
+    } catch (error) {
+        console.error("Remove from cart error:", error);
+    }
+  };
+
+  const clearCart = async () => {
+      if (currentUser && token) {
+          try {
+              await fetch(`${API_URL}/cart/clear`, {
+                  method: 'DELETE',
+                  headers: { 'Authorization': `Bearer ${token}` }
+              });
+          } catch (e) { console.error(e); }
       }
-      showNotification(`Đã thêm ${comic.title} vào giỏ hàng.`, 'success');
-      return [...prevItems, { ...comic, quantity }];
-    });
+      setCartItems([]);
+      setDiscount(0);
+  };
+
+  const applyDiscountCode = (code: string) => {
+    if (code.toUpperCase() === VALID_COUPON) {
+        const calculatedDiscount = totalPrice * DISCOUNT_PERCENTAGE;
+        setDiscount(calculatedDiscount);
+        showNotification(`Áp dụng mã thành công!`, 'success');
+    } else {
+        setDiscount(0);
+        showNotification('Mã giảm giá không hợp lệ.', 'error');
+    }
   };
 
   const clearAnimation = () => {
     setAnimationData({ src: null, startRect: null, endRect: null });
   };
 
-  const updateQuantity = (comicId: number, newQuantity: number) => {
-    const finalQuantity = Math.max(1, newQuantity);
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === comicId ? { ...item, quantity: finalQuantity } : item
-      )
-    );
-  };
+  const totalPrice = useMemo(() => {
+    return cartItems
+        .filter(item => !item.isDigital)
+        .reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [cartItems]);
 
-  const removeFromCart = (comicId: number) => {
-    setCartItems(prevItems => {
-        const removedItem = prevItems.find(item => item.id === comicId);
-        if (removedItem) {
-            showNotification(`Đã xóa ${removedItem.title} khỏi giỏ hàng.`, 'error');
-        }
-        return prevItems.filter(item => item.id !== comicId);
-    });
-  };
-  
+  const cartCount = useMemo(() => {
+    return cartItems.filter(item => !item.isDigital).reduce((count, item) => count + item.quantity, 0);
+  }, [cartItems]);
+
   const checkout = async (): Promise<Order> => {
-    if (!currentUser) {
-        throw new Error('User must be logged in to checkout.');
-    }
+    if (!currentUser) throw new Error('User must be logged in.');
     
     const physicalItems = cartItems.filter(item => !item.isDigital);
-
-    if (physicalItems.length === 0) {
-        throw new Error('Cart is empty or contains only digital comics.');
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 500)); 
-    
-    const orderItems: OrderItem[] = physicalItems.map(item => ({
-        id: item.id,
-        title: item.title,
-        author: item.author,
-        price: item.price,
-        imageUrl: item.imageUrl,
-        quantity: item.quantity,
-    }));
-    
     const finalTotal = totalPrice - discount;
-
     const newOrder: Order = {
         id: `ORDER-${Date.now()}`,
         userId: currentUser.id,
         date: new Date().toLocaleDateString('vi-VN'),
         total: finalTotal,
         status: 'Đang chờ' as const,
-        items: orderItems,
+        items: physicalItems.map(item => ({...item, imageUrl: item.imageUrl || ''})),
     };
     
     saveNewOrder(newOrder);
-    setCartItems([]);
-    setDiscount(0);
-    
-    showNotification('Đặt hàng thành công! Đơn hàng đang được xử lý.', 'success');
+    await clearCart();
     return newOrder;
   };
-
-
-  const cartCount = useMemo(() => {
-    return cartItems.filter(item => !item.isDigital).reduce((count, item) => count + item.quantity, 0);
-  }, [cartItems]);
-
 
   return (
     <CartContext.Provider 
       value={{ 
-        cartItems, 
-        addToCart, 
-        updateQuantity, 
-        removeFromCart, 
-        cartCount, 
-        totalPrice,
-        discount,
-        applyDiscountCode,
-        animationData, 
-        setCartIconRect,
-        clearAnimation,
-        checkout
+        cartItems, addToCart, updateQuantity, removeFromCart, clearCart,
+        cartCount, totalPrice, discount, applyDiscountCode,
+        animationData, setCartIconRect, clearAnimation, checkout
       }}
     >
       {children}
@@ -208,8 +224,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
+  if (context === undefined) throw new Error('useCart must be used within a CartProvider');
   return context;
 };
