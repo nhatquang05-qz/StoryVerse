@@ -15,22 +15,22 @@ interface AddComicFormProps {
 
 const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSuccess, initialIsDigital }) => {
     const { showNotification } = useNotification();
+    
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [description, setDescription] = useState('');
+    const [status, setStatus] = useState<'Ongoing' | 'Completed' | 'Dropped'>('Ongoing');
+    const [price, setPrice] = useState(0);
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
     const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
     const [coverImageUrl, setCoverImageUrl] = useState('');
     const [isUploadingCover, setIsUploadingCover] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [status, setStatus] = useState<'Ongoing' | 'Completed' | 'Dropped'>('Ongoing');
-    const [isDigital, setIsDigital] = useState(initialIsDigital);
-    const [price, setPrice] = useState(0);
-    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
     const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setCoverImageFile(e.target.files[0]);
-            setCoverImageUrl('');
+            setCoverImageUrl(''); 
         }
     };
 
@@ -49,6 +49,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Upload failed');
+            
             setCoverImageUrl(data.imageUrl);
             showNotification('Upload ảnh bìa thành công!', 'success');
         } catch (error: any) {
@@ -66,20 +67,14 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
         );
     };
 
-    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const digital = e.target.value === 'digital';
-        setIsDigital(digital);
-        if (digital) {
-            setPrice(0);
-        }
-    };
-
     const handleSubmitComic = async (e: React.FormEvent) => {
         e.preventDefault();
+        
         if (!title || !coverImageUrl) {
             showNotification('Vui lòng nhập tiêu đề và upload ảnh bìa.', 'warning');
             return;
         }
+
         setIsSubmitting(true);
         const token = localStorage.getItem('storyverse_token');
 
@@ -91,14 +86,21 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title, author, description, coverImageUrl, status, isDigital,
-                    price: isDigital ? 0 : price,
+                    title, 
+                    author, 
+                    description, 
+                    coverImageUrl, 
+                    status, 
+                    isDigital: initialIsDigital, 
+                    price: initialIsDigital ? 0 : price, 
                     genres: selectedGenres
                 })
             });
+
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to add comic');
-            showNotification(`Thêm truyện "${title}" thành công! ID: ${data.comicId}`, 'success');
+            
+            showNotification(`Thêm truyện "${title}" thành công!`, 'success');
             onSuccess();
         } catch (error: any) {
             console.error("Submit comic error:", error);
@@ -110,45 +112,74 @@ const AddComicForm: React.FC<AddComicFormProps> = ({ allGenres, onCancel, onSucc
 
     return (
         <div className="admin-form-container">
-            <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại</button>
+            <button className="admin-back-btn" onClick={onCancel}>
+                <FiArrowLeft /> Quay Lại
+            </button>
+            
             <form onSubmit={handleSubmitComic} className="admin-form">
-                <h2>Thêm Truyện Mới</h2>
-                <div className="form-group"><label>Tiêu đề:</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} required /></div>
-                <div className="form-group"><label>Tác giả:</label><input type="text" value={author} onChange={e => setAuthor(e.target.value)} /></div>
-                <div className="form-group"><label>Mô tả:</label><textarea value={description} onChange={e => setDescription(e.target.value)} /></div>
-                <div className="form-group"><label>Ảnh bìa:</label>
-                    <input type="file" accept="image/*" onChange={handleCoverImageChange} style={{ marginLeft: '5px' }} />
-                    <button type="button" onClick={handleUploadCover} disabled={!coverImageFile || isUploadingCover || !!coverImageUrl} className="mgmt-btn edit">
-                        {isUploadingCover ? 'Đang tải...' : (coverImageUrl ? 'Đã tải lên ✓' : 'Upload ảnh bìa')}
-                    </button>
-                    {coverImageUrl && <img src={coverImageUrl} alt="Preview" style={{ width: '50px', verticalAlign: 'middle', marginLeft: '10px' }} />}
-                </div>
-                <div className="form-group"><label>Trạng thái:</label>
-                    <select value={status} onChange={e => setStatus(e.target.value as any)}>
-                        <option value="Ongoing">Ongoing</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Dropped">Dropped</option>
-                    </select>
-                </div>
-                <div className="form-group"><label>Loại:</label>
-                    <select value={isDigital ? 'digital' : 'physical'} onChange={handleTypeChange}>
-                        <option value="digital">Digital (Đọc Online)</option>
-                        <option value="physical">Physical (Truyện In)</option>
-                    </select>
-                </div>
-                {!isDigital && (
+                <h2>Thêm Truyện Mới ({initialIsDigital ? 'Online' : 'In Ấn'})</h2>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div className="form-group">
-                        <label>Giá (VND cho Physical):</label>
-                        <input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} />
+                        <label>Tiêu đề <span style={{color:'red'}}>*</span>:</label>
+                        <input type="text" value={title} onChange={e => setTitle(e.target.value)} required placeholder="Nhập tên truyện..." />
                     </div>
-                )}
-                <div className="form-group"><label>Thể loại:</label>
+                    <div className="form-group">
+                        <label>Tác giả:</label>
+                        <input type="text" value={author} onChange={e => setAuthor(e.target.value)} placeholder="Tên tác giả..." />
+                    </div>
+                </div>
+
+                <div className="form-group">
+                    <label>Mô tả:</label>
+                    <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Tóm tắt nội dung..." />
+                </div>
+
+                <div className="form-group">
+                    <label>Ảnh bìa <span style={{color:'red'}}>*</span>:</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input type="file" accept="image/*" onChange={handleCoverImageChange} />
+                        <button 
+                            type="button" 
+                            onClick={handleUploadCover} 
+                            disabled={!coverImageFile || isUploadingCover || !!coverImageUrl} 
+                            className="mgmt-btn edit"
+                            style={{ minWidth: '120px' }}
+                        >
+                            {isUploadingCover ? 'Đang tải...' : (coverImageUrl ? 'Đã tải lên ✓' : 'Upload Ngay')}
+                        </button>
+                        {coverImageUrl && <img src={coverImageUrl} alt="Preview" style={{ height: '40px', borderRadius: '4px', border: '1px solid #ccc' }} />}
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: initialIsDigital ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                        <label>Trạng thái:</label>
+                        <select value={status} onChange={e => setStatus(e.target.value as any)}>
+                            <option value="Ongoing">Đang tiến hành (Ongoing)</option>
+                            <option value="Completed">Đã hoàn thành (Completed)</option>
+                            <option value="Dropped">Tạm ngưng (Dropped)</option>
+                        </select>
+                    </div>
+                    
+                    {!initialIsDigital && (
+                        <div className="form-group">
+                            <label>Giá bán (VNĐ):</label>
+                            <input type="number" value={price} onChange={e => setPrice(Number(e.target.value))} min="0" />
+                        </div>
+                    )}
+                </div>
+
+                <div className="form-group">
+                    <label>Thể loại:</label>
                     <GenreSelector allGenres={allGenres} selectedGenres={selectedGenres} onChange={handleGenreChange} />
                 </div>
 
-                <button type="submit" className="mgmt-btn add" disabled={isSubmitting || !coverImageUrl || isUploadingCover}>
-                    {isSubmitting ? 'Đang thêm...' : 'Thêm Truyện'}
-                </button>
+                <div className="form-actions">
+                    <button type="submit" className="mgmt-btn add" disabled={isSubmitting || !coverImageUrl || isUploadingCover} style={{ width: '100%', padding: '1rem' }}>
+                        {isSubmitting ? 'Đang xử lý...' : 'Xác Nhận Thêm Truyện'}
+                    </button>
+                </div>
             </form>
         </div>
     );

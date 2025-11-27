@@ -1,5 +1,6 @@
 import React from 'react';
 import { type Genre } from '../../types/comicTypes';
+import '../../assets/styles/AdminPage.css';
 
 interface GenreSelectorProps {
     allGenres: Genre[];

@@ -1,12 +1,9 @@
-/* src/assets/styles/DashboardView.css */
-
 .dashboard-container {
     padding: 0 1rem 2rem 1rem;
-    font-family: 'Inter', sans-serif; /* Hoặc font chữ mặc định của dự án */
+    font-family: 'Inter', sans-serif; 
     color: #1e293b;
 }
 
-/* --- Header & Filter --- */
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -61,10 +58,9 @@
     box-shadow: 0 1px 2px rgba(59, 130, 246, 0.5);
 }
 
-/* --- Stats Grid --- */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Tăng min-width lên xíu để thẻ rộng hơn */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -74,11 +70,11 @@
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-    border-left: 4px solid transparent; /* Sẽ override bằng inline style hoặc class riêng */
+    border-left: 4px solid transparent; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 140px; /* Đảm bảo chiều cao tối thiểu */
+    min-height: 140px; 
     transition: transform 0.2s;
 }
 
@@ -105,7 +101,7 @@
 }
 
 .stat-value {
-    font-size: 1.75rem; /* To hơn một chút */
+    font-size: 1.75rem; 
     font-weight: 700;
     color: #0f172a;
     margin: 0;
@@ -124,8 +120,8 @@
     display: flex;
     align-items: center;
     font-size: 0.875rem;
-    margin-top: auto; /* Đẩy xuống dưới cùng */
-    flex-wrap: wrap; /* Cho phép xuống dòng nếu quá chật */
+    margin-top: auto; 
+    flex-wrap: wrap; 
     gap: 0.5rem;
 }
 
@@ -140,10 +136,9 @@
 
 .trend-text {
     color: #94a3b8;
-    white-space: nowrap; /* Giữ chữ không bị ngắt giữa chừng xấu */
+    white-space: nowrap;
 }
 
-/* --- Charts Section --- */
 .chart-section {
     background: #fff;
     padding: 1.5rem;
@@ -189,12 +184,11 @@
     justify-content: center;
 }
 
-/* --- Transactions Table --- */
 .transactions-table-container {
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    overflow: hidden; /* Bo tròn góc table */
+    overflow: hidden; 
 }
 
 .table-header {
@@ -261,17 +255,43 @@
     display: inline-block;
 }
 
-.badge-nạp-xu { background: #dbeafe; color: #1e40af; }
-.badge-mua-truyện { background: #f3f4f6; color: #374151; }
-.badge-đăng-ký-vip { background: #fef3c7; color: #92400e; }
+.badge-nạp-xu { 
+    background: #dbeafe; 
+    color: #1e40af; 
+}
+.badge-mua-truyện { 
+    background: #f3f4f6; 
+    color: #374151; 
+}
+.badge-đăng-ký-vip { 
+    background: #fef3c7; 
+    color: #92400e; 
+}
 
-/* Colors for dynamic injection */
-.color-emerald { color: #10b981; }
-.color-red { color: #ef4444; }
-.bg-emerald-light { background-color: #d1fae5; }
-.color-blue { color: #3b82f6; }
-.bg-blue-light { background-color: #dbeafe; }
-.color-violet { color: #8b5cf6; }
-.bg-violet-light { background-color: #ede9fe; }
-.color-amber { color: #f59e0b; }
-.bg-amber-light { background-color: #fef3c7; }
+.color-emerald { 
+    color: #10b981; 
+}
+.color-red { 
+    color: #ef4444; 
+}
+.bg-emerald-light { 
+    background-color: #d1fae5; 
+}
+.color-blue { 
+    color: #3b82f6; 
+}
+.bg-blue-light { 
+    background-color: #dbeafe; 
+}
+.color-violet { 
+    color: #8b5cf6; 
+}
+.bg-violet-light { 
+    background-color: #ede9fe; 
+}
+.color-amber { 
+    color: #f59e0b; 
+}
+.bg-amber-light { 
+    background-color: #fef3c7; 
+}

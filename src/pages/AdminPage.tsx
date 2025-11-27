@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { type ComicSummary, type Genre } from '../types/comicTypes';
-import { FiPlus } from 'react-icons/fi';
+import { FiPlus, FiHome, FiLogOut } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 import AdminSidebar from '../components/admin/AdminSidebar';
 import DashboardView from '../components/admin/DashboardView';
@@ -22,6 +23,7 @@ export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' |
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
+    const navigate = useNavigate();
 
     const [activeView, setActiveView] = useState<AdminView>('dashboard');
     const [comics, setComics] = useState<ComicSummary[]>([]);
@@ -37,10 +39,10 @@ const AdminPage: React.FC = () => {
 
     const isAdmin = currentUser?.email === 'admin@123';
 
-const fetchComicsAndGenres = async () => {
-         if(activeView === 'dashboard') {
-             setIsLoading(false);
-             return;
+    const fetchComicsAndGenres = async () => {
+        if(activeView === 'dashboard') {
+            setIsLoading(false);
+            return;
         }
 
         setIsLoading(true);
@@ -53,10 +55,7 @@ const fetchComicsAndGenres = async () => {
 
             if (!comicsResponse.ok) throw new Error('Không thể tải danh sách truyện');            
             const responseData = await comicsResponse.json();
-            const comicsData: ComicSummary[] = Array.isArray(responseData) 
-                ? responseData 
-                : (responseData.data || []);
-            
+            const comicsData: ComicSummary[] = Array.isArray(responseData) ? responseData : (responseData.data || []);
             setComics(comicsData);
 
             if (!genresResponse.ok) throw new Error('Không thể tải danh sách thể loại');
@@ -83,51 +82,33 @@ const fetchComicsAndGenres = async () => {
 
     const filteredComics = useMemo(() => {
         let comicsToFilter = [...comics];
-
         if (searchTerm) {
             comicsToFilter = comicsToFilter.filter(comic =>
                 comic.title.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-
         if (statusFilter !== 'all') {
             comicsToFilter = comicsToFilter.filter(comic => comic.status === statusFilter);
         }
-
         switch (sortOrder) {
-            case 'newest':
-                comicsToFilter.sort((a, b) => b.id - a.id);
-                break;
-            case 'oldest':
-                comicsToFilter.sort((a, b) => a.id - b.id);
-                break;
-            case 'title-az':
-                comicsToFilter.sort((a, b) => a.title.localeCompare(b.title));
-                break;
-            case 'title-za':
-                comicsToFilter.sort((a, b) => b.title.localeCompare(a.title));
-                break;
+            case 'newest': comicsToFilter.sort((a, b) => b.id - a.id); break;
+            case 'oldest': comicsToFilter.sort((a, b) => a.id - b.id); break;
+            case 'title-az': comicsToFilter.sort((a, b) => a.title.localeCompare(b.title)); break;
+            case 'title-za': comicsToFilter.sort((a, b) => b.title.localeCompare(a.title)); break;
         }
-
         return comicsToFilter;
     }, [comics, searchTerm, statusFilter, sortOrder]);
-
 
     const handleSelectEdit = (comic: ComicSummary) => {
         setSelectedComic(comic);
         setActiveView('edit');
     };
-
     const handleSelectChapters = (comic: ComicSummary) => {
         setSelectedComic(comic);
         setActiveView('chapters');
     };
-
     const handleDeleteComic = async (comic: ComicSummary) => {
-        if (!window.confirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn truyện "${comic.title}" không? Hành động này không thể hoàn tác.`)) {
-            return;
-        }
-
+        if (!window.confirm(`XÓA vĩnh viễn truyện "${comic.title}"?`)) return;
         const token = localStorage.getItem('storyverse_token');
         try {
             const response = await fetch(`${API_BASE_URL}/comics/${comic.id}`, {
@@ -136,96 +117,76 @@ const fetchComicsAndGenres = async () => {
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Xóa thất bại');
-            showNotification('Xóa truyện thành công!', 'success');
+            showNotification('Đã xóa truyện', 'success');
             setComics(prev => prev.filter(c => c.id !== comic.id));
         } catch (error: any) {
             showNotification(error.message, 'error');
         }
     };
-
     const handleFormSuccess = () => {
         const defaultView = (selectedComic && !selectedComic.isDigital) ? 'physical' : 'digital';
         setSelectedComic(null);
         setActiveView(defaultView);
-        if (defaultView === 'digital' || defaultView === 'physical') {
-            fetchComicsAndGenres();
-        }
+        if (defaultView === 'digital' || defaultView === 'physical') fetchComicsAndGenres();
     };
-
     const handleFormCancel = () => {
         const defaultView = (selectedComic && !selectedComic.isDigital) ? 'physical' : 'digital';
         setSelectedComic(null);
         setActiveView(defaultView);
     };
-
     const handleShowAddForm = (type: 'digital' | 'physical') => {
         setAddFormType(type);
         setActiveView('add');
     };
-
     const handleAddSuccess = () => {
         setActiveView(addFormType);
         setSelectedComic(null);
-        if (addFormType === 'digital' || addFormType === 'physical') {
-            fetchComicsAndGenres();
-        }
+        fetchComicsAndGenres();
     };
-
     const handleAddCancel = () => {
         setActiveView(addFormType);
         setSelectedComic(null);
     };
-
+    
+    const handleLogout = () => {
+        if (window.confirm('Đăng xuất khỏi Admin?')) {
+            localStorage.removeItem('storyverse_token');
+            navigate('/login');
+        }
+    };
 
     const renderContent = () => {
-        if (isLoading) return <p>Đang tải dữ liệu quản trị...</p>;
-        if (error) return <p style={{ color: 'var(--clr-error-text)' }}>{error}</p>;
+        if (isLoading) return <div style={{padding:'2rem'}}>Đang tải dữ liệu...</div>;
+        if (error) return <div style={{padding:'2rem', color:'red'}}>{error}</div>;
 
         const digitalComics = filteredComics.filter(c => c.isDigital);
         const physicalComics = filteredComics.filter(c => !c.isDigital);
 
         const filterBar = (
             <AdminFilterBar
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-                statusFilter={statusFilter}
-                onStatusChange={setStatusFilter}
-                sortOrder={sortOrder}
-                onSortChange={setSortOrder}
+                searchTerm={searchTerm} onSearchChange={setSearchTerm}
+                statusFilter={statusFilter} onStatusChange={setStatusFilter}
+                sortOrder={sortOrder} onSortChange={setSortOrder}
             />
         );
 
         switch (activeView) {
-            case 'dashboard':
-                return <DashboardView />;
-                
+            case 'dashboard': return <DashboardView />;
+            case 'users': return <UserManagement />;
             case 'add':
-                return <AddComicForm
-                    allGenres={allGenres}
-                    onCancel={handleAddCancel}
-                    onSuccess={handleAddSuccess}
-                    initialIsDigital={addFormType === 'digital'}
-                />;
+                return <AddComicForm allGenres={allGenres} onCancel={handleAddCancel} onSuccess={handleAddSuccess} initialIsDigital={addFormType === 'digital'} />;
             case 'edit':
-                if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
-                return <EditComicForm
-                    comic={selectedComic}
-                    allGenres={allGenres}
-                    onCancel={handleFormCancel}
-                    onSuccess={handleFormSuccess}
-                />;
+                return selectedComic ? <EditComicForm comic={selectedComic} allGenres={allGenres} onCancel={handleFormCancel} onSuccess={handleFormSuccess} /> : <p>Lỗi</p>;
             case 'chapters':
-                if (!selectedComic) return <p>Lỗi: Không có truyện nào được chọn.</p>;
-                return <ManageChapters comic={selectedComic} onCancel={handleFormCancel} />;
-            case 'users':
-                return <UserManagement />;
+                return selectedComic ? <ManageChapters comic={selectedComic} onCancel={handleFormCancel} /> : <p>Lỗi</p>;
+            
             case 'physical':
                 return (
                     <>
                         <div className="admin-header">
-                            <h2>Quản Lý Truyện In ({physicalComics.length})</h2>
+                            <h2 style={{margin:0}}>Truyện In ({physicalComics.length})</h2>
                             <button className="mgmt-btn add" onClick={() => handleShowAddForm('physical')}>
-                                <FiPlus /> Thêm Truyện In
+                                <FiPlus /> Thêm Mới
                             </button>
                         </div>
                         {filterBar}
@@ -236,10 +197,10 @@ const fetchComicsAndGenres = async () => {
             default:
                 return (
                     <>
-                        <div className="admin-header">
-                            <h2>Quản Lý Truyện Online ({digitalComics.length})</h2>
+                         <div className="admin-header">
+                            <h2 style={{margin:0}}>Truyện Online ({digitalComics.length})</h2>
                             <button className="mgmt-btn add" onClick={() => handleShowAddForm('digital')}>
-                                <FiPlus /> Thêm Truyện Online
+                                <FiPlus /> Thêm Mới
                             </button>
                         </div>
                         {filterBar}
@@ -249,20 +210,49 @@ const fetchComicsAndGenres = async () => {
         }
     };
 
-    if (!currentUser) {
-        return <div style={{ padding: '2rem' }}>Vui lòng đăng nhập với tài khoản Admin.</div>;
-    }
-    if (!isAdmin) {
-        return <div style={{ padding: '2rem' }}>Bạn không có quyền truy cập trang này.</div>;
-    }
+    if (!currentUser || !isAdmin) return <div>Access Denied</div>;
 
     return (
         <div className="admin-dashboard-layout">
-            <AdminSidebar activeView={activeView} onNavigate={setActiveView} />
-            <main className="admin-content">
-                <h1>Trang Quản Trị StoryVerse</h1>
-                {renderContent()}
-            </main>
+            <div className="admin-sidebar-wrapper">
+                <AdminSidebar activeView={activeView} onNavigate={setActiveView} />
+            </div>
+            
+            <div className="admin-main-wrapper">
+                <header className="admin-top-header">
+                    <div className="header-left">
+                        <span className="header-breadcrumb">Hệ Thống Quản Trị / StoryVerse</span>
+                        <span className="current-date">
+                            {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                    </div>
+
+                    <div className="header-right">
+                        <div className="admin-profile-menu">
+                            <div className="admin-info">
+                                <span className="admin-name">{currentUser.fullName || 'Admin'}</span>
+                                <span className="admin-role">Administrator</span>
+                            </div>
+                            <div className="admin-avatar">
+                                <img src={currentUser.avatarUrl || 'https://via.placeholder.com/40'} alt="Admin" />
+                            </div>
+                        </div>
+
+                        <div className="header-actions">
+                            <button className="header-btn home" onClick={() => navigate('/')} title="Về trang chủ">
+                                <FiHome /> <span>Web</span>
+                            </button>
+                            <button className="header-btn logout" onClick={handleLogout} title="Đăng xuất">
+                                <FiLogOut /> <span>Thoát</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <main className="admin-content-scrollable">
+                    {renderContent()}
+                </main>
+            </div>
         </div>
     );
 };

@@ -1,6 +1,5 @@
 const { getConnection } = require('../db/connection');
 
-// Lấy tổng quan (Cards)
 const getSystemStatsRaw = async () => {
     const connection = getConnection();
     

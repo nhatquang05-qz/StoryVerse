@@ -17,20 +17,20 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
                 className={`sidebar-btn ${activeView === 'dashboard' ? 'active' : ''}`}
                 onClick={() => onNavigate('dashboard')}
             >
-                <FiBarChart2 /> Tổng Quan (Dashboard)
+                <FiBarChart2 /> Tổng Quan
             </button>
             
             <button
                 className={`sidebar-btn ${activeView === 'digital' ? 'active' : ''}`}
                 onClick={() => onNavigate('digital')}
             >
-                <FiBookOpen /> Quản lý Truyện Online
+                <FiBookOpen /> Truyện Online
             </button>
             <button
                 className={`sidebar-btn ${activeView === 'physical' ? 'active' : ''}`}
                 onClick={() => onNavigate('physical')}
             >
-                <FiArchive /> Quản lý Truyện In
+                <FiArchive /> Truyện In
             </button>
             <button
                 className={`sidebar-btn ${activeView === 'users' ? 'active' : ''}`}

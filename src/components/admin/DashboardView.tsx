@@ -107,7 +107,6 @@ const DashboardView: React.FC = () => {
         );
     };
 
-    // --- Cấu hình Chart ---
     const revenueLabels = data.charts.revenue.map((item: any) => item.date);
     const revenueValues = data.charts.revenue.map((item: any) => item.total);
     const lineChartData = {
