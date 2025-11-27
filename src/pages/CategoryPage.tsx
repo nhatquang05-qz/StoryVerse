@@ -61,7 +61,9 @@ const CategoryPage: React.FC = () => {
           if (!res.ok) throw new Error('Không thể tải truyện');
           return res.json();
       })
-      .then((allApiComics: ComicSummary[]) => {
+      .then((response: any) => {
+          const allApiComics: ComicSummary[] = Array.isArray(response) ? response : (response.data || []);
+          
           let sourceComics: ComicSummary[] = allApiComics;
           
           if (slug === 'new-releases') {
