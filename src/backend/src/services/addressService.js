@@ -16,16 +16,30 @@ const updateAddressesService = async (userId, addresses) => {
     if (!Array.isArray(addresses)) {
         throw { status: 400, error: 'Invalid data format, expected an array of addresses.' };
     }
-    for(const addr of addresses) {
-        if (!addr || typeof addr.street !== 'string' || typeof addr.city !== 'string') {
-             throw { status: 400, error: 'Một hoặc nhiều địa chỉ không hợp lệ.' };
+
+    const normalizedAddresses = addresses.map(addr => {
+        const newAddr = { ...addr };
+        
+        if (!newAddr.specificAddress && newAddr.street) {
+            newAddr.specificAddress = newAddr.street;
+        }
+        
+        delete newAddr.street;
+        
+        return newAddr;
+    });
+
+    for(const addr of normalizedAddresses) {
+        if (!addr || typeof addr.specificAddress !== 'string' || typeof addr.city !== 'string') {
+             console.error("Address validation failed:", addr);
+             throw { status: 400, error: 'Một hoặc nhiều địa chỉ không hợp lệ (Thiếu tên đường hoặc thành phố).' };
         }
     }
     
-    const addressesJson = JSON.stringify(addresses);
+    const addressesJson = JSON.stringify(normalizedAddresses);
     await addressModel.updateAddressesRaw(userId, addressesJson);
 
-    return addresses;
+    return normalizedAddresses;
 };
 
 module.exports = { getAddressesService, updateAddressesService };

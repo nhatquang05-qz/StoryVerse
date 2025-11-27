@@ -88,7 +88,7 @@ const createNewUser = async (email, hashedPassword, fullName, addresses, avatarU
     const connection = getConnection();
     const [result] = await connection.execute(
       'INSERT INTO users (email, password, fullName, phone, coinBalance, lastDailyLogin, consecutiveLoginDays, level, exp, addresses, avatarUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [email, hashedPassword, fullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', addresses, avatarUrl]
+      [email, hashedPassword, fullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', emptyAddresses, avatarUrl]
     );
     return result.insertId;
 };

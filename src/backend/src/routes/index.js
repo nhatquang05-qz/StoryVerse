@@ -17,7 +17,7 @@ const orderRoutes = require('./orderRoutes');
 router.use('/auth', authRoutes);
 router.use('/comics', comicRoutes);
 router.use('/users', userRoutes);
-router.use('/addresses', addressRoutes);
+router.use('/address', addressRoutes);
 router.use('/upload', uploadRoutes);
 router.use('/rewards', rewardRoutes);
 router.use('/chat', chatRoutes);
