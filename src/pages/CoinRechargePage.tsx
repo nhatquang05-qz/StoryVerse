@@ -42,15 +42,16 @@ const CoinRechargePage: React.FC = () => {
         setSelectedPack(packId);
 
         try {
-            console.log("Sending request with token:", token ? "Token present" : "No token");
-
             const response = await fetch(`${API_URL}/payment/create_payment_url`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}` 
                 },
-                body: JSON.stringify({ packId })
+                body: JSON.stringify({ 
+                    paymentType: 'RECHARGE', 
+                    packId 
+                })
             });
 
             const data = await response.json();
@@ -65,9 +66,9 @@ const CoinRechargePage: React.FC = () => {
                 }
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Lỗi khi nạp xu:', error);
-            showNotification('Khởi tạo thanh toán thất bại. Vui lòng thử lại.', 'error');
+            showNotification(error.message || 'Khởi tạo thanh toán thất bại. Vui lòng thử lại.', 'error');
         } finally {
             setIsProcessing(false);
             setSelectedPack(null);

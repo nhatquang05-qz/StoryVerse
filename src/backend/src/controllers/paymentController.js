@@ -1,3 +1,4 @@
+// src/backend/src/controllers/paymentController.js
 const moment = require('moment');
 const qs = require('qs');
 const crypto = require('crypto');
@@ -5,6 +6,7 @@ const { VNP_TMN_CODE, VNP_HASH_SECRET, VNP_URL, VNP_RETURN_URL } = require('../c
 const userModel = require('../models/userModel');
 const rewardService = require('../services/rewardService');
 const paymentModel = require('../models/paymentModel');
+const orderModel = require('../models/orderModel'); 
 
 const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },
@@ -156,16 +158,19 @@ const vnpayReturn = async (req, res) => {
                         });
                     }
                 }
+
                 const purchaseMatch = orderInfo.match(/Thanh toan don hang\s*([a-zA-Z0-9]+)\s*user\s*(\d+)/);
                 
                 if (purchaseMatch) {
-                    const orderRef = purchaseMatch[1];
+                    const orderRef = purchaseMatch[1]; 
                     const userId = parseInt(purchaseMatch[2]);
 
                     await paymentModel.createTransactionRaw(
                         userId, vnpTxnRef, vnpAmount, 'SUCCESS', 'PURCHASE',
                         `Thanh toán đơn hàng #${orderRef}`
                     );
+
+                    await orderModel.updateOrderStatusRaw(orderRef, 'PAID');
                   
                     return res.json({ 
                         status: 'success', 

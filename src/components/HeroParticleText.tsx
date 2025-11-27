@@ -13,7 +13,6 @@ const HeroParticleText: React.FC<HeroParticleTextProps> = ({ title, slogan }) =>
         if (!canvas) return;
 
         const container = canvas.parentElement as HTMLElement;
-        let animationFrameId: number;
         const resizeCanvas = () => {
             canvas.width = container.offsetWidth;
             canvas.height = container.offsetHeight;

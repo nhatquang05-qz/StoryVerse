@@ -37,22 +37,42 @@ const CheckoutPage: React.FC = () => {
         setIsProcessing(true);
 
         try {
-            const tempOrderId = 'ORD' + Date.now(); 
+            if (!token) {
+                showNotification('Vui lòng đăng nhập để đặt hàng', 'error');
+                setIsProcessing(false);
+                return;
+            }
 
-            if (paymentMethod === 'COD') {
-                await new Promise(resolve => setTimeout(resolve, 1000)); 
+            const createOrderResponse = await fetch(`${API_URL}/orders/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    fullName: shippingInfo.fullName,
+                    phone: shippingInfo.phone,
+                    address: shippingInfo.address,
+                    totalAmount: totalPrice,
+                    paymentMethod: paymentMethod,
+                    items: cartItems
+                })
+            });
+
+            const orderResult = await createOrderResponse.json();
+            
+            if (!createOrderResponse.ok) {
+                throw new Error(orderResult.message || 'Lỗi tạo đơn hàng');
+            }
+
+            const realOrderId = orderResult.orderId; 
+
+            if (paymentMethod === 'COD') { 
                 clearCart(); 
                 showNotification('Đặt hàng thành công! (COD)', 'success');
-                navigate(`/order-success/${tempOrderId}`);
+                navigate(`/order-success/${realOrderId}`);
 
-            } else if (paymentMethod === 'VNPAY') {
-                
-                if (!token) {
-                    showNotification('Vui lòng đăng nhập để thanh toán online', 'error');
-                    setIsProcessing(false); 
-                    return;
-                }
-
+            } else if (paymentMethod === 'VNPAY') {  
                 const response = await fetch(`${API_URL}/payment/create_payment_url`, {
                     method: 'POST',
                     headers: {
@@ -62,7 +82,7 @@ const CheckoutPage: React.FC = () => {
                     body: JSON.stringify({
                         paymentType: 'PURCHASE', 
                         amount: totalPrice,      
-                        orderReference: tempOrderId 
+                        orderReference: realOrderId 
                     })
                 });
 

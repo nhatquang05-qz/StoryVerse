@@ -1,4 +1,5 @@
 const userService = require('../services/userService');
+const paymentModel = require('../models/paymentModel');
 
 const getMe = async (req, res) => {
   try {
@@ -147,6 +148,17 @@ const deleteUserById = async (req, res) => {
     }
 };
 
+const getTransactionHistory = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const history = await paymentModel.getTransactionHistoryRaw(userId);
+        res.json(history);
+    } catch (error) {
+        console.error('Get History Error:', error);
+        res.status(500).json({ message: 'Lỗi lấy lịch sử giao dịch' });
+    }
+};
+
 module.exports = { 
     getMe, 
     updateProfile, 
@@ -158,5 +170,6 @@ module.exports = {
     getAllUsers,
     updateUserById,
     toggleUserBan,
-    deleteUserById
+    deleteUserById,
+    getTransactionHistory
 };
