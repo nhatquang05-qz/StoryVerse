@@ -159,6 +159,26 @@ const getTransactionHistory = async (req, res) => {
     }
 };
 
+const getUserDetailsAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;        
+        const [userProfile, transactions, unlockedChapters] = await Promise.all([
+            userService.getMeService(id),
+            paymentModel.getTransactionHistoryRaw(id),
+            userService.getUnlockedChaptersService(id)
+        ]);
+
+        res.json({
+            profile: userProfile,
+            transactions: transactions,
+            library: unlockedChapters
+        });
+    } catch (error) {
+        console.error('Admin Get User Details Error:', error);
+        res.status(500).json({ message: 'Lỗi lấy chi tiết người dùng' });
+    }
+};
+
 module.exports = { 
     getMe, 
     updateProfile, 
@@ -171,5 +191,6 @@ module.exports = {
     updateUserById,
     toggleUserBan,
     deleteUserById,
-    getTransactionHistory
+    getTransactionHistory,
+    getUserDetailsAdmin
 };

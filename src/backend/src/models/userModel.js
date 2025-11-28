@@ -37,11 +37,29 @@ const getTopUsersRaw = async (safeLimit) => {
 
 const getUnlockedChaptersRaw = async (userId) => {
     const connection = getConnection();
-    const [rows] = await connection.execute(
-        'SELECT chapterId FROM user_unlocked_chapters WHERE userId = ?',
-        [userId]
-    );
-    return rows;
+    const query = `
+        SELECT 
+            uuc.chapterId,
+            ch.comicId,
+            c.title AS comicTitle,
+            ch.chapterNumber,
+            ch.title AS title,
+            ch.price,
+            uuc.unlockedAt
+        FROM user_unlocked_chapters uuc
+        JOIN chapters ch ON uuc.chapterId = ch.id
+        JOIN comics c ON ch.comicId = c.id
+        WHERE uuc.userId = ?
+        ORDER BY uuc.unlockedAt DESC
+    `;
+    
+    try {
+        const [rows] = await connection.execute(query, [userId]);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching unlocked chapters:", error);
+        return [];
+    }
 };
 
 const getWishlistRaw = async (userId) => {
@@ -86,6 +104,7 @@ const getAllUsersRaw = async () => {
 
 const createNewUser = async (email, hashedPassword, fullName, addresses, avatarUrl = null) => {
     const connection = getConnection();
+    const emptyAddresses = JSON.stringify([]);
     const [result] = await connection.execute(
       'INSERT INTO users (email, password, fullName, phone, coinBalance, lastDailyLogin, consecutiveLoginDays, level, exp, addresses, avatarUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [email, hashedPassword, fullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', emptyAddresses, avatarUrl]
@@ -168,23 +187,14 @@ const toggleUserBanRaw = async (id, isBanned) => {
 const deleteUserDependenciesRaw = async (id) => {
     const connection = getConnection();
     
-    try {
-        await connection.execute('DELETE FROM chat_messages WHERE userId = ?', [id]);
-    } catch (error) {
-    }
-
-    await connection.execute('DELETE FROM user_wishlist WHERE userId = ?', [id]);
-    await connection.execute('DELETE FROM user_unlocked_chapters WHERE userId = ?', [id]);
-
-    try {
-        await connection.execute('DELETE FROM reviews WHERE userId = ?', [id]);
-    } catch (error) {
-    }
-
-    try {
-        await connection.execute('DELETE FROM user_library WHERE userId = ?', [id]);
-    } catch (error) {
-    }
+    try { await connection.execute('DELETE FROM chat_messages WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM user_wishlist WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM user_unlocked_chapters WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM reviews WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM user_library WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM cart_items WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM orders WHERE userId = ?', [id]); } catch (e) {}
+    try { await connection.execute('DELETE FROM payment_transactions WHERE userId = ?', [id]); } catch (e) {}
 };
 
 const deleteUserRaw = async (id) => {

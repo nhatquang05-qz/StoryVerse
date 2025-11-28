@@ -4,7 +4,7 @@ import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler
 } from 'chart.js';
 import { 
-    FiDollarSign, FiUsers, FiShoppingCart, FiClock, FiCheckCircle, FiXCircle, FiBookOpen
+    FiDollarSign, FiUsers, FiShoppingCart, FiClock, FiCheckCircle, FiXCircle, FiBookOpen, FiFilter, FiTrendingUp
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../assets/styles/DashboardView.css';
@@ -16,11 +16,13 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 const DashboardView: React.FC = () => {
     const { token } = useAuth(); 
     const [loading, setLoading] = useState(true);
+    const [timeRange, setTimeRange] = useState<'day' | 'month' | 'year'>('day');
     
     const [data, setData] = useState({
         stats: { revenue: 0, users: 0, orders: 0, comics: 0 },
         charts: { revenue: [], users: [], orders: [] },
-        transactions: []
+        transactions: [],
+        topComics: []
     });
 
     useEffect(() => {
@@ -28,7 +30,7 @@ const DashboardView: React.FC = () => {
             if (!token) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/admin/dashboard-stats`, {
+                const response = await fetch(`${API_BASE_URL}/admin/dashboard-stats?period=${timeRange}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -46,7 +48,7 @@ const DashboardView: React.FC = () => {
         };
 
         fetchDashboardData();
-    }, [token]);
+    }, [token, timeRange]);
 
 
     const getTypeBadge = (type: string) => {
@@ -112,7 +114,7 @@ const DashboardView: React.FC = () => {
     const lineChartData = {
         labels: revenueLabels.length > 0 ? revenueLabels : ['Chưa có dữ liệu'],
         datasets: [{
-            label: 'Doanh Thu (VNĐ)',
+            label: `Doanh Thu (${timeRange === 'day' ? 'Ngày' : timeRange === 'month' ? 'Tháng' : 'Năm'})`,
             data: revenueValues.length > 0 ? revenueValues : [0],
             borderColor: '#10b981',
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -153,6 +155,24 @@ const DashboardView: React.FC = () => {
                 <div className="dashboard-title">
                     <h2>Tổng Quan Hệ Thống</h2>
                     <p className="dashboard-subtitle">Số liệu cập nhật theo thời gian thực</p>
+                </div>
+                <div className="dashboard-filter">
+                    <FiFilter />
+                    <select 
+                        value={timeRange} 
+                        onChange={(e) => setTimeRange(e.target.value as any)}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid #ddd',
+                            outline: 'none',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <option value="day">Theo Ngày</option>
+                        <option value="month">Theo Tháng</option>
+                        <option value="year">Theo Năm</option>
+                    </select>
                 </div>
             </div>
 
@@ -197,7 +217,7 @@ const DashboardView: React.FC = () => {
 
             <div className="chart-section">
                 <div className="chart-header">
-                    <h3 className="chart-title">Biểu Đồ Doanh Thu (Theo ngày)</h3>
+                    <h3 className="chart-title">Biểu Đồ Doanh Thu ({timeRange === 'day' ? '7 ngày gần nhất' : timeRange === 'month' ? '12 tháng gần nhất' : '5 năm gần nhất'})</h3>
                 </div>
                 <div className="main-chart-wrapper">
                     <Line options={{ responsive: true, maintainAspectRatio: false }} data={lineChartData} />
@@ -216,6 +236,44 @@ const DashboardView: React.FC = () => {
                     <div className="sub-chart-wrapper">
                         <Doughnut data={doughnutData} options={{ maintainAspectRatio: false }} />
                     </div>
+                </div>
+            </div>
+
+            <div className="transactions-table-container">
+                <div className="table-header">
+                    <h3 className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FiTrendingUp /> Top Truyện Bán Chạy
+                    </h3>
+                </div>
+                <div className="table-responsive">
+                    <table className="custom-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên Truyện</th>
+                                <th>Lượt Mua/Mở Khóa</th>
+                                <th style={{ textAlign: 'right' }}>Doanh Thu (Ước tính)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.topComics && data.topComics.length > 0 ? (
+                                data.topComics.map((comic: any, index: number) => (
+                                    <tr key={comic.id || index}>
+                                        <td style={{ fontWeight: 'bold' }}>#{index + 1}</td>
+                                        <td>{comic.title}</td>
+                                        <td>{comic.salesCount}</td>
+                                        <td style={{ textAlign: 'right', fontWeight: '600', color: '#10b981' }}>
+                                            {formatCurrency(comic.totalRevenue || 0)}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={4} style={{textAlign: 'center', padding: '1.5rem'}}>Chưa có dữ liệu truyện bán chạy</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

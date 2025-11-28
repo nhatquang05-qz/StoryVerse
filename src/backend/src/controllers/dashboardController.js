@@ -1,13 +1,17 @@
 const dashboardModel = require('../models/dashboardModel');
+const comicModel = require('../models/comicModel');
 
 const getDashboardData = async (req, res) => {
     try {
-        const [stats, revenueChart, userChart, orderStatus, recentTransactions] = await Promise.all([
+        const { period = 'day' } = req.query; 
+
+        const [stats, revenueChart, userChart, orderStatus, recentTransactions, topSellingComics] = await Promise.all([
             dashboardModel.getSystemStatsRaw(),
-            dashboardModel.getRevenueChartDataRaw(),
-            dashboardModel.getUserGrowthChartDataRaw(),
+            dashboardModel.getRevenueChartDataRaw(period), 
+            dashboardModel.getUserGrowthChartDataRaw(period),
             dashboardModel.getOrderStatusDistributionRaw(),
-            dashboardModel.getRecentTransactionsRaw(10)
+            dashboardModel.getRecentTransactionsRaw(10),
+            comicModel.getTopSellingComicsRaw ? comicModel.getTopSellingComicsRaw(5) : [] 
         ]);
 
         res.json({
@@ -19,7 +23,8 @@ const getDashboardData = async (req, res) => {
                     users: userChart,
                     orders: orderStatus
                 },
-                transactions: recentTransactions
+                transactions: recentTransactions,
+                topComics: topSellingComics
             }
         });
     } catch (error) {
