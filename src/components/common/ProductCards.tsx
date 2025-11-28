@@ -27,15 +27,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
   
-  const formatViewCount = (count: number) => {
+  const formatCompactNumber = (count: number) => {
     const num = Number(count) || 0; 
     if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M lượt xem';
+      return (num / 1000000).toFixed(1) + 'M';
     }
     if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K lượt xem';
+      return (num / 1000).toFixed(1) + 'k';
     }
-    return num + ' lượt xem';
+    return num.toString();
+  };
+
+  const formatViewCount = (count: number) => {
+    return formatCompactNumber(count) + ' lượt xem';
   };
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -55,6 +59,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   
   const displayRating = parseFloat(comicData.averageRating) || 0; 
   const totalReviews = parseInt(comicData.totalReviews) || 0;
+
+  const soldCount = comicData.viewCount || 0; 
 
   return (
     <div 
@@ -89,7 +95,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         <div className="card-rating-section">
           <StarRating rating={displayRating} />
           {totalReviews > 0 && (
-             <span className="card-view-count" style={{ marginLeft: '0.5rem' }}>({totalReviews} đánh giá)</span>
+             <span className="card-view-count" style={{ marginLeft: '0.5rem' }}>({totalReviews})</span>
           )}
         </div>
         
@@ -100,7 +106,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         )}
         
         {!comicData.isDigital && (
-            <p className="card-price">{formatPrice(comicData.price)}</p>
+            <div className="card-price-row">
+                <span className="card-price">{formatPrice(comicData.price)}</span>
+                <span className="card-sold-text">Đã bán {formatCompactNumber(soldCount)}</span>
+            </div>
         )}
         
       </div>

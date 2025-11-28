@@ -1,0 +1,228 @@
+CREATE TABLE `cart_items` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `userId` int NOT NULL,
+   `comicId` int NOT NULL,
+   `quantity` int DEFAULT '1',
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `unique_user_item` (`userId`,`comicId`),
+   KEY `comicId` (`comicId`),
+   CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `chapters` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `comicId` int NOT NULL,
+   `chapterNumber` decimal(6,2) NOT NULL,
+   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+   `contentUrls` json DEFAULT NULL,
+   `price` int DEFAULT '0',
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   `viewCount` int DEFAULT '0',
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `idx_comic_chapter` (`comicId`,`chapterNumber`),
+   CONSTRAINT `chapters_ibfk_1` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+CREATE TABLE `chat_message_likes` (
+   `messageId` int NOT NULL,
+   `userId` int NOT NULL,
+   PRIMARY KEY (`messageId`,`userId`),
+   KEY `userId` (`userId`),
+   CONSTRAINT `chat_message_likes_ibfk_1` FOREIGN KEY (`messageId`) REFERENCES `chat_messages` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `chat_message_likes_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `chat_messages` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `userId` int NOT NULL,
+   `comicId` int DEFAULT NULL,
+   `chapterId` int DEFAULT NULL,
+   `message` text,
+   `imageUrl` varchar(255) DEFAULT NULL,
+   `stickerUrl` varchar(255) DEFAULT NULL,
+   `replyToMessageId` int DEFAULT NULL,
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY `userId` (`userId`),
+   KEY `comicId` (`comicId`),
+   KEY `chapterId` (`chapterId`),
+   KEY `replyToMessageId` (`replyToMessageId`),
+   CONSTRAINT `chat_messages_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`),
+   CONSTRAINT `chat_messages_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`),
+   CONSTRAINT `chat_messages_ibfk_3` FOREIGN KEY (`chapterId`) REFERENCES `chapters` (`id`),
+   CONSTRAINT `chat_messages_ibfk_4` FOREIGN KEY (`replyToMessageId`) REFERENCES `chat_messages` (`id`) ON DELETE SET NULL
+ ) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `comic_genres` (
+   `comicId` int NOT NULL,
+   `genreId` int NOT NULL,
+   PRIMARY KEY (`comicId`,`genreId`),
+   KEY `genreId` (`genreId`),
+   CONSTRAINT `comic_genres_ibfk_1` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `comic_genres_ibfk_2` FOREIGN KEY (`genreId`) REFERENCES `genres` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `comics` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+   `author` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+   `coverImageUrl` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'https://via.placeholder.com/200x300',
+   `status` enum('Ongoing','Completed','Dropped') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Ongoing',
+   `isDigital` tinyint(1) DEFAULT '1',
+   `price` decimal(10,2) DEFAULT '0.00',
+   `viewCount` int DEFAULT '0',
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY `idx_title` (`title`),
+   KEY `idx_author` (`author`),
+   KEY `idx_status` (`status`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+CREATE TABLE `daily_comic_stats` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `comic_id` int NOT NULL,
+   `view_date` date NOT NULL,
+   `daily_view_count` int DEFAULT '0',
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `idx_comic_date` (`comic_id`,`view_date`),
+   CONSTRAINT `daily_comic_stats_ibfk_1` FOREIGN KEY (`comic_id`) REFERENCES `comics` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=293 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `genres` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `name` (`name`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+CREATE TABLE `order_items` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `orderId` int NOT NULL,
+   `comicId` int NOT NULL,
+   `quantity` int NOT NULL,
+   `price` decimal(15,2) NOT NULL,
+   `title` varchar(255) DEFAULT NULL,
+   `coverImageUrl` varchar(500) DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   KEY `orderId` (`orderId`),
+   KEY `comicId` (`comicId`),
+   CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`orderId`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `orders` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `userId` int NOT NULL,
+   `fullName` varchar(255) NOT NULL,
+   `phone` varchar(20) NOT NULL,
+   `address` text NOT NULL,
+   `totalAmount` decimal(15,2) NOT NULL,
+   `paymentMethod` varchar(20) NOT NULL,
+   `status` varchar(50) DEFAULT 'PENDING',
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY `userId` (`userId`),
+   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `payment_transactions` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `userId` int NOT NULL,
+   `orderId` varchar(50) NOT NULL,
+   `amount` decimal(15,2) NOT NULL,
+   `status` varchar(20) NOT NULL,
+   `type` varchar(20) NOT NULL,
+   `description` text,
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   KEY `userId` (`userId`),
+   CONSTRAINT `payment_transactions_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `reviews` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `userId` int NOT NULL,
+   `comicId` int NOT NULL,
+   `rating` int DEFAULT NULL,
+   `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `idx_user_comic_review` (`userId`,`comicId`),
+   KEY `comicId` (`comicId`),
+   CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `reviews_chk_1` CHECK (((`rating` >= 1) and (`rating` <= 5)))
+ ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+CREATE TABLE `user_bookmarks` (
+   `userId` int NOT NULL,
+   `comicId` int NOT NULL,
+   `lastReadChapterId` int DEFAULT NULL,
+   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`userId`,`comicId`),
+   KEY `comicId` (`comicId`),
+   KEY `lastReadChapterId` (`lastReadChapterId`),
+   CONSTRAINT `user_bookmarks_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `user_bookmarks_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `user_bookmarks_ibfk_3` FOREIGN KEY (`lastReadChapterId`) REFERENCES `chapters` (`id`) ON DELETE SET NULL
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+CREATE TABLE `user_library` (
+   `userId` int NOT NULL,
+   `comicId` int NOT NULL,
+   `purchasedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`userId`,`comicId`),
+   KEY `comicId` (`comicId`),
+   CONSTRAINT `user_library_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `user_library_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+CREATE TABLE `user_unlocked_chapters` (
+   `userId` int NOT NULL,
+   `chapterId` int NOT NULL,
+   `unlockedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`userId`,`chapterId`),
+   KEY `chapterId_idx` (`chapterId`),
+   CONSTRAINT `fk_user_unlocked_chapter` FOREIGN KEY (`chapterId`) REFERENCES `chapters` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `fk_user_unlocked_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `user_wishlist` (
+   `userId` int NOT NULL,
+   `comicId` int NOT NULL,
+   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`userId`,`comicId`),
+   KEY `comicId` (`comicId`),
+   CONSTRAINT `user_wishlist_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+   CONSTRAINT `user_wishlist_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+CREATE TABLE `users` (
+   `id` int NOT NULL AUTO_INCREMENT,
+   `email` varchar(255) NOT NULL,
+   `password` varchar(255) NOT NULL,
+   `fullName` varchar(255) DEFAULT NULL,
+   `phone` varchar(20) DEFAULT NULL,
+   `coinBalance` int DEFAULT '1000',
+   `lastDailyLogin` timestamp NULL DEFAULT '2000-01-01 00:00:00',
+   `consecutiveLoginDays` int DEFAULT '0',
+   `level` int DEFAULT '1',
+   `exp` decimal(20,2) DEFAULT '0.00',
+   `addresses` json DEFAULT NULL,
+   `avatarUrl` varchar(1024) DEFAULT 'https://via.placeholder.com/150',
+   `isBanned` tinyint(1) NOT NULL DEFAULT '0',
+   `resetPasswordToken` varchar(255) DEFAULT NULL,
+   `resetPasswordExpires` datetime DEFAULT NULL,
+   `acc_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `email` (`email`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

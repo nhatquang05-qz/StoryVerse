@@ -60,12 +60,6 @@
   text-overflow: ellipsis;
 }
 
-.card-price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--clr-price-text);
-}
-
 .card-image-overlay {
   position: absolute;
   top: 0;
@@ -197,4 +191,31 @@
     border-radius: 4px;
     font-weight: 500;
     white-space: nowrap;
+}
+
+.card-price-row {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  margin-top: auto; 
+  padding-top: 0.5rem;
+}
+
+.card-price {
+  font-size: 1rem; 
+  font-weight: 700;
+  color: var(--clr-price-text);
+  text-align: left; 
+  line-height: 1;
+}
+
+.card-sold-text {
+  font-size: 0.75rem;
+  color: var(--clr-text-secondary);
+  font-weight: 400;
+}
+
+.card-rating-section {
+    justify-content: center; 
+    margin-bottom: 0.25rem;
 }
