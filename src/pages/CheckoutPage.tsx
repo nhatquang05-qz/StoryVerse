@@ -3,7 +3,7 @@ import { useCart } from '../contexts/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
-import '../assets/styles/CartPage.css';
+import '../assets/styles/CheckoutPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -98,126 +98,131 @@ const CheckoutPage: React.FC = () => {
         } catch (error: any) {
             console.error('Checkout Error:', error);
             showNotification(error.message || 'Đặt hàng thất bại', 'error');
-            
             setIsProcessing(false); 
         }
     };
 
     if (cartItems.length === 0) {
         return (
-            <div className="cart-page-container empty-cart">
-                <h2>Giỏ hàng của bạn đang trống</h2>
+            <div className="checkout-container empty-cart-container">
+                <h2 className="empty-cart-text">Giỏ hàng của bạn đang trống</h2>
                 <Link to="/" className="continue-shopping-btn">Mua sắm ngay</Link>
             </div>
         );
     }
 
     return (
-        <div className="cart-page-container" style={{maxWidth: '1000px', margin: '0 auto', padding: '20px'}}>
-            <h2>Thanh Toán</h2>
+        <div className="checkout-container">
+            <h2 className="checkout-title">Thanh Toán</h2>
             
-            <div className="checkout-grid" style={{display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px'}}>
+            <div className="checkout-grid">
                 
                 <div className="checkout-left">
-                    <div className="checkout-section card" style={{padding: '20px', background: 'var(--card-bg)', borderRadius: '12px', marginBottom: '20px'}}>
+                    <div className="checkout-card">
                         <h3>Thông tin giao hàng</h3>
-                        <div className="form-group" style={{marginBottom: '15px'}}>
-                            <label>Họ tên</label>
+                        
+                        <div className="form-group">
+                            <label className="form-label">Họ tên người nhận</label>
                             <input 
                                 type="text" 
-                                className="form-control"
+                                className="form-input"
+                                placeholder="Nhập họ và tên"
                                 value={shippingInfo.fullName}
                                 onChange={e => setShippingInfo({...shippingInfo, fullName: e.target.value})}
-                                style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '5px'}}
                             />
                         </div>
-                        <div className="form-group" style={{marginBottom: '15px'}}>
-                            <label>Số điện thoại</label>
+
+                        <div className="form-group">
+                            <label className="form-label">Số điện thoại</label>
                             <input 
                                 type="text" 
-                                className="form-control"
+                                className="form-input"
+                                placeholder="Nhập số điện thoại liên hệ"
                                 value={shippingInfo.phone}
                                 onChange={e => setShippingInfo({...shippingInfo, phone: e.target.value})}
-                                style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '5px'}}
                             />
                         </div>
+
                         <div className="form-group">
-                            <label>Địa chỉ nhận hàng</label>
+                            <label className="form-label">Địa chỉ nhận hàng</label>
                             <textarea 
-                                className="form-control"
+                                className="form-textarea"
+                                placeholder="Nhập địa chỉ chi tiết (Số nhà, đường, phường/xã...)"
                                 value={shippingInfo.address}
                                 onChange={e => setShippingInfo({...shippingInfo, address: e.target.value})}
-                                style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', marginTop: '5px'}}
                             />
                         </div>
                     </div>
 
-                    <div className="checkout-section card" style={{padding: '20px', background: 'var(--card-bg)', borderRadius: '12px'}}>
+                    <div className="checkout-card">
                         <h3>Phương thức thanh toán</h3>
-                        
-                        <div 
-                            className={`payment-option ${paymentMethod === 'COD' ? 'selected' : ''}`}
-                            onClick={() => setPaymentMethod('COD')}
-                            style={{
-                                padding: '15px', 
-                                border: paymentMethod === 'COD' ? '2px solid var(--primary-color)' : '1px solid #ddd',
-                                borderRadius: '8px',
-                                marginBottom: '10px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}
-                        >
-                            <input type="radio" checked={paymentMethod === 'COD'} readOnly style={{marginRight: '10px'}} />
-                            <div>
-                                <strong>Thanh toán khi nhận hàng (COD)</strong>
-                                <p style={{fontSize: '0.9rem', color: '#666', margin: 0}}>Thanh toán bằng tiền mặt khi giao hàng</p>
+                        <div className="payment-methods">
+                            <div 
+                                className={`payment-option ${paymentMethod === 'COD' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('COD')}
+                            >
+                                <input 
+                                    type="radio" 
+                                    className="payment-radio"
+                                    checked={paymentMethod === 'COD'} 
+                                    readOnly 
+                                />
+                                <div className="payment-info">
+                                    <strong>Thanh toán khi nhận hàng (COD)</strong>
+                                    <p>Thanh toán bằng tiền mặt khi shipper giao hàng</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div 
-                            className={`payment-option ${paymentMethod === 'VNPAY' ? 'selected' : ''}`}
-                            onClick={() => setPaymentMethod('VNPAY')}
-                            style={{
-                                padding: '15px', 
-                                border: paymentMethod === 'VNPAY' ? '2px solid var(--primary-color)' : '1px solid #ddd',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center'
-                            }}
-                        >
-                            <input type="radio" checked={paymentMethod === 'VNPAY'} readOnly style={{marginRight: '10px'}} />
-                            <div>
-                                <strong>Thanh toán qua VNPAY</strong> <span style={{fontSize: '0.8rem', color: 'white', background: '#005ba3', padding: '2px 6px', borderRadius: '4px'}}>Khuyên dùng</span>
-                                <p style={{fontSize: '0.9rem', color: '#666', margin: 0}}>Quét mã QR hoặc dùng thẻ ATM/Visa</p>
+                            <div 
+                                className={`payment-option ${paymentMethod === 'VNPAY' ? 'selected' : ''}`}
+                                onClick={() => setPaymentMethod('VNPAY')}
+                            >
+                                <input 
+                                    type="radio" 
+                                    className="payment-radio"
+                                    checked={paymentMethod === 'VNPAY'} 
+                                    readOnly 
+                                />
+                                <div className="payment-info">
+                                    <strong>
+                                        Thanh toán qua VNPAY 
+                                        <span className="recommend-badge">Khuyên dùng</span>
+                                    </strong>
+                                    <p>Quét mã QR, ví điện tử VNPAY hoặc thẻ ngân hàng</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="checkout-right">
-                    <div className="order-summary card" style={{padding: '20px', background: 'var(--card-bg)', borderRadius: '12px', position: 'sticky', top: '100px'}}>
+                    <div className="checkout-card order-summary-container">
                         <h3>Đơn hàng ({cartItems.length} sản phẩm)</h3>
-                        <div className="summary-items" style={{maxHeight: '300px', overflowY: 'auto', marginBottom: '20px'}}>
+                        
+                        <div className="summary-list">
                             {cartItems.map(item => (
-                                <div key={item.id} style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px'}}>
-                                    <span>{item.quantity}x {item.title}</span>
-                                    <span>{(item.price * item.quantity).toLocaleString()}đ</span>
+                                <div key={item.id} className="summary-item">
+                                    <div className="item-name">
+                                        <span className="item-quantity">{item.quantity}x</span> {item.title}
+                                    </div>
+                                    <div className="item-price">
+                                        {(item.price * item.quantity).toLocaleString()}đ
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                        <hr style={{margin: '15px 0', border: 'none', borderTop: '1px solid #eee'}} />
-                        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: '1.2rem', fontWeight: 'bold'}}>
+
+                        <hr className="summary-divider" />
+                        
+                        <div className="total-row">
                             <span>Tổng cộng:</span>
-                            <span style={{color: 'var(--primary-color)'}}>{totalPrice.toLocaleString()}đ</span>
+                            <span className="total-price">{totalPrice.toLocaleString()}đ</span>
                         </div>
 
                         <button 
-                            className="auth-button"
+                            className="checkout-btn"
                             onClick={handlePlaceOrder}
                             disabled={isProcessing}
-                            style={{marginTop: '20px', width: '100%', background: 'var(--primary-color)', color: 'white', cursor: isProcessing ? 'not-allowed' : 'pointer'}}
                         >
                             {isProcessing ? 'Đang xử lý...' : (paymentMethod === 'COD' ? 'Đặt Hàng Ngay' : 'Thanh Toán VNPAY')}
                         </button>
