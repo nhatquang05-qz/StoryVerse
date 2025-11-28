@@ -9,7 +9,6 @@ const getAllGenresRaw = async () => {
 const createComicRaw = async (comicData) => {
     const connection = getConnection();
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = comicData;
-
     const safeTitle = title || null;
     const safeAuthor = author || null;
     const safeDescription = description || null;
@@ -116,7 +115,15 @@ const getComicListRaw = async (limit, offset) => {
 
     const [rows] = await connection.query(
         `SELECT 
-            c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount, c.createdAt, c.updatedAt,
+            c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, 
+            c.viewCount, c.createdAt, c.updatedAt,
+            (
+                SELECT COALESCE(SUM(oi.quantity), 0) 
+                FROM order_items oi 
+                JOIN orders o ON oi.orderId = o.id 
+                WHERE oi.comicId = c.id 
+                AND o.status IN ('PAID', 'PROCESSING', 'COMPLETED', 'DELIVERED')
+            ) AS soldCount,
             COALESCE(
                 (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
                  FROM genres g 
@@ -138,7 +145,15 @@ const getComicDetailRaw = async (id) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
         `SELECT 
-            c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, c.viewCount, c.createdAt, c.updatedAt,
+            c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, 
+            c.viewCount, c.createdAt, c.updatedAt,
+            (
+                SELECT COALESCE(SUM(oi.quantity), 0) 
+                FROM order_items oi 
+                JOIN orders o ON oi.orderId = o.id 
+                WHERE oi.comicId = c.id 
+                AND o.status IN ('PAID', 'PROCESSING', 'COMPLETED', 'DELIVERED')
+            ) AS soldCount,
             COALESCE(
                 (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', g.id, 'name', g.name)) 
                  FROM genres g 
@@ -176,6 +191,17 @@ const incrementComicViewCount = async (id) => {
         );
     } catch (logError) {
         
+    }
+};
+
+const incrementSoldCount = async (comicId, quantity) => {
+    const connection = getConnection();
+    try {
+        await connection.execute(
+            'UPDATE comics SET soldCount = soldCount + ? WHERE id = ?', 
+            [quantity, comicId]
+        );
+    } catch (e) {
     }
 };
 
@@ -341,9 +367,18 @@ const searchComicsRaw = async (searchQuery, limit, offset) => {
     const limitInt = Number(limit) || 20;
     const offsetInt = Number(offset) || 0;
 
+    // SỬA: Tính soldCount trực tiếp
     const [rows] = await connection.query(
         `SELECT 
-            c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
+            c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, 
+            c.viewCount,
+            (
+                SELECT COALESCE(SUM(oi.quantity), 0) 
+                FROM order_items oi 
+                JOIN orders o ON oi.orderId = o.id 
+                WHERE oi.comicId = c.id 
+                AND o.status IN ('PAID', 'PROCESSING', 'COMPLETED', 'DELIVERED')
+            ) AS soldCount,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
          FROM comics c
@@ -374,9 +409,18 @@ const getComicsByGenreRaw = async (genre, limit, offset) => {
     const connection = getConnection();
     const limitInt = Number(limit) || 20;
     const offsetInt = Number(offset) || 0;
+    
     const [rows] = await connection.query(
         `SELECT 
-            c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
+            c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, 
+            c.viewCount,
+            (
+                SELECT COALESCE(SUM(oi.quantity), 0) 
+                FROM order_items oi 
+                JOIN orders o ON oi.orderId = o.id 
+                WHERE oi.comicId = c.id 
+                AND o.status IN ('PAID', 'PROCESSING', 'COMPLETED', 'DELIVERED')
+            ) AS soldCount,
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
          FROM comics c
@@ -457,4 +501,5 @@ module.exports = {
     searchComicsRaw, getSearchComicsCountRaw,
     getComicsByGenreRaw, getComicsByGenreCountRaw,
     getReviewsRaw, findExistingReview, updateReviewRaw, insertReviewRaw, getReviewByIdRaw,
+    incrementSoldCount,
 };

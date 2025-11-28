@@ -226,3 +226,5 @@ CREATE TABLE `users` (
    PRIMARY KEY (`id`),
    UNIQUE KEY `email` (`email`)
  ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+ALTER TABLE comics ADD COLUMN soldCount INT DEFAULT 0;

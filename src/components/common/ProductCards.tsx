@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const displayRating = parseFloat(comicData.averageRating) || 0; 
   const totalReviews = parseInt(comicData.totalReviews) || 0;
 
-  const soldCount = comicData.viewCount || 0; 
+  const soldCount = comicData.soldCount || 0; 
 
   return (
     <div 

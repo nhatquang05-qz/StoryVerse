@@ -1,4 +1,3 @@
-// src/backend/src/controllers/paymentController.js
 const moment = require('moment');
 const qs = require('qs');
 const crypto = require('crypto');
@@ -7,6 +6,7 @@ const userModel = require('../models/userModel');
 const rewardService = require('../services/rewardService');
 const paymentModel = require('../models/paymentModel');
 const orderModel = require('../models/orderModel'); 
+const comicModel = require('../models/comicModel');
 
 const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },
@@ -18,15 +18,15 @@ const rechargePacks = [
 ];
 
 function sortObject(obj) {
-	let sorted = {};
-	let str = [];
-	let key;
-	for (key in obj){
-		if (obj.hasOwnProperty(key)) {
-		str.push(encodeURIComponent(key));
-		}
-	}
-	str.sort();
+    let sorted = {};
+    let str = [];
+    let key;
+    for (key in obj){
+        if (obj.hasOwnProperty(key)) {
+        str.push(encodeURIComponent(key));
+        }
+    }
+    str.sort();
     for (key = 0; key < str.length; key++) {
         sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
     }
@@ -124,8 +124,8 @@ const vnpayReturn = async (req, res) => {
                 const vnpTxnRef = vnp_Params['vnp_TxnRef']; 
                 const vnpAmount = parseInt(vnp_Params['vnp_Amount']) / 100;
               
+                // Xử lý nạp xu
                 const rechargeMatch = orderInfo.match(/Nap xu goi\s*(\d+)\s*cho user\s*(\d+)/);
-                
                 if (rechargeMatch) {
                     const packId = parseInt(rechargeMatch[1]);
                     const userId = parseInt(rechargeMatch[2]);
@@ -160,7 +160,6 @@ const vnpayReturn = async (req, res) => {
                 }
 
                 const purchaseMatch = orderInfo.match(/Thanh toan don hang\s*([a-zA-Z0-9]+)\s*user\s*(\d+)/);
-                
                 if (purchaseMatch) {
                     const orderRef = purchaseMatch[1]; 
                     const userId = parseInt(purchaseMatch[2]);
@@ -171,7 +170,17 @@ const vnpayReturn = async (req, res) => {
                     );
 
                     await orderModel.updateOrderStatusRaw(orderRef, 'PAID');
-                  
+
+                    try {
+                        const orderItems = await orderModel.getOrderItemsRaw(orderRef);
+                        for (const item of orderItems) {
+                            await comicModel.incrementSoldCount(item.comicId, item.quantity);
+                        }
+                    } catch (err) {
+                        console.error('Error incrementing sold count:', err);
+                    }
+
+
                     return res.json({ 
                         status: 'success', 
                         type: 'PURCHASE',

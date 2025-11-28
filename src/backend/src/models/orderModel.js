@@ -52,4 +52,18 @@ const updateOrderStatusRaw = async (orderId, status) => {
     );
 };
 
-module.exports = { createOrderRaw, getOrdersByUserIdRaw, updateOrderStatusRaw };
+const getOrderItemsRaw = async (orderId) => {
+    const connection = getConnection();
+    const [items] = await connection.execute(
+        'SELECT * FROM order_items WHERE orderId = ?',
+        [orderId]
+    );
+    return items;
+};
+
+module.exports = { 
+    createOrderRaw,
+    getOrdersByUserIdRaw,
+    updateOrderStatusRaw,
+    getOrderItemsRaw 
+};

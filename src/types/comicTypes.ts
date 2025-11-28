@@ -26,6 +26,7 @@ export interface ComicSummary {
     genres?: Genre[]; 
     averageRating: number; 
     totalReviews: number; 
+    soldCount?: number;
 }
 
 export interface ComicDetail extends ComicSummary {

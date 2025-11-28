@@ -1,5 +1,6 @@
 const orderModel = require('../models/orderModel');
 const cartModel = require('../models/cartModel'); 
+const comicModel = require('../models/comicModel');
 
 const createOrder = async (req, res) => {
     try {
@@ -16,6 +17,14 @@ const createOrder = async (req, res) => {
 
         if (paymentMethod === 'COD') {
             await cartModel.clearCartRaw(userId);
+
+            try {
+                for (const item of items) {
+                    await comicModel.incrementSoldCount(item.id, item.quantity);
+                }
+            } catch (err) {
+                console.error('Error incrementing sold count for COD:', err);
+            }
         }
 
         res.json({ message: 'Tạo đơn hàng thành công', orderId });

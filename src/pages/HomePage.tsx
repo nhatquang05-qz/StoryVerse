@@ -135,7 +135,7 @@ const HomePage: React.FC = () => {
                 setTrendingComics(
                     [...allComics]
                         .filter(c => (c.isDigital as any) === 0) 
-                        .sort((a, b) => ((b as any).viewCount ?? 0) - ((a as any).viewCount ?? 0)) 
+                        .sort((a, b) => ((b as any).soldCount ?? 0) - ((a as any).soldCount ?? 0)) 
                 );
 
             } catch (error) {
