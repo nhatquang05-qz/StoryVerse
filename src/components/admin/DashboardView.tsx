@@ -54,31 +54,23 @@ const DashboardView: React.FC = () => {
     const getTypeBadge = (type: string) => {
         const typeLower = type?.toLowerCase() || '';
         
-        const baseStyle = {
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            display: 'inline-block'
-        };
-
         if (typeLower.includes('nạp') || typeLower.includes('deposit') || typeLower.includes('recharge')) {
             return (
-                <span style={{ ...baseStyle, backgroundColor: '#dbeafe', color: '#1e40af' }}>
+                <span className="badge-type badge-nạp-xu">
                     Nạp xu
                 </span>
             );
         } 
         else if (typeLower.includes('mua') || typeLower.includes('buy') || typeLower.includes('purchase')) {
             return (
-                <span style={{ ...baseStyle, backgroundColor: '#ffedd5', color: '#c2410c' }}>
+                <span className="badge-type badge-mua-truyện">
                     Mua truyện
                 </span>
             );
         } 
         else {
             return (
-                <span style={{ ...baseStyle, backgroundColor: '#f3f4f6', color: '#374151' }}>
+                <span className="badge-type badge-default">
                     {type}
                 </span>
             );
@@ -90,20 +82,20 @@ const DashboardView: React.FC = () => {
         
         if (['success', 'completed', 'thành công'].includes(statusLower)) {
             return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontWeight: 500 }}>
+                <div className="status-badge status-success">
                     <FiCheckCircle /> <span>Thành công</span>
                 </div>
             );
         }
         if (['failed', 'cancelled', 'thất bại'].includes(statusLower)) {
             return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', fontWeight: 500 }}>
+                <div className="status-badge status-failed">
                     <FiXCircle /> <span>Thất bại</span>
                 </div>
             );
         }
         return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', fontWeight: 500 }}>
+            <div className="status-badge status-pending">
                 <FiClock /> <span>Đang xử lý</span>
             </div>
         );
@@ -147,7 +139,7 @@ const DashboardView: React.FC = () => {
 
     const formatCurrency = (amount: number) => Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
-    if (loading) return <div style={{padding: '2rem'}}>Đang tải dữ liệu...</div>;
+    if (loading) return <div className="loading-container">Đang tải dữ liệu...</div>;
 
     return (
         <div className="dashboard-container">
@@ -161,13 +153,7 @@ const DashboardView: React.FC = () => {
                     <select 
                         value={timeRange} 
                         onChange={(e) => setTimeRange(e.target.value as any)}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid #ddd',
-                            outline: 'none',
-                            cursor: 'pointer'
-                        }}
+                        className="time-range-select"
                     >
                         <option value="day">Theo Ngày</option>
                         <option value="month">Theo Tháng</option>
@@ -177,7 +163,7 @@ const DashboardView: React.FC = () => {
             </div>
 
             <div className="stats-grid">
-                <div className="stat-card" style={{ borderLeftColor: '#10b981' }}>
+                <div className="stat-card border-emerald">
                     <div className="stat-header">
                         <div>
                             <span className="stat-label">Tổng Doanh Thu</span>
@@ -186,7 +172,7 @@ const DashboardView: React.FC = () => {
                         <div className="stat-icon-wrapper bg-emerald-light"><FiDollarSign size={24} color="#059669" /></div>
                     </div>
                 </div>
-                <div className="stat-card" style={{ borderLeftColor: '#8b5cf6' }}>
+                <div className="stat-card border-violet">
                     <div className="stat-header">
                         <div>
                             <span className="stat-label">Tổng Thành Viên</span>
@@ -195,7 +181,7 @@ const DashboardView: React.FC = () => {
                         <div className="stat-icon-wrapper bg-violet-light"><FiUsers size={24} color="#7c3aed" /></div>
                     </div>
                 </div>
-                <div className="stat-card" style={{ borderLeftColor: '#f59e0b' }}>
+                <div className="stat-card border-amber">
                     <div className="stat-header">
                         <div>
                             <span className="stat-label">Tổng Đơn Hàng</span>
@@ -204,7 +190,7 @@ const DashboardView: React.FC = () => {
                         <div className="stat-icon-wrapper bg-amber-light"><FiShoppingCart size={24} color="#d97706" /></div>
                     </div>
                 </div>
-                <div className="stat-card" style={{ borderLeftColor: '#3b82f6' }}>
+                <div className="stat-card border-blue">
                     <div className="stat-header">
                         <div>
                             <span className="stat-label">Tổng Truyện</span>
@@ -241,7 +227,7 @@ const DashboardView: React.FC = () => {
 
             <div className="transactions-table-container">
                 <div className="table-header">
-                    <h3 className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h3 className="chart-title flex-align">
                         <FiTrendingUp /> Top Truyện Bán Chạy
                     </h3>
                 </div>
@@ -252,24 +238,24 @@ const DashboardView: React.FC = () => {
                                 <th>#</th>
                                 <th>Tên Truyện</th>
                                 <th>Lượt Mua/Mở Khóa</th>
-                                <th style={{ textAlign: 'right' }}>Doanh Thu (Ước tính)</th>
+                                <th className="text-right">Doanh Thu (Ước tính)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.topComics && data.topComics.length > 0 ? (
                                 data.topComics.map((comic: any, index: number) => (
                                     <tr key={comic.id || index}>
-                                        <td style={{ fontWeight: 'bold' }}>#{index + 1}</td>
+                                        <td className="font-bold">#{index + 1}</td>
                                         <td>{comic.title}</td>
                                         <td>{comic.salesCount}</td>
-                                        <td style={{ textAlign: 'right', fontWeight: '600', color: '#10b981' }}>
+                                        <td className="comic-revenue-cell">
                                             {formatCurrency(comic.totalRevenue || 0)}
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={4} style={{textAlign: 'center', padding: '1.5rem'}}>Chưa có dữ liệu truyện bán chạy</td>
+                                    <td colSpan={4} className="empty-state-cell">Chưa có dữ liệu truyện bán chạy</td>
                                 </tr>
                             )}
                         </tbody>
@@ -290,7 +276,7 @@ const DashboardView: React.FC = () => {
                                 <th>Loại</th>
                                 <th>Số Tiền</th>
                                 <th>Trạng Thái</th>
-                                <th style={{ textAlign: 'right' }}>Thời Gian</th>
+                                <th className="text-right">Thời Gian</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -302,14 +288,14 @@ const DashboardView: React.FC = () => {
                                         <td>{getTypeBadge(tx.type)}</td>
                                         <td className="col-amount">{formatCurrency(tx.amount)}</td>
                                         <td>{getStatusBadge(tx.status)}</td>
-                                        <td style={{ textAlign: 'right', color: '#64748b' }}>
+                                        <td className="tx-time-cell">
                                             {new Date(tx.createdAt).toLocaleDateString('vi-VN')}
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={6} style={{textAlign: 'center', padding: '2rem'}}>Chưa có giao dịch nào</td>
+                                    <td colSpan={6} className="empty-state-cell-large">Chưa có giao dịch nào</td>
                                 </tr>
                             )}
                         </tbody>

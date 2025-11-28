@@ -58,6 +58,18 @@
     box-shadow: 0 1px 2px rgba(59, 130, 246, 0.5);
 }
 
+.time-range-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    cursor: pointer;
+    background-color: #fff;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 0.875rem;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -77,6 +89,11 @@
     min-height: 140px; 
     transition: transform 0.2s;
 }
+
+.stat-card.border-emerald { border-left-color: #10b981; }
+.stat-card.border-violet { border-left-color: #8b5cf6; }
+.stat-card.border-amber { border-left-color: #f59e0b; }
+.stat-card.border-blue { border-left-color: #3b82f6; }
 
 .stat-card:hover {
     transform: translateY(-2px);
@@ -156,6 +173,12 @@
     font-size: 1.125rem;
     font-weight: 600;
     color: #1e293b;
+}
+
+.chart-title.flex-align {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .main-chart-wrapper {
@@ -244,9 +267,39 @@
     border-bottom: none;
 }
 
+.text-right {
+    text-align: right;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+.comic-revenue-cell {
+    text-align: right;
+    font-weight: 600;
+    color: #10b981;
+}
+
 .col-id { font-weight: 500; color: #1e293b; }
 .col-amount { font-weight: 600; color: #0f172a; }
 
+.tx-time-cell {
+    text-align: right;
+    color: #64748b;
+}
+
+.empty-state-cell {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.empty-state-cell-large {
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Badges */
 .badge-type {
     padding: 0.25rem 0.75rem;
     border-radius: 999px;
@@ -259,39 +312,46 @@
     background: #dbeafe; 
     color: #1e40af; 
 }
+
 .badge-mua-truyện { 
-    background: #f3f4f6; 
-    color: #374151; 
+    background: #ffedd5; 
+    color: #c2410c; 
 }
+
 .badge-đăng-ký-vip { 
     background: #fef3c7; 
     color: #92400e; 
 }
 
-.color-emerald { 
-    color: #10b981; 
+.badge-default {
+    background: #f3f4f6;
+    color: #374151;
 }
-.color-red { 
-    color: #ef4444; 
+
+/* Status Indicators */
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
 }
-.bg-emerald-light { 
-    background-color: #d1fae5; 
-}
-.color-blue { 
-    color: #3b82f6; 
-}
-.bg-blue-light { 
-    background-color: #dbeafe; 
-}
-.color-violet { 
-    color: #8b5cf6; 
-}
-.bg-violet-light { 
-    background-color: #ede9fe; 
-}
-.color-amber { 
-    color: #f59e0b; 
-}
-.bg-amber-light { 
-    background-color: #fef3c7; 
+
+.status-success { color: #10b981; }
+.status-failed { color: #ef4444; }
+.status-pending { color: #f59e0b; }
+
+.color-emerald { color: #10b981; }
+.color-red { color: #ef4444; }
+.bg-emerald-light { background-color: #d1fae5; }
+.color-blue { color: #3b82f6; }
+.bg-blue-light { background-color: #dbeafe; }
+.color-violet { color: #8b5cf6; }
+.bg-violet-light { background-color: #ede9fe; }
+.color-amber { color: #f59e0b; }
+.bg-amber-light { background-color: #fef3c7; }
+
+.loading-container {
+    padding: 2rem;
+    text-align: center;
+    color: #64748b;
 }
