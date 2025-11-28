@@ -153,10 +153,11 @@ const SearchPage: React.FC = () => {
             </div>
 
             <FilterSidebar 
-                filters={filters}
-                onFilterChange={setFilters}
-                showPriceFilter={filters.mediaType === 'physical'}
-            />
+          filters={filters}
+          onFilterChange={setFilters}
+          showPriceFilter={filters.mediaType === 'physical'} sortOption={''} onSortChange={function (_sort: string): void {
+            throw new Error('Function not implemented.');
+          } }            />
         </div>
     );
 };

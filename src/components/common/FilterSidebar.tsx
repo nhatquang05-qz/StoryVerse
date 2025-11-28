@@ -16,6 +16,8 @@ interface FilterSidebarProps {
     filters: FilterState;
     onFilterChange: (newFilters: FilterState) => void;
     showPriceFilter: boolean;
+    sortOption: string;
+    onSortChange: (sort: string) => void;
 }
 
 interface Genre {
@@ -23,7 +25,7 @@ interface Genre {
     name: string;
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, showPriceFilter }) => {
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, showPriceFilter, sortOption, onSortChange }) => {
     const [allGenres, setAllGenres] = useState<string[]>([]);
     const [allAuthors, setAllAuthors] = useState<string[]>([]);
     
@@ -37,6 +39,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 setAllGenres(data.map(g => g.name).sort());
             })
             .catch(() => setAllGenres([]));
+
         fetch(`${API_URL}/comics?limit=1000`)
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch comics');
@@ -44,13 +47,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             })
             .then(rawData => {
                 let comicsArray: any[] = [];
-                if (Array.isArray(rawData)) {
-                    comicsArray = rawData;
-                } else if (rawData.data && Array.isArray(rawData.data)) {
-                    comicsArray = rawData.data;
-                } else if (rawData.comics && Array.isArray(rawData.comics)) {
-                    comicsArray = rawData.comics;
-                }
+                if (Array.isArray(rawData)) comicsArray = rawData;
+                else if (rawData.data) comicsArray = rawData.data;
+                else if (rawData.comics) comicsArray = rawData.comics;
 
                 const uniqueAuthors = Array.from(new Set(
                     comicsArray
@@ -86,13 +85,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
         const maxVal = filters.maxPrice || MAX_RANGE;
 
         if (type === 'min') {
-            if (value <= maxVal - MIN_GAP) {
-                onFilterChange({ ...filters, minPrice: value });
-            }
+            if (value <= maxVal - MIN_GAP) onFilterChange({ ...filters, minPrice: value });
         } else {
-            if (value >= minVal + MIN_GAP) {
-                onFilterChange({ ...filters, maxPrice: value });
-            }
+            if (value >= minVal + MIN_GAP) onFilterChange({ ...filters, maxPrice: value });
         }
     };
 
@@ -107,6 +102,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             minPrice: 0,
             maxPrice: MAX_RANGE
         });
+        onSortChange('newest'); 
     };
 
     const formatPrice = (price?: number) => {
@@ -124,37 +120,51 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 </button>
             </div>
 
+            <div className="sidebar-section">
+                <h3>Sắp xếp theo</h3>
+                <div className="sort-options">
+                    <label className="sort-item">
+                        <input type="radio" name="sort" value="newest" checked={sortOption === 'newest'} onChange={() => onSortChange('newest')} />
+                        Mới nhất
+                    </label>
+                    <label className="sort-item">
+                        <input type="radio" name="sort" value="oldest" checked={sortOption === 'oldest'} onChange={() => onSortChange('oldest')} />
+                        Cũ nhất
+                    </label>
+                    
+                    {showPriceFilter && (
+                        <>
+                            <label className="sort-item">
+                                <input type="radio" name="sort" value="price-asc" checked={sortOption === 'price-asc'} onChange={() => onSortChange('price-asc')} />
+                                Giá: Thấp đến Cao
+                            </label>
+                            <label className="sort-item">
+                                <input type="radio" name="sort" value="price-desc" checked={sortOption === 'price-desc'} onChange={() => onSortChange('price-desc')} />
+                                Giá: Cao đến Thấp
+                            </label>
+                        </>
+                    )}
+
+                    <label className="sort-item">
+                        <input type="radio" name="sort" value="title-asc" checked={sortOption === 'title-asc'} onChange={() => onSortChange('title-asc')} />
+                        Tên: A - Z
+                    </label>
+                    <label className="sort-item">
+                        <input type="radio" name="sort" value="title-desc" checked={sortOption === 'title-desc'} onChange={() => onSortChange('title-desc')} />
+                        Tên: Z - A
+                    </label>
+                </div>
+            </div>
+
             {showPriceFilter && (
                 <div className="sidebar-section">
                     <h3>Khoảng giá</h3>
                     <div className="price-slider-wrapper">
                         <div className="price-slider-container">
                             <div className="slider-track"></div>
-                            <div 
-                                className="slider-range"
-                                style={{
-                                    left: `${minPercent}%`,
-                                    width: `${maxPercent - minPercent}%`
-                                }}
-                            ></div>
-                            <input 
-                                type="range" 
-                                min="0" 
-                                max={MAX_RANGE} 
-                                step="10000"
-                                value={filters.minPrice || 0} 
-                                onChange={(e) => handleRangeChange(e, 'min')}
-                                className="range-input"
-                            />
-                            <input 
-                                type="range" 
-                                min="0" 
-                                max={MAX_RANGE} 
-                                step="10000"
-                                value={filters.maxPrice || MAX_RANGE} 
-                                onChange={(e) => handleRangeChange(e, 'max')}
-                                className="range-input"
-                            />
+                            <div className="slider-range" style={{left: `${minPercent}%`, width: `${maxPercent - minPercent}%`}}></div>
+                            <input type="range" min="0" max={MAX_RANGE} step="10000" value={filters.minPrice || 0} onChange={(e) => handleRangeChange(e, 'min')} className="range-input" />
+                            <input type="range" min="0" max={MAX_RANGE} step="10000" value={filters.maxPrice || MAX_RANGE} onChange={(e) => handleRangeChange(e, 'max')} className="range-input" />
                         </div>
                         <div className="price-values">
                             <span>{formatPrice(filters.minPrice || 0)}</span>
@@ -169,11 +179,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 <div className="checkbox-list">
                     {allGenres.length === 0 ? <p style={{fontStyle:'italic', color:'#888', fontSize:'0.9rem'}}>Đang tải...</p> : allGenres.map(genre => (
                         <label key={genre} className="checkbox-item">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.genres.includes(genre)} 
-                                onChange={() => handleGenreToggle(genre)}
-                            />
+                            <input type="checkbox" checked={filters.genres.includes(genre)} onChange={() => handleGenreToggle(genre)} />
                             {genre}
                         </label>
                     ))}
@@ -185,11 +191,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 <div className="checkbox-list">
                     {allAuthors.length === 0 ? <p style={{fontStyle:'italic', color:'#888', fontSize:'0.9rem'}}>Đang tải...</p> : allAuthors.map(author => (
                         <label key={author} className="checkbox-item">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.authors.includes(author)} 
-                                onChange={() => handleAuthorToggle(author)}
-                            />
+                            <input type="checkbox" checked={filters.authors.includes(author)} onChange={() => handleAuthorToggle(author)} />
                             {author}
                         </label>
                     ))}
