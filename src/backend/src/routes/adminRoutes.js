@@ -8,10 +8,11 @@ const {
     getUserDetailsAdmin 
 } = require('../controllers/userController');
 
-const { getDashboardData } = require('../controllers/dashboardController');
+const { getDashboardStats } = require('../controllers/dashboardController');
 const { authenticateAdmin } = require('../middleware/authMiddleware');
 
-router.get('/dashboard-stats', authenticateAdmin, getDashboardData);
+router.get('/dashboard-stats', authenticateAdmin, getDashboardStats);
+
 router.get('/users', authenticateAdmin, getAllUsers);
 router.get('/users/:id/details', authenticateAdmin, getUserDetailsAdmin); 
 router.put('/users/:id', authenticateAdmin, updateUserById);
