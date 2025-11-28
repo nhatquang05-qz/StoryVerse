@@ -136,7 +136,6 @@ const HomePage: React.FC = () => {
                     [...allComics]
                         .filter(c => (c.isDigital as any) === 0) 
                         .sort((a, b) => ((b as any).viewCount ?? 0) - ((a as any).viewCount ?? 0)) 
-                        .slice(0, 12) 
                 );
 
             } catch (error) {
