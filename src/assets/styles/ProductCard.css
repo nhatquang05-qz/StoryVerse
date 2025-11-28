@@ -63,7 +63,7 @@
 .card-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--clr-primary);
+  color: var(--clr-price-text);
 }
 
 .card-image-overlay {

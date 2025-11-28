@@ -22,7 +22,7 @@ interface FilterState {
 const DigitalComicsPage: React.FC = () => {
   const [allComics, setAllComics] = useState<ComicSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [categoryTitle] = useState('Truyện Kỹ Thuật Số (Digital)');
+  const [categoryTitle] = useState('Truyện Online');
   const [categoryDescription] = useState('Đọc truyện online mọi lúc mọi nơi trên mọi thiết bị.');
 
   const [sortState, setSortState] = useState<SortState>({

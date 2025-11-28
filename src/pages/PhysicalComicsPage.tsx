@@ -22,8 +22,8 @@ interface FilterState {
 const PhysicalComicsPage: React.FC = () => {
   const [allComics, setAllComics] = useState<ComicSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [categoryTitle] = useState('Truyện Tranh In (Physical)');
-  const [categoryDescription] = useState('Sở hữu những cuốn truyện tranh giấy chất lượng cao.');
+  const [categoryTitle] = useState('Truyện In');
+  const [categoryDescription] = useState('Sở hữu những cuốn truyện tranh với chất lượng cao.');
 
   const [sortState, setSortState] = useState<SortState>({
       time: null,

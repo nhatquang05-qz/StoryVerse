@@ -47,6 +47,7 @@
   --clr-text-secondary: #6c757d;
   --clr-primary: #646cff;
   --clr-primary-dark: #535bf2;
+  --clr-price-text: black;
   --clr-button-text: white;
   --clr-footer-bg: #f8f9fa;
   --clr-footer-text: #6c757d;
@@ -83,6 +84,7 @@ html[data-theme="night"] {
   --clr-text-secondary: #888888;
   --clr-primary: #747bff;
   --clr-primary-dark: #535bf2;
+  --clr-price-text: white;
   --clr-button-text: #213547;
   --clr-footer-bg: #242424;
   --clr-footer-text: #adb5bd;
