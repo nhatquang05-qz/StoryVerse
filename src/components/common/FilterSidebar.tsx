@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiFilter, FiRotateCcw } from 'react-icons/fi';
+import { FiFilter, FiRotateCcw, FiStar } from 'react-icons/fi'; 
 import '../../assets/styles/FilterSidebar.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -10,14 +10,21 @@ interface FilterState {
     mediaType: 'all' | 'digital' | 'physical';
     minPrice?: number;
     maxPrice?: number;
+    ratingRange: string[];
+}
+
+export interface SortState {
+    time: 'newest' | 'oldest' | null;
+    alpha: 'title-asc' | 'title-desc' | null;
+    value: 'price-asc' | 'price-desc' | 'views-desc' | 'views-asc' | null;
 }
 
 interface FilterSidebarProps {
     filters: FilterState;
     onFilterChange: (newFilters: FilterState) => void;
-    showPriceFilter: boolean;
-    sortOption: string;
-    onSortChange: (sort: string) => void;
+    showPriceFilter: boolean;    
+    sortState: SortState;
+    onSortChange: (newSortState: SortState) => void;
 }
 
 interface Genre {
@@ -25,7 +32,7 @@ interface Genre {
     name: string;
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, showPriceFilter, sortOption, onSortChange }) => {
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, showPriceFilter, sortState, onSortChange }) => {
     const [allGenres, setAllGenres] = useState<string[]>([]);
     const [allAuthors, setAllAuthors] = useState<string[]>([]);
     
@@ -41,10 +48,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             .catch(() => setAllGenres([]));
 
         fetch(`${API_URL}/comics?limit=1000`)
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch comics');
-                return res.json();
-            })
+            .then(res => res.json())
             .then(rawData => {
                 let comicsArray: any[] = [];
                 if (Array.isArray(rawData)) comicsArray = rawData;
@@ -59,10 +63,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
 
                 setAllAuthors(uniqueAuthors as string[]);
             })
-            .catch(err => {
-                console.error("Lỗi lấy danh sách tác giả:", err);
-                setAllAuthors([]);
-            });
+            .catch(() => setAllAuthors([]));
     }, []);
 
     const handleGenreToggle = (genre: string) => {
@@ -91,6 +92,23 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
         }
     };
 
+    const handleRatingToggle = (range: string) => {
+        const currentRatings = filters.ratingRange || [];
+        const newRatings = currentRatings.includes(range)
+            ? currentRatings.filter(r => r !== range)
+            : [...currentRatings, range];
+        
+        onFilterChange({ ...filters, ratingRange: newRatings });
+    };
+
+    const handleSortToggle = (category: keyof SortState, value: string) => {
+        if (sortState[category] === value) {
+            onSortChange({ ...sortState, [category]: null });
+        } else {
+            onSortChange({ ...sortState, [category]: value as any });
+        }
+    };
+
     const minPercent = ((filters.minPrice || 0) / MAX_RANGE) * 100;
     const maxPercent = ((filters.maxPrice || MAX_RANGE) / MAX_RANGE) * 100;
 
@@ -100,14 +118,17 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             genres: [],
             mediaType: filters.mediaType,
             minPrice: 0,
-            maxPrice: MAX_RANGE
+            maxPrice: MAX_RANGE,
+            ratingRange: [] 
         });
-        onSortChange('newest'); 
+        onSortChange({ time: 'newest', alpha: null, value: null }); 
     };
 
     const formatPrice = (price?: number) => {
         return price ? price.toLocaleString('vi-VN') + 'đ' : '0đ';
     };
+
+    const isDigital = filters.mediaType === 'digital';
 
     return (
         <aside className="filter-sidebar">
@@ -122,36 +143,86 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
 
             <div className="sidebar-section">
                 <h3>Sắp xếp theo</h3>
-                <div className="sort-options">
+                
+                {/* Hàng 1: Thời gian */}
+                <div style={{marginBottom: '10px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--clr-text-secondary)'}}>Thời gian</div>
+                <div className="sort-grid" style={{marginBottom: '15px'}}>
                     <label className="sort-item">
-                        <input type="radio" name="sort" value="newest" checked={sortOption === 'newest'} onChange={() => onSortChange('newest')} />
+                        <input type="radio" checked={sortState.time === 'newest'} onClick={() => handleSortToggle('time', 'newest')} readOnly />
                         Mới nhất
                     </label>
                     <label className="sort-item">
-                        <input type="radio" name="sort" value="oldest" checked={sortOption === 'oldest'} onChange={() => onSortChange('oldest')} />
+                        <input type="radio" checked={sortState.time === 'oldest'} onClick={() => handleSortToggle('time', 'oldest')} readOnly />
                         Cũ nhất
                     </label>
-                    
-                    {showPriceFilter && (
-                        <>
-                            <label className="sort-item">
-                                <input type="radio" name="sort" value="price-asc" checked={sortOption === 'price-asc'} onChange={() => onSortChange('price-asc')} />
-                                Giá: Thấp đến Cao
-                            </label>
-                            <label className="sort-item">
-                                <input type="radio" name="sort" value="price-desc" checked={sortOption === 'price-desc'} onChange={() => onSortChange('price-desc')} />
-                                Giá: Cao đến Thấp
-                            </label>
-                        </>
-                    )}
+                </div>
 
+                {/* Hàng 2: Tên */}
+                <div style={{marginBottom: '10px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--clr-text-secondary)'}}>Tên truyện</div>
+                <div className="sort-grid" style={{marginBottom: '15px'}}>
                     <label className="sort-item">
-                        <input type="radio" name="sort" value="title-asc" checked={sortOption === 'title-asc'} onChange={() => onSortChange('title-asc')} />
+                        <input type="radio" checked={sortState.alpha === 'title-asc'} onClick={() => handleSortToggle('alpha', 'title-asc')} readOnly />
                         Tên: A - Z
                     </label>
                     <label className="sort-item">
-                        <input type="radio" name="sort" value="title-desc" checked={sortOption === 'title-desc'} onChange={() => onSortChange('title-desc')} />
+                        <input type="radio" checked={sortState.alpha === 'title-desc'} onClick={() => handleSortToggle('alpha', 'title-desc')} readOnly />
                         Tên: Z - A
+                    </label>
+                </div>
+
+                {/* Hàng 3: Giá hoặc View */}
+                {(showPriceFilter || isDigital) && (
+                    <>
+                        <div style={{marginBottom: '10px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--clr-text-secondary)'}}>
+                            {showPriceFilter ? 'Giá bán' : 'Lượt xem'}
+                        </div>
+                        <div className="sort-grid">
+                            {showPriceFilter ? (
+                                <>
+                                    <label className="sort-item">
+                                        <input type="radio" checked={sortState.value === 'price-asc'} onClick={() => handleSortToggle('value', 'price-asc')} readOnly />
+                                        Thấp - Cao
+                                    </label>
+                                    <label className="sort-item">
+                                        <input type="radio" checked={sortState.value === 'price-desc'} onClick={() => handleSortToggle('value', 'price-desc')} readOnly />
+                                        Cao - Thấp
+                                    </label>
+                                </>
+                            ) : (
+                                <>
+                                    <label className="sort-item">
+                                        <input type="radio" checked={sortState.value === 'views-desc'} onClick={() => handleSortToggle('value', 'views-desc')} readOnly />
+                                        Cao nhất
+                                    </label>
+                                    <label className="sort-item">
+                                        <input type="radio" checked={sortState.value === 'views-asc'} onClick={() => handleSortToggle('value', 'views-asc')} readOnly />
+                                        Thấp nhất
+                                    </label>
+                                </>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
+
+            <div className="sidebar-section">
+                <h3>Đánh giá</h3>
+                <div className="rating-grid">
+                    <label className="sort-item">
+                        <input type="checkbox" checked={filters.ratingRange.includes('4-5')} onChange={() => handleRatingToggle('4-5')} />
+                        <span style={{display: 'flex', alignItems: 'center', gap: '4px'}}>4-5 <FiStar fill="#FFC107" color="#FFC107" size={12} /></span>
+                    </label>
+                    <label className="sort-item">
+                        <input type="checkbox" checked={filters.ratingRange.includes('3-4')} onChange={() => handleRatingToggle('3-4')} />
+                        <span style={{display: 'flex', alignItems: 'center', gap: '4px'}}>3-4 <FiStar fill="#FFC107" color="#FFC107" size={12} /></span>
+                    </label>
+                    <label className="sort-item">
+                        <input type="checkbox" checked={filters.ratingRange.includes('2-3')} onChange={() => handleRatingToggle('2-3')} />
+                        <span style={{display: 'flex', alignItems: 'center', gap: '4px'}}>2-3 <FiStar fill="#FFC107" color="#FFC107" size={12} /></span>
+                    </label>
+                    <label className="sort-item">
+                        <input type="checkbox" checked={filters.ratingRange.includes('1-2')} onChange={() => handleRatingToggle('1-2')} />
+                        <span style={{display: 'flex', alignItems: 'center', gap: '4px'}}>1-2 <FiStar fill="#FFC107" color="#FFC107" size={12} /></span>
                     </label>
                 </div>
             </div>
@@ -177,7 +248,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div className="sidebar-section">
                 <h3>Thể loại</h3>
                 <div className="checkbox-list">
-                    {allGenres.length === 0 ? <p style={{fontStyle:'italic', color:'#888', fontSize:'0.9rem'}}>Đang tải...</p> : allGenres.map(genre => (
+                    {allGenres.map(genre => (
                         <label key={genre} className="checkbox-item">
                             <input type="checkbox" checked={filters.genres.includes(genre)} onChange={() => handleGenreToggle(genre)} />
                             {genre}
@@ -189,7 +260,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div className="sidebar-section">
                 <h3>Tác giả</h3>
                 <div className="checkbox-list">
-                    {allAuthors.length === 0 ? <p style={{fontStyle:'italic', color:'#888', fontSize:'0.9rem'}}>Đang tải...</p> : allAuthors.map(author => (
+                    {allAuthors.map(author => (
                         <label key={author} className="checkbox-item">
                             <input type="checkbox" checked={filters.authors.includes(author)} onChange={() => handleAuthorToggle(author)} />
                             {author}

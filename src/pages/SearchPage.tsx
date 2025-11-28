@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen'; 
-import FilterSidebar from '../components/common/FilterSidebar';
+import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
 import Pagination from '../components/common/Pagination'; 
 import '../assets/styles/FilterSidebar.css'; 
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-const ITEMS_PER_PAGE = 12; 
+const ITEMS_PER_PAGE = 20; 
 
 interface FilterState {
     authors: string[];
@@ -16,6 +16,7 @@ interface FilterState {
     mediaType: 'all' | 'digital' | 'physical';
     minPrice?: number;
     maxPrice?: number;
+    ratingRange: string[];
 }
 
 const SearchPage: React.FC = () => {
@@ -24,15 +25,21 @@ const SearchPage: React.FC = () => {
     const initialMediaType = (searchParams.get('type') as any) || 'physical';
 
     const [allComics, setAllComics] = useState<ComicSummary[]>([]);
-    const [filteredComics, setFilteredComics] = useState<ComicSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     
+    const [sortState, setSortState] = useState<SortState>({
+        time: 'newest',
+        alpha: null,
+        value: null
+    });
+
     const [filters, setFilters] = useState<FilterState>({ 
         authors: [], 
         genres: [], 
         mediaType: initialMediaType,
         minPrice: 0,
-        maxPrice: 2000000 
+        maxPrice: 2000000,
+        ratingRange: []
     });
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -58,10 +65,9 @@ const SearchPage: React.FC = () => {
                     id: Number(comic.id),
                     isDigital: comic.isDigital === 1,
                     price: Number(comic.price),
-                    randomSort: Math.random() 
+                    averageRating: Number(comic.averageRating || 0),
+                    views: Number(comic.viewCount || comic.views || 0)
                 }));
-
-                processedData.sort((a: any, b: any) => a.randomSort - b.randomSort);
 
                 setAllComics(processedData);
             } catch (error) {
@@ -74,8 +80,9 @@ const SearchPage: React.FC = () => {
         fetchData();
     }, [query]);
 
-    useEffect(() => {
-        let result = allComics;
+    // Sử dụng useMemo để lọc và sắp xếp
+    const processedComics = useMemo(() => {
+        let result = [...allComics];
 
         if (filters.mediaType === 'physical') {
             result = result.filter(c => !c.isDigital);
@@ -95,14 +102,44 @@ const SearchPage: React.FC = () => {
             );
         }
 
-        setFilteredComics(result);
-        setCurrentPage(1); 
-    }, [filters, allComics]);
+        if (filters.ratingRange.length > 0) {
+            result = result.filter(c => {
+                const rating = c.averageRating || 0;
+                return filters.ratingRange.some(range => {
+                    const [min, max] = range.split('-').map(Number);
+                    return rating >= min && rating <= max;
+                });
+            });
+        }
 
+        result.sort((a, b) => {
+            let diffTime = 0;
+            if (sortState.time === 'newest') diffTime = new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+            else if (sortState.time === 'oldest') diffTime = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+            if (diffTime !== 0) return diffTime;
+
+            let diffAlpha = 0;
+            if (sortState.alpha === 'title-asc') diffAlpha = a.title.localeCompare(b.title, 'vi');
+            else if (sortState.alpha === 'title-desc') diffAlpha = b.title.localeCompare(a.title, 'vi');
+            if (diffAlpha !== 0) return diffAlpha;
+
+            let diffValue = 0;
+            if (sortState.value === 'price-asc') diffValue = Number(a.price) - Number(b.price);
+            else if (sortState.value === 'price-desc') diffValue = Number(b.price) - Number(a.price);
+            else if (sortState.value === 'views-desc') diffValue = (b.views || 0) - (a.views || 0);
+            else if (sortState.value === 'views-asc') diffValue = (a.views || 0) - (b.views || 0);
+            
+            return diffValue;
+        });
+
+        return result;
+    }, [allComics, filters, sortState]);
+
+    const totalItems = processedComics.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
     const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-    const currentItems = filteredComics.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredComics.length / ITEMS_PER_PAGE);
+    const currentItems = processedComics.slice(indexOfFirstItem, indexOfLastItem);
 
     if (isLoading) return <LoadingPage />;
 
@@ -131,9 +168,8 @@ const SearchPage: React.FC = () => {
                 {currentItems.length > 0 ? (
                     <>
                         <p style={{marginBottom: '15px', color: 'var(--clr-text-secondary)'}}>
-                            Hiển thị {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredComics.length)} trên tổng số {filteredComics.length} truyện
+                            Hiển thị {currentItems.length} trên tổng số {totalItems} truyện
                         </p>
-
                         <ProductList comics={currentItems} />
                         
                         <div style={{marginTop: '40px', display: 'flex', justifyContent: 'center'}}>
@@ -153,11 +189,12 @@ const SearchPage: React.FC = () => {
             </div>
 
             <FilterSidebar 
-          filters={filters}
-          onFilterChange={setFilters}
-          showPriceFilter={filters.mediaType === 'physical'} sortOption={''} onSortChange={function (_sort: string): void {
-            throw new Error('Function not implemented.');
-          } }            />
+                filters={filters}
+                onFilterChange={setFilters}
+                showPriceFilter={filters.mediaType === 'physical'}
+                sortState={sortState}
+                onSortChange={setSortState}
+            />
         </div>
     );
 };

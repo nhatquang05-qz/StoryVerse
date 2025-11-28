@@ -1,3 +1,5 @@
+/* src/assets/styles/FilterSidebar.css */
+
 .search-page-layout {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -106,25 +108,26 @@
     flex-shrink: 0;
 }
 
-.sort-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.sort-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px;
 }
 
 .sort-item {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: var(--clr-text);
+    white-space: nowrap;
 }
 
 .sort-item input {
-    margin-right: 10px;
+    margin-right: 8px;
     accent-color: var(--clr-primary);
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .price-slider-wrapper {
