@@ -5,6 +5,7 @@ const app = express();
 const compression = require('compression');
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 const packRoutes = require('./routes/packRoutes');
+const voucherRoutes = require('./routes/voucherRoutes');
 
 app.use(compression());
 app.use(cors({
@@ -23,5 +24,6 @@ app.use((err, req, res, next) => {
 });
 
 app.use('/api/packs', packRoutes);
+app.use('/api/vouchers', voucherRoutes);
 
 module.exports = app;

@@ -1,25 +1,63 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiTrash2, FiShoppingCart } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiTrash2, FiShoppingCart, FiTag, FiX, FiAlertCircle } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import '../assets/styles/CartPage.css';
 
 const CartPage: React.FC = () => {
-  const [couponCode, setCouponCode] = useState('');
-  const { cartItems, updateQuantity, removeFromCart, totalPrice, discount, applyDiscountCode } = useCart();
+  const { 
+    cartItems, 
+    updateQuantity, 
+    removeFromCart, 
+    subtotal, 
+    total, 
+    discount, 
+    applyVoucher, 
+    appliedVoucher, 
+    removeVoucher 
+  } = useCart();
+  
   const { currentUser } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
+  
+  const [couponCode, setCouponCode] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
+  const [voucherError, setVoucherError] = useState(''); 
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
   };
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
       e.preventDefault();
-      applyDiscountCode(couponCode);
+      if (!couponCode.trim()) return;
+
+      setIsApplying(true);
+      setVoucherError(''); 
+
+      const result = await applyVoucher(couponCode);
+      setIsApplying(false);
+
+      if (result.success) {
+          showNotification(result.message, 'success');
+          setCouponCode('');
+      } else {
+          setVoucherError('Voucher không tồn tại hoặc đã hết hạn sử dụng.');
+      }
+  };
+
+  const handleRemoveVoucher = () => {
+      removeVoucher();
+      setVoucherError('');
+      showNotification('Đã gỡ bỏ mã giảm giá', 'info');
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCouponCode(e.target.value.toUpperCase());
+      if (voucherError) setVoucherError('');
   };
 
   const handleCheckout = () => {
@@ -36,9 +74,6 @@ const CartPage: React.FC = () => {
     
     navigate('/checkout'); 
   };
-  
-  const finalTotal = totalPrice - discount;
-
 
   if (cartItems.length === 0) {
     return (
@@ -57,15 +92,15 @@ const CartPage: React.FC = () => {
         <div className="cart-items-list">
           {cartItems.map(item => (
             <div key={item.id} className="cart-item">
-              <img src={item.imageUrl} alt={item.title} className="cart-item-image" />
+              <img src={item.imageUrl || item.coverImageUrl} alt={item.title} className="cart-item-image" />
               <div className="cart-item-details">
                 <Link to={`/comic/${item.id}`} className="cart-item-title">{item.title}</Link>
-                <p className="cart-item-author">{item.author}</p>
+                <p className="cart-item-author">{item.author || 'Đang cập nhật'}</p>
                 <p className="cart-item-price">{formatPrice(item.price)}</p>
               </div>
               <div className="cart-item-actions">
                 <div className="quantity-selector">
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)}><FiMinus /></button>
+                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}><FiMinus /></button>
                   <input type="text" value={item.quantity} readOnly />
                   <button onClick={() => updateQuantity(item.id, item.quantity + 1)}><FiPlus /></button>
                 </div>
@@ -78,43 +113,71 @@ const CartPage: React.FC = () => {
         <div className="cart-summary">
           <h2>Tổng Quan Đơn Hàng</h2>
           
-          <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-              <input 
-                  type="text" 
-                  placeholder="Mã giảm giá"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  style={{ flexGrow: 1, padding: '0.5rem', border: '1px solid #ccc', borderRadius: '6px' }}
-              />
-              <button 
-                  type="submit"
-                  className="detail-order-btn" 
-                  style={{ flexShrink: 0, padding: '0.5rem 1rem' }}
-              >
-                  Áp dụng
-              </button>
-          </form>
-          
           <div className="summary-row">
-            <span>Tổng tiền hàng</span>
-            <span>{formatPrice(totalPrice)}</span>
+            <span>Tạm tính</span>
+            <span>{formatPrice(subtotal)}</span>
           </div>
-          
-          {discount > 0 && (
-              <div className="summary-row" style={{ color: '#e63946', fontWeight: 'bold' }}>
-                  <span>Giảm giá</span>
-                  <span>- {formatPrice(discount)}</span>
-              </div>
-          )}
-          
+
           <div className="summary-row">
             <span>Phí vận chuyển</span>
             <span>Miễn phí</span>
           </div>
+
+          {/* Phần nhập Voucher */}
+          <div className="voucher-section">
+            {appliedVoucher ? (
+                <div className="applied-voucher-info">
+                    <div className="voucher-code-display">
+                        <FiTag />
+                        <span>{appliedVoucher.code}</span>
+                    </div>
+                    <button 
+                        onClick={handleRemoveVoucher}
+                        className="remove-voucher-btn"
+                        title="Gỡ mã"
+                    >
+                        <FiX size={18} />
+                    </button>
+                </div>
+            ) : (
+                <>
+                    <form onSubmit={handleApplyCoupon} className="voucher-form">
+                        <input 
+                            type="text" 
+                            className="voucher-input"
+                            placeholder="Mã giảm giá"
+                            value={couponCode}
+                            onChange={handleInputChange}
+                        />
+                        <button 
+                            type="submit"
+                            className="apply-voucher-btn" 
+                            disabled={isApplying || !couponCode}
+                        >
+                            {isApplying ? '...' : 'Áp dụng'}
+                        </button>
+                    </form>
+                    {voucherError && (
+                        <p className="voucher-error-msg">
+                            <FiAlertCircle /> {voucherError}
+                        </p>
+                    )}
+                </>
+            )}
+          </div>
+          
+          {discount > 0 && (
+              <div className="summary-row discount-text">
+                  <span>Giảm giá ({appliedVoucher?.code})</span>
+                  <span>- {formatPrice(discount)}</span>
+              </div>
+          )}
+          
           <div className="summary-total">
             <span>Tổng Cộng</span>
-            <span className="total-price">{formatPrice(finalTotal)}</span>
+            <span className="total-price">{formatPrice(total)}</span>
           </div>
+          
           <button className="checkout-btn" onClick={handleCheckout}>Tiến hành thanh toán</button>
         </div>
       </div>

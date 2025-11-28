@@ -130,10 +130,8 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
             <button className="admin-back-btn" onClick={onCancel}><FiArrowLeft /> Quay Lại</button>
             
             <form onSubmit={handleUpdateComic} className="admin-form">
-                {/* Header hiển thị rõ loại truyện đang sửa */}
                 <h2>Sửa Truyện: {formData.title} ({formData.isDigital ? 'Online' : 'In Ấn'})</h2>
                 
-                {/* Hàng 1: Tiêu đề + Tác giả */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div className="form-group">
                         <label>Tiêu đề <span style={{color:'red'}}>*</span>:</label>

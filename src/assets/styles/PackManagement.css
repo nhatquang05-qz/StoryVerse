@@ -9,9 +9,49 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
+/* Tabs System */
+.admin-tabs {
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #3b82f6;
+}
+
+.tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.action-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
+/* Edit Forms */
 .edit-form-wrapper {
     max-width: 500px;
     background: #fff;
@@ -19,6 +59,11 @@
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid #e5e7eb;
+    margin: 0 auto;
+}
+
+.edit-form-wrapper.wide-form {
+    max-width: 700px;
 }
 
 .form-title {
@@ -34,6 +79,17 @@
     display: flex;
     flex-direction: column;
     gap: 20px; 
+}
+
+/* Grid Layout for Voucher Form */
+.voucher-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.full-width {
+    grid-column: span 2;
 }
 
 .form-group {
@@ -56,6 +112,8 @@
     font-size: 1rem;
     transition: all 0.2s;
     background-color: #f9fafb;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-input:focus {
@@ -93,6 +151,7 @@
     margin-top: 10px;
 }
 
+/* Tables */
 .admin-table-container {
     overflow-x: auto;
     border-radius: 8px;
@@ -102,6 +161,7 @@
 .admin-user-table {
     width: 100%;
     border-collapse: collapse;
+    white-space: nowrap;
 }
 
 .admin-user-table th {
@@ -197,13 +257,3 @@
 }
 .status-tag.active { background-color: #ecfdf5; color: #059669; }
 .status-tag.banned { background-color: #f3f4f6; color: #6b7280; }
-
-.voucher-section-placeholder {
-    margin-top: 40px;
-    padding: 30px;
-    background: #f8fafc;
-    border-radius: 8px;
-    border: 2px dashed #e2e8f0;
-    color: #64748b;
-    text-align: center;
-}
