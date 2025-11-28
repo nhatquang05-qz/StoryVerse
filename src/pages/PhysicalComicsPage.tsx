@@ -8,26 +8,6 @@ import '../assets/styles/FilterSidebar.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-const fetchPhysicalComics = (): Promise<ComicSummary[]> => {
-  return new Promise((resolve, reject) => {
-    fetch(`${API_URL}/comics?limit=1000`)
-        .then(res => res.json())
-        .then((responseData: any) => {
-            const comicsArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-            const mappedData = comicsArray
-                .filter((c: any) => (c.isDigital as any) === 0)
-                .map((c: any) => ({
-                    ...c,
-                    views: Number(c.viewCount || c.views || 0),
-                    price: Number(c.price),
-                    averageRating: Number(c.averageRating || 0)
-                }));
-            resolve(mappedData);
-        })
-        .catch(reject);
-  });
-};
-
 const ITEMS_PER_PAGE = 20;
 
 interface FilterState {
@@ -40,97 +20,151 @@ interface FilterState {
 }
 
 const PhysicalComicsPage: React.FC = () => {
-  const [categoryTitle] = useState('Truyện In - Sưu Tầm');
-  const [categoryDescription] = useState('Sở hữu những ấn phẩm giấy chất lượng cao nhất.');
   const [allComics, setAllComics] = useState<ComicSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [categoryTitle] = useState('Truyện Tranh In (Physical)');
+  const [categoryDescription] = useState('Sở hữu những cuốn truyện tranh giấy chất lượng cao.');
 
-  // MẶC ĐỊNH: Tick cả 3 dòng (Mới nhất, A-Z, Giá Thấp-Cao)
   const [sortState, setSortState] = useState<SortState>({
-      time: 'newest',
-      alpha: 'title-asc',
-      value: 'price-asc'
+      time: null,
+      alpha: null,
+      value: null
   });
 
-  const [filters, setFilters] = useState<FilterState>({ 
-      authors: [], 
-      genres: [], 
-      mediaType: 'physical',
-      minPrice: 0,
-      maxPrice: 2000000, 
+  const [sortPriority, setSortPriority] = useState<(keyof SortState)[]>(['value', 'time', 'alpha']);
+
+  const [filters, setFilters] = useState<FilterState>({
+      authors: [],
+      genres: [],
+      mediaType: 'physical', 
+      minPrice: undefined,
+      maxPrice: undefined,
       ratingRange: []
   });
-  
-  const [isLoading, setIsLoading] = useState(true);
+
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setIsLoading(true);
-    setCurrentPage(1); 
-    fetchPhysicalComics().then(setAllComics).finally(() => setIsLoading(false));
+    fetch(`${API_URL}/comics?limit=1000`)
+        .then(res => res.json())
+        .then((responseData: any) => {
+            const comicsArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+            const normalizedComics = comicsArray
+                .filter((c: any) => c.isDigital === 0 || c.isDigital === false || c.isDigital === 'false')
+                .map((c: any) => ({
+                    ...c,
+                    views: Number(c.viewCount || c.views || 0),
+                    price: Number(c.price || 0),
+                    averageRating: Number(c.averageRating || 0)
+                }));
+            setAllComics(normalizedComics);
+        })
+        .catch(err => console.error(err))
+        .finally(() => setIsLoading(false));
   }, []);
-  
-  const processedComics = useMemo(() => {
-    let currentComics = [...allComics];
-    
-    if (filters.minPrice !== undefined) currentComics = currentComics.filter(c => c.price >= filters.minPrice!);
-    if (filters.maxPrice !== undefined) currentComics = currentComics.filter(c => c.price <= filters.maxPrice!);
+
+  const handleSortChange = (newSort: SortState, changedCategory?: keyof SortState | 'reset') => {
+    setSortState(newSort);
+    setCurrentPage(1);
+    if (changedCategory === 'reset') {
+        setSortPriority(['value', 'time', 'alpha']);
+    } else if (changedCategory) {
+        setSortPriority(prev => [changedCategory, ...prev.filter(c => c !== changedCategory)]);
+    }
+  };
+
+  const currentComics = useMemo(() => {
+    let result = [...allComics];
+
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+        const min = filters.minPrice !== undefined ? Number(filters.minPrice) : 0;
+        const max = filters.maxPrice !== undefined ? Number(filters.maxPrice) : Infinity;
+        result = result.filter(c => {
+            const price = Number(c.price);
+            return price >= min && price <= max;
+        });
+    }
 
     if (filters.authors.length > 0) {
-        currentComics = currentComics.filter(comic => comic.author && filters.authors.includes(comic.author));
+        result = result.filter(c => c.author && filters.authors.includes(c.author));
     }
 
     if (filters.genres.length > 0) {
-        currentComics = currentComics.filter(comic => comic.genres && comic.genres.some(g => filters.genres.includes(g.name)));
+        result = result.filter(c => {
+            if (!c.genres) return false;
+            const comicGenres = Array.isArray(c.genres)
+                ? c.genres.map((g: any) => (typeof g === 'string' ? g : g.name).toLowerCase().trim())
+                : (typeof c.genres === 'string' ? (c.genres as string).split(',') : []).map(s => s.toLowerCase().trim());
+            return filters.genres.some(fg => comicGenres.includes(fg.toLowerCase().trim()));
+        });
     }
 
     if (filters.ratingRange.length > 0) {
-        currentComics = currentComics.filter(c => {
+        result = result.filter(c => {
             const rating = c.averageRating || 0;
             return filters.ratingRange.some(range => {
-                const [min, max] = range.split('-').map(Number);
-                return rating >= min && rating <= max;
+                if (range === '4-5') return rating >= 4 && rating <= 5;
+                if (range === '3-4') return rating >= 3 && rating < 4;
+                if (range === '2-3') return rating >= 2 && rating < 3;
+                if (range === '1-2') return rating >= 1 && rating < 2;
+                return false;
             });
         });
     }
 
-    // LOGIC SẮP XẾP ĐA TIÊU CHÍ (So sánh theo NGÀY để các tiêu chí sau có hiệu lực)
-    currentComics.sort((a, b) => {
-        let diffTime = 0;
-        // Chỉ so sánh ngày (bỏ giờ phút)
-        const dateA = new Date(a.updatedAt).setHours(0,0,0,0);
-        const dateB = new Date(b.updatedAt).setHours(0,0,0,0);
+    const parseDate = (dateStr: any) => {
+        if (!dateStr) return 0;
+        if (dateStr instanceof Date) return dateStr.getTime();
+        const s = String(dateStr);
+        if (s.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)) {
+            const [d, m, y] = s.split('/');
+            return new Date(Number(y), Number(m) - 1, Number(d)).getTime();
+        }
+        return new Date(s).getTime();
+    };
 
-        if (sortState.time === 'newest') diffTime = dateB - dateA;
-        else if (sortState.time === 'oldest') diffTime = dateA - dateB;
-        
-        // Nếu khác ngày -> trả về ngay. Nếu cùng ngày -> xét tiếp Tên
-        if (diffTime !== 0) return diffTime;
+    result.sort((a, b) => {
+        for (const criteria of sortPriority) {
+            let diff = 0;
+            if (criteria === 'value' && sortState.value) {
+                const pA = Number(a.price || 0);
+                const pB = Number(b.price || 0);
+                const vA = Number(a.views || 0);
+                const vB = Number(b.views || 0);
 
-        let diffAlpha = 0;
-        if (sortState.alpha === 'title-asc') diffAlpha = a.title.localeCompare(b.title, 'vi');
-        else if (sortState.alpha === 'title-desc') diffAlpha = b.title.localeCompare(a.title, 'vi');
-        
-        // Nếu khác tên -> trả về ngay. Nếu cùng tên -> xét tiếp Giá
-        if (diffAlpha !== 0) return diffAlpha;
+                if (sortState.value === 'price-asc') diff = pA - pB;
+                else if (sortState.value === 'price-desc') diff = pB - pA;
+                else if (sortState.value === 'views-desc') diff = vB - vA;
+                else if (sortState.value === 'views-asc') diff = vA - vB;
+            }
 
-        let diffValue = 0;
-        if (sortState.value === 'price-asc') diffValue = Number(a.price) - Number(b.price);
-        else if (sortState.value === 'price-desc') diffValue = Number(b.price) - Number(a.price);
-        
-        return diffValue;
+            if (criteria === 'alpha' && sortState.alpha) {
+                const tA = String(a.title || '');
+                const tB = String(b.title || '');
+                if (sortState.alpha === 'title-asc') diff = tA.localeCompare(tB, 'vi');
+                else if (sortState.alpha === 'title-desc') diff = tB.localeCompare(tA, 'vi');
+            }
+
+            if (criteria === 'time' && sortState.time) {
+                const timeA = parseDate(a.updatedAt || (a as any).createdAt);
+                const timeB = parseDate(b.updatedAt || (b as any).createdAt);
+                if (sortState.time === 'newest') diff = timeB - timeA;
+                else if (sortState.time === 'oldest') diff = timeA - timeB;
+            }
+
+            if (diff !== 0) return diff;
+        }
+        return 0;
     });
-    
-    return currentComics;
-  }, [allComics, filters, sortState]);
 
-  const totalItems = processedComics.length;
-  const totalPages = useMemo(() => Math.ceil(totalItems / ITEMS_PER_PAGE), [totalItems]);
-  
-  const currentComics = useMemo(() => {
-    const safeCurrentPage = Math.min(currentPage, totalPages > 0 ? totalPages : 1); 
-    const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
-    return processedComics.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [processedComics, currentPage, totalPages]);
+    return result;
+  }, [allComics, filters, sortState, sortPriority]);
+
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentItems = currentComics.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(currentComics.length / ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -147,12 +181,12 @@ const PhysicalComicsPage: React.FC = () => {
             <p>{categoryDescription}</p>
           </div>
 
-          {currentComics.length > 0 ? (
+          {currentItems.length > 0 ? (
               <>
                   <p style={{marginBottom: '15px', color: 'var(--clr-text-secondary)'}}>
-                      Hiển thị {currentComics.length} trên tổng số {totalItems} truyện
+                      Hiển thị {currentItems.length} trên tổng số {currentComics.length} truyện
                   </p>
-                  <ProductList comics={currentComics as any[]} />
+                  <ProductList comics={currentItems} />
                   {totalPages > 1 && (
                       <div style={{marginTop: '40px', display: 'flex', justifyContent: 'center'}}>
                           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
@@ -169,7 +203,7 @@ const PhysicalComicsPage: React.FC = () => {
           onFilterChange={(newFilters) => { setFilters(newFilters); setCurrentPage(1); }}
           showPriceFilter={true}
           sortState={sortState}
-          onSortChange={(newSort) => { setSortState(newSort); setCurrentPage(1); }}
+          onSortChange={handleSortChange}
       />
     </div>
   );

@@ -24,15 +24,18 @@ interface FilterSidebarProps {
     onFilterChange: (newFilters: FilterState) => void;
     showPriceFilter: boolean;    
     sortState: SortState;
-    onSortChange: (newSortState: SortState) => void;
+    onSortChange: (newSortState: SortState, changedCategory?: keyof SortState | 'reset') => void;
+    hideGenreFilter?: boolean; 
 }
 
-interface Genre {
-    id: number;
-    name: string;
-}
-
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, showPriceFilter, sortState, onSortChange }) => {
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ 
+    filters, 
+    onFilterChange, 
+    showPriceFilter, 
+    sortState, 
+    onSortChange,
+    hideGenreFilter = false 
+}) => {
     const [allGenres, setAllGenres] = useState<string[]>([]);
     const [allAuthors, setAllAuthors] = useState<string[]>([]);
     
@@ -42,8 +45,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
     useEffect(() => {
         fetch(`${API_URL}/comics/system/genres`)
             .then(res => res.json())
-            .then((data: Genre[]) => {
-                setAllGenres(data.map(g => g.name).sort());
+            .then((responseData: any) => {
+                const genresData = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                if (Array.isArray(genresData)) {
+                    setAllGenres(genresData.map((g: any) => g.name).sort());
+                } else {
+                    setAllGenres([]);
+                }
             })
             .catch(() => setAllGenres([]));
 
@@ -103,9 +111,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
 
     const handleSortToggle = (category: keyof SortState, value: string) => {
         if (sortState[category] === value) {
-            onSortChange({ ...sortState, [category]: null });
+            onSortChange({ ...sortState, [category]: null }, category);
         } else {
-            onSortChange({ ...sortState, [category]: value as any });
+            onSortChange({ ...sortState, [category]: value as any }, category);
         }
     };
 
@@ -121,7 +129,11 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             maxPrice: MAX_RANGE,
             ratingRange: [] 
         });
-        onSortChange({ time: 'newest', alpha: null, value: null }); 
+        onSortChange({ 
+            time: null, 
+            alpha: null, 
+            value: null 
+        }, 'reset'); 
     };
 
     const formatPrice = (price?: number) => {
@@ -144,7 +156,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
             <div className="sidebar-section">
                 <h3>Sắp xếp theo</h3>
                 
-                {/* Hàng 1: Thời gian */}
                 <div style={{marginBottom: '10px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--clr-text-secondary)'}}>Thời gian</div>
                 <div className="sort-grid" style={{marginBottom: '15px'}}>
                     <label className="sort-item">
@@ -157,7 +168,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                     </label>
                 </div>
 
-                {/* Hàng 2: Tên */}
                 <div style={{marginBottom: '10px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--clr-text-secondary)'}}>Tên truyện</div>
                 <div className="sort-grid" style={{marginBottom: '15px'}}>
                     <label className="sort-item">
@@ -170,7 +180,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                     </label>
                 </div>
 
-                {/* Hàng 3: Giá hoặc View */}
                 {(showPriceFilter || isDigital) && (
                     <>
                         <div style={{marginBottom: '10px', fontSize: '0.9rem', fontWeight: 600, color: 'var(--clr-text-secondary)'}}>
@@ -234,8 +243,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                         <div className="price-slider-container">
                             <div className="slider-track"></div>
                             <div className="slider-range" style={{left: `${minPercent}%`, width: `${maxPercent - minPercent}%`}}></div>
-                            <input type="range" min="0" max={MAX_RANGE} step="10000" value={filters.minPrice || 0} onChange={(e) => handleRangeChange(e, 'min')} className="range-input" />
-                            <input type="range" min="0" max={MAX_RANGE} step="10000" value={filters.maxPrice || MAX_RANGE} onChange={(e) => handleRangeChange(e, 'max')} className="range-input" />
+                            <input type="range" min="0" max={MAX_RANGE} step="50000" value={filters.minPrice || 0} onChange={(e) => handleRangeChange(e, 'min')} className="range-input" />
+                            <input type="range" min="0" max={MAX_RANGE} step="50000" value={filters.maxPrice || MAX_RANGE} onChange={(e) => handleRangeChange(e, 'max')} className="range-input" />
                         </div>
                         <div className="price-values">
                             <span>{formatPrice(filters.minPrice || 0)}</span>
@@ -245,17 +254,23 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, onFilterChange, 
                 </div>
             )}
 
-            <div className="sidebar-section">
-                <h3>Thể loại</h3>
-                <div className="checkbox-list">
-                    {allGenres.map(genre => (
-                        <label key={genre} className="checkbox-item">
-                            <input type="checkbox" checked={filters.genres.includes(genre)} onChange={() => handleGenreToggle(genre)} />
-                            {genre}
-                        </label>
-                    ))}
+            {!hideGenreFilter && (
+                <div className="sidebar-section">
+                    <h3>Thể loại</h3>
+                    <div className="checkbox-list">
+                        {allGenres.length > 0 ? (
+                            allGenres.map(genre => (
+                                <label key={genre} className="checkbox-item">
+                                    <input type="checkbox" checked={filters.genres.includes(genre)} onChange={() => handleGenreToggle(genre)} />
+                                    {genre}
+                                </label>
+                            ))
+                        ) : (
+                            <p style={{color: '#999', fontSize: '0.9rem', padding: '5px 0'}}>Đang tải thể loại...</p>
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="sidebar-section">
                 <h3>Tác giả</h3>
