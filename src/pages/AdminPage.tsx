@@ -13,12 +13,13 @@ import EditComicForm from '../components/admin/EditComicForm';
 import ManageChapters from '../components/admin/ManageChapters';
 import ComicManagementList from '../components/admin/ComicManagementList';
 import AdminFilterBar, { type SortOrder } from '../components/admin/AdminFilterBar';
+import PackManagement from '../components/admin/PackManagement';
 
 import '../assets/styles/AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters';
+export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs';
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -179,7 +180,8 @@ const AdminPage: React.FC = () => {
                 return selectedComic ? <EditComicForm comic={selectedComic} allGenres={allGenres} onCancel={handleFormCancel} onSuccess={handleFormSuccess} /> : <p>Lỗi</p>;
             case 'chapters':
                 return selectedComic ? <ManageChapters comic={selectedComic} onCancel={handleFormCancel} /> : <p>Lỗi</p>;
-            
+            case 'packs':
+                return <PackManagement />;
             case 'physical':
                 return (
                     <>

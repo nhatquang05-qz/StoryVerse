@@ -4,6 +4,8 @@ const apiRoutes = require('./routes');
 const app = express();
 const compression = require('compression');
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+const packRoutes = require('./routes/packRoutes');
+
 app.use(compression());
 app.use(cors({
   origin: corsOrigin, 
@@ -20,5 +22,6 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
+app.use('/api/packs', packRoutes);
 
 module.exports = app;

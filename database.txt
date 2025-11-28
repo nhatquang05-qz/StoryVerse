@@ -227,4 +227,34 @@ CREATE TABLE `users` (
    UNIQUE KEY `email` (`email`)
  ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
+-- Tạo bảng gói nạp
+CREATE TABLE `recharge_packs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `coins` int NOT NULL,
+  `price` decimal(15,2) NOT NULL,
+  `bonus` int DEFAULT '0',
+  `name` varchar(255) DEFAULT NULL COMMENT 'Tên gói (nếu có)',
+  `isActive` tinyint(1) DEFAULT '1',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tạo bảng voucher
+CREATE TABLE `vouchers` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `discountType` enum('PERCENT','FIXED') NOT NULL DEFAULT 'PERCENT',
+  `discountValue` decimal(15,2) NOT NULL,
+  `minOrderValue` decimal(15,2) DEFAULT '0.00',
+  `maxDiscountAmount` decimal(15,2) DEFAULT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `usageLimit` int DEFAULT NULL,
+  `usedCount` int DEFAULT '0',
+  `isActive` tinyint(1) DEFAULT '1',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 ALTER TABLE comics ADD COLUMN soldCount INT DEFAULT 0;

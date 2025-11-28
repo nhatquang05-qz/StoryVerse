@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
@@ -7,20 +7,39 @@ import '../assets/styles/CoinRechargePage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-const rechargePacks = [
-    { id: 1, coins: 500, price: 20000, bonus: 50 },
-    { id: 2, coins: 1500, price: 50000, bonus: 100 },
-    { id: 3, coins: 3100, price: 100000, bonus: 300 },
-    { id: 4, coins: 6500, price: 200000, bonus: 800 }, 
-    { id: 5, coins: 20000, price: 500000, bonus: 1200 },
-    { id: 6, coins: 45000, price: 1000000, bonus: 2000 },
-];
+interface RechargePack {
+    id: number;
+    coins: number;
+    price: number;
+    bonus: number;
+}
 
 const CoinRechargePage: React.FC = () => {
     const { currentUser, token } = useAuth(); 
     const { showNotification } = useNotification();
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedPack, setSelectedPack] = useState<number | null>(null);
+    
+    const [rechargePacks, setRechargePacks] = useState<RechargePack[]>([]);
+    const [isLoadingPacks, setIsLoadingPacks] = useState(true);
+
+    useEffect(() => {
+        const fetchPacks = async () => {
+            try {
+                const response = await fetch(`${API_URL}/packs/public`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setRechargePacks(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch packs", error);
+            } finally {
+                setIsLoadingPacks(false);
+            }
+        };
+
+        fetchPacks();
+    }, []);
 
     const handleRecharge = async (packId: number) => {
         if (!currentUser) {
@@ -110,31 +129,35 @@ const CoinRechargePage: React.FC = () => {
 
                 <h3 className="pack-selection-title">Chọn Gói Nạp</h3>
 
-                <div className="recharge-grid">
-                    {rechargePacks.map(pack => (
-                        <div key={pack.id} className="recharge-card">
-                            <div className="recharge-content">
-                                <div className="recharge-coin-display">
-                                    <span className="coin-amount-large">{pack.coins}</span> <CoinIcon className="coin-icon-large" />
+                {isLoadingPacks ? (
+                    <div style={{textAlign: 'center', padding: '20px'}}>Đang tải các gói nạp...</div>
+                ) : (
+                    <div className="recharge-grid">
+                        {rechargePacks.map(pack => (
+                            <div key={pack.id} className="recharge-card">
+                                <div className="recharge-content">
+                                    <div className="recharge-coin-display">
+                                        <span className="coin-amount-large">{pack.coins}</span> <CoinIcon className="coin-icon-large" />
+                                    </div>
+                                    {pack.bonus > 0 ? (
+                                        <p className="recharge-bonus">Tặng {pack.bonus} Xu</p>
+                                    ) : (
+                                        <div className="recharge-bonus-placeholder"></div>
+                                    )}
+                                    <p className="recharge-price">{formatPrice(pack.price)}</p>
                                 </div>
-                                {pack.bonus > 0 ? (
-                                    <p className="recharge-bonus">Tặng {pack.bonus} Xu</p>
-                                ) : (
-                                    <div className="recharge-bonus-placeholder"></div>
-                                )}
-                                <p className="recharge-price">{formatPrice(pack.price)}</p>
+                                <button
+                                    className="auth-button"
+                                    onClick={() => handleRecharge(pack.id)}
+                                    disabled={isProcessing && selectedPack === pack.id}
+                                    style={{ background: 'var(--primary-color)' }}
+                                >
+                                    {isProcessing && selectedPack === pack.id ? 'Đang xử lý...' : 'Nạp qua VNPAY'}
+                                </button>
                             </div>
-                            <button
-                                className="auth-button"
-                                onClick={() => handleRecharge(pack.id)}
-                                disabled={isProcessing && selectedPack === pack.id}
-                                style={{ background: 'var(--primary-color)' }}
-                            >
-                                {isProcessing && selectedPack === pack.id ? 'Đang xử lý...' : 'Nạp qua VNPAY'}
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
                 <p className="recharge-info-note">*Mỗi Xu nạp sẽ tăng kinh nghiệm (tỉ lệ giảm theo cấp).</p>
             </div>
         </div>

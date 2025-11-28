@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiBookOpen, FiArchive, FiUsers, FiBarChart2 } from 'react-icons/fi';
+import { FiBookOpen, FiArchive, FiUsers, FiBarChart2, FiGift } from 'react-icons/fi';
 import { type AdminView } from '../../pages/AdminPage'; 
 
 interface AdminSidebarProps {
@@ -26,18 +26,28 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
             >
                 <FiBookOpen /> Truyện Online
             </button>
+
             <button
                 className={`sidebar-btn ${activeView === 'physical' ? 'active' : ''}`}
                 onClick={() => onNavigate('physical')}
             >
                 <FiArchive /> Truyện In
             </button>
+
             <button
                 className={`sidebar-btn ${activeView === 'users' ? 'active' : ''}`}
                 onClick={() => onNavigate('users')}
             >
                 <FiUsers /> Quản lý Người Dùng
             </button>
+
+            <button
+                className={`sidebar-btn ${activeView === 'packs' ? 'active' : ''}`}
+                onClick={() => onNavigate('packs')}
+            >
+                <FiGift /> Gói Nạp & Ưu Đãi
+            </button>
+            
         </nav>
     );
 };
