@@ -3,136 +3,162 @@ import { useSearchParams } from 'react-router-dom';
 import ProductList from '../components/common/ProductList';
 import { type ComicSummary } from '../types/comicTypes'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen'; 
-import AdvancedFilterModal from '../components/popups/AdvancedFilterModal';
-import '../assets/styles/CategoryPage.css';
+import FilterSidebar from '../components/common/FilterSidebar';
+import Pagination from '../components/common/Pagination'; 
+import '../assets/styles/FilterSidebar.css'; 
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const ITEMS_PER_PAGE = 12; 
 
 interface FilterState {
     authors: string[];
     genres: string[];
     mediaType: 'all' | 'digital' | 'physical';
+    minPrice?: number;
+    maxPrice?: number;
 }
 
 const SearchPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get('q') || '';
-  const isAdvancedSearch = searchParams.get('advanced') === 'true';
-  const normalizedQuery = query.toLowerCase().trim();
+    const [searchParams] = useSearchParams();
+    const query = searchParams.get('q') || '';
+    const initialMediaType = (searchParams.get('type') as any) || 'physical';
 
-  const [searchResults, setSearchResults] = useState<ComicSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({ authors: [], genres: [], mediaType: 'all' });
+    const [allComics, setAllComics] = useState<ComicSummary[]>([]);
+    const [filteredComics, setFilteredComics] = useState<ComicSummary[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    
+    const [filters, setFilters] = useState<FilterState>({ 
+        authors: [], 
+        genres: [], 
+        mediaType: initialMediaType,
+        minPrice: 0,
+        maxPrice: 2000000 
+    });
 
+    const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    if (isAdvancedSearch) {
-        setIsFilterModalOpen(true);
-    }
-  }, [isAdvancedSearch]);
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const endpoint = query 
+                    ? `${API_URL}/comics/search?q=${encodeURIComponent(query)}&limit=500`
+                    : `${API_URL}/comics?limit=500`;
 
-  const fetchAndFilterResults = async (q: string, currentFilters: FilterState) => {
-      if (!q && currentFilters.authors.length === 0 && currentFilters.genres.length === 0 && currentFilters.mediaType === 'all') {
-          setSearchResults([]);
-          setIsLoading(false);
-          return;
-      }
-      
-      setIsLoading(true);
-      try {
-        const response = await fetch(`${API_URL}/comics/search?q=${encodeURIComponent(q)}&limit=100`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const rawData: any = await response.json();
-        let comicsArray: any[] = [];
+                const response = await fetch(endpoint);
+                const rawData = await response.json();
+                
+                let comicsArray: any[] = [];
+                if (Array.isArray(rawData)) comicsArray = rawData;
+                else if (rawData.data) comicsArray = rawData.data;
+                else if (rawData.comics) comicsArray = rawData.comics;
 
-        if (Array.isArray(rawData)) {
-            comicsArray = rawData;
-        } else if (rawData && rawData.comics && Array.isArray(rawData.comics)) {
-            comicsArray = rawData.comics;
-        } else {
-            console.warn("Cấu trúc phản hồi API không mong đợi:", rawData);
-            comicsArray = [];
-        }
-        
-        const data: ComicSummary[] = comicsArray.map((comic: any) => ({
-            ...comic,
-            id: Number(comic.id),
-            isDigital: comic.isDigital === 1,
-            price: Number(comic.price),
-            views: Number(comic.viewCount),
-            averageRating: Number(comic.averageRating) || 0,
-            totalReviews: Number(comic.totalReviews) || 0,
-        }));
-        
-        let filteredData = data;
-        
-        if (currentFilters.mediaType !== 'all') {
-             const isDigitalFilter = currentFilters.mediaType === 'digital';
-             filteredData = filteredData.filter(comic => comic.isDigital === isDigitalFilter);
-        }
-        
-        if (currentFilters.authors.length > 0) {
-             filteredData = filteredData.filter(comic => 
-                 comic.author && currentFilters.authors.includes(comic.author)
-             );
-        }
-        
-        if (currentFilters.genres.length > 0) {
-             filteredData = filteredData.filter(comic => 
-                 comic.genres && comic.genres.some(g => currentFilters.genres.includes(g.name))
-             );
+                const processedData: ComicSummary[] = comicsArray.map((comic: any) => ({
+                    ...comic,
+                    id: Number(comic.id),
+                    isDigital: comic.isDigital === 1,
+                    price: Number(comic.price),
+                    randomSort: Math.random() 
+                }));
+
+                processedData.sort((a: any, b: any) => a.randomSort - b.randomSort);
+
+                setAllComics(processedData);
+            } catch (error) {
+                console.error("Fetch error:", error);
+                setAllComics([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [query]);
+
+    useEffect(() => {
+        let result = allComics;
+
+        if (filters.mediaType === 'physical') {
+            result = result.filter(c => !c.isDigital);
+            if (filters.minPrice !== undefined) result = result.filter(c => c.price >= filters.minPrice!);
+            if (filters.maxPrice !== undefined) result = result.filter(c => c.price <= filters.maxPrice!);
+        } else if (filters.mediaType === 'digital') {
+            result = result.filter(c => c.isDigital);
         }
 
-        setSearchResults(filteredData);
-      } catch (error) {
-        console.error("Lỗi fetch search results:", error);
-        setSearchResults([]);
-      } finally {
-        setIsLoading(false);
-      }
-  };
+        if (filters.authors.length > 0) {
+            result = result.filter(c => c.author && filters.authors.includes(c.author));
+        }
 
-  useEffect(() => {
-    fetchAndFilterResults(normalizedQuery, filters);
-  }, [normalizedQuery, filters]); 
+        if (filters.genres.length > 0) {
+            result = result.filter(c => 
+                c.genres && c.genres.some(g => filters.genres.includes(g.name))
+            );
+        }
 
-  const handleApplyAdvancedFilters = (newFilters: FilterState) => {
-      setFilters(newFilters);
-      setIsFilterModalOpen(false);
-  };
+        setFilteredComics(result);
+        setCurrentPage(1); 
+    }, [filters, allComics]);
 
-  if (isLoading) {
-    return <LoadingPage />;
-  }
+    const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+    const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+    const currentItems = filteredComics.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredComics.length / ITEMS_PER_PAGE);
 
-  return (
-    <div className="category-page-container">
-      <div className="category-header">
-        <h1>Kết Quả Tìm Kiếm</h1>
-        {!isLoading && (
-            <p>Hiển thị {searchResults.length} kết quả cho từ khóa: "{query}"</p>
-        )}
-      </div>
-      
-      {searchResults.length > 0 ? (
-        <ProductList comics={searchResults as any[]} />
-      ) : (
-        <div className="empty-state">
-          <h2>Không tìm thấy kết quả nào</h2>
-          <p>Vui lòng thử lại với từ khóa khác hoặc kiểm tra chính tả.</p>
+    if (isLoading) return <LoadingPage />;
+
+    return (
+        <div className="search-page-layout">
+            <div className="main-content">
+                <div className="category-header">
+                    <h1>{query ? `Kết quả: "${query}"` : 'Tất Cả Truyện'}</h1>
+                </div>
+
+                <div className="search-tabs">
+                    <button 
+                        className={`search-tab-btn ${filters.mediaType === 'physical' ? 'active' : ''}`}
+                        onClick={() => setFilters({ ...filters, mediaType: 'physical' })}
+                    >
+                        Truyện In
+                    </button>
+                    <button 
+                        className={`search-tab-btn ${filters.mediaType === 'digital' ? 'active' : ''}`}
+                        onClick={() => setFilters({ ...filters, mediaType: 'digital' })}
+                    >
+                        Truyện Online
+                    </button>
+                </div>
+
+                {currentItems.length > 0 ? (
+                    <>
+                        <p style={{marginBottom: '15px', color: 'var(--clr-text-secondary)'}}>
+                            Hiển thị {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredComics.length)} trên tổng số {filteredComics.length} truyện
+                        </p>
+
+                        <ProductList comics={currentItems} />
+                        
+                        <div style={{marginTop: '40px', display: 'flex', justifyContent: 'center'}}>
+                            <Pagination 
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
+                    </>
+                ) : (
+                    <div className="empty-state">
+                        <h2>Không tìm thấy kết quả nào</h2>
+                        <p>Thử điều chỉnh bộ lọc hoặc chọn tab khác.</p>
+                    </div>
+                )}
+            </div>
+
+            <FilterSidebar 
+                filters={filters}
+                onFilterChange={setFilters}
+                showPriceFilter={filters.mediaType === 'physical'}
+            />
         </div>
-      )}
-      
-       <AdvancedFilterModal 
-          isOpen={isFilterModalOpen}
-          onClose={() => setIsFilterModalOpen(false)}
-          onApply={handleApplyAdvancedFilters}
-          initialFilters={filters}
-       />
-    </div>
-  );
+    );
 };
 
 export default SearchPage;

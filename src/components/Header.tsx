@@ -167,7 +167,6 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchBarRef]);
 
-  // FIX 2: Đảm bảo safeSuggestions luôn là mảng để tránh lỗi .filter is not a function
   const safeSuggestions = Array.isArray(suggestions) ? suggestions : [];
   const showSuggestionsDropdown = (safeSuggestions.length > 0 || isLoadingSearch) && isSearchFocused;
 
@@ -314,7 +313,6 @@ const Header: React.FC = () => {
             <FiHeart />
           </Link>
           
-          {/* Gắn ref vào icon giỏ hàng để lấy tọa độ */}
           <Link ref={cartIconRef} to="/cart" className="action-icon cart-icon-link" aria-label="Giỏ hàng">
             <FiShoppingCart />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
