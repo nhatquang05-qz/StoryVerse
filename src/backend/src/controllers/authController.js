@@ -113,6 +113,18 @@ const googleLogin = async (req, res) => {
   }
 };
 
+const facebookLogin = async (req, res) => {
+  try {
+    const { accessToken } = req.body;
+    const result = await authService.facebookLoginService({ accessToken });
+    res.status(result.status).json({ message: result.message, token: result.token, user: result.user });
+  } catch (error) {
+    const status = error.status || 500;
+    console.error('Facebook Login error:', error);
+    res.status(status).json({ error: error.error || 'Failed to log in with Facebook' });
+  }
+};
+
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -138,4 +150,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, googleLogin, forgotPassword, resetPassword, sendOtp };
+module.exports = { register, login, googleLogin, facebookLogin, forgotPassword, resetPassword, sendOtp };

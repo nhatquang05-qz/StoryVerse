@@ -3,8 +3,8 @@ const cors = require('cors');
 const apiRoutes = require('./routes'); 
 const app = express();
 const compression = require('compression');
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
-const packRoutes = require('./routes/packRoutes');
+const corsOrigin = process.env.CORS_ORIGIN || 'https://localhost:5173';
+const packRoutes = require('./routes/packRoutess');
 const voucherRoutes = require('./routes/voucherRoutes');
 
 app.use(compression());

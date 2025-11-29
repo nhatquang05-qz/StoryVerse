@@ -5,7 +5,7 @@
     --primary-color: #646cff;
     --primary-gradient: linear-gradient(135deg, #646cff 0%, #3a7bd5 100%);
     --anim-duration: 0.6s;
-    --anim-ease: cubic-bezier(0.22, 1, 0.36, 1); 
+    --anim-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .auth-page {
@@ -17,8 +17,7 @@
     background-size: cover;
     background-repeat: no-repeat;
     position: relative;
-    background-attachment: fixed; 
-
+    background-attachment: fixed;
 }
 
 .auth-page::before {
@@ -44,7 +43,6 @@
     max-width: 480px;
     text-align: center;
     color: #ffffff;
-    
     opacity: 0;
     transform: translateY(40px) scale(0.95);
     animation: containerEntry var(--anim-duration) var(--anim-ease) forwards;
@@ -117,9 +115,9 @@
     cursor: not-allowed;
 }
 
-.auth-options, 
-.auth-divider, 
-.google-login-container, 
+.auth-options,
+.auth-divider,
+.google-login-container,
 .auth-switch {
     opacity: 0;
     animation: contentFadeIn 0.5s ease-out forwards;
@@ -187,15 +185,6 @@
 }
 .auth-divider span { padding: 0 1rem; }
 
-.google-login-container {
-    display: flex;
-    justify-content: center;
-}
-.google-login-container[data-disabled="true"] {
-    pointer-events: none;
-    opacity: 0.6;
-}
-
 .auth-switch {
     margin-top: 2rem;
     font-size: 1rem;
@@ -234,27 +223,14 @@
     animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
 
-
 @keyframes containerEntry {
-    0% {
-        opacity: 0;
-        transform: translateY(40px) scale(0.95);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes contentFadeIn {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes shake {
@@ -262,4 +238,60 @@
     20%, 80% { transform: translate3d(2px, 0, 0); }
     30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
     40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.social-login-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin-top: 1rem;
+    align-items: center;
+}
+
+.google-login-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.google-login-container[data-disabled="true"] {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.facebook-btn {
+    width: 225px;
+    height: 40px;
+    background-color: #1877f2;
+    color: white;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.facebook-btn:hover {
+    background-color: #166fe5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+}
+
+.facebook-btn:active {
+    background-color: #1562c9;
+    transform: translateY(0);
+}
+
+.facebook-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
 }

@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto'); 
 const nodemailer = require('nodemailer');
 const { OAuth2Client } = require('google-auth-library'); 
+const axios = require('axios'); 
 const userModel = require('../models/userModel'); 
 
 const { 
@@ -103,6 +104,53 @@ const googleLoginService = async ({ token }) => {
   return { message: message, token: jwtToken, user: userData, status: statusCode };
 };
 
+const facebookLoginService = async ({ accessToken }) => {
+  if (!accessToken) throw { status: 400, error: 'Facebook access token is required' };
+
+  const { data } = await axios.get(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
+  console.log("=== DỮ LIỆU FACEBOOK TRẢ VỀ ===");
+  console.log(data); 
+  console.log("===============================");
+  const { email, name, picture } = data;
+ 
+  if (!email) {
+      throw { 
+          status: 400, 
+          error: 'Tài khoản Facebook này không có email hoặc bạn chưa cấp quyền truy cập email. Vui lòng kiểm tra lại cài đặt Facebook hoặc đăng ký bằng cách khác.' 
+      };
+  }
+
+  let user;
+  let message = 'Login successful';
+  let statusCode = 200;
+
+  const existingUser = await userModel.findUserByEmail(email);
+
+  if (existingUser) {
+    user = existingUser;
+  } else {
+    const generatedPassword = crypto.randomBytes(16).toString('hex');
+    const hashedPassword = await bcrypt.hash(generatedPassword, 10);      
+    const defaultFullName = name || email.split('@')[0] || 'New User';
+    const mockDefaultAddress = JSON.stringify([{ id: `default-${Date.now()}`, street: '123 Đường Mặc định', ward: 'Phường Mặc định', district: 'Quận Mặc định', city: 'TP Mặc định', isDefault: true }]);
+    const avatarUrl = picture?.data?.url || null; 
+    
+    const userId = await userModel.createNewUser(email, hashedPassword, defaultFullName, mockDefaultAddress, avatarUrl);
+    
+    user = await userModel.findUserById(userId);
+    if (!user) throw { status: 500, error: 'Failed to retrieve new user data' };
+
+    message = 'User registered and logged in successfully via Facebook';
+    statusCode = 201;
+  }
+
+  const { password: userPassword, ...userWithoutPassword } = user;
+  const jwtToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+
+  const userData = ensureUserDataTypes(userWithoutPassword);
+  return { message: message, token: jwtToken, user: userData, status: statusCode };
+};
+
 const forgotPasswordService = async ({ email }) => {
   if (!email) throw { status: 400, error: 'Email is required' };
 
@@ -163,6 +211,7 @@ module.exports = {
     registerService, 
     loginService, 
     googleLoginService, 
+    facebookLoginService, 
     forgotPasswordService, 
     resetPasswordService 
 };

@@ -8,12 +8,12 @@ const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = process.env.EMAIL_PORT;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://localhost:5173';
 
-const VNP_TMN_CODE = process.env.VNP_TMN_CODE || 'YOUR_TMN_CODE'; // Mã website tại VNPAY 
-const VNP_HASH_SECRET = process.env.VNP_HASH_SECRET || 'YOUR_HASH_SECRET'; // Chuỗi bí mật
+const VNP_TMN_CODE = process.env.VNP_TMN_CODE || 'YOUR_TMN_CODE'; 
+const VNP_HASH_SECRET = process.env.VNP_HASH_SECRET || 'YOUR_HASH_SECRET'; 
 const VNP_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-const VNP_RETURN_URL = `${FRONTEND_URL}/payment-return`; // URL frontend nhận kết quả
+const VNP_RETURN_URL = `${FRONTEND_URL}/payment-return`; 
 
 module.exports = {
     JWT_SECRET,

@@ -23,7 +23,7 @@ export default function () {
   // [QUAN TRỌNG] Thay đổi URL này thành URL server local của bạn
   // Nhớ là server backend phải đang chạy (npm start)
   // Thử test API có cache để xem hiệu quả
-  const res = http.get('http://localhost:3000/api/comics?limit=100');
+  const res = http.get('https://localhost:3000/api/comics?limit=100');
 
   // Kiểm tra xem request có thành công không (Status 200)
   check(res, {

@@ -17,7 +17,7 @@ import PackManagement from '../components/admin/PackManagement';
 
 import '../assets/styles/AdminPage.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:3000/api';
 
 export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs';
 

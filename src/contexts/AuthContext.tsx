@@ -13,7 +13,7 @@ import {
     ensureUserDataTypes} from '../utils/authUtils'; 
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 const LEVEL_SYSTEM_STORAGE_KEY = 'user_level_system';
 
@@ -27,6 +27,7 @@ interface AuthContextType {
   register: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   loginWithGoogle: (credentialResponse: CredentialResponse) => Promise<void>; 
+  loginWithFacebook: (accessToken: string) => Promise<void>; 
   updateProfile: (profileData: Partial<User>) => Promise<User | null>;
   updateAvatar: (avatarUrl: string) => Promise<User | null>; 
   updateAddresses: (addresses: Address[]) => Promise<void>;
@@ -168,7 +169,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
-            setToken(data.token); // Cập nhật token state
+            setToken(data.token);
             const userData = ensureUserDataTypes(data.user); 
             setCurrentUser(userData);
 
@@ -211,6 +212,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         } catch (error: any) {
             showLoginError('Lỗi đăng nhập Google', 'Đăng nhập Google thất bại.');
+            throw error; 
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loginWithFacebook = async (accessToken: string) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/auth/facebook-login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accessToken }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Đăng nhập Facebook thất bại');
+
+            if (data.user && data.user.isBanned === 1) {
+                showLoginError('Đăng nhập không thành công', 'Tài khoản đã bị cấm!');
+                return; 
+            }
+
+            localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+            setToken(data.token); 
+            const userData = ensureUserDataTypes(data.user);
+            setCurrentUser(userData);
+            setUsernameToDisplay(userData.fullName || userData.email.split('@')[0] || 'Người dùng');
+            setIsLoginSuccessPopupOpen(true);
+
+        } catch (error: any) {
+            showLoginError('Lỗi đăng nhập Facebook', error.message || 'Đăng nhập Facebook thất bại.');
             throw error; 
         } finally {
             setLoading(false);
@@ -477,7 +509,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             login,
             register,
             logout,
-            loginWithGoogle, 
+            loginWithGoogle,
+            loginWithFacebook,
             updateProfile,
             updateAvatar,
             updateAddresses,
