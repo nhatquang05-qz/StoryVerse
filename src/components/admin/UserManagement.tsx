@@ -99,9 +99,10 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
 
     const handleExportUserCSV = () => {
         if (!details) return;
-        const txHeaders = ["ID", "Type", "ItemName", "Description", "Amount", "Status", "Date"];
+        const txHeaders = ["Transaction Code", "Type", "ItemName", "Description", "Amount", "Status", "Date"];
+        
         const txRows = details.transactions?.map((tx: any) => 
-            `${tx.id},${tx.type},"${tx.purchasedItem || ''}","${tx.description || ''}",${tx.amount},${tx.status},${new Date(tx.createdAt).toISOString()}`
+            `${tx.transactionCode || tx.orderId || tx.id},${tx.type},"${tx.purchasedItem || ''}","${tx.description || ''}",${tx.amount},${tx.status},${new Date(tx.createdAt).toISOString()}`
         ) || [];
         
         const content = `User Report for ${details.profile.fullName}\n\nTRANSACTIONS\n${txHeaders.join(',')}\n${txRows.join('\n')}`;
@@ -145,7 +146,6 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
                                 <h4>Thông tin cá nhân</h4>
                                 <div className="info-row"><span className="info-label">Email</span><span className="info-value">{details.profile.email}</span></div>
                                 <div className="info-row"><span className="info-label">SĐT</span><span className="info-value">{details.profile.phone || '---'}</span></div>
-                                {/* ĐÃ SỬA: Dùng acc_created_at thay vì createdAt */}
                                 <div className="info-row"><span className="info-label">Ngày tạo</span><span className="info-value">{new Date(details.profile.acc_created_at).toLocaleDateString('vi-VN')}</span></div>
                             </div>
                             <div className="detail-card">
@@ -192,7 +192,9 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
                                     <tbody>
                                         {depositHistory.map((tx: any) => (
                                             <tr key={tx.id}>
-                                                <td>#{tx.id}</td>
+                                                <td style={{fontFamily: 'monospace', fontSize: '0.9em', color: '#555'}}>
+                                                    {tx.transactionCode || tx.orderId || `#${tx.id}`}
+                                                </td>
                                                 <td>{tx.description || 'Nạp xu'}</td>
                                                 <td className="font-bold text-green">+{Number(tx.amount).toLocaleString('vi-VN')} đ</td>
                                                 <td>{getStatusBadge(tx.status)}</td>
@@ -220,7 +222,9 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
                                     <tbody>
                                         {purchaseHistory.map((tx: any) => (
                                             <tr key={tx.id}>
-                                                <td>#{tx.id}</td>
+                                                <td style={{fontFamily: 'monospace', fontSize: '0.9em', color: '#555'}}>
+                                                     {tx.transactionCode || tx.orderId || `#${tx.id}`}
+                                                </td>
                                                 <td style={{fontWeight: 500}}>{tx.purchasedItem || tx.description || 'Đơn hàng'}</td>
                                                 <td className="font-bold text-orange">-{Number(tx.amount).toLocaleString('vi-VN')} đ</td>
                                                 <td>{getStatusBadge(tx.status)}</td>
@@ -370,7 +374,6 @@ const UserManagement: React.FC = () => {
             if (!response.ok) throw new Error('Xóa tài khoản thất bại');
             showNotification('Xóa tài khoản thành công!', 'success');
             
-            // Xử lý local state
             setUsers(users.filter(u => u.id !== userId));
             if (viewDetailUserId === userId) {
                 setViewDetailUserId(null);

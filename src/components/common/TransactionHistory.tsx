@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 interface Transaction {
     id: number;
     orderId: string;
+    transactionCode?: string; 
     amount: number;
     status: string;
     type: 'RECHARGE' | 'PURCHASE';
@@ -74,7 +75,9 @@ const TransactionHistory: React.FC = () => {
                             {transactions.map(item => (
                                 <tr key={item.id} style={{borderBottom: '1px solid #eee', color: 'var(--text-color)'}}>
                                     <td style={{padding: '12px'}}>{formatDate(item.createdAt)}</td>
-                                    <td style={{padding: '12px', fontSize: '0.9rem', color: '#888'}}>{item.orderId}</td>
+                                    <td style={{padding: '12px', fontSize: '0.9rem', color: '#888', fontFamily: 'monospace'}}>
+                                        {item.transactionCode || item.orderId}
+                                    </td>
                                     <td style={{padding: '12px'}}>{item.description}</td>
                                     <td style={{padding: '12px'}}>
                                         <span style={{

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Line, Bar, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
+import { Line, Bar, Radar, PolarArea } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, RadialLinearScale, Title, Tooltip, Legend, Filler
 } from 'chart.js';
 import { 
-    FiDollarSign, FiUsers, FiShoppingCart, FiClock, FiCheckCircle, FiXCircle, FiBookOpen, FiFilter, FiTrendingUp, FiActivity, FiAlertCircle, FiServer
+    FiDollarSign, FiUsers, FiShoppingCart, FiClock, FiCheckCircle, FiXCircle, FiBookOpen, FiFilter, FiTrendingUp, FiAlertCircle, FiServer
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../assets/styles/DashboardView.css';
@@ -101,20 +101,6 @@ const DashboardView: React.FC = () => {
             data: data.charts.users?.map((item: any) => item.count) || [],
             backgroundColor: '#8b5cf6',
             borderRadius: 6,
-        }],
-    };
-
-    const doughnutData = {
-        labels: (data.charts.orders?.map((i:any) => {
-            const s = i.status?.toLowerCase();
-            if(['success','completed','paid'].includes(s)) return 'Thành công';
-            if(['failed','cancelled'].includes(s)) return 'Thất bại';
-            return 'Đang xử lý';
-        })) || ['Trống'],
-        datasets: [{
-            data: data.charts.orders?.map((i:any) => i.count) || [0],
-            backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
-            borderWidth: 0,
         }],
     };
 
@@ -290,7 +276,9 @@ const DashboardView: React.FC = () => {
                             {data.transactions && data.transactions.length > 0 ? (
                                 data.transactions.map((tx: any) => (
                                     <tr key={tx.id}>
-                                        <td className="col-id">#{tx.id}</td>
+                                        <td className="col-id" style={{fontFamily: 'monospace', fontSize: '0.9em', color: '#555'}}>
+                                            {tx.transactionCode || tx.orderId || `#${tx.id}`}
+                                        </td>
                                         <td>{tx.userName || tx.user_name || 'Unknown'}</td>
                                         <td>{getTypeBadge(tx.type)}</td>
                                         <td className="col-amount">{formatCurrency(tx.amount)}</td>

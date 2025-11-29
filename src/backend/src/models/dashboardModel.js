@@ -92,7 +92,6 @@ const getUserChart = async (period) => {
             GROUP BY DATE_FORMAT(acc_created_at, '%d/%m')
             ORDER BY MIN(acc_created_at) ASC`;
     } else {
-        // SỬA: GROUP BY DATE_FORMAT(acc_created_at, '%m/%Y')
         query = `
             SELECT DATE_FORMAT(acc_created_at, '%m/%Y') as date, COUNT(*) as count 
             FROM users 
@@ -141,7 +140,15 @@ const getRecentTransactions = async (period) => {
     const timeFilter = getTimeFilter(period, 't.createdAt');
 
     const query = `
-        SELECT t.id, u.fullName as userName, t.type, t.amount, t.status, t.createdAt
+        SELECT 
+            t.id, 
+            t.transactionCode, -- Thêm dòng này để lấy mã giao dịch
+            t.orderId, 
+            u.fullName as userName, 
+            t.type, 
+            t.amount, 
+            t.status, 
+            t.createdAt
         FROM payment_transactions t
         LEFT JOIN users u ON t.userId = u.id
         WHERE 1=1 ${timeFilter}

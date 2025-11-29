@@ -7,6 +7,7 @@ const rewardService = require('../services/rewardService');
 const paymentModel = require('../models/paymentModel');
 const orderModel = require('../models/orderModel'); 
 const comicModel = require('../models/comicModel');
+const { generateTransactionCode } = require('../utils/transactionGenerator');
 
 const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },
@@ -44,27 +45,29 @@ const createPaymentUrl = async (req, res) => {
         
         let finalAmount = 0;
         let orderInfo = '';
+        let orderId = '';
 
         if (paymentType === 'RECHARGE') {
             const pack = rechargePacks.find(p => p.id === packId);
             if (!pack) return res.status(400).json({ message: 'Gói nạp không hợp lệ' });
             
             finalAmount = pack.price;
-            orderInfo = `Nap xu goi ${packId} cho user ${userId}`; 
+            orderInfo = `Nap xu goi ${packId} cho user ${userId}`;
+            orderId = generateTransactionCode('RC', userId);
 
         } else if (paymentType === 'PURCHASE') {
             if (!amount || amount <= 0) return res.status(400).json({ message: 'Số tiền không hợp lệ' });
             
             finalAmount = amount;          
-            const ref = orderReference || moment().format('HHmmss'); 
-            orderInfo = `Thanh toan don hang ${ref} user ${userId}`;
+            const refId = orderReference || userId; 
+            orderId = generateTransactionCode('SV', refId);
+            orderInfo = `Thanh toan don hang ${refId} user ${userId}`;
         } else {
             return res.status(400).json({ message: 'Loại thanh toán không hợp lệ' });
         }
 
         const date = new Date();
         const createDate = moment(date).format('YYYYMMDDHHmmss');
-        const orderId = moment(date).format('DDHHmmss'); 
         
         const ipAddr = req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
@@ -123,8 +126,17 @@ const vnpayReturn = async (req, res) => {
 
                 const vnpTxnRef = vnp_Params['vnp_TxnRef']; 
                 const vnpAmount = parseInt(vnp_Params['vnp_Amount']) / 100;
+
+                const existingTransaction = await paymentModel.getTransactionByCode(vnpTxnRef);
+                if (existingTransaction) {
+                    console.log(`Giao dịch ${vnpTxnRef} đã được xử lý trước đó.`);
+                    return res.json({ 
+                        status: 'success', 
+                        message: 'Giao dịch đã được xử lý thành công',
+                        data: { amount: vnpAmount } 
+                    });
+                }
               
-                // Xử lý nạp xu
                 const rechargeMatch = orderInfo.match(/Nap xu goi\s*(\d+)\s*cho user\s*(\d+)/);
                 if (rechargeMatch) {
                     const packId = parseInt(rechargeMatch[1]);
@@ -141,8 +153,9 @@ const vnpayReturn = async (req, res) => {
                         });
 
                         await paymentModel.createTransactionRaw(
-                            userId, vnpTxnRef, vnpAmount, 'SUCCESS', 'RECHARGE',
-                            `Nạp gói ${packId}: ${totalCoinsToAdd} Xu`
+                            userId, packId, vnpAmount, 'SUCCESS', 'RECHARGE',
+                            `Nạp gói ${packId}: ${totalCoinsToAdd} Xu`,
+                            vnpTxnRef
                         );
                         
                         return res.json({ 
@@ -165,8 +178,9 @@ const vnpayReturn = async (req, res) => {
                     const userId = parseInt(purchaseMatch[2]);
 
                     await paymentModel.createTransactionRaw(
-                        userId, vnpTxnRef, vnpAmount, 'SUCCESS', 'PURCHASE',
-                        `Thanh toán đơn hàng #${orderRef}`
+                        userId, orderRef, vnpAmount, 'SUCCESS', 'PURCHASE',
+                        `Thanh toán đơn hàng #${orderRef}`,
+                        vnpTxnRef
                     );
 
                     await orderModel.updateOrderStatusRaw(orderRef, 'PAID');
@@ -179,7 +193,6 @@ const vnpayReturn = async (req, res) => {
                     } catch (err) {
                         console.error('Error incrementing sold count:', err);
                     }
-
 
                     return res.json({ 
                         status: 'success', 

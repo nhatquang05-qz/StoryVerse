@@ -1,10 +1,12 @@
 const { getConnection } = require('../db/connection');
 
-const createTransactionRaw = async (userId, orderId, amount, status, type, description) => {
+const createTransactionRaw = async (userId, orderId, amount, status, type, description, transactionCode) => {
     const connection = getConnection();
+    
+    // Cập nhật câu lệnh SQL thêm cột transactionCode
     const [result] = await connection.execute(
-        'INSERT INTO payment_transactions (userId, orderId, amount, status, type, description) VALUES (?, ?, ?, ?, ?, ?)',
-        [userId, orderId, amount, status, type, description]
+        'INSERT INTO payment_transactions (userId, orderId, amount, status, type, description, transactionCode) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [userId, orderId, amount, status, type, description, transactionCode]
     );
     return result.insertId;
 };
@@ -16,7 +18,8 @@ const getTransactionHistoryRaw = async (userId) => {
         SELECT 
             t.id, 
             t.userId, 
-            t.orderId, 
+            t.orderId,
+            t.transactionCode, 
             t.amount, 
             t.status, 
             t.type, 
@@ -55,10 +58,20 @@ const getTransactionHistoryRaw = async (userId) => {
     }
 };
 
+const getTransactionByCode = async (transactionCode) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+        'SELECT * FROM payment_transactions WHERE transactionCode = ?',
+        [transactionCode]
+    );
+    return rows[0]; 
+};
+
 const createPayment = createTransactionRaw;
 
 module.exports = { 
     createTransactionRaw, 
     getTransactionHistoryRaw,
-    createPayment 
+    createPayment,
+    getTransactionByCode
 };
