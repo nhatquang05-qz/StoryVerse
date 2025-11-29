@@ -459,7 +459,7 @@ const UserManagement: React.FC = () => {
                     <tbody>
                         {filteredUsers.map(user => (
                             <tr key={user.id} className={user.isBanned ? 'banned-row' : ''}>
-                                <td title={user.id}>{user.id.substring(0, 8)}...</td>
+                                <td title={user.id}>{user.id.substring(0, 8)}</td>
                                 <td 
                                     onClick={() => handleViewDetailClick(user.id)} 
                                     style={{cursor: 'pointer', color: '#3b82f6', fontWeight: 'bold'}}

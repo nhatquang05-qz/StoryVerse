@@ -283,3 +283,45 @@
     position: static;
   }
 }
+
+.summary-pricing {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+.discount-row {
+    color: #e74c3c; 
+    font-weight: 500;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px dashed #eee;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #ffffff;
+}
+
+.total-row .pricing-value {
+    color: #d35400;
+    font-size: 1.4rem; 
+}
+
+.checkout-btn {
+    margin-top: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}

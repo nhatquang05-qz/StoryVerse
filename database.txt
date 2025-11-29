@@ -225,7 +225,7 @@ CREATE TABLE `users` (
    `acc_created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (`id`),
    UNIQUE KEY `email` (`email`)
- ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+ ) ENGINE=InnoDB AUTO_INCREMENT=10000006 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- Tạo bảng gói nạp
 CREATE TABLE `recharge_packs` (
@@ -258,3 +258,6 @@ CREATE TABLE `vouchers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE comics ADD COLUMN soldCount INT DEFAULT 0;
+ALTER TABLE `payment_transactions` 
+ADD COLUMN `transactionCode` VARCHAR(50) DEFAULT NULL AFTER `orderId`,
+ADD UNIQUE KEY `idx_transaction_code` (`transactionCode`);

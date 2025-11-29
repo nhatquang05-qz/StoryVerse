@@ -205,6 +205,15 @@ const vnpayReturn = async (req, res) => {
                 res.status(400).json({ status: 'error', message: 'Không nhận diện được loại giao dịch: ' + orderInfo });
 
             } catch (error) {
+                if (error.code === 'ER_DUP_ENTRY') {
+                    console.log(`Giao dịch ${vnp_Params['vnp_TxnRef']} đã được xử lý (Duplicate detected in catch).`);
+                    return res.json({ 
+                        status: 'success', 
+                        message: 'Giao dịch đã được xử lý thành công',
+                        data: { amount: parseInt(vnp_Params['vnp_Amount']) / 100 } 
+                    });
+                }
+
                 console.error('DB Update Error:', error);
                 res.status(500).json({ status: 'error', message: 'Lỗi cập nhật dữ liệu: ' + error.message });
             }

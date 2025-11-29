@@ -45,7 +45,8 @@ const CartPage: React.FC = () => {
           showNotification(result.message, 'success');
           setCouponCode('');
       } else {
-          setVoucherError('Voucher không tồn tại hoặc đã hết hạn sử dụng.');
+
+          setVoucherError(result.message);
       }
   };
 
@@ -123,7 +124,7 @@ const CartPage: React.FC = () => {
             <span>Miễn phí</span>
           </div>
 
-          {/* Phần nhập Voucher */}
+          {/* Voucher Section */}
           <div className="voucher-section">
             {appliedVoucher ? (
                 <div className="applied-voucher-info">
@@ -158,7 +159,7 @@ const CartPage: React.FC = () => {
                         </button>
                     </form>
                     {voucherError && (
-                        <p className="voucher-error-msg">
+                        <p className="voucher-error-msg" style={{ color: '#e74c3c', marginTop: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <FiAlertCircle /> {voucherError}
                         </p>
                     )}

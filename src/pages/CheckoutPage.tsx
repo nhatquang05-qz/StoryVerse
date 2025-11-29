@@ -8,13 +8,16 @@ import '../assets/styles/CheckoutPage.css';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const CheckoutPage: React.FC = () => {
-    const { cartItems, totalPrice, clearCart } = useCart();
+    const { cartItems, totalPrice, total, clearCart, appliedVoucher, discount } = useCart();
+    
     const { currentUser, token } = useAuth();
     const { showNotification } = useNotification();
     const navigate = useNavigate();
 
     const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY'>('COD');
     const [isProcessing, setIsProcessing] = useState(false);
+
+    const finalAmount = total > 0 ? total : totalPrice;
 
     const [shippingInfo, setShippingInfo] = useState({
         fullName: currentUser?.fullName || '',
@@ -53,9 +56,10 @@ const CheckoutPage: React.FC = () => {
                     fullName: shippingInfo.fullName,
                     phone: shippingInfo.phone,
                     address: shippingInfo.address,
-                    totalAmount: totalPrice,
+                    totalAmount: finalAmount,
                     paymentMethod: paymentMethod,
-                    items: cartItems
+                    items: cartItems,
+                    voucherCode: appliedVoucher ? appliedVoucher.code : null 
                 })
             });
 
@@ -69,7 +73,7 @@ const CheckoutPage: React.FC = () => {
 
             if (paymentMethod === 'COD') { 
                 clearCart(); 
-                showNotification('Đặt hàng thành công! (COD)', 'success');
+                showNotification('Đặt hàng thành công!', 'success');
                 navigate(`/order-success/${realOrderId}`);
 
             } else if (paymentMethod === 'VNPAY') {  
@@ -81,7 +85,7 @@ const CheckoutPage: React.FC = () => {
                     },
                     body: JSON.stringify({
                         paymentType: 'PURCHASE', 
-                        amount: totalPrice,      
+                        amount: finalAmount,
                         orderReference: realOrderId 
                     })
                 });
@@ -212,11 +216,23 @@ const CheckoutPage: React.FC = () => {
                             ))}
                         </div>
 
-                        <hr className="summary-divider" />
-                        
-                        <div className="total-row">
-                            <span>Tổng cộng:</span>
-                            <span className="total-price">{totalPrice.toLocaleString()}đ</span>
+                        <div className="summary-pricing">
+                            <div className="pricing-row">
+                                <span>Tạm tính</span>
+                                <span>{totalPrice.toLocaleString()}đ</span>
+                            </div>
+                            
+                            {appliedVoucher && (
+                                <div className="pricing-row discount-row">
+                                    <span>Voucher ({appliedVoucher.code})</span>
+                                    <span>- {discount.toLocaleString()}đ</span>
+                                </div>
+                            )}
+                            
+                            <div className="total-row">
+                                <span>Tổng cộng</span>
+                                <span className="pricing-value">{finalAmount.toLocaleString()}đ</span>
+                            </div>
                         </div>
 
                         <button 
@@ -224,7 +240,7 @@ const CheckoutPage: React.FC = () => {
                             onClick={handlePlaceOrder}
                             disabled={isProcessing}
                         >
-                            {isProcessing ? 'Đang xử lý...' : (paymentMethod === 'COD' ? 'Đặt Hàng Ngay' : 'Thanh Toán VNPAY')}
+                            {isProcessing ? 'Đang xử lý...' : (paymentMethod === 'VNPAY' ? 'Thanh Toán VNPAY' : 'Đặt Hàng')}
                         </button>
                     </div>
                 </div>
