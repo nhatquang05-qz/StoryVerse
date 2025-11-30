@@ -201,6 +201,7 @@ const Header: React.FC = () => {
             </div>
           </div>
           
+          <Link to="/community">Cộng đồng</Link>
           <Link to="/about-us">Giới thiệu</Link>
         </nav>
 
@@ -224,7 +225,7 @@ const Header: React.FC = () => {
                   {isLoadingSearch && <div className="suggestion-item">Đang tìm...</div>}
                 
                 {!isLoadingSearch && searchTerm.trim().length > 1 && safeSuggestions.length === 0 && (
-                     <div className="suggestion-item">Không tìm thấy kết quả nào.</div>
+                      <div className="suggestion-item">Không tìm thấy kết quả nào.</div>
                 )}
 
                 {digitalSuggestions.length > 0 && (
@@ -369,6 +370,9 @@ const Header: React.FC = () => {
 
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
+          
+          {/* --- Đã thêm link Cộng đồng Mobile ở đây --- */}
+          <Link to="/community" onClick={toggleMenu}>Cộng đồng</Link>
           <Link to="/about-us" onClick={toggleMenu}>Giới thiệu</Link>
           
           <div className="nav-mobile-separator"></div>
