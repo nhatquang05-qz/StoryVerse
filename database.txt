@@ -261,3 +261,74 @@ ALTER TABLE comics ADD COLUMN soldCount INT DEFAULT 0;
 ALTER TABLE `payment_transactions` 
 ADD COLUMN `transactionCode` VARCHAR(50) DEFAULT NULL AFTER `orderId`,
 ADD UNIQUE KEY `idx_transaction_code` (`transactionCode`);
+
+-- Tạo bảng bài viết
+CREATE TABLE IF NOT EXISTS `posts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `imageUrl` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tạo bảng Like
+CREATE TABLE IF NOT EXISTS `post_likes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `postId` int NOT NULL,
+  `userId` int NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_like` (`postId`, `userId`),
+  FOREIGN KEY (`postId`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tạo bảng Bình luận
+CREATE TABLE IF NOT EXISTS `comments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `postId` int NOT NULL,
+  `userId` int NOT NULL,
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `imageUrl` varchar(255) DEFAULT NULL,
+  `stickerUrl` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`postId`) REFERENCES `posts` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 1. Thêm cột parentId vào bảng comments để biết bình luận này trả lời ai
+ALTER TABLE `comments` 
+ADD COLUMN `parentId` int DEFAULT NULL AFTER `userId`,
+ADD CONSTRAINT `fk_comment_parent` FOREIGN KEY (`parentId`) REFERENCES `comments` (`id`) ON DELETE CASCADE;
+
+-- 2. Tạo bảng Like cho Comment
+CREATE TABLE IF NOT EXISTS `comment_likes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `commentId` int NOT NULL,
+  `userId` int NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_comment_like` (`commentId`, `userId`),
+  FOREIGN KEY (`commentId`) REFERENCES `comments` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `reports` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `reporterId` int NOT NULL,
+  `targetId` int NOT NULL, -- ID của bài viết hoặc bình luận bị báo cáo
+  `targetType` enum('POST', 'COMMENT') NOT NULL, -- Phân biệt báo cáo bài hay báo cáo cmt
+  `reason` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `status` enum('PENDING', 'RESOLVED', 'REJECTED') DEFAULT 'PENDING',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`reporterId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `reports`
+ADD COLUMN `snapshotContent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci AFTER `reason`,
+ADD COLUMN `snapshotImage` varchar(255) DEFAULT NULL AFTER `snapshotContent`;

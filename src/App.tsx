@@ -12,6 +12,7 @@ import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
 import './assets/styles/App.css';
 
+const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
 const ComicDetailPage = lazy(() => import('./pages/ComicDetailPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
@@ -128,6 +129,7 @@ function App() {
             <Route path="/new-releases" element={<CategoryPage />} />
             <Route path="/genres/:categorySlug" element={<CategoryPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/community" element={<CommunityPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
