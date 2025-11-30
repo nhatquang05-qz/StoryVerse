@@ -184,10 +184,9 @@
 }
 
 .card-view-count {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     color: var(--clr-text-secondary);
     padding: 2px 4px;
-    border: 1px solid var(--clr-text-secondary);
     border-radius: 4px;
     font-weight: 500;
     white-space: nowrap;

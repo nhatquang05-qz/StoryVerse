@@ -7,6 +7,7 @@ import { FiUpload, FiLoader } from 'react-icons/fi';
 import '../assets/styles/ProfilePage.css';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import TransactionHistory from '../components/common/TransactionHistory'; 
+import AddressManagementPage from './AddressManagementPage';
 
 interface LevelSelectorProps {
     currentUserLevel: number;
@@ -26,11 +27,10 @@ const ProfilePage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('info'); 
 
-  // Tự động chuyển tab dựa vào URL (?tab=history)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
-    if (tabParam && ['info', 'history'].includes(tabParam)) {
+    if (tabParam && ['info', 'history', 'addresses'].includes(tabParam)) {
         setActiveTab(tabParam);
     } else {
         setActiveTab('info');
@@ -235,7 +235,7 @@ const ProfilePage: React.FC = () => {
                             <label>SĐT</label>
                             <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required />
                         </div>
-                        {/* Đã thêm marginTop để nút không bị dính vào input */}
+                        
                         <div className="profile-actions" style={{ marginTop: '2rem' }}>
                             <button type="submit" className="save-btn" disabled={isSaving || !isProfileChanged}>
                                 {isSaving ? 'Đang lưu...' : 'Lưu Thông Tin'}
@@ -249,14 +249,7 @@ const ProfilePage: React.FC = () => {
             </>
         )}
 
-        {activeTab === 'address' && (
-             <div className="profile-info-card">
-                 <h3>Quản Lý Địa Chỉ</h3>
-                 <p style={{color: '#666', textAlign: 'center', padding: '20px'}}>
-                     Đang chuyển hướng...
-                 </p>
-             </div>
-        )}
+        {activeTab === 'addresses' && <AddressManagementPage />}
 
         {activeTab === 'history' && <TransactionHistory />}
 

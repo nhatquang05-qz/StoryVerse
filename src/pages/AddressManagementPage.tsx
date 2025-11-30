@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import ProfileSidebar from '../components/common/ProfileSideBar';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import '../assets/styles/ProfilePage.css';
+import '../assets/styles/AddressManagementPage.css';
 import { FiMapPin, FiTrash2, FiSave, FiEdit } from 'react-icons/fi';
 import type { Address } from '../types/userTypes';
 
@@ -145,9 +145,9 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
     };
 
     return (
-        <div className="profile-info-card" style={{ marginBottom: '2rem' }}>
+        <div className="profile-info-card address-form-wrapper">
             <h3>{initialData ? 'Cập Nhật Địa Chỉ' : 'Thêm Địa Chỉ Mới'}</h3>
-            <form onSubmit={handleSubmit} className="auth-form" style={{ gap: '1rem' }}>
+            <form onSubmit={handleSubmit} className="auth-form address-form-content">
                 <div className="form-group">
                     <label htmlFor="city">Tỉnh/Thành phố</label>
                     <select 
@@ -159,8 +159,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
                             setSelectedWardCode('');
                         }} 
                         required
-                        className="form-control"
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                        className="form-control address-select"
                     >
                         <option value="">-- Chọn Tỉnh/Thành phố --</option>
                         {provinces.map(p => (
@@ -177,7 +176,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
                         onChange={(e) => setSelectedDistrictCode(Number(e.target.value))} 
                         required
                         disabled={!selectedProvinceCode}
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                        className="address-select"
                     >
                         <option value="">-- Chọn Quận/Huyện --</option>
                         {districts.map(d => (
@@ -194,7 +193,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
                         onChange={(e) => setSelectedWardCode(Number(e.target.value))} 
                         required
                         disabled={!selectedDistrictCode}
-                        style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+                        className="address-select"
                     >
                         <option value="">-- Chọn Phường/Xã --</option>
                         {wards.map(w => (
@@ -215,9 +214,9 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
                     />
                 </div>
                 
-                <div className="profile-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <div className="profile-actions address-form-actions">
                     <button type="submit" className="save-btn" disabled={isSaving}>
-                        <FiSave style={{ marginRight: '0.5rem' }} /> {isSaving ? 'Đang lưu...' : 'Lưu Địa Chỉ'}
+                        <FiSave className="icon-spacing" /> {isSaving ? 'Đang lưu...' : 'Lưu Địa Chỉ'}
                     </button>
                     <button type="button" className="cancel-btn" onClick={onCancel} disabled={isSaving}>Hủy</button>
                 </div>
@@ -227,7 +226,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
 };
 
 const AddressManagementPage: React.FC = () => {
-    const { currentUser, updateAddresses, logout } = useAuth();
+    const { currentUser, updateAddresses } = useAuth();
     const { showNotification } = useNotification();
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -328,69 +327,57 @@ const AddressManagementPage: React.FC = () => {
     }
 
     return (
-        <div className="profile-page-container">
-            <ProfileSidebar onLogout={logout} />
-            <div className="profile-content">
-                <h1><FiMapPin style={{ marginRight: '0.5rem' }} /> Quản Lý Địa Chỉ Giao Hàng</h1>
-                
-                {isFormOpen && (
-                    <AddressForm 
-                        initialData={editingAddress} 
-                        onSave={handleSaveAddress} 
-                        onCancel={handleCancelForm} 
-                        isSaving={isSaving} 
-                    />
-                )}
-                
-                {!isFormOpen && (
-                    <button className="detail-order-btn" onClick={handleAddNewClick} style={{ marginBottom: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <FiMapPin /> Thêm Địa Chỉ Mới
-                    </button>
-                )}
+        <div className="address-management-container">
+            <h1><FiMapPin className="icon-spacing" /> Quản Lý Địa Chỉ Giao Hàng</h1>
+            
+            {isFormOpen && (
+                <AddressForm 
+                    initialData={editingAddress} 
+                    onSave={handleSaveAddress} 
+                    onCancel={handleCancelForm} 
+                    isSaving={isSaving} 
+                />
+            )}
+            
+            {!isFormOpen && (
+                <button className="detail-order-btn add-address-btn" onClick={handleAddNewClick}>
+                    <FiMapPin /> Thêm Địa Chỉ Mới
+                </button>
+            )}
 
-                {addresses.map(addr => (
-                    <div key={addr.id} className={`profile-info-card ${addr.isDefault ? 'default-address-card' : ''}`} style={{ marginBottom: '1.5rem', border: addr.isDefault ? '2px solid var(--primary-color)' : '1px solid var(--border-color-light)' }}>
-                        <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            {addr.isDefault && <span className="status-badge status-completed" style={{ background: 'var(--primary-color)', color: 'var(--clr-text)' }}>Mặc Định</span>}
-                            {!addr.isDefault && <span>Địa Chỉ Khác</span>}
-                            
-                            <button 
-                                onClick={() => handleEditClick(addr)}
-                                style={{ 
-                                    background: 'none', 
-                                    border: 'none', 
-                                    cursor: 'pointer', 
-                                    color: 'var(--text-color)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.3rem',
-                                    fontSize: '0.9rem'
-                                }}
-                            >
-                                <FiEdit /> Sửa
+            {addresses.map(addr => (
+                <div key={addr.id} className={`profile-info-card address-card ${addr.isDefault ? 'default' : ''}`}>
+                    <h3 className="address-card-header">
+                        {addr.isDefault && <span className="status-badge status-completed default-badge">Mặc Định</span>}
+                        {!addr.isDefault && <span>Địa Chỉ Khác</span>}
+                        
+                        <button 
+                            onClick={() => handleEditClick(addr)}
+                            className="edit-address-btn"
+                        >
+                            <FiEdit /> Sửa
+                        </button>
+                    </h3>
+                    <p className="recipient-info">
+                        <strong>Người nhận:</strong> {currentUser.fullName} - {currentUser.phone}
+                    </p>
+                    <p>
+                        <strong>Địa chỉ:</strong> {addr.specificAddress}, {addr.ward}, {addr.district}, {addr.city}
+                    </p>
+                    <div className="address-card-footer">
+                        {!addr.isDefault && (
+                            <button className="detail-order-btn set-default-btn" onClick={() => handleSetDefault(addr.id)}>
+                                Đặt làm Mặc định
                             </button>
-                        </h3>
-                        <p style={{ marginTop: '0.5rem' }}>
-                            <strong>Người nhận:</strong> {currentUser.fullName} - {currentUser.phone}
-                        </p>
-                        <p>
-                            <strong>Địa chỉ:</strong> {addr.specificAddress}, {addr.ward}, {addr.district}, {addr.city}
-                        </p>
-                        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-                            {!addr.isDefault && (
-                                <button className="detail-order-btn" onClick={() => handleSetDefault(addr.id)} style={{ padding: '0.5rem 1rem' }}>
-                                    Đặt làm Mặc định
-                                </button>
-                            )}
-                            <button className="cancel-btn" onClick={() => handleRemoveAddress(addr.id)} disabled={addresses.length === 1} style={{ background: '#e63946', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '5px' }}>
-                                <FiTrash2 style={{ marginRight: '0.5rem' }} /> Xóa
-                            </button>
-                        </div>
+                        )}
+                        <button className="cancel-btn delete-address-btn" onClick={() => handleRemoveAddress(addr.id)} disabled={addresses.length === 1}>
+                            <FiTrash2 className="icon-spacing" /> Xóa
+                        </button>
                     </div>
-                ))}
-                
-                {addresses.length === 0 && !isFormOpen && <div className="empty-state">Bạn chưa có địa chỉ nào được lưu.</div>}
-            </div>
+                </div>
+            ))}
+            
+            {addresses.length === 0 && !isFormOpen && <div className="empty-state">Bạn chưa có địa chỉ nào được lưu.</div>}
         </div>
     );
 };
