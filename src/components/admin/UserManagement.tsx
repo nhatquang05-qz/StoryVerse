@@ -5,21 +5,23 @@ import {
     FiEye, FiClock, FiDollarSign, FiBook, FiX, FiShoppingCart, FiXCircle
 } from 'react-icons/fi';
 import UserEditModal, { type AdminManagedUser } from './UserEditModal';
-import '../../assets/styles/UserDetailModal.css';
+import '../../assets/styles/UserDetailModal.css'; 
+import '../../assets/styles/UserManagement.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-const getStatusBadge = (status: string) => {
+const StatusBadge = ({ status }: { status: string }) => {
     const statusLower = status?.toLowerCase() || '';
     if (['success', 'completed', 'thành công'].includes(statusLower)) {
-        return <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#10b981', fontWeight: 500 }}><FiCheckCircle /> <span>Thành công</span></div>;
+        return <div className="badge-wrapper badge-success"><FiCheckCircle /> <span>Thành công</span></div>;
     }
     if (['failed', 'cancelled', 'thất bại'].includes(statusLower)) {
-        return <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ef4444', fontWeight: 500 }}><FiXCircle /> <span>Thất bại</span></div>;
+        return <div className="badge-wrapper badge-failed"><FiXCircle /> <span>Thất bại</span></div>;
     }
-    return <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', fontWeight: 500 }}><FiClock /> <span>Đang xử lý</span></div>;
+    return <div className="badge-wrapper badge-pending"><FiClock /> <span>Đang xử lý</span></div>;
 };
 
+// --- UserDetailModal Component ---
 interface UserDetailModalProps {
     userId: string;
     onClose: () => void;
@@ -197,7 +199,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
                                                 </td>
                                                 <td>{tx.description || 'Nạp xu'}</td>
                                                 <td className="font-bold text-green">+{Number(tx.amount).toLocaleString('vi-VN')} đ</td>
-                                                <td>{getStatusBadge(tx.status)}</td>
+                                                <td><StatusBadge status={tx.status} /></td>
                                                 <td className="text-right text-gray">{new Date(tx.createdAt).toLocaleString('vi-VN')}</td>
                                             </tr>
                                         ))}
@@ -227,7 +229,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
                                                 </td>
                                                 <td style={{fontWeight: 500}}>{tx.purchasedItem || tx.description || 'Đơn hàng'}</td>
                                                 <td className="font-bold text-orange">-{Number(tx.amount).toLocaleString('vi-VN')} đ</td>
-                                                <td>{getStatusBadge(tx.status)}</td>
+                                                <td><StatusBadge status={tx.status} /></td>
                                                 <td className="text-right text-gray">{new Date(tx.createdAt).toLocaleString('vi-VN')}</td>
                                             </tr>
                                         ))}
@@ -253,7 +255,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
                                         {details.library?.map((lib: any, idx: number) => (
                                             <tr key={idx}>
                                                 <td style={{fontWeight: 500}}>{lib.comicTitle}</td>
-                                                <td><span className="status-tag">Chap {lib.chapterNumber}</span></td>
+                                                <td><span className="status-tag active">Chap {lib.chapterNumber}</span></td>
                                                 <td>{lib.title}</td>
                                                 <td className="font-bold text-orange">{lib.price} xu</td>
                                                 <td className="text-right text-gray">{new Date(lib.unlockedAt).toLocaleDateString('vi-VN')}</td>
@@ -271,6 +273,7 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, onClose, toke
     );
 };
 
+// --- Main UserManagement Component ---
 const UserManagement: React.FC = () => {
     const { showNotification } = useNotification();
     const token = localStorage.getItem('storyverse_token');
@@ -462,7 +465,7 @@ const UserManagement: React.FC = () => {
                                 <td title={user.id}>{user.id.substring(0, 8)}</td>
                                 <td 
                                     onClick={() => handleViewDetailClick(user.id)} 
-                                    style={{cursor: 'pointer', color: '#3b82f6', fontWeight: 'bold'}}
+                                    className="user-link"
                                     title="Xem chi tiết"
                                 >
                                     {user.fullName}
