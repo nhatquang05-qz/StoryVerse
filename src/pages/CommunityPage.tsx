@@ -4,8 +4,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import StickerPicker from '../components/common/Chat/StickerPicker';
 import { 
     FaThumbsUp, FaRegThumbsUp, FaCommentAlt, FaShare, FaTrash, 
-    FaEllipsisH, FaCamera, FaSmile, FaPaperPlane, FaExclamationTriangle,
-    FaTimes
+    FaEllipsisH, FaCamera, FaSmile, FaPaperPlane, FaExclamationTriangle, FaTimes
 } from 'react-icons/fa';
 import closeBtnIcon from '../assets/images/close-btn.png'; 
 import '../assets/styles/CommunityPage.css';
@@ -76,7 +75,10 @@ const CommunityPage: React.FC = () => {
                 setActiveMenuId(null);
             }
             if (stickerRef.current && !stickerRef.current.contains(event.target as Node)) {
-                // Logic đóng sticker picker khi click ra ngoài (tuỳ chọn)
+                const target = event.target as Element;
+                if (!target.closest('.sticker-toggle-btn')) {
+                    setShowStickerPicker(null);
+                }
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -127,7 +129,6 @@ const CommunityPage: React.FC = () => {
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'post' | 'comment') => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         e.target.value = '';
 
         if (type === 'post') {
@@ -181,7 +182,6 @@ const CommunityPage: React.FC = () => {
             showNotification('Vui lòng đăng nhập để tương tác', 'warning');
             return;
         }
-
         const updatedPosts = posts.map(p => {
             if (p.id === post.id) {
                 return {
@@ -193,15 +193,12 @@ const CommunityPage: React.FC = () => {
             return p;
         });
         setPosts(updatedPosts);
-
         try {
             await fetch(`${API_URL}/posts/${post.id}/like`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-        } catch (error) {
-            console.error(error);
-        }
+        } catch (error) { console.error(error); }
     };
 
     const handleDeletePost = async (id: number) => {
@@ -290,8 +287,7 @@ const CommunityPage: React.FC = () => {
 
     const renderMenu = (id: number, type: 'post' | 'comment', ownerId: number) => {
         if (activeMenuId?.id !== id || activeMenuId?.type !== type) return null;
-        
-        const isOwner = currentUser?.id === String(ownerId);
+        const isOwner = Number(currentUser?.id) === ownerId;
         
         return (
             <div className="post-options-menu">
@@ -417,11 +413,7 @@ const CommunityPage: React.FC = () => {
         setShowStickerPicker(null);
     };
 
-    const CommentItem: React.FC<{ 
-        comment: Comment, 
-        post: Post, 
-        isReply?: boolean 
-    }> = ({ comment, post, isReply }) => {
+    const CommentItem: React.FC<{ comment: Comment, post: Post, isReply?: boolean }> = ({ comment, post, isReply }) => {
         return (
             <div className={`comment-item ${isReply ? 'reply-item' : ''}`}>
                 <img src={comment.avatar || defaultAvatar} className="comment-avatar" alt="u" />
@@ -433,7 +425,6 @@ const CommunityPage: React.FC = () => {
                             {comment.imageUrl && <img src={comment.imageUrl} className="comment-image-preview" alt="img" />}
                             {comment.stickerUrl && <img src={comment.stickerUrl} className="sticker-img" alt="sticker" />}
                         </div>
-                        
                         <div className="comment-menu-trigger" style={{position:'relative'}}>
                             <button className="btn-options small" onClick={() => setActiveMenuId(activeMenuId?.id === comment.id ? null : {id: comment.id, type: 'comment'})}>
                                 <FaEllipsisH />
@@ -441,18 +432,12 @@ const CommunityPage: React.FC = () => {
                             {renderMenu(comment.id, 'comment', comment.userId)}
                         </div>
                     </div>
-
                     <div className="comment-actions-text">
-                        <span 
-                            className={`action-text ${comment.isLiked ? 'liked-text' : ''}`} 
-                            onClick={() => handleCommentLike(post.id, comment.id)}
-                        >
+                        <span className={`action-text ${comment.isLiked ? 'liked-text' : ''}`} onClick={() => handleCommentLike(post.id, comment.id)}>
                             {comment.isLiked ? 'Đã thích' : 'Thích'}
                             {comment.likeCount > 0 && <span className="like-count-badge"> ({comment.likeCount})</span>}
                         </span>
-                        <span className="action-text" onClick={() => {
-                            setReplyingToCommentId(comment.id);
-                        }}>Phản hồi</span>
+                        <span className="action-text" onClick={() => setReplyingToCommentId(comment.id)}>Phản hồi</span>
                         <span className="time-text">{new Date(comment.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
                 </div>
@@ -462,25 +447,17 @@ const CommunityPage: React.FC = () => {
 
     const renderComments = (post: Post) => {
         if (!post.comments) return null;
-        
         const rootComments = post.comments.filter(c => !c.parentId);
         const getReplies = (parentId: number) => post.comments?.filter(c => c.parentId === parentId) || [];
 
         return rootComments.map(comment => (
             <div key={comment.id} className="comment-thread">
                 <CommentItem comment={comment} post={post} />
-                
                 <div className="comment-replies">
                     {getReplies(comment.id).map(reply => (
-                        <CommentItem 
-                            key={reply.id} 
-                            comment={reply} 
-                            post={post}
-                            isReply={true}
-                        />
+                        <CommentItem key={reply.id} comment={reply} post={post} isReply={true} />
                     ))}
                 </div>
-
                 {replyingToCommentId === comment.id && (
                      <div className="reply-input-indicator">
                         <span>Đang trả lời <b>{comment.userName}</b></span>
@@ -495,22 +472,14 @@ const CommunityPage: React.FC = () => {
 
     return (
         <div className="community-container">
-            {/* Create Post */}
             {currentUser && (
                 <div className="create-post-card">
                      <div className="create-post-top">
                         <img src={currentUser.avatarUrl || defaultAvatar} className="current-user-avatar" alt="me" />
-                        <input 
-                            className="post-input-trigger" 
-                            placeholder={`Bạn đang nghĩ gì, ${currentUser.fullName}?`} 
-                            value={newPostContent} 
-                            onChange={e => setNewPostContent(e.target.value)}
-                        />
+                        <input className="post-input-trigger" placeholder={`Bạn đang nghĩ gì, ${currentUser.fullName}?`} value={newPostContent} onChange={e => setNewPostContent(e.target.value)}/>
                     </div>
-                    
-                    {isUploadingPostImg ? (
-                        <div className="uploading-preview">⏳ Đang tải ảnh lên...</div>
-                    ) : newPostImage && (
+                    {isUploadingPostImg ? <div className="uploading-preview">⏳ Đang tải ảnh lên...</div> 
+                    : newPostImage && (
                         <div className="image-upload-preview-container">
                             <img src={newPostImage} alt="Preview" className="preview-img-upload" />
                             <button className="btn-remove-img" onClick={() => setNewPostImage(null)}>
@@ -518,34 +487,21 @@ const CommunityPage: React.FC = () => {
                             </button>
                         </div>
                     )}
-
                     <div className="create-post-actions">
                         <label className={`action-btn ${isUploadingPostImg ? 'disabled' : ''}`}>
                             <FaCamera className="icon photo-icon"/> Ảnh/Video
-                            <input 
-                                type="file" 
-                                hidden 
-                                accept="image/*" 
-                                onChange={e => handleFileUpload(e, 'post')} 
-                                disabled={isUploadingPostImg}
-                            />
+                            <input type="file" hidden accept="image/*" onChange={e => handleFileUpload(e, 'post')} disabled={isUploadingPostImg}/>
                         </label>
                         <div className="action-btn" onClick={() => showNotification('Tính năng sticker cho bài đăng sắp ra mắt!', 'info')}>
                             <FaSmile className="icon sticker-icon" /> Cảm xúc
                         </div>
-
-                        <button 
-                            className="btn-submit-post" 
-                            onClick={handleCreatePost} 
-                            disabled={(!newPostContent.trim() && !newPostImage) || isUploadingPostImg}
-                        >
+                        <button className="btn-submit-post" onClick={handleCreatePost} disabled={(!newPostContent.trim() && !newPostImage) || isUploadingPostImg}>
                             Đăng
                         </button>
                     </div>
                 </div>
             )}
 
-            {/* Post List */}
             {posts.map(post => (
                 <div key={post.id} className="post-item">
                     <div className="post-header">
@@ -554,7 +510,6 @@ const CommunityPage: React.FC = () => {
                             <h4>{post.userName}</h4>
                             <p className="post-time">{new Date(post.createdAt).toLocaleString('vi-VN')}</p>
                         </div>
-                        
                         <div className="post-options-wrapper" ref={activeMenuId?.id === post.id && activeMenuId.type === 'post' ? menuRef : null}>
                              <button className="btn-options" onClick={() => setActiveMenuId(activeMenuId?.id === post.id ? null : {id: post.id, type: 'post'})}>
                                 <FaEllipsisH />
@@ -562,20 +517,9 @@ const CommunityPage: React.FC = () => {
                             {renderMenu(post.id, 'post', post.userId)}
                         </div>
                     </div>
-                    
                     <div className="post-content">{post.content}</div>
-                    
-                    {post.imageUrl && (
-                        <div className="post-image-wrapper">
-                             <img src={post.imageUrl} className="post-image" alt="content"/>
-                        </div>
-                    )}
-                    
-                    <div className="post-stats">
-                        <span>{post.likeCount} lượt thích</span>
-                        <span>{post.commentCount} bình luận</span>
-                    </div>
-
+                    {post.imageUrl && <div className="post-image-wrapper"><img src={post.imageUrl} className="post-image" alt="content"/></div>}
+                    <div className="post-stats"><span>{post.likeCount} lượt thích</span><span>{post.commentCount} bình luận</span></div>
                     <div className="post-actions-bar">
                         <button className={`post-action-btn ${post.isLiked ? 'liked' : ''}`} onClick={() => handlePostLike(post)}>
                             {post.isLiked ? <FaThumbsUp /> : <FaRegThumbsUp />} <span>Thích</span>
@@ -583,85 +527,39 @@ const CommunityPage: React.FC = () => {
                         <button className="post-action-btn" onClick={() => toggleComments(post.id)}>
                             <FaCommentAlt /> <span>Bình luận</span>
                         </button>
-                        <button className="post-action-btn" onClick={() => {
-                            navigator.clipboard.writeText(window.location.href); 
-                            showNotification('Đã sao chép liên kết!', 'info')
-                        }}>
+                        <button className="post-action-btn" onClick={() => {navigator.clipboard.writeText(window.location.href); showNotification('Đã sao chép liên kết!', 'info')}}>
                             <FaShare /> <span>Chia sẻ</span>
                         </button>
                     </div>
 
                     {activeCommentPostId === post.id && (
                         <div className="comments-section">
-                            <div className="comments-list">
-                                {renderComments(post)}
-                            </div>
-
+                            <div className="comments-list">{renderComments(post)}</div>
                             <div className="comment-input-area sticky-input">
                                 <img src={currentUser?.avatarUrl || defaultAvatar} className="comment-avatar" alt="me" />
                                 <div className="comment-input-wrapper">
-                                    <input 
-                                        className="comment-input" 
-                                        placeholder={replyingToCommentId ? "Viết câu trả lời..." : "Viết bình luận..."} 
-                                        value={commentContent} 
-                                        onChange={e => setCommentContent(e.target.value)} 
-                                        onKeyDown={e => e.key === 'Enter' && handleSendComment(post.id)} 
-                                        autoFocus={!!replyingToCommentId}
-                                        disabled={isUploadingCommentImg}
-                                    />
+                                    <input className="comment-input" placeholder={replyingToCommentId ? "Viết câu trả lời..." : "Viết bình luận..."} value={commentContent} onChange={e => setCommentContent(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendComment(post.id)} autoFocus={!!replyingToCommentId} disabled={isUploadingCommentImg}/>
                                     <div className="comment-actions-right">
-                                        <label className="mini-icon-btn">
-                                            <FaCamera />
-                                            <input 
-                                                type="file" 
-                                                hidden 
-                                                accept="image/*" 
-                                                onChange={e => handleFileUpload(e, 'comment')} 
-                                                disabled={isUploadingCommentImg}
-                                            />
-                                        </label>
-                                        <button className="mini-icon-btn" onClick={() => setShowStickerPicker(showStickerPicker === post.id ? null : post.id)}>
+                                        <label className="mini-icon-btn"><FaCamera /><input type="file" hidden accept="image/*" onChange={e => handleFileUpload(e, 'comment')} disabled={isUploadingCommentImg}/></label>
+                                        <button className="mini-icon-btn sticker-toggle-btn" onClick={(e) => {e.stopPropagation(); setShowStickerPicker(showStickerPicker === post.id ? null : post.id);}}>
                                             <FaSmile />
                                         </button>
-                                        <button 
-                                            className="mini-icon-btn send-btn" 
-                                            onClick={() => handleSendComment(post.id)}
-                                            disabled={(!commentContent.trim() && !commentImage && !commentSticker) || isUploadingCommentImg}
-                                        >
+                                        <button className="mini-icon-btn send-btn" onClick={() => handleSendComment(post.id)} disabled={(!commentContent.trim() && !commentImage && !commentSticker) || isUploadingCommentImg}>
                                             <FaPaperPlane />
                                         </button>
                                     </div>
                                 </div>
-                                
-                                {/* STICKER PICKER: Đã sửa hiển thị */}
                                 {showStickerPicker === post.id && (
                                     <div className="sticker-popover" ref={stickerRef}>
-                                        <StickerPicker 
-                                            onStickerSelect={(s) => handleSelectSticker(s.url)} 
-                                            onClose={() => setShowStickerPicker(null)} 
-                                        />
+                                        <StickerPicker onStickerSelect={(s) => {setCommentSticker(s.url); setShowStickerPicker(null);}} onClose={() => setShowStickerPicker(null)} />
                                     </div>
                                 )}
                             </div>
-
-                            {isUploadingCommentImg ? (
-                                <div className="comment-img-preview-box">⏳ Đang tải ảnh...</div>
-                            ) : (commentImage || commentSticker) && (
+                            {isUploadingCommentImg ? <div className="comment-img-preview-box">⏳ Đang tải ảnh...</div> 
+                            : (commentImage || commentSticker) && (
                                 <div className="comment-img-preview-box">
-                                    <img 
-                                        src={commentImage || commentSticker || ''} 
-                                        alt="preview" 
-                                        style={commentSticker ? { width: '80px', height: '80px', objectFit: 'contain' } : {}}
-                                    />
-                                    <button 
-                                        onClick={() => {
-                                            setCommentImage(null);
-                                            setCommentSticker(null);
-                                        }} 
-                                        className="btn-remove-comment-img"
-                                    >
-                                        <img src={closeBtnIcon} alt="Xóa" />
-                                    </button>
+                                    <img src={commentImage || commentSticker || ''} alt="preview" style={commentSticker ? {width:80, height:80, objectFit:'contain'} : {}}/>
+                                    <button onClick={() => {setCommentImage(null); setCommentSticker(null);}} className="btn-remove-comment-img"><img src={closeBtnIcon} alt="Xóa" /></button>
                                 </div>
                             )}
                         </div>
@@ -676,15 +574,7 @@ const CommunityPage: React.FC = () => {
                         <div className="report-options">
                             {['Spam', 'Nội dung phản cảm', 'Quấy rối', 'Thông tin sai lệch', 'Khác'].map(r => (
                                 <label key={r} style={{display:'block', marginBottom: 10, cursor:'pointer'}}>
-                                    <input 
-                                        type="radio" 
-                                        name="reportReason" 
-                                        value={r} 
-                                        checked={reportReason === r} 
-                                        onChange={(e) => setReportReason(e.target.value)} 
-                                        style={{marginRight: 8}}
-                                    />
-                                    {r}
+                                    <input type="radio" name="reportReason" value={r} checked={reportReason === r} onChange={(e) => setReportReason(e.target.value)} style={{marginRight: 8}}/>{r}
                                 </label>
                             ))}
                         </div>
