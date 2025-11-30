@@ -50,6 +50,7 @@ function App() {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAboutPage = location.pathname === '/about-us';
   const isContactPage = location.pathname === '/contact';
+  const isCommunityPage = location.pathname === '/community';
   const isPrivacyPage = location.pathname === '/privacy-policy';
   const isTermsPage = location.pathname === '/terms-of-service';
   const isLoginPage = location.pathname === '/login';
@@ -100,7 +101,7 @@ function App() {
 
       <main 
         className={isReaderPage ? "main-content reader-mode" : "main-content"}
-        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage || isContactPage || isPrivacyPage || isTermsPage) ? '0' : undefined }}
+        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage || isContactPage || isPrivacyPage || isTermsPage || isCommunityPage) ? '0' : undefined }}
       >
         <Suspense fallback={<LoadingScreen />}>
           <Routes>

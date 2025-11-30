@@ -4,17 +4,34 @@ import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, RadialLinearScale, Title, Tooltip, Legend, Filler
 } from 'chart.js';
 import { 
-    FiDollarSign, FiUsers, FiShoppingCart, FiClock, FiCheckCircle, FiXCircle, FiBookOpen, FiFilter, FiTrendingUp, FiAlertCircle, FiServer
+    FiDollarSign, FiUsers, FiShoppingCart, FiClock, FiCheckCircle, FiXCircle, FiBookOpen, FiFilter, FiTrendingUp, FiAlertCircle, FiServer, FiEye, FiMessageSquare, FiFileText
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import ReportManagementModal from './ReportManagementModal';
 import '../../assets/styles/DashboardView.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, RadialLinearScale, Title, Tooltip, Legend, Filler);
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
+interface ReportItem {
+    id: number;
+    reporterName: string;
+    reportedUserName: string;
+    reportedUserId: number;
+    reason: string;
+    targetType: 'POST' | 'COMMENT';
+    targetContent: string;
+    targetImage?: string;
+    targetSticker?: string;
+    createdAt: string;
+    status: string;
+}
+
 const DashboardView: React.FC = () => {
     const { token } = useAuth(); 
+    const { showNotification } = useNotification();
     const [loading, setLoading] = useState(true);
     const [timeRange, setTimeRange] = useState<'day' | 'month' | 'year'>('day');
     
@@ -27,34 +44,114 @@ const DashboardView: React.FC = () => {
         revenueSource: { labels: [], data: [] }
     });
 
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            if (!token) return;
+    const [postReports, setPostReports] = useState<ReportItem[]>([]);
+    const [commentReports, setCommentReports] = useState<ReportItem[]>([]);
+    const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/admin/dashboard-stats?period=${timeRange}`, {
+    const fetchDashboardData = async () => {
+        if (!token) return;
+
+        try {
+            const [dashboardRes, reportRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/admin/dashboard-stats?period=${timeRange}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.success) {
-                        setData(result.data);
-                    }
+                }),
+                fetch(`${API_BASE_URL}/admin/reports/pending`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+            
+            if (dashboardRes.ok) {
+                const result = await dashboardRes.json();
+                if (result.success) {
+                    setData(result.data);
                 }
-            } catch (error) {
-                console.error("Failed to fetch dashboard data", error);
-            } finally {
-                setLoading(false);
             }
-        };
 
+            if (reportRes.ok) {
+                const reportData = await reportRes.json();
+                setPostReports(reportData.posts || []);
+                setCommentReports(reportData.comments || []);
+            }
+
+        } catch (error) {
+            console.error("Failed to fetch dashboard data", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchDashboardData();
     }, [token, timeRange]);
 
+    const handleViewReport = (report: ReportItem) => {
+        setSelectedReport(report);
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteContent = async () => {
+        if (!selectedReport) return;
+        if (!window.confirm('Bạn chắc chắn muốn xoá nội dung này?')) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/admin/reports/${selectedReport.id}/content`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                showNotification('Đã xoá nội dung thành công', 'success');
+                setIsModalOpen(false);
+                fetchDashboardData();
+            } else {
+                showNotification('Xoá thất bại', 'error');
+            }
+        } catch (error) {
+            showNotification('Lỗi kết nối', 'error');
+        }
+    };
+
+    const handleBanUser = async () => {
+        if (!selectedReport) return;
+        if (!window.confirm(`CẢNH BÁO: Bạn sắp BAN tài khoản "${selectedReport.reportedUserName}" và XOÁ nội dung này. Hành động này không thể hoàn tác. Tiếp tục?`)) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/admin/reports/${selectedReport.id}/ban`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                showNotification('Đã ban người dùng và xoá nội dung', 'success');
+                setIsModalOpen(false);
+                fetchDashboardData();
+            } else {
+                showNotification('Thao tác thất bại', 'error');
+            }
+        } catch (error) {
+            showNotification('Lỗi kết nối', 'error');
+        }
+    };
+
+    const handleDismissReport = async () => {
+        if (!selectedReport) return;
+        try {
+            const res = await fetch(`${API_BASE_URL}/admin/reports/${selectedReport.id}/dismiss`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                showNotification('Đã bỏ qua báo cáo', 'info');
+                setIsModalOpen(false);
+                fetchDashboardData();
+            }
+        } catch (error) { console.error(error); }
+    };
+
     const getTypeBadge = (type: string) => {
         const typeLower = type?.toLowerCase() || '';
-        
         if (['nạp', 'deposit', 'recharge', 'nap_xu'].some(k => typeLower.includes(k))) {
             return <span className="badge-type badge-nạp-xu">Nạp xu</span>;
         } 
@@ -82,6 +179,7 @@ const DashboardView: React.FC = () => {
 
     const formatCurrency = (amount: number) => Number(amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
+    // Chart Data (Keeping original logic)
     const lineChartData = {
         labels: data.charts.revenue?.map((item: any) => item.date) || [],
         datasets: [{
@@ -172,20 +270,25 @@ const DashboardView: React.FC = () => {
                 </div>
             </div>
 
-            {/* System Health & Pending Tasks */}
             <div className="system-health-grid">
                 <div className="health-card pending-tasks">
-                    <h3 className="card-title-sm"><FiAlertCircle /> Cần Xử Lý Ngay</h3>
+                    <h3 className="card-title-sm" style={{color: 'red'}}><FiAlertCircle /> Cần Xử Lý Ngay</h3>
                     <ul className="task-list">
                         <li>
-                            <span className="task-count">3</span>
-                            <span className="task-desc">Báo cáo vi phạm từ người dùng</span>
-                            <button className="task-btn">Xem</button>
+                            <span className="task-count" style={{backgroundColor: postReports.length > 0 ? '#ef4444' : '#10b981'}}>{postReports.length}</span>
+                            <span className="task-desc">Báo cáo vi phạm (Bài viết)</span>
+                            <button className="task-btn" onClick={() => {
+                                const el = document.getElementById('report-tables');
+                                el?.scrollIntoView({behavior: 'smooth'});
+                            }}>Xem</button>
                         </li>
                         <li>
-                            <span className="task-count">5</span>
+                            <span className="task-count" style={{backgroundColor: commentReports.length > 0 ? '#f59e0b' : '#10b981'}}>{commentReports.length}</span>
                             <span className="task-desc">Bình luận cần kiểm duyệt</span>
-                            <button className="task-btn">Xem</button>
+                            <button className="task-btn" onClick={() => {
+                                const el = document.getElementById('report-tables');
+                                el?.scrollIntoView({behavior: 'smooth'});
+                            }}>Xem</button>
                         </li>
                     </ul>
                 </div>
@@ -221,6 +324,72 @@ const DashboardView: React.FC = () => {
                 <div className="sub-chart-card">
                     <div className="chart-header"><h3 className="chart-title">Nguồn Doanh Thu</h3></div>
                     <div className="sub-chart-wrapper"><PolarArea data={polarData} options={{ maintainAspectRatio: false }} /></div>
+                </div>
+            </div>
+
+            <div id="report-tables" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '2rem'}}>
+                <div className="transactions-table-container" style={{marginBottom: 0}}>
+                    <div className="table-header">
+                        <h3 className="chart-title flex-align" style={{color: '#ef4444'}}>
+                            <FiFileText style={{marginRight: '8px'}} /> Báo cáo Vi Phạm (Bài viết)
+                        </h3>
+                    </div>
+                    <div className="table-responsive">
+                        <table className="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Người báo cáo</th>
+                                    <th>Lý do</th>
+                                    <th className="text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {postReports.length > 0 ? postReports.map(report => (
+                                    <tr key={report.id}>
+                                        <td>{report.reporterName}</td>
+                                        <td style={{maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{report.reason}</td>
+                                        <td className="text-right">
+                                            <button className="task-btn" onClick={() => handleViewReport(report)} style={{padding: '4px 10px'}}><FiEye /> Xem</button>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr><td colSpan={3} className="empty-state-cell">Không có báo cáo nào.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div className="transactions-table-container" style={{marginBottom: 0}}>
+                    <div className="table-header">
+                        <h3 className="chart-title flex-align" style={{color: '#f59e0b'}}>
+                            <FiMessageSquare style={{marginRight: '8px'}} /> Kiểm Duyệt Bình Luận
+                        </h3>
+                    </div>
+                    <div className="table-responsive">
+                        <table className="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Người báo cáo</th>
+                                    <th>Lý do</th>
+                                    <th className="text-right">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {commentReports.length > 0 ? commentReports.map(report => (
+                                    <tr key={report.id}>
+                                        <td>{report.reporterName}</td>
+                                        <td style={{maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{report.reason}</td>
+                                        <td className="text-right">
+                                            <button className="task-btn" onClick={() => handleViewReport(report)} style={{padding: '4px 10px'}}><FiEye /> Xem</button>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr><td colSpan={3} className="empty-state-cell">Không có bình luận cần duyệt.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -293,6 +462,15 @@ const DashboardView: React.FC = () => {
                     </table>
                 </div>
             </div>
+
+            <ReportManagementModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                report={selectedReport}
+                onDelete={handleDeleteContent}
+                onBan={handleBanUser}
+                onDismiss={handleDismissReport}
+            />
         </div>
     );
 };
