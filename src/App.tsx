@@ -37,6 +37,7 @@ const SettingsPage = lazy(() => import('./pages/SettingPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const AboutUsPage = lazy(() => import('./pages/AboutPage')); 
 const PaymentReturnPage = lazy(() => import('./pages/PaymentReturnPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
 
 function App() {
   const { animationData, clearAnimation } = useCart();
@@ -45,6 +46,7 @@ function App() {
   const isReaderPage = location.pathname.startsWith('/read/');
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAboutPage = location.pathname === '/about-us';
+  const isContactPage = location.pathname === '/contact';
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
   const isForgotPassPage = location.pathname === '/forgot-password';
@@ -93,7 +95,7 @@ function App() {
 
       <main 
         className={isReaderPage ? "main-content reader-mode" : "main-content"}
-        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage) ? '0' : undefined }}
+        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage || isContactPage) ? '0' : undefined }}
       >
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
@@ -122,6 +124,7 @@ function App() {
             <Route path="/new-releases" element={<CategoryPage />} />
             <Route path="/genres/:categorySlug" element={<CategoryPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="/admin/*" element={<AdminPage />} /> 
           </Routes>
         </Suspense>
