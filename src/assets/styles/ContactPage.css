@@ -29,10 +29,10 @@
     font-size: 3rem;
     font-weight: 800;
     margin-bottom: 1rem;
-    background: linear-gradient(to right, var(--clr-primary, #3b82f6), #60a5fa);
     -webkit-background-clip: text;
     background-clip: text;
-    color: transparent;
+    color: #747bff;
+    line-height: 8rem;
 }
 
 .contact-subtitle {

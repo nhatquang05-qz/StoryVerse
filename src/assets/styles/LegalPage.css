@@ -1,0 +1,110 @@
+.legal-page-container {
+    min-height: 100vh;
+    padding-top: 8rem;
+    padding-bottom: 4rem;
+    background-color: var(--clr-hero-bg, #0f172a);
+    color: #cbd5e1;
+    font-family: var(--font-family-base, sans-serif);
+    line-height: 1.7;
+}
+
+.legal-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legal-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #fff;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: #747bff;
+}
+
+.legal-last-updated {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.legal-content section {
+    margin-bottom: 2.5rem;
+}
+
+.legal-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.legal-content h2::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 24px;
+    background-color: #3b82f6;
+    margin-right: 12px;
+    border-radius: 4px;
+}
+
+.legal-content p {
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+.legal-content ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.legal-content a {
+    color: #3b82f6;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.legal-content a:hover {
+    color: #60a5fa;
+    text-decoration: underline;
+}
+
+/* Day Mode Support */
+[data-theme="day"] .legal-page-container {
+    background-color: #f8fafc;
+    color: #334155;
+}
+
+[data-theme="day"] .legal-header {
+    border-bottom-color: #e2e8f0;
+}
+
+[data-theme="day"] .legal-title {
+    background: none;
+    color: #1e293b;
+}
+
+[data-theme="day"] .legal-content h2 {
+    color: #0f172a;
+}
+
+[data-theme="day"] .legal-last-updated {
+    color: #64748b;
+}
