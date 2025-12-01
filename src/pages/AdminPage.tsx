@@ -14,13 +14,14 @@ import ManageChapters from '../components/admin/ManageChapters';
 import ComicManagementList from '../components/admin/ComicManagementList';
 import AdminFilterBar, { type SortOrder } from '../components/admin/AdminFilterBar';
 import PackManagement from '../components/admin/PackManagement';
-import FlashSaleManagement from '../components/admin/FlashSaleManagement'; // Import component Flash Sale
+import FlashSaleManagement from '../components/admin/FlashSaleManagement';
+import OrderManagement from '../components/admin/OrderManagement'; 
 
 import '../assets/styles/AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:3000/api';
 
-export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs' | 'flash-sales';
+export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs' | 'flash-sales' | 'orders';
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -42,8 +43,8 @@ const AdminPage: React.FC = () => {
     const isAdmin = currentUser?.email === 'admin@123';
 
     const fetchComicsAndGenres = async () => {
-        // Chỉ fetch dữ liệu truyện khi ở view quản lý truyện
-        if(activeView === 'dashboard' || activeView === 'users' || activeView === 'packs' || activeView === 'flash-sales') {
+        // Thêm 'orders' vào danh sách không cần fetch truyện
+        if(activeView === 'dashboard' || activeView === 'users' || activeView === 'packs' || activeView === 'flash-sales' || activeView === 'orders') {
             setIsLoading(false);
             return;
         }
@@ -177,7 +178,8 @@ const AdminPage: React.FC = () => {
             case 'dashboard': return <DashboardView />;
             case 'users': return <UserManagement />;
             case 'packs': return <PackManagement />;
-            case 'flash-sales': return <FlashSaleManagement />; // Thêm case này
+            case 'flash-sales': return <FlashSaleManagement />;
+            case 'orders': return <OrderManagement />;
             case 'add':
                 return <AddComicForm allGenres={allGenres} onCancel={handleAddCancel} onSuccess={handleAddSuccess} initialIsDigital={addFormType === 'digital'} />;
             case 'edit':
@@ -202,7 +204,7 @@ const AdminPage: React.FC = () => {
             default:
                 return (
                     <>
-                         <div className="admin-header">
+                          <div className="admin-header">
                             <h2 style={{margin:0}}>Truyện Online ({digitalComics.length})</h2>
                             <button className="mgmt-btn add" onClick={() => handleShowAddForm('digital')}>
                                 <FiPlus /> Thêm Mới

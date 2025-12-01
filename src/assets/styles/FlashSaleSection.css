@@ -66,8 +66,8 @@
 
 .fs-nav-btn {
   position: absolute;
-  top: 50%;
-  transform: translateY(-80%);
+  top: 40%;
+  transform: translateY(-40%);
   background-color: var(--clr-card-bg);
   color: var(--clr-text);
   border: 1px solid var(--clr-border-light);
@@ -87,15 +87,14 @@
   background-color: #ef4444;
   border-color: #ef4444;
   color: white;
-  transform: translateY(-50%) scale(1.1);
 }
 
 .fs-nav-prev {
-  left: -25px;
+  left: -45px;
 }
 
 .fs-nav-next {
-  right: -25px; 
+  right: -45px; 
 }
 
 .fs-grid {

@@ -4,7 +4,7 @@ import { FaBolt, FaClock, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/FlashSaleSection.css';
 import fireIcon from '../../assets/images/fire.png';
-import FlashSaleCountdown from './FlashSaleCountdown'; 
+import FlashSaleCountdown from './FlashSaleCountdown';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 const ITEMS_PER_PAGE = 7;
@@ -29,6 +29,12 @@ const FlashSaleSection: React.FC = () => {
     const interval = setInterval(fetchActiveSale, 60000); 
     return () => clearInterval(interval);
   }, []);
+
+  const formatPrice = (price: number | string | undefined) => {
+    if (price === undefined || price === null) return '0';
+    const num = Number(price);
+    return new Intl.NumberFormat('vi-VN').format(num);
+  };
 
   if (!activeSale) return null;
 
@@ -87,7 +93,8 @@ const FlashSaleSection: React.FC = () => {
                                 const sold = item.soldQuantity || 0;
                                 const limit = item.quantityLimit || 1;
                                 const stockLeft = limit - sold;
-                                const isSoldOut = stockLeft <= 0;                                
+                                const isSoldOut = stockLeft <= 0;
+                                
                                 const isLowStock = stockLeft > 0 && stockLeft <= 5;
 
                                 let progressText = `Đã bán ${sold}`;
@@ -119,8 +126,8 @@ const FlashSaleSection: React.FC = () => {
                                         <h3 className="fs-card-title" title={item.title}>{item.title}</h3>
 
                                         <div className="fs-price-row">
-                                            <span className="fs-price-original">{item.originalPrice.toLocaleString()}đ</span>
-                                            <span className="fs-price-sale">{item.salePrice.toLocaleString()}đ</span>
+                                            <span className="fs-price-original">{formatPrice(item.originalPrice)}đ</span>
+                                            <span className="fs-price-sale">{formatPrice(item.salePrice)}đ</span>
                                         </div>
 
                                         <div className="fs-qty-row">

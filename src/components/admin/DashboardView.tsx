@@ -404,7 +404,7 @@ const DashboardView: React.FC = () => {
                                 <th>#</th>
                                 <th>Tên Truyện</th>
                                 <th>Tác Giả</th>
-                                <th>Lượt Mua</th>
+                                <th>Số Lượng</th> {/* Sửa tiêu đề cột tại đây */}
                                 <th className="text-right">Doanh Thu</th>
                             </tr>
                         </thead>

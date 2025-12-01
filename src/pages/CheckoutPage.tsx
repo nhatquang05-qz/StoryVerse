@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,7 +8,7 @@ import '../assets/styles/CheckoutPage.css';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const CheckoutPage: React.FC = () => {
-    const { cartItems, totalPrice, total, clearCart, appliedVoucher, discount } = useCart();
+    const { cartItems, clearCart, appliedVoucher, discount } = useCart();
     
     const { currentUser, token } = useAuth();
     const { showNotification } = useNotification();
@@ -17,7 +17,16 @@ const CheckoutPage: React.FC = () => {
     const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY'>('COD');
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const finalAmount = total > 0 ? total : totalPrice;
+    const realSubtotal = useMemo(() => {
+        return cartItems.reduce((sum: number, item: any) => {
+            const itemTotal = (typeof item.finalTotal === 'number') 
+                ? item.finalTotal 
+                : (item.price * item.quantity);
+            return sum + itemTotal;
+        }, 0);
+    }, [cartItems]);
+
+    const finalAmount = Math.max(0, realSubtotal - discount);
 
     const [shippingInfo, setShippingInfo] = useState({
         fullName: currentUser?.fullName || '',
@@ -26,6 +35,10 @@ const CheckoutPage: React.FC = () => {
                  ? `${currentUser.addresses[0].specificAddress}, ${currentUser.addresses[0].ward}, ${currentUser.addresses[0].district}, ${currentUser.addresses[0].city}` 
                  : ''
     });
+
+    const formatPrice = (price: number) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+    };
 
     const handlePlaceOrder = async () => {
         if (cartItems.length === 0) {
@@ -46,7 +59,7 @@ const CheckoutPage: React.FC = () => {
                 return;
             }
 
-            const createOrderResponse = await fetch(`${API_URL}/orders/create`, {
+            const createOrderResponse = await fetch(`${API_URL}/orders`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -204,34 +217,72 @@ const CheckoutPage: React.FC = () => {
                         <h3>Đơn hàng ({cartItems.length} sản phẩm)</h3>
                         
                         <div className="summary-list">
-                            {cartItems.map(item => (
-                                <div key={item.id} className="summary-item">
-                                    <div className="item-name">
-                                        <span className="item-quantity">{item.quantity}x</span> {item.title}
+                            {cartItems.map((item: any) => {
+                                let priceDetail;
+                                const rowTotal = item.finalTotal ?? (item.price * item.quantity);
+
+                                if (item.isMixedSale && item.priceBreakdown) {
+                                    const { saleQty, salePrice, normalQty, normalPrice } = item.priceBreakdown;
+                                    priceDetail = (
+                                        <div className="checkout-mixed-price">
+                                            <div className="mixed-row text-red">{formatPrice(salePrice)} x{saleQty}</div>
+                                            <div className="mixed-row">{formatPrice(normalPrice)} x{normalQty}</div>
+                                        </div>
+                                    );
+                                } else if (item.isFlashSale) {
+                                     priceDetail = (
+                                        <div className="checkout-price-single">
+                                            <span className="text-red font-bold">{formatPrice(item.price)}</span>
+                                            {item.originalPrice && <span className="text-strike">{formatPrice(item.originalPrice)}</span>}
+                                            <span className="qty-badge">x{item.quantity}</span>
+                                        </div>
+                                    );
+                                } else {
+                                    priceDetail = (
+                                        <div className="checkout-price-single">
+                                            <span>{formatPrice(item.price)}</span>
+                                            <span className="qty-badge">x{item.quantity}</span>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div key={item.id} className="summary-item">
+                                        <div className="item-info-col">
+                                            <div className="item-name">
+                                                {item.title}
+                                            </div>
+                                            {priceDetail}
+                                        </div>
+                                        <div className="item-total-col">
+                                            {formatPrice(rowTotal)}
+                                        </div>
                                     </div>
-                                    <div className="item-price">
-                                        {(item.price * item.quantity).toLocaleString()}đ
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         <div className="summary-pricing">
                             <div className="pricing-row">
                                 <span>Tạm tính</span>
-                                <span>{totalPrice.toLocaleString()}đ</span>
+                                <span>{formatPrice(realSubtotal)}</span>
                             </div>
                             
                             {appliedVoucher && (
                                 <div className="pricing-row discount-row">
                                     <span>Voucher ({appliedVoucher.code})</span>
-                                    <span>- {discount.toLocaleString()}đ</span>
+                                    <span>- {formatPrice(discount)}</span>
                                 </div>
                             )}
                             
+                            <div className="pricing-row">
+                                <span>Phí vận chuyển</span>
+                                <span>Miễn phí</span>
+                            </div>
+                            
                             <div className="total-row">
                                 <span>Tổng cộng</span>
-                                <span className="pricing-value">{finalAmount.toLocaleString()}đ</span>
+                                <span className="pricing-value">{formatPrice(finalAmount)}</span>
                             </div>
                         </div>
 

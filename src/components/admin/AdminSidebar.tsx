@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiBookOpen, FiArchive, FiUsers, FiBarChart2, FiGift, FiZap } from 'react-icons/fi';
+import { FiBookOpen, FiArchive, FiUsers, FiBarChart2, FiGift, FiZap, FiClipboard } from 'react-icons/fi';
 import { type AdminView } from '../../pages/AdminPage'; 
 
 interface AdminSidebarProps {
@@ -32,6 +32,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
                 onClick={() => onNavigate('physical')}
             >
                 <FiArchive /> Truyện In
+            </button>
+
+            <button
+                className={`sidebar-btn ${activeView === 'orders' ? 'active' : ''}`}
+                onClick={() => onNavigate('orders')}
+            >
+                <FiClipboard /> Quản lý Đơn hàng
             </button>
 
             <button
