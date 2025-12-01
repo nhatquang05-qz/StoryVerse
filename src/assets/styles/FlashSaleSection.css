@@ -1,211 +1,310 @@
-/* Container bao ngoài */
-.flash-sale-wrapper {
+.fs-wrapper {
   width: 100%;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  max-width: 100%;
+  margin: 2rem auto; 
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
-/* Nội dung chính: Relative để đặt nút mũi tên tuyệt đối */
-.flash-sale-content {
-  background-color: #111827;
-  border-radius: 6px;
-  padding: 1rem 2.5rem; /* Tăng padding 2 bên để tránh nút đè lên truyện */
-  position: relative; 
-  min-height: 300px; /* Chiều cao tối thiểu để không bị giật khi load */
-}
-
-/* Viền gradient */
-.flash-sale-border {
+.fs-border {
   background: linear-gradient(to right, #ea580c, #dc2626);
   padding: 2px;
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Header Section --- */
-.flash-sale-header {
+.fs-content {
+  background-color: #111827;
+  border-radius: 6px;
+  padding: 1.5rem;
+  min-height: 340px;
+  position: relative;
+}
+
+/* --- Header --- */
+.fs-header {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 @media (min-width: 768px) {
-  .flash-sale-header {
+  .fs-header {
     flex-direction: row;
   }
 }
 
-.flash-sale-title {
+.fs-title-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
 }
 
-.flash-sale-title h2 {
+.fs-icon {
+  color: #facc15;
   font-size: 1.5rem;
-  font-weight: 800;
-  color: white;
-  text-transform: uppercase;
-  font-style: italic;
+  animation: fs-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.fs-title-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #facc15, #ef4444);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   margin: 0;
 }
 
-.flash-icon {
-  color: #facc15;
-  font-size: 1.5rem;
-  animation: pulse 2s infinite;
-}
-
-/* Timer nhỏ gọn hơn */
-.countdown-timer {
+/* --- Countdown Timer --- */
+.fs-countdown {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.5rem;
 }
 
-.timer-box {
-  background-color: #000;
-  padding: 2px 6px;
+.fs-timer-label {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-right: 0.25rem;
+}
+
+.fs-timer-digits {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.fs-timer-box {
+  background-color: #000000;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
+  min-width: 32px;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.25rem;
+}
+
+.fs-timer-sep {
   color: white;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
 }
 
-.timer-box.seconds {
-  color: #ef4444;
+/* --- Body & Navigation --- */
+.fs-body {
+  position: relative;
+  width: 100%;
 }
 
-/* --- GRID SẢN PHẨM: Ép 6 cột để thẻ nhỏ lại --- */
-.flash-sale-grid {
+.fs-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-80%);
+  background-color: #1f2937;
+  color: white;
+  border: 1px solid #374151;
+  border-radius: 50%;
+  width: 44px; 
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50; 
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.fs-nav-btn:hover {
+  background-color: #ef4444;
+  border-color: #ef4444;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.fs-nav-prev {
+  left: -50px; 
+}
+
+.fs-nav-next {
+  right: -50px; 
+}
+
+/* --- Grid Sản phẩm (7 cột) --- */
+.fs-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Mobile: 2 cột */
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 @media (min-width: 640px) {
-  .flash-sale-grid {
+  .fs-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (min-width: 768px) {
-  .flash-sale-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 @media (min-width: 1024px) {
-  /* Desktop: Đúng yêu cầu 6 truyện/hàng */
-  .flash-sale-grid {
-    grid-template-columns: repeat(6, 1fr); 
+  .fs-grid {
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 1rem;
   }
 }
 
-/* --- Card Sản phẩm (Thu nhỏ) --- */
-.flash-card {
+/* --- Thẻ sản phẩm --- */
+.fs-card {
   background-color: #1f2937;
-  border-radius: 6px;
-  padding: 6px; /* Padding nhỏ */
+  border-radius: 0.5rem;
+  overflow: hidden;
   cursor: pointer;
-  position: relative;
-  border: 1px solid #374151;
+  transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s;
+  position: relative;
+  border: 1px solid #374151;
+  height: 100%;
 }
 
-.flash-card:hover {
-  transform: translateY(-2px);
-  border-color: #f97316;
+.fs-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  background-color: #374151;
+  border-color: #4b5563;
 }
 
-.discount-badge {
+.fs-card.fs-sold-out {
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
+.fs-discount-badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #eab308;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: #facc15;
   color: #000;
   font-weight: 800;
-  font-size: 0.65rem;
-  padding: 1px 4px;
-  border-bottom-left-radius: 6px;
-  border-top-right-radius: 6px;
-  z-index: 10;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  z-index: 5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.card-image {
-  aspect-ratio: 2 / 3;
+.fs-card-img-container {
+  position: relative;
   width: 100%;
+  padding-top: 140%; 
   overflow: hidden;
-  border-radius: 4px;
-  margin-bottom: 6px;
 }
 
-.card-image img {
+.fs-card-img-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s;
 }
 
-/* Font chữ nhỏ lại */
-.card-title {
+.fs-card:hover .fs-card-img-container img {
+  transform: scale(1.05);
+}
+
+.fs-sold-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.fs-sold-text {
   color: white;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 2px solid white;
+  padding: 0.25rem 0.75rem;
+  transform: rotate(-12deg);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.fs-card-info {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.fs-card-title {
+  color: #fff;
+  font-size: 0.9rem;
   font-weight: 600;
-  font-size: 0.85rem; 
-  line-height: 1.2;
-  margin-bottom: 4px;
+  margin: 0 0 0.5rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 2.1em;
+  line-height: 1.3;
+  height: 2.4em;
 }
 
-.price-section {
+.fs-price-row {
   display: flex;
   align-items: baseline;
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
   flex-wrap: wrap;
 }
 
-.sale-price {
+.fs-price-sale {
   color: #ef4444;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
-.original-price {
-  color: #6b7280;
-  font-size: 0.7rem;
+.fs-price-original {
+  color: #9ca3af;
+  font-size: 0.75rem;
   text-decoration: line-through;
 }
 
-/* Thanh số lượng nhỏ */
-.quantity-section {
+.fs-qty-row {
   margin-top: auto;
 }
 
-.progress-bar-container {
+.fs-prog-bg {
   width: 100%;
-  background-color: #374151;
+  background-color: #111827;
   border-radius: 99px;
-  height: 10px;
+  height: 14px;
   position: relative;
   overflow: hidden;
+  border: 1px solid #374151;
 }
 
-.progress-bar-fill {
+.fs-prog-fill {
   background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
   height: 100%;
   border-radius: 99px;
+  transition: width 0.3s ease;
 }
 
-.progress-text {
+.fs-prog-text {
   position: absolute;
   top: 0;
   left: 0;
@@ -214,53 +313,43 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: white;
   z-index: 2;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.8);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  text-transform: uppercase;
 }
 
-/* --- Nút điều hướng (Navigation Buttons) --- */
-.nav-btn {
-  position: absolute;
-  top: 55%; /* Căn giữa theo chiều dọc phần nội dung (trừ header) */
-  transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #111827;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+/* Empty State */
+.fs-empty-state {
+  text-align: center;
+  padding: 3rem 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 20;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-  transition: all 0.2s;
 }
 
-.nav-btn:hover {
-  background-color: #fff;
-  transform: translateY(-50%) scale(1.1);
+.fs-empty-icon {
+  font-size: 3rem;
+  color: #f97316;
+  margin-bottom: 1rem;
+  animation: fs-bounce 1s infinite;
 }
 
-.nav-btn:disabled {
-  background-color: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
-  color: #6b7280;
+.fs-empty-text {
+  color: #d1d5db;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
-.nav-prev {
-  left: 6px;
+@keyframes fs-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-.nav-next {
-  right: 6px;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.8; }
+@keyframes fs-bounce {
+  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
 }

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/FlashSaleSection.css';
 
 const API_BASE_URL = 'http://localhost:3000/api';
-const ITEMS_PER_PAGE = 12; // 6 cột * 2 hàng
+const ITEMS_PER_PAGE = 7;
 
 const FlashSaleSection: React.FC = () => {
   const [activeSale, setActiveSale] = useState<any>(null);
@@ -77,50 +77,46 @@ const FlashSaleSection: React.FC = () => {
   );
 
   return (
-    // Sử dụng class flash-sale-wrapper để giới hạn max-width 1100px
-    <div className="flash-sale-wrapper">
-        <div className="flash-sale-border">
-            <div className="flash-sale-content">
+    <div className="fs-wrapper">
+        <div className="fs-border">
+            <div className="fs-content">
                 
-                {/* Header */}
-                <div className="flash-sale-header">
-                    <div className="flash-sale-title">
-                        <FaBolt className="flash-icon" />
-                        <h2>
+                <div className="fs-header">
+                    <div className="fs-title-group">
+                        <FaBolt className="fs-icon" />
+                        <h2 className="fs-title-text">
                             {isUpcoming ? 'SẮP DIỄN RA: ' : 'FLASH SALE'} {activeSale.name}
                         </h2>
                     </div>
                     
-                    <div className="countdown-timer">
-                        <span className="text-gray-400 text-xs font-semibold uppercase mr-1">
+                    <div className="fs-countdown">
+                        <span className="fs-timer-label">
                             {isUpcoming ? 'Bắt đầu sau:' : 'Kết thúc trong:'}
                         </span>
-                        <div className="flex gap-1 items-center">
-                            <span className="timer-box">{String(timeLeft.hours).padStart(2, '0')}</span>
-                            <span className="text-white font-bold text-xs">:</span>
-                            <span className="timer-box">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                            <span className="text-white font-bold text-xs">:</span>
-                            <span className="timer-box seconds">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                        <div className="fs-timer-digits">
+                            <span className="fs-timer-box">{String(timeLeft.hours).padStart(2, '0')}</span>
+                            <span className="fs-timer-sep">:</span>
+                            <span className="fs-timer-box">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                            <span className="fs-timer-sep">:</span>
+                            <span className="fs-timer-box fs-seconds">{String(timeLeft.seconds).padStart(2, '0')}</span>
                         </div>
                     </div>
                 </div>
 
                 {isUpcoming ? (
-                    <div className="text-center py-8">
-                        <FaClock className="text-4xl text-orange-500 mx-auto mb-3 animate-bounce"/>
-                        <p className="text-gray-300 font-medium text-sm">Chương trình sẽ sớm bắt đầu.</p>
+                    <div className="fs-empty-state">
+                        <FaClock className="fs-empty-icon"/>
+                        <p className="fs-empty-text">Chương trình sẽ sớm bắt đầu.</p>
                     </div>
                 ) : (
-                    <>
-                        {/* Nút Previous */}
+                    <div className="fs-body">
                         {totalPages > 1 && (
-                            <button onClick={handlePrev} className="nav-btn nav-prev" title="Trang trước">
+                            <button onClick={handlePrev} className="fs-nav-btn fs-nav-prev" title="Trang trước">
                                 <FaChevronLeft />
                             </button>
                         )}
 
-                        {/* Grid Sản phẩm */}
-                        <div className="flash-sale-grid">
+                        <div className="fs-grid">
                             {currentItems.map((item: any) => {
                                 const percentSold = Math.min(100, Math.round((item.soldQuantity / item.quantityLimit) * 100));
                                 const discountPercent = Math.round(((item.originalPrice - item.salePrice) / item.originalPrice) * 100);
@@ -128,34 +124,36 @@ const FlashSaleSection: React.FC = () => {
 
                                 return (
                                 <div key={item.id} 
-                                        onClick={() => navigate(`/comic/${item.comicId}`)}
-                                        className={`flash-card ${isSoldOut ? 'opacity-60 grayscale' : ''}`}>
+                                    onClick={() => navigate(`/comic/${item.comicId}`)}
+                                    className={`fs-card ${isSoldOut ? 'fs-sold-out' : ''}`}>
                                     
-                                    <div className="discount-badge">
+                                    <div className="fs-discount-badge">
                                         -{discountPercent}%
                                     </div>
 
-                                    <div className="card-image">
+                                    <div className="fs-card-img-container">
                                         <img src={item.coverImage} alt={item.title} loading="lazy" />
                                         {isSoldOut && (
-                                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                                <span className="text-white font-bold text-xs border border-white px-2 py-0.5 -rotate-12">HẾT HÀNG</span>
+                                            <div className="fs-sold-overlay">
+                                                <span className="fs-sold-text">HẾT HÀNG</span>
                                             </div>
                                         )}
                                     </div>
 
-                                    <h3 className="card-title" title={item.title}>{item.title}</h3>
+                                    <div className="fs-card-info">
+                                        <h3 className="fs-card-title" title={item.title}>{item.title}</h3>
 
-                                    <div className="price-section">
-                                        <span className="sale-price">{item.salePrice.toLocaleString()}đ</span>
-                                        <span className="original-price">{item.originalPrice.toLocaleString()}đ</span>
-                                    </div>
+                                        <div className="fs-price-row">
+                                            <span className="fs-price-sale">{item.salePrice.toLocaleString()}đ</span>
+                                            <span className="fs-price-original">{item.originalPrice.toLocaleString()}đ</span>
+                                        </div>
 
-                                    <div className="quantity-section">
-                                        <div className="progress-bar-container">
-                                            <div className="progress-bar-fill" style={{ width: `${percentSold}%` }}></div>
-                                            <div className="progress-text">
-                                                {isSoldOut ? 'Hết hàng' : `Đã bán ${item.soldQuantity}`}
+                                        <div className="fs-qty-row">
+                                            <div className="fs-prog-bg">
+                                                <div className="fs-prog-fill" style={{ width: `${percentSold}%` }}></div>
+                                                <div className="fs-prog-text">
+                                                    {isSoldOut ? 'Hết hàng' : `Đã bán ${item.soldQuantity}`}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -164,13 +162,12 @@ const FlashSaleSection: React.FC = () => {
                             })}
                         </div>
 
-                        {/* Nút Next */}
                         {totalPages > 1 && (
-                            <button onClick={handleNext} className="nav-btn nav-next" title="Xem thêm">
+                            <button onClick={handleNext} className="fs-nav-btn fs-nav-next" title="Xem thêm">
                                 <FaChevronRight />
                             </button>
                         )}
-                    </>
+                    </div>
                 )}
             </div>
         </div>
