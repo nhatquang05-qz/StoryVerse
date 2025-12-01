@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiHeart, FiBookOpen, FiLock, FiSearch, FiArrowDown, FiArrowUp, FiShoppingCart } from 'react-icons/fi';
 import { type ComicDetail, type ChapterSummary } from '../types/comicTypes';
 import { loadOrders } from '../data/mockData';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishListContext';
 import ReviewSection from '../components/common/ReviewSection';
+import StarRating from '../components/common/StarRating';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ComicDetailPage.css';
@@ -26,14 +27,14 @@ const ComicDetailSkeleton: React.FC = () => (
             <div className="detail-skeleton-actions">
                 <div className="detail-skeleton-quantity skeleton-block"></div>
                 <div className="detail-skeleton-cart-btn skeleton-block"></div>
-                <div className="detail-skeleton-cart-btn skeleton-block" style={{ maxWidth: '180px' }}></div>
+                <div className="detail-skeleton-cart-btn skeleton-block small"></div>
             </div>
             
             <div className="detail-description">
                 <div className="detail-skeleton-description-title skeleton-block"></div>
-                <div className="detail-skeleton-text-line skeleton-block" style={{ width: '100%' }}></div>
-                <div className="detail-skeleton-text-line skeleton-block" style={{ width: '95%' }}></div>
-                <div className="detail-skeleton-text-line skeleton-block" style={{ width: '60%' }}></div>
+                <div className="detail-skeleton-text-line skeleton-block w-100"></div>
+                <div className="detail-skeleton-text-line skeleton-block w-95"></div>
+                <div className="detail-skeleton-text-line skeleton-block w-60"></div>
             </div>
         </div>
     </div>
@@ -256,7 +257,6 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
             className={`add-to-cart-btn wishlist-btn-detail ${isFavorite ? 'favorite' : ''}`} 
             onClick={handleToggleWishlist}
             aria-label={isFavorite ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
-            style={{ flexGrow: 0 }}
         >
             <FiHeart style={{ marginRight: '0.5rem' }} /> 
             {isFavorite ? 'Đã yêu thích' : 'Thêm vào Yêu thích'}
@@ -267,11 +267,11 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
         const firstFreeChapter = chapters.find(c => c.price === 0);
 
         return (
-            <div className="digital-actions-group" style={{ flexDirection: 'column', gap: '1rem' }}>
+            <div className="digital-actions-group digital-actions-stack">
                
                 <div className="digital-main-buttons">
                     {firstFreeChapter && (
-                        <button className="add-to-cart-btn" onClick={() => handleReadNow(Number(firstFreeChapter.chapterNumber))} style={{ backgroundColor: '#28a745', color: 'white', border: '1px solid #28a745' }}>
+                        <button className="add-to-cart-btn read-now-btn" onClick={() => handleReadNow(Number(firstFreeChapter.chapterNumber))}>
                             <FiBookOpen style={{ marginRight: '0.5rem' }} /> Đọc Chương {firstFreeChapter.chapterNumber}
                         </button>
                     )}
@@ -292,8 +292,13 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
                 <FiPlus />
               </button>
             </div>
-            <button className="add-to-cart-btn main-cart-btn" onClick={handleAddToCart}>Thêm vào giỏ hàng</button>
-            {wishlistButton}
+            <button 
+                className="add-to-cart-btn main-cart-btn flex-center-btn" 
+                onClick={handleAddToCart}
+            >
+                <FiShoppingCart style={{ marginRight: '0.5rem' }} />
+                Thêm vào giỏ hàng
+            </button>
         </div>
     );
   };
@@ -347,15 +352,15 @@ const toggleSort = () => {
                       <FiSearch />
                   </div>
                   
-                  <div className="chapter-header-col" style={{ gridColumn: '3 / 4', justifyContent: 'center' }}>
+                  <div className="chapter-header-col justify-center">
                       Ngày cập nhật
                   </div>
                   
-                  <div className="chapter-header-col" style={{ gridColumn: '4 / 5', justifyContent: 'center' }}>
+                  <div className="chapter-header-col justify-center">
                       Lượt xem
                   </div>
                   
-                  <div className="chapter-header-col" style={{ gridColumn: '5 / 6', justifyContent: 'flex-end' }}>
+                  <div className="chapter-header-col justify-end">
                   </div>
               </div>
 
@@ -388,7 +393,7 @@ const toggleSort = () => {
                                       {new Date(chapter.createdAt).toLocaleDateString('vi-VN')}
                                   </div>
                                   
-                                  <div className="chapter-views" style={{ textAlign: 'center' }}>
+                                  <div className="chapter-views">
                                       {formatViews(chapter.viewCount || 0)}
                                   </div>
                                   
@@ -402,7 +407,6 @@ const toggleSort = () => {
                                               className="unlock-chapter-btn"
                                               onClick={() => handleUnlockChapter(chapter)}
                                               disabled={!currentUser || !canUnlock} 
-                                              style={!canUnlock ? { backgroundColor: 'var(--clr-border-light)', color: 'var(--clr-text-secondary)' } : {}}
                                           >
                                               <FiLock style={{ marginRight: '0.25rem' }} /> Mở khóa ({chapter.price} Xu)
                                           </button>
@@ -412,7 +416,7 @@ const toggleSort = () => {
                           );
                       })
                   ) : (
-                      <li className="chapter-item" style={{ gridColumn: '1 / -1', justifyContent: 'center' }}>
+                      <li className="chapter-item full-width-msg">
                           Không tìm thấy chương nào phù hợp.
                       </li>
                   )}
@@ -424,7 +428,7 @@ const toggleSort = () => {
 
   if (isLoading) {
       return (
-        <div className="detail-page-container" style={{ padding: '3rem 0' }}>
+        <div className="detail-page-container skeleton-container">
             <ComicDetailSkeleton />
         </div>
       );
@@ -442,25 +446,23 @@ const toggleSort = () => {
         <div className="detail-image-wrapper">
           <img ref={imgRef} src={comic.coverImageUrl} alt={comic.title} className="detail-image" /> 
           {isDigital && (
-              <span className="digital-badge" style={{ position: 'absolute', top: 10, right: 10, zIndex: 10 }}>DIGITAL</span>
+              <span className="digital-badge">DIGITAL</span>
           )}
         </div>
-        <div className={`detail-info-wrapper ${isDigital ? 'digital-header-center' : ''}`}>
+        <div className="detail-info-wrapper">
           <p className="detail-author">Tác giả: {comic.author}</p>
           <h1 className="detail-title">{comic.title}</h1>
           
-          {!isDigital && <p className="detail-price">{formatPrice(comic.price)}</p>}
-          
-          {isDigital && (
-              <div className="digital-price-info" style={{ marginBottom: '2rem' }}>
-                    <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--clr-text)', margin: 0, padding: 0, border: 'none' }}>
-                    </p>
-              </div>
-          )}
-          
-          <div className="detail-actions" style={{ justifyContent: 'flex-start' }}>
-            {renderActions()}
+          <div className="price-rating-row">
+                {!isDigital && <span className="detail-price-text">{formatPrice(comic.price)}</span>}
+                
+                <div className="rating-container-row" style={isDigital ? { marginLeft: 0 } : {}}>
+                    <StarRating rating={comic.averageRating} />
+                    <span className="review-count">({comic.totalReviews || 0} đánh giá)</span>
+                </div>
           </div>
+          
+          {renderActions()}
 
           <div className="detail-description">
             <h3>Mô tả</h3>
@@ -473,7 +475,7 @@ const toggleSort = () => {
       
       {renderChapterList()}
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 1.5rem' }}>
+      <div className="review-section-wrapper">
         <ReviewSection comicId={comic.id} comicTitle={comic.title} />
       </div>
     </div>
