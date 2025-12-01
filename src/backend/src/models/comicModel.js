@@ -277,7 +277,7 @@ const createChapterRaw = async (comicId, chapterData) => {
         contentJson = JSON.stringify(contentUrls || []);
     }
 
-    const safeTitle = title || `Chapter ${chapterNumber}`;
+    const safeTitle = title && title.trim() !== '' ? title : null;
     const safePrice = price || 0;
 
     const [result] = await connection.execute(

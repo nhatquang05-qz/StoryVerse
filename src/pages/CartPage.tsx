@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiTrash2, FiShoppingCart, FiTag, FiX, FiAlertCircle, FiArrowLeft } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiTrash2, FiShoppingCart, FiTag, FiX, FiAlertCircle } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';

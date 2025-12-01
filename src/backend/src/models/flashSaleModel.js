@@ -36,6 +36,7 @@ const FlashSaleModel = {
     const [rows] = await connection.execute(`
         SELECT *, 
         CASE 
+            WHEN status = 'ENDED' THEN 'ENDED'
             WHEN NOW() BETWEEN startTime AND endTime THEN 'ACTIVE'
             WHEN NOW() < startTime THEN 'PENDING'
             ELSE 'ENDED'
@@ -67,7 +68,7 @@ const FlashSaleModel = {
     
     const [rows] = await connection.execute(`
       SELECT * FROM flash_sales 
-      WHERE startTime <= ? AND endTime >= ?
+      WHERE startTime <= ? AND endTime >= ? AND status != 'ENDED'
       ORDER BY endTime ASC 
       LIMIT 1
     `, [now, now]);
@@ -107,17 +108,45 @@ const FlashSaleModel = {
 
   updateSold: async (comicId, quantity) => {
       const connection = getConnection();
-      const query = `
-          UPDATE flash_sale_items fsi
-          JOIN flash_sales fs ON fsi.flashSaleId = fs.id
-          SET fsi.soldQuantity = fsi.soldQuantity + ?
-          WHERE fsi.comicId = ?
-          AND fs.status != 'ENDED'
-          AND fs.startTime <= NOW() 
-          AND fs.endTime >= NOW()
-      `;
       try {
-          await connection.execute(query, [quantity, comicId]);
+          await connection.execute(`
+              UPDATE flash_sale_items fsi
+              JOIN flash_sales fs ON fsi.flashSaleId = fs.id
+              SET fsi.soldQuantity = fsi.soldQuantity + ?
+              WHERE fsi.comicId = ?
+              AND fs.status != 'ENDED'
+              AND fs.startTime <= NOW() 
+              AND fs.endTime >= NOW()
+          `, [quantity, comicId]);
+
+          const [rows] = await connection.execute(`
+            SELECT fsi.flashSaleId 
+            FROM flash_sale_items fsi
+            JOIN flash_sales fs ON fsi.flashSaleId = fs.id
+            WHERE fsi.comicId = ? 
+            AND fs.status != 'ENDED'
+            AND fs.startTime <= NOW() 
+            AND fs.endTime >= NOW()
+            LIMIT 1
+          `, [comicId]);
+
+          if (rows.length > 0) {
+              const flashSaleId = rows[0].flashSaleId;
+              
+              const [check] = await connection.execute(`
+                  SELECT COUNT(*) as remaining
+                  FROM flash_sale_items
+                  WHERE flashSaleId = ?
+                  AND soldQuantity < quantityLimit
+              `, [flashSaleId]);
+              
+              if (check[0].remaining === 0) {
+                   await connection.execute(`
+                      UPDATE flash_sales SET status = 'ENDED' WHERE id = ?
+                   `, [flashSaleId]);
+                   console.log(`Flash Sale #${flashSaleId} đã tự động kết thúc do hết hàng.`);
+              }
+          }
       } catch (error) {
           console.error("Lỗi cập nhật soldQuantity Flash Sale:", error);
       }

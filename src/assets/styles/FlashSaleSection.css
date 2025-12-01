@@ -44,7 +44,7 @@
 }
 
 .fs-icon {
-  color: #facc15; 
+  color: #facc15;
   font-size: 1.5rem;
   animation: fs-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -59,45 +59,6 @@
   margin: 0;
 }
 
-.fs-countdown {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.fs-timer-label {
-  color: var(--clr-text-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  margin-right: 0.25rem;
-}
-
-.fs-timer-digits {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.fs-timer-box {
-  background-color: var(--clr-text); 
-  color: var(--clr-background);
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  min-width: 32px;
-  text-align: center;
-  font-size: 0.9rem;
-  line-height: 1.25rem;
-  border: 1px solid var(--clr-border-light);
-}
-
-.fs-timer-sep {
-  color: var(--clr-text); 
-  font-weight: 700;
-  font-size: 0.75rem;
-}
-
 .fs-body {
   position: relative;
   width: 100%;
@@ -107,8 +68,8 @@
   position: absolute;
   top: 50%;
   transform: translateY(-80%);
-  background-color: var(--clr-card-bg); 
-  color: var(--clr-text); 
+  background-color: var(--clr-card-bg);
+  color: var(--clr-text);
   border: 1px solid var(--clr-border-light);
   border-radius: 50%;
   width: 44px; 
@@ -159,13 +120,13 @@
 .fs-card {
   background-color: var(--clr-card-bg);
   border-radius: 0.5rem;
-  overflow: visible; 
+  overflow: visible;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
   display: flex;
   flex-direction: column;
   position: relative;
-  border: 1px solid var(--clr-border-light); 
+  border: 1px solid var(--clr-border-light);
   height: 100%;
 }
 
@@ -194,6 +155,18 @@
   border-radius: 0.25rem;
   z-index: 5;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ICON LỬA */
+.fs-fire-icon {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 32px;
+  height: 32px;
+  z-index: 20;
+  animation: fs-fire-pulse 1.5s infinite ease-in-out;
+  filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.6));
 }
 
 .fs-card-img-container {
@@ -252,7 +225,7 @@
 }
 
 .fs-card-title {
-  color: var(--clr-text); 
+  color: var(--clr-text);
   font-size: 0.9rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -262,7 +235,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.3;
-  height: 2.51em;
+  height: 2.4em;
 }
 
 .fs-price-row {
@@ -274,13 +247,13 @@
 }
 
 .fs-price-sale {
-  color: #ef4444; 
+  color: #ef4444;
   font-weight: 700;
   font-size: 1rem;
 }
 
 .fs-price-original {
-  color: var(--clr-text-secondary); 
+  color: var(--clr-text-secondary);
   font-size: 0.75rem;
   text-decoration: line-through;
 }
@@ -291,9 +264,9 @@
 
 .fs-prog-bg {
   width: 100%;
-  background-color: var(--clr-background); 
+  background-color: var(--clr-background);
   border-radius: 99px;
-  height: 20px;
+  height: 14px;
   position: relative;
   overflow: hidden;
   border: 1px solid var(--clr-border-light);
@@ -317,8 +290,9 @@
   justify-content: center;
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--clr-text); 
+  color: #ffffff;
   z-index: 2;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   text-transform: uppercase;
 }
 
@@ -339,7 +313,7 @@
 }
 
 .fs-empty-text {
-  color: var(--clr-text-secondary); /* Màu chữ phụ */
+  color: var(--clr-text-secondary);
   font-weight: 500;
   font-size: 1rem;
 }
@@ -353,3 +327,41 @@
   0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
   50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
 }
+
+@keyframes fs-fire-pulse {
+    0% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(249, 115, 22, 0.6)); }
+    50% { transform: scale(1.2); filter: brightness(1.3) drop-shadow(0 0 8px rgba(249, 115, 22, 0.9)); }
+    100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(249, 115, 22, 0.6)); }
+}
+
+.fs-qty-row {
+  margin-top: auto;
+  position: relative; 
+}
+
+.fs-fire-icon-bar {
+  position: absolute;
+  left: -8px; 
+  top: -18px; 
+  width: 30px;
+  height: 30px;
+  z-index: 20;
+  filter: drop-shadow(0 0 6px rgba(255, 69, 0, 0.8));
+  animation: fs-fire-pulse 1.2s infinite ease-in-out; 
+}
+
+@keyframes fs-fire-pulse {
+    0% { 
+        transform: scale(1) rotate(0deg); 
+        filter: drop-shadow(0 0 4px rgba(255, 69, 0, 0.6)) brightness(1);
+    }
+    50% { 
+        transform: scale(1.2) rotate(5deg); 
+        filter: drop-shadow(0 0 10px rgba(255, 69, 0, 1)) brightness(1.3);
+    }
+    100% { 
+        transform: scale(1) rotate(0deg); 
+        filter: drop-shadow(0 0 4px rgba(255, 69, 0, 0.6)) brightness(1);
+    }
+}
+

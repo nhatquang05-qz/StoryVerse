@@ -3,49 +3,16 @@ import axios from 'axios';
 import { FaBolt, FaClock, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/FlashSaleSection.css';
+import fireIcon from '../../assets/images/fire.png';
+import FlashSaleCountdown from './FlashSaleCountdown'; 
 
 const API_BASE_URL = 'http://localhost:3000/api';
 const ITEMS_PER_PAGE = 7;
 
 const FlashSaleSection: React.FC = () => {
   const [activeSale, setActiveSale] = useState<any>(null);
-  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [currentPage, setCurrentPage] = useState(0);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchActiveSale();
-    const interval = setInterval(fetchActiveSale, 60000); 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (!activeSale) return;
-
-    const calculateTimeLeft = () => {
-        const now = new Date().getTime();
-        const target = new Date(
-            new Date(activeSale.startTime) > new Date() ? activeSale.startTime : activeSale.endTime
-        ).getTime();
-        
-        const difference = target - now;
-
-        if (difference > 0) {
-            setTimeLeft({
-                hours: Math.floor((difference / (1000 * 60 * 60))),
-                minutes: Math.floor((difference / 1000 / 60) % 60),
-                seconds: Math.floor((difference / 1000) % 60),
-            });
-        } else {
-            fetchActiveSale(); 
-        }
-    };
-
-    const timer = setInterval(calculateTimeLeft, 1000);
-    calculateTimeLeft();
-
-    return () => clearInterval(timer);
-  }, [activeSale]);
 
   const fetchActiveSale = async () => {
     try {
@@ -56,6 +23,12 @@ const FlashSaleSection: React.FC = () => {
       setActiveSale(null);
     }
   };
+
+  useEffect(() => {
+    fetchActiveSale();
+    const interval = setInterval(fetchActiveSale, 60000); 
+    return () => clearInterval(interval);
+  }, []);
 
   if (!activeSale) return null;
 
@@ -89,18 +62,11 @@ const FlashSaleSection: React.FC = () => {
                         </h2>
                     </div>
                     
-                    <div className="fs-countdown">
-                        <span className="fs-timer-label">
-                            {isUpcoming ? 'Bắt đầu sau:' : 'Kết thúc trong:'}
-                        </span>
-                        <div className="fs-timer-digits">
-                            <span className="fs-timer-box">{String(timeLeft.hours).padStart(2, '0')}</span>
-                            <span className="fs-timer-sep">:</span>
-                            <span className="fs-timer-box">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                            <span className="fs-timer-sep">:</span>
-                            <span className="fs-timer-box fs-seconds">{String(timeLeft.seconds).padStart(2, '0')}</span>
-                        </div>
-                    </div>
+                    <FlashSaleCountdown 
+                        targetDate={isUpcoming ? activeSale.startTime : activeSale.endTime} 
+                        isUpcoming={isUpcoming}
+                        onTimeUp={fetchActiveSale}
+                    />
                 </div>
 
                 {isUpcoming ? (
@@ -118,9 +84,18 @@ const FlashSaleSection: React.FC = () => {
 
                         <div className="fs-grid">
                             {currentItems.map((item: any) => {
-                                const percentSold = Math.min(100, Math.round((item.soldQuantity / item.quantityLimit) * 100));
+                                const sold = item.soldQuantity || 0;
+                                const limit = item.quantityLimit || 1;
+                                const stockLeft = limit - sold;
+                                const isSoldOut = stockLeft <= 0;                                
+                                const isLowStock = stockLeft > 0 && stockLeft <= 5;
+
+                                let progressText = `Đã bán ${sold}`;
+                                if (isSoldOut) progressText = 'Hết hàng';
+                                else if (isLowStock) progressText = `Còn ${stockLeft} sản phẩm`; 
+
+                                const percentSold = Math.min(100, Math.round((sold / limit) * 100));
                                 const discountPercent = Math.round(((item.originalPrice - item.salePrice) / item.originalPrice) * 100);
-                                const isSoldOut = item.soldQuantity >= item.quantityLimit;
 
                                 return (
                                 <div key={item.id} 
@@ -144,17 +119,21 @@ const FlashSaleSection: React.FC = () => {
                                         <h3 className="fs-card-title" title={item.title}>{item.title}</h3>
 
                                         <div className="fs-price-row">
-                                            <span className="fs-price-sale">{item.salePrice.toLocaleString()}đ</span>
                                             <span className="fs-price-original">{item.originalPrice.toLocaleString()}đ</span>
+                                            <span className="fs-price-sale">{item.salePrice.toLocaleString()}đ</span>
                                         </div>
 
                                         <div className="fs-qty-row">
                                             <div className="fs-prog-bg">
                                                 <div className="fs-prog-fill" style={{ width: `${percentSold}%` }}></div>
                                                 <div className="fs-prog-text">
-                                                    {isSoldOut ? 'Hết hàng' : `Đã bán ${item.soldQuantity}`}
+                                                    {progressText}
                                                 </div>
                                             </div>
+                                            
+                                            {isLowStock && (
+                                                <img src={fireIcon} alt="Hot" className="fs-fire-icon-bar" />
+                                            )}
                                         </div>
                                     </div>
                                 </div>
