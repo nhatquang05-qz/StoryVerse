@@ -14,14 +14,14 @@
 }
 
 .fs-content {
-  background-color: #111827;
+  background-color: var(--clr-card-bg); 
   border-radius: 6px;
   padding: 1.5rem;
   min-height: 340px;
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
-/* --- Header --- */
 .fs-header {
   display: flex;
   flex-direction: column;
@@ -44,7 +44,7 @@
 }
 
 .fs-icon {
-  color: #facc15;
+  color: #facc15; 
   font-size: 1.5rem;
   animation: fs-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -59,7 +59,6 @@
   margin: 0;
 }
 
-/* --- Countdown Timer --- */
 .fs-countdown {
   display: flex;
   align-items: center;
@@ -67,7 +66,7 @@
 }
 
 .fs-timer-label {
-  color: #9ca3af;
+  color: var(--clr-text-secondary);
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -81,8 +80,8 @@
 }
 
 .fs-timer-box {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--clr-text); 
+  color: var(--clr-background);
   font-weight: 700;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -90,15 +89,15 @@
   text-align: center;
   font-size: 0.9rem;
   line-height: 1.25rem;
+  border: 1px solid var(--clr-border-light);
 }
 
 .fs-timer-sep {
-  color: white;
+  color: var(--clr-text); 
   font-weight: 700;
   font-size: 0.75rem;
 }
 
-/* --- Body & Navigation --- */
 .fs-body {
   position: relative;
   width: 100%;
@@ -108,9 +107,9 @@
   position: absolute;
   top: 50%;
   transform: translateY(-80%);
-  background-color: #1f2937;
-  color: white;
-  border: 1px solid #374151;
+  background-color: var(--clr-card-bg); 
+  color: var(--clr-text); 
+  border: 1px solid var(--clr-border-light);
   border-radius: 50%;
   width: 44px; 
   height: 44px;
@@ -126,18 +125,18 @@
 .fs-nav-btn:hover {
   background-color: #ef4444;
   border-color: #ef4444;
+  color: white;
   transform: translateY(-50%) scale(1.1);
 }
 
 .fs-nav-prev {
-  left: -50px; 
+  left: -25px;
 }
 
 .fs-nav-next {
-  right: -50px; 
+  right: -25px; 
 }
 
-/* --- Grid Sản phẩm (7 cột) --- */
 .fs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -157,25 +156,25 @@
   }
 }
 
-/* --- Thẻ sản phẩm --- */
 .fs-card {
-  background-color: #1f2937;
+  background-color: var(--clr-card-bg);
   border-radius: 0.5rem;
-  overflow: hidden;
+  overflow: visible; 
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
   display: flex;
   flex-direction: column;
   position: relative;
-  border: 1px solid #374151;
+  border: 1px solid var(--clr-border-light); 
   height: 100%;
 }
 
 .fs-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-  background-color: #374151;
-  border-color: #4b5563;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05); 
+  border-color: var(--clr-primary);
+  z-index: 10;
 }
 
 .fs-card.fs-sold-out {
@@ -202,6 +201,8 @@
   width: 100%;
   padding-top: 140%; 
   overflow: hidden;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 }
 
 .fs-card-img-container img {
@@ -251,7 +252,7 @@
 }
 
 .fs-card-title {
-  color: #fff;
+  color: var(--clr-text); 
   font-size: 0.9rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -261,7 +262,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.3;
-  height: 2.4em;
+  height: 2.51em;
 }
 
 .fs-price-row {
@@ -273,13 +274,13 @@
 }
 
 .fs-price-sale {
-  color: #ef4444;
+  color: #ef4444; 
   font-weight: 700;
   font-size: 1rem;
 }
 
 .fs-price-original {
-  color: #9ca3af;
+  color: var(--clr-text-secondary); 
   font-size: 0.75rem;
   text-decoration: line-through;
 }
@@ -290,12 +291,12 @@
 
 .fs-prog-bg {
   width: 100%;
-  background-color: #111827;
+  background-color: var(--clr-background); 
   border-radius: 99px;
-  height: 14px;
+  height: 20px;
   position: relative;
   overflow: hidden;
-  border: 1px solid #374151;
+  border: 1px solid var(--clr-border-light);
 }
 
 .fs-prog-fill {
@@ -316,13 +317,11 @@
   justify-content: center;
   font-size: 0.65rem;
   font-weight: 700;
-  color: white;
+  color: var(--clr-text); 
   z-index: 2;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   text-transform: uppercase;
 }
 
-/* Empty State */
 .fs-empty-state {
   text-align: center;
   padding: 3rem 0;
@@ -340,7 +339,7 @@
 }
 
 .fs-empty-text {
-  color: #d1d5db;
+  color: var(--clr-text-secondary); /* Màu chữ phụ */
   font-weight: 500;
   font-size: 1rem;
 }

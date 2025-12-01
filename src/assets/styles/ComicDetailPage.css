@@ -16,7 +16,8 @@
 .detail-image-wrapper {
   width: 100%;
   border-radius: var(--border-radius);
-  overflow: hidden;
+  /* QUAN TRỌNG: Để visible để badge tràn ra ngoài */
+  overflow: visible; 
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   align-self: start;
   position: sticky; 
@@ -27,16 +28,23 @@
   width: 100%;
   height: auto;
   display: block;
+  /* Bo góc cho ảnh vì wrapper không còn hidden nữa */
+  border-radius: var(--border-radius);
 }
 
 /* --- FLASH SALE BADGES STYLES START --- */
 .detail-fs-badge-left {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 90px;
+  /* Chỉnh vị trí âm để tràn ra ngoài góc */
+  top: -20px;
+  left: -20px;
+  /* Kích thước lớn */
+  width: 120px; 
   height: auto;
-  z-index: 20;
+  z-index: 20; /* Nằm trên cùng */
+  object-fit: contain;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); /* Đổ bóng */
+  pointer-events: none;
 }
 
 .detail-fs-badge-right {
