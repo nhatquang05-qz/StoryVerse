@@ -5,7 +5,7 @@ const FLASH_SALE_PRICE_QUERY = `
      FROM flash_sale_items fsi 
      JOIN flash_sales fs ON fsi.flashSaleId = fs.id 
      WHERE fsi.comicId = c.id 
-     AND fs.status = 'ACTIVE' 
+     AND fs.status != 'ENDED' 
      AND fs.startTime <= NOW() 
      AND fs.endTime >= NOW() 
      ORDER BY fs.endTime ASC 
@@ -221,7 +221,6 @@ const incrementSoldCount = async (comicId, quantity) => {
 
 const getTopViewedComicsRaw = async () => {
     const connection = getConnection();
-    // Thêm c.price và flashSalePrice
     const [rows] = await connection.execute(`
         SELECT 
             c.id, c.title, c.author, c.coverImageUrl, c.viewCount, c.price,
@@ -240,7 +239,6 @@ const getTopViewedComicsRaw = async () => {
 
 const getTopRatedComicsRaw = async () => {
     const connection = getConnection();
-    // Thêm c.price và flashSalePrice
     const [rows] = await connection.execute(`
         SELECT 
             c.id, c.title, c.author, c.coverImageUrl, c.price,

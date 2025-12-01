@@ -10,7 +10,6 @@ import StarRating from '../components/common/StarRating';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ComicDetailPage.css';
-// IMPORT HÌNH FLASH SALE
 import flashSaleBadgeIcon from '../assets/images/fs.png';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -101,15 +100,11 @@ const ComicDetailPage: React.FC = () => {
   const [unlockedChapterIds, setUnlockedChapterIds] = useState<Set<number>>(new Set());
 
   const imgRef = useRef<HTMLImageElement>(null);
-
-  // --- LOGIC FLASH SALE ---
-  // Ép kiểu any để truy cập flashSalePrice nếu interface chưa cập nhật
   const comicData: any = comic;
   const hasFlashSale = comicData?.flashSalePrice && comicData.flashSalePrice < comicData.price;
   const discountPercent = hasFlashSale 
     ? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100) 
     : 0;
-  // ------------------------
 
   useEffect(() => {
       setIsLoading(true);
@@ -209,7 +204,6 @@ const ComicDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (comic && !((comic.isDigital as any) === 1)) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-      // Gửi comicData (đã có flashSalePrice) vào giỏ
       addToCart(comicData as any, 1, rect);
     }
   };
@@ -478,13 +472,11 @@ const toggleSort = () => {
                 {!isDigital && (
                     <div className="price-display-wrapper">
                         {hasFlashSale ? (
-                            // --- HIỂN THỊ GIÁ FLASH SALE ---
                             <div className="detail-price-fs-row">
                                 <span className="detail-price-text fs-active">{formatPrice(comicData.flashSalePrice)}</span>
                                 <span className="detail-price-original">{formatPrice(comic.price)}</span>
                             </div>
                         ) : (
-                            // --- HIỂN THỊ GIÁ THƯỜNG ---
                             <span className="detail-price-text">{formatPrice(comic.price)}</span>
                         )}
                     </div>

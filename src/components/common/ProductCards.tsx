@@ -8,7 +8,6 @@ import { useNotification } from '../../contexts/NotificationContext';
 import StarRating from './StarRating';
 import '../../assets/styles/ProductCard.css';
 
-// Import hình ảnh Flash Sale
 import flashSaleBadgeIcon from '../../assets/images/fs.png'; 
 
 interface ProductCardProps {
@@ -24,15 +23,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
 
   const comicData: any = comic;
 
-  // --- LOGIC FLASH SALE ---
-  // Kiểm tra xem có giá Flash Sale và giá đó thấp hơn giá gốc không
   const hasFlashSale = comicData.flashSalePrice && comicData.flashSalePrice < comicData.price;
   
-  // Tính phần trăm giảm giá
   const discountPercent = hasFlashSale 
     ? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100) 
     : 0;
-  // ------------------------
 
   const isFavorite = isWishlisted(comicData.id);
 
@@ -42,12 +37,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   
   const formatCompactNumber = (count: number) => {
     const num = Number(count) || 0; 
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'k';
-    }
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
     return num.toString();
   };
 
@@ -58,7 +49,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-    // Nếu có Flash Sale thì add giá sale, logic này Backend đã xử lý nhưng Frontend gửi đi cũng được
     addToCart(comicData, 1, rect); 
   };
   
@@ -73,25 +63,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   
   const displayRating = parseFloat(comicData.averageRating) || 0; 
   const totalReviews = parseInt(comicData.totalReviews) || 0;
-
   const soldCount = comicData.soldCount || 0; 
 
   return (
-    <div 
-        className={`product-card ${isCarousel ? 'carousel-item' : ''}`}
-    >
+    <div className={`product-card ${isCarousel ? 'carousel-item' : ''}`}>
+      
+      {hasFlashSale && (
+          <img src={flashSaleBadgeIcon} alt="Flash Sale" className="fs-badge-left" />
+      )}
+
+      {hasFlashSale && (
+          <span className="fs-badge-right">-{discountPercent}%</span>
+      )}
+
       <Link to={`/comic/${comicData.id}`} className="card-image-container">
-        
-        {/* --- BADGE BÊN TRÁI (HÌNH ẢNH) --- */}
-        {hasFlashSale && (
-            <img src={flashSaleBadgeIcon} alt="Flash Sale" className="fs-badge-left" />
-        )}
-
-        {/* --- BADGE BÊN PHẢI (% GIẢM) --- */}
-        {hasFlashSale && (
-            <span className="fs-badge-right">-{discountPercent}%</span>
-        )}
-
         <img ref={imgRef} src={comicData.coverImageUrl} alt={comicData.title} className="card-image" /> 
 
         <div className="card-image-overlay">
@@ -108,9 +93,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
               <FiShoppingCart />
             </button>
           )}
-
         </div>
       </Link>
+
       <div className="card-info">
         <h3 className="card-title">
           <Link to={`/comic/${comicData.id}`}>{comicData.title}</Link>
@@ -133,20 +118,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         {!comicData.isDigital && (
             <div className="card-price-row">
                 {hasFlashSale ? (
-                    // --- HIỂN THỊ GIÁ KHI CÓ FLASH SALE ---
                     <div className="price-container-fs">
                         <span className="card-price fs-price">{formatPrice(comicData.flashSalePrice)}</span>
                         <span className="card-original-price">{formatPrice(comicData.price)}</span>
                     </div>
                 ) : (
-                    // --- HIỂN THỊ GIÁ BÌNH THƯỜNG ---
                     <span className="card-price">{formatPrice(comicData.price)}</span>
                 )}
                 
                 <span className="card-sold-text">Đã bán {formatCompactNumber(soldCount)}</span>
             </div>
         )}
-        
       </div>
     </div>
   );

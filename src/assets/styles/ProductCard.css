@@ -2,17 +2,19 @@
   background-color: transparent;
   border: 1px solid var(--clr-border-light);
   border-radius: var(--border-radius);
-  overflow: hidden;
+  overflow: visible; 
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   text-align: center;
   position: relative;
+  z-index: 1;
 }
 
 .product-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  z-index: 10; 
 }
 
 .card-image-container {
@@ -20,33 +22,35 @@
   display: block;
   overflow: hidden;
   aspect-ratio: 2 / 3;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
 }
 
-/* --- BADGE STYLES START --- */
 .fs-badge-left {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 55px; 
+  top: -12px;
+  left: -12px;
+  width: 85px; 
   height: auto;
-  z-index: 5;
+  z-index: 20; 
   object-fit: contain;
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); 
+  pointer-events: none; 
 }
 
 .fs-badge-right {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   background-color: #dc2626; 
   color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 2px 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 4px 8px;
   border-radius: 4px;
-  z-index: 5;
+  z-index: 20;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-/* --- BADGE STYLES END --- */
 
 .card-image {
   width: 100%;
@@ -64,6 +68,9 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  background-color: var(--clr-card-bg, #fff); 
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
 }
 
 .card-title {
@@ -236,7 +243,6 @@
   line-height: 1;
 }
 
-/* --- PRICE FLASH SALE STYLES START --- */
 .price-container-fs {
   display: flex;
   flex-direction: column;
@@ -254,7 +260,6 @@
   color: #9ca3af; 
   text-decoration: line-through; 
 }
-/* --- PRICE FLASH SALE STYLES END --- */
 
 .card-sold-text {
   font-size: 0.75rem;
