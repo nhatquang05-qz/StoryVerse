@@ -101,7 +101,16 @@ const ComicDetailPage: React.FC = () => {
 
   const imgRef = useRef<HTMLImageElement>(null);
   const comicData: any = comic;
-  const hasFlashSale = comicData?.flashSalePrice && comicData.flashSalePrice < comicData.price;
+
+  const isSaleStockAvailable = comicData?.flashSaleLimit 
+      ? (comicData.flashSaleSold || 0) < comicData.flashSaleLimit 
+      : true;
+
+  const hasFlashSale = 
+      comicData?.flashSalePrice && 
+      comicData.flashSalePrice < comicData.price &&
+      isSaleStockAvailable;
+  
   const discountPercent = hasFlashSale 
     ? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100) 
     : 0;
@@ -201,10 +210,10 @@ const ComicDetailPage: React.FC = () => {
     setQuantity(prev => Math.max(1, prev + amount));
   };
   
-const handleAddToCart = () => {
+  const handleAddToCart = () => {
     if (comic && !((comic.isDigital as any) === 1)) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-      addToCart(comicData as any, quantity, rect);
+      addToCart(comicData as any, quantity, rect); 
     }
   };
 
@@ -451,7 +460,7 @@ const toggleSort = () => {
       <div className="detail-main-card">
         <div className="detail-image-wrapper">
           
-          {/* --- FLASH SALE BADGES --- */}
+          {/* --- FLASH SALE BADGES (CHỈ HIỆN NẾU CÒN HÀNG) --- */}
           {hasFlashSale && (
              <img src={flashSaleBadgeIcon} alt="Flash Sale" className="detail-fs-badge-left" />
           )}

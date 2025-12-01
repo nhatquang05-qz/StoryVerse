@@ -28,6 +28,8 @@ export interface ComicSummary {
     averageRating: number; 
     totalReviews: number; 
     soldCount?: number;
+    flashSaleSold?: number | null;   
+    flashSaleLimit?: number | null;
 }
 
 export interface ComicDetail extends ComicSummary {

@@ -23,7 +23,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
 
   const comicData: any = comic;
 
-  const hasFlashSale = comicData.flashSalePrice && comicData.flashSalePrice < comicData.price;
+  const isSaleStockAvailable = comicData.flashSaleLimit 
+      ? (comicData.flashSaleSold || 0) < comicData.flashSaleLimit 
+      : true;
+
+  const hasFlashSale = 
+      comicData.flashSalePrice && 
+      comicData.flashSalePrice < comicData.price &&
+      isSaleStockAvailable;
   
   const discountPercent = hasFlashSale 
     ? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100) 
@@ -83,13 +90,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
           <button 
             className={`card-action-button wishlist-btn ${isFavorite ? 'favorite' : ''}`} 
             onClick={handleToggleWishlist}
-            aria-label={isFavorite ? "Xóa khỏi danh sách yêu thích" : "Thêm vào danh sách yêu thích"}
           >
             <FiHeart />
           </button>
           
           {!comicData.isDigital && (
-            <button className="card-action-button" onClick={handleAddToCart} aria-label="Thêm vào giỏ hàng">
+            <button className="card-action-button" onClick={handleAddToCart}>
               <FiShoppingCart />
             </button>
           )}
