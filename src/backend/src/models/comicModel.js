@@ -1,15 +1,24 @@
 const { getConnection } = require('../db/connection');
 
-const FLASH_SALE_PRICE_QUERY = `
-    (SELECT fsi.salePrice 
-     FROM flash_sale_items fsi 
-     JOIN flash_sales fs ON fsi.flashSaleId = fs.id 
-     WHERE fsi.comicId = c.id 
-     AND fs.status != 'ENDED' 
-     AND fs.startTime <= NOW() 
-     AND fs.endTime >= NOW() 
-     ORDER BY fs.endTime ASC 
-     LIMIT 1)
+const FS_CONDITION = `
+    FROM flash_sale_items fsi 
+    JOIN flash_sales fs ON fsi.flashSaleId = fs.id 
+    WHERE fsi.comicId = c.id 
+    AND fs.status != 'ENDED' 
+    AND fs.startTime <= NOW() 
+    AND fs.endTime >= NOW() 
+    ORDER BY fs.endTime ASC 
+    LIMIT 1
+`;
+
+const FLASH_SALE_PRICE_QUERY = `(SELECT fsi.salePrice ${FS_CONDITION})`;
+const FLASH_SALE_SOLD_QUERY  = `(SELECT fsi.soldQuantity ${FS_CONDITION})`;
+const FLASH_SALE_LIMIT_QUERY = `(SELECT fsi.quantityLimit ${FS_CONDITION})`;
+
+const SELECT_FLASH_SALE_FIELDS = `
+    ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+    ${FLASH_SALE_SOLD_QUERY} AS flashSaleSold,
+    ${FLASH_SALE_LIMIT_QUERY} AS flashSaleLimit
 `;
 
 const getAllGenresRaw = async () => {
@@ -129,7 +138,7 @@ const getComicListRaw = async (limit, offset) => {
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, 
             c.viewCount, c.createdAt, c.updatedAt,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             (
                 SELECT COALESCE(SUM(oi.quantity), 0) 
                 FROM order_items oi 
@@ -160,7 +169,7 @@ const getComicDetailRaw = async (id) => {
         `SELECT 
             c.id, c.title, c.author, c.description, c.coverImageUrl, c.status, c.isDigital, c.price, 
             c.viewCount, c.createdAt, c.updatedAt,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             (
                 SELECT COALESCE(SUM(oi.quantity), 0) 
                 FROM order_items oi 
@@ -224,7 +233,7 @@ const getTopViewedComicsRaw = async () => {
     const [rows] = await connection.execute(`
         SELECT 
             c.id, c.title, c.author, c.coverImageUrl, c.viewCount, c.price,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
         FROM comics c
         LEFT JOIN comic_genres cg ON c.id = cg.comicId
@@ -242,7 +251,7 @@ const getTopRatedComicsRaw = async () => {
     const [rows] = await connection.execute(`
         SELECT 
             c.id, c.title, c.author, c.coverImageUrl, c.price,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             AVG(r.rating) as avgRating,
             GROUP_CONCAT(g.name SEPARATOR ', ') AS genres
         FROM comics c
@@ -352,7 +361,7 @@ const getTopComicsRaw = async (startDate, endDate) => {
                 `SELECT 
                     c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author,
                     c.viewCount,
-                    ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+                    ${SELECT_FLASH_SALE_FIELDS},
                     (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
                     (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews,
                     SUM(s.daily_view_count) AS periodViewCount
@@ -370,7 +379,7 @@ const getTopComicsRaw = async (startDate, endDate) => {
     const [rows] = await connection.execute(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, c.viewCount,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             (SELECT COUNT(id) FROM reviews WHERE comicId = c.id) AS totalReviews
         FROM comics c
@@ -389,7 +398,7 @@ const searchComicsRaw = async (searchQuery, limit, offset) => {
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, 
             c.viewCount,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             (
                 SELECT COALESCE(SUM(oi.quantity), 0) 
                 FROM order_items oi 
@@ -432,7 +441,7 @@ const getComicsByGenreRaw = async (genre, limit, offset) => {
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.status, c.isDigital, c.price, c.author, 
             c.viewCount,
-            ${FLASH_SALE_PRICE_QUERY} AS flashSalePrice,
+            ${SELECT_FLASH_SALE_FIELDS},
             (
                 SELECT COALESCE(SUM(oi.quantity), 0) 
                 FROM order_items oi 

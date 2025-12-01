@@ -8,10 +8,48 @@ const enrichCartWithFlashSale = async (cartItems) => {
         const saleInfo = await FlashSaleModel.getActiveFlashSaleForComic(item.comicId);
 
         if (saleInfo) {
+            const remainingSaleStock = saleInfo.quantityLimit - saleInfo.soldQuantity;
+
+            if (remainingSaleStock <= 0) {
+                return {
+                    ...item,
+                    price: item.price,
+                    finalTotal: item.price * item.quantity, 
+                    isFlashSale: false,
+                    saleNote: "Đã hết suất Flash Sale"
+                };
+            }
+
+            if (item.quantity > remainingSaleStock) {
+                const saleQty = remainingSaleStock;           
+                const normalQty = item.quantity - saleQty;   
+                
+                const totalLinePrice = (saleQty * saleInfo.salePrice) + (normalQty * item.price);
+
+                return {
+                    ...item,
+                    originalPrice: item.price, 
+                    price: item.price,
+                    finalTotal: totalLinePrice, 
+                    flashSalePrice: saleInfo.salePrice,
+                    isFlashSale: true,
+                    isMixedSale: true,
+                    saleStockLeft: remainingSaleStock,
+                    saleName: saleInfo.saleName,
+                    priceBreakdown: {
+                        saleQty,
+                        salePrice: saleInfo.salePrice,
+                        normalQty,
+                        normalPrice: item.price
+                    }
+                };
+            }
+
             return {
                 ...item,
                 originalPrice: item.price,
-                price: saleInfo.salePrice,
+                price: saleInfo.salePrice, 
+                finalTotal: saleInfo.salePrice * item.quantity, 
                 flashSalePrice: saleInfo.salePrice,
                 isFlashSale: true,
                 saleName: saleInfo.saleName,
@@ -20,6 +58,7 @@ const enrichCartWithFlashSale = async (cartItems) => {
         
         return {
             ...item,
+            finalTotal: item.price * item.quantity,
             isFlashSale: false
         };
     }));
@@ -30,11 +69,8 @@ const enrichCartWithFlashSale = async (cartItems) => {
 const getCart = async (req, res) => {
     try {
         const userId = req.userId; 
-        
         const rawCartItems = await cartModel.getCartByUserId(userId);
-        
         const cartItems = await enrichCartWithFlashSale(rawCartItems);
-
         res.json(cartItems);
     } catch (error) {
         console.error('Get Cart Error:', error);

@@ -2,16 +2,12 @@ const orderModel = require('../models/orderModel');
 const cartModel = require('../models/cartModel'); 
 const comicModel = require('../models/comicModel');
 const voucherModel = require('../models/voucherModel');
+const FlashSaleModel = require('../models/flashSaleModel');
 
 const createOrder = async (req, res) => {
     try {
         const userId = req.userId;
-        // Lấy voucherCode từ request body
         const { fullName, phone, address, totalAmount, paymentMethod, items, voucherCode } = req.body;
-        console.log("=== DEBUG CREATE ORDER ===");
-        console.log("User ID:", userId);
-        console.log("Payment Method:", paymentMethod);
-        console.log("Voucher Code nhận được từ Frontend:", voucherCode); 
 
         if (!items || items.length === 0) {
             return res.status(400).json({ message: 'Giỏ hàng trống' });
@@ -21,17 +17,12 @@ const createOrder = async (req, res) => {
             userId, fullName, phone, address, totalAmount, paymentMethod, items
         );
 
-        // Logic tăng lượt dùng Voucher
         if (voucherCode) {
-            console.log(`Đang tăng lượt dùng cho voucher: ${voucherCode}`);
             try {
                 await voucherModel.incrementVoucherUsage(voucherCode);
-                console.log("-> Đã tăng lượt dùng thành công!");
             } catch (vErr) {
-                console.error("-> LỖI khi tăng lượt dùng voucher:", vErr);
+                console.error("Lỗi voucher:", vErr);
             }
-        } else {
-            console.log("-> KHÔNG thực hiện tăng voucher vì voucherCode bị rỗng hoặc undefined.");
         }
 
         if (paymentMethod === 'COD') {
@@ -40,6 +31,15 @@ const createOrder = async (req, res) => {
             try {
                 for (const item of items) {
                     await comicModel.incrementSoldCount(item.id, item.quantity);
+                    
+                    const saleInfo = await FlashSaleModel.getActiveFlashSaleForComic(item.id);
+                    if (saleInfo) {
+                        const remaining = saleInfo.quantityLimit - saleInfo.soldQuantity;
+                        if (remaining > 0) {
+                            const qtyToUpdate = Math.min(item.quantity, remaining);
+                            await FlashSaleModel.updateSold(item.id, qtyToUpdate);
+                        }
+                    }
                 }
             } catch (err) {
                 console.error('Error incrementing sold count for COD:', err);

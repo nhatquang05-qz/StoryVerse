@@ -7,6 +7,7 @@ const rewardService = require('../services/rewardService');
 const paymentModel = require('../models/paymentModel');
 const orderModel = require('../models/orderModel'); 
 const comicModel = require('../models/comicModel');
+const FlashSaleModel = require('../models/flashSaleModel');
 const { generateTransactionCode } = require('../utils/transactionGenerator');
 const Notification = require('../models/notificationModel');
 
@@ -199,6 +200,15 @@ const vnpayReturn = async (req, res) => {
                         const orderItems = await orderModel.getOrderItemsRaw(orderRef);
                         for (const item of orderItems) {
                             await comicModel.incrementSoldCount(item.comicId, item.quantity);
+                            const saleInfo = await FlashSaleModel.getActiveFlashSaleForComic(item.comicId);
+                            if (saleInfo) {
+                                const remaining = saleInfo.quantityLimit - saleInfo.soldQuantity;
+                                if (remaining > 0) {
+                                    const qtyToUpdate = Math.min(item.quantity, remaining);
+                                    await FlashSaleModel.updateSold(item.comicId, qtyToUpdate);
+                                }
+                            }
+                            await FlashSaleModel.updateSold(item.comicId, item.quantity);
                         }
                     } catch (err) {
                         console.error('Error incrementing sold count:', err);

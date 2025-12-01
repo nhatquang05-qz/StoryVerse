@@ -14,7 +14,7 @@
 }
 
 .fs-content {
-  background-color: var(--clr-card-bg); 
+  background-color: var(--clr-background); 
   border-radius: 6px;
   padding: 1.5rem;
   min-height: 340px;

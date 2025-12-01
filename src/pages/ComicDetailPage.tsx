@@ -201,10 +201,10 @@ const ComicDetailPage: React.FC = () => {
     setQuantity(prev => Math.max(1, prev + amount));
   };
   
-  const handleAddToCart = () => {
+const handleAddToCart = () => {
     if (comic && !((comic.isDigital as any) === 1)) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-      addToCart(comicData as any, 1, rect);
+      addToCart(comicData as any, quantity, rect);
     }
   };
 

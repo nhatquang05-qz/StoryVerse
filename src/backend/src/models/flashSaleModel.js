@@ -91,10 +91,11 @@ const FlashSaleModel = {
     const now = new Date();
 
     const query = `
-      SELECT fsi.salePrice, fsi.quantityLimit, fs.endTime, fs.name as saleName
+      SELECT fsi.salePrice, fsi.quantityLimit, fsi.soldQuantity, fs.endTime, fs.name as saleName
       FROM flash_sale_items fsi
       JOIN flash_sales fs ON fsi.flashSaleId = fs.id
       WHERE fsi.comicId = ? 
+      AND fs.status != 'ENDED'
       AND fs.startTime <= ? 
       AND fs.endTime >= ?
       LIMIT 1
@@ -102,6 +103,24 @@ const FlashSaleModel = {
     
     const [rows] = await connection.execute(query, [comicId, now, now]);
     return rows[0]; 
+  },
+
+  updateSold: async (comicId, quantity) => {
+      const connection = getConnection();
+      const query = `
+          UPDATE flash_sale_items fsi
+          JOIN flash_sales fs ON fsi.flashSaleId = fs.id
+          SET fsi.soldQuantity = fsi.soldQuantity + ?
+          WHERE fsi.comicId = ?
+          AND fs.status != 'ENDED'
+          AND fs.startTime <= NOW() 
+          AND fs.endTime >= NOW()
+      `;
+      try {
+          await connection.execute(query, [quantity, comicId]);
+      } catch (error) {
+          console.error("Lỗi cập nhật soldQuantity Flash Sale:", error);
+      }
   },
 
   delete: async (id) => {

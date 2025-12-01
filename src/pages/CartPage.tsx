@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiPlus, FiMinus, FiTrash2, FiShoppingCart, FiTag, FiX, FiAlertCircle } from 'react-icons/fi';
+import { FiPlus, FiMinus, FiTrash2, FiShoppingCart, FiTag, FiX, FiAlertCircle, FiArrowLeft } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
@@ -11,8 +11,6 @@ const CartPage: React.FC = () => {
     cartItems, 
     updateQuantity, 
     removeFromCart, 
-    subtotal, 
-    total, 
     discount, 
     applyVoucher, 
     appliedVoucher, 
@@ -26,6 +24,17 @@ const CartPage: React.FC = () => {
   const [couponCode, setCouponCode] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const [voucherError, setVoucherError] = useState(''); 
+
+  const realSubtotal = useMemo(() => {
+    return cartItems.reduce((sum: number, item: any) => {
+        const itemTotal = (typeof item.finalTotal === 'number') 
+            ? item.finalTotal 
+            : (item.price * item.quantity);
+        return sum + itemTotal;
+    }, 0);
+  }, [cartItems]);
+
+  const realTotal = Math.max(0, realSubtotal - discount);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -45,7 +54,6 @@ const CartPage: React.FC = () => {
           showNotification(result.message, 'success');
           setCouponCode('');
       } else {
-
           setVoucherError(result.message);
       }
   };
@@ -91,24 +99,79 @@ const CartPage: React.FC = () => {
       <h1>Giỏ Hàng Của Bạn</h1>
       <div className="cart-container">
         <div className="cart-items-list">
-          {cartItems.map(item => (
-            <div key={item.id} className="cart-item">
-              <img src={item.imageUrl || item.coverImageUrl} alt={item.title} className="cart-item-image" />
-              <div className="cart-item-details">
-                <Link to={`/comic/${item.id}`} className="cart-item-title">{item.title}</Link>
-                <p className="cart-item-author">{item.author || 'Đang cập nhật'}</p>
-                <p className="cart-item-price">{formatPrice(item.price)}</p>
-              </div>
-              <div className="cart-item-actions">
-                <div className="quantity-selector">
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}><FiMinus /></button>
-                  <input type="text" value={item.quantity} readOnly />
-                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)}><FiPlus /></button>
+          {cartItems.map((item: any) => {
+            let priceDisplay;
+            let noteDisplay = null;
+            const rowTotal = (typeof item.finalTotal === 'number') ? item.finalTotal : (item.price * item.quantity);
+
+            if (item.isMixedSale && item.priceBreakdown) {
+                const { saleQty, salePrice, normalQty, normalPrice } = item.priceBreakdown;
+                
+                priceDisplay = (
+                    <div className="mixed-price-col">
+                        <div className="price-row sale">
+                            <span className="p-price">{formatPrice(salePrice)}</span>
+                            <span className="p-qty">x{saleQty}</span>
+                        </div>
+                        <div className="price-row normal">
+                            <span className="p-price">{formatPrice(normalPrice)}</span>
+                            <span className="p-qty">x{normalQty}</span>
+                        </div>
+                    </div>
+                );
+                
+                noteDisplay = (
+                    <div className="mixed-sale-note">
+                        <span className="badge-warning">Hết suất Flash Sale</span>
+                        <p>Bạn mua {item.quantity} cuốn: <b>{saleQty}</b> giá sale & <b>{normalQty}</b> giá gốc.</p>
+                    </div>
+                );
+
+            } else if (item.isFlashSale) {
+                priceDisplay = (
+                    <div className="flash-sale-price">
+                        <span className="current-price">{formatPrice(item.price)}</span>
+                        {item.originalPrice && (
+                            <span className="original-price">{formatPrice(item.originalPrice)}</span>
+                        )}
+                    </div>
+                );
+            } else {
+                priceDisplay = <span className="cart-item-price">{formatPrice(item.price)}</span>;
+            }
+
+            return (
+                <div key={item.id} className="cart-item">
+                  <img src={item.imageUrl || item.coverImageUrl} alt={item.title} className="cart-item-image" />
+                  
+                  <div className="cart-item-details">
+                    <Link to={`/comic/${item.id}`} className="cart-item-title">{item.title}</Link>
+                    <p className="cart-item-author">{item.author || 'Đang cập nhật'}</p>
+                    
+                    <div className="cart-item-price-wrapper">
+                        {priceDisplay}
+                    </div>
+
+                    {noteDisplay}
+                    {item.saleNote && !item.isMixedSale && (
+                        <span className="sale-note-text">{item.saleNote}</span>
+                    )}
+                  </div>
+
+                  <div className="cart-item-actions">
+                    <div className="quantity-selector">
+                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}><FiMinus /></button>
+                      <input type="text" value={item.quantity} readOnly />
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)}><FiPlus /></button>
+                    </div>
+                    <div className="cart-item-total-display" style={{fontWeight: 'bold', marginTop: '10px', color: 'var(--clr-primary)'}}>
+                        {formatPrice(rowTotal)}
+                    </div>
+                    <button onClick={() => removeFromCart(item.id)} className="remove-btn"><FiTrash2 /></button>
+                  </div>
                 </div>
-                <button onClick={() => removeFromCart(item.id)} className="remove-btn"><FiTrash2 /></button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="cart-summary">
@@ -116,7 +179,8 @@ const CartPage: React.FC = () => {
           
           <div className="summary-row">
             <span>Tạm tính</span>
-            <span>{formatPrice(subtotal)}</span>
+            {/* Sử dụng realSubtotal thay vì subtotal */}
+            <span>{formatPrice(realSubtotal)}</span>
           </div>
 
           <div className="summary-row">
@@ -124,7 +188,6 @@ const CartPage: React.FC = () => {
             <span>Miễn phí</span>
           </div>
 
-          {/* Voucher Section */}
           <div className="voucher-section">
             {appliedVoucher ? (
                 <div className="applied-voucher-info">
@@ -176,7 +239,7 @@ const CartPage: React.FC = () => {
           
           <div className="summary-total">
             <span>Tổng Cộng</span>
-            <span className="total-price">{formatPrice(total)}</span>
+            <span className="total-price">{formatPrice(realTotal)}</span>
           </div>
           
           <button className="checkout-btn" onClick={handleCheckout}>Tiến hành thanh toán</button>
