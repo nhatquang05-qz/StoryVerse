@@ -1,5 +1,6 @@
 const comicService = require('../services/comicService');
-
+const Notification = require('../models/notificationModel'); 
+const { getConnection } = require('../db/connection'); 
 const addComic = async (req, res) => {
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
     try {
@@ -80,6 +81,37 @@ const addChapter = async (req, res) => {
 
     try {
         const result = await comicService.addChapterService(comicId, { chapterNumber, title, contentUrls, price });
+
+        try {
+            const connection = getConnection();
+            
+            const [comics] = await connection.execute('SELECT title, coverImageUrl FROM comics WHERE id = ?', [comicId]);
+            if (comics.length > 0) {
+                const comic = comics[0];
+                
+                const [users] = await connection.execute('SELECT userId FROM user_wishlist WHERE comicId = ?', [comicId]);
+                
+                if (users.length > 0) {
+                    const notifTitle = 'Truyện mới cập nhật';
+                    const notifMsg = `Truyện <b>${comic.title}</b> vừa cập nhật Chapter <b>${chapterNumber}</b>: ${title || ''}`;
+                    
+                    for (const u of users) {
+                        await Notification.create({
+                            userId: u.userId,
+                            type: 'COMIC',
+                            title: notifTitle,
+                            message: notifMsg,
+                            referenceId: comicId,
+                            referenceType: 'COMIC',
+                            imageUrl: comic.coverImageUrl
+                        });
+                    }
+                }
+            }
+        } catch (notifError) {
+            console.error("Lỗi tạo thông báo chapter mới:", notifError);
+        }
+
         res.status(result.status).json({ message: result.message, chapterId: result.chapterId });
     } catch (error) {
         const status = error.status || 500;

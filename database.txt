@@ -332,3 +332,19 @@ CREATE TABLE IF NOT EXISTS `reports` (
 ALTER TABLE `reports`
 ADD COLUMN `snapshotContent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci AFTER `reason`,
 ADD COLUMN `snapshotImage` varchar(255) DEFAULT NULL AFTER `snapshotContent`;
+
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `type` enum('SYSTEM', 'ORDER', 'COMIC', 'COMMUNITY', 'RECHARGE') NOT NULL DEFAULT 'SYSTEM',
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `referenceId` int DEFAULT NULL, -- ID của đơn hàng, truyện, hoặc bài viết liên quan
+  `referenceType` varchar(50) DEFAULT NULL, -- 'ORDER', 'COMIC', 'POST', 'COMMENT'
+  `isRead` tinyint(1) DEFAULT '0',
+  `imageUrl` varchar(255) DEFAULT NULL, -- Avatar người tương tác hoặc ảnh bìa truyện
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_read` (`userId`, `isRead`),
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

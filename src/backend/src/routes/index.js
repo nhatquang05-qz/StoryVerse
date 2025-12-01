@@ -14,6 +14,7 @@ const paymentRoutes = require('./paymentRoutes');
 const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const postRoutes = require('./postRoutes');
+const notificationRoutes = require('./notificationRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/comics', comicRoutes);
@@ -28,5 +29,6 @@ router.use('/payment', paymentRoutes);
 router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/posts', postRoutes);
+router.use('/notifications', notificationRoutes);
 
 module.exports = router;

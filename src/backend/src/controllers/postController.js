@@ -1,4 +1,9 @@
 const { getConnection } = require('../db/connection');
+const Notification = require('../models/notificationModel'); 
+async function getActorInfo(connection, userId) {
+    const [rows] = await connection.execute('SELECT fullName, avatarUrl FROM users WHERE id = ?', [userId]);
+    return rows[0] || { fullName: 'Ai đó', avatarUrl: null };
+}
 
 const getPosts = async (req, res) => {
     try {
@@ -46,23 +51,39 @@ const createPost = async (req, res) => {
 
 const toggleLike = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params; 
         const userId = req.userId;
         const connection = getConnection();
         const [check] = await connection.execute('SELECT id FROM post_likes WHERE postId = ? AND userId = ?', [id, userId]);
+        
         if (check.length > 0) {
             await connection.execute('DELETE FROM post_likes WHERE postId = ? AND userId = ?', [id, userId]);
             res.status(200).json({ message: 'Unliked', isLiked: false });
         } else {
             await connection.execute('INSERT INTO post_likes (postId, userId) VALUES (?, ?)', [id, userId]);
             res.status(200).json({ message: 'Liked', isLiked: true });
+
+            const [post] = await connection.execute('SELECT userId FROM posts WHERE id = ?', [id]);
+            
+            if (post.length > 0 && post[0].userId !== userId) {
+                const actor = await getActorInfo(connection, userId);
+                await Notification.create({
+                    userId: post[0].userId, 
+                    type: 'COMMUNITY',
+                    title: 'Tương tác mới',
+                    message: `<b>${actor.fullName}</b> đã thích bài viết của bạn.`,
+                    referenceId: parseInt(id),
+                    referenceType: 'POST',
+                    imageUrl: actor.avatarUrl
+                });
+            }
         }
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Lỗi like' });
     }
 };
 
-// --- DELETE POST  ---
 const deletePost = async (req, res) => {
     try {
         const { id } = req.params;
@@ -71,6 +92,7 @@ const deletePost = async (req, res) => {
         const [post] = await connection.execute('SELECT userId FROM posts WHERE id = ?', [id]);
         
         if (post.length === 0) return res.status(404).json({ message: 'Không tìm thấy bài viết' });
+        
         if (post[0].userId !== userId) {
             return res.status(403).json({ message: 'Bạn không có quyền xoá bài viết này' });
         }
@@ -82,7 +104,6 @@ const deletePost = async (req, res) => {
     }
 };
 
-// --- COMMENTS ---
 const getComments = async (req, res) => {
     try {
         const { id } = req.params; 
@@ -137,7 +158,46 @@ const addComment = async (req, res) => {
         `, [result.insertId]);
 
         res.status(201).json({ ...newComment[0], likeCount: 0, isLiked: false });
+
+        try {
+            const actor = await getActorInfo(connection, userId);
+            
+            if (parentId) {
+                const [parentCmt] = await connection.execute('SELECT userId FROM comments WHERE id = ?', [parentId]);
+                
+                // Nếu người được trả lời tồn tại và không phải là chính mình
+                if (parentCmt.length > 0 && parentCmt[0].userId !== userId) {
+                    await Notification.create({
+                        userId: parentCmt[0].userId,
+                        type: 'COMMUNITY',
+                        title: 'Phản hồi mới',
+                        message: `<b>${actor.fullName}</b> đã trả lời bình luận của bạn.`,
+                        referenceId: parseInt(id), // Link về bài viết chứa cmt
+                        referenceType: 'POST',
+                        imageUrl: actor.avatarUrl
+                    });
+                }
+            } else {
+                const [post] = await connection.execute('SELECT userId FROM posts WHERE id = ?', [id]);
+                
+                if (post.length > 0 && post[0].userId !== userId) {
+                    await Notification.create({
+                        userId: post[0].userId,
+                        type: 'COMMUNITY',
+                        title: 'Bình luận mới',
+                        message: `<b>${actor.fullName}</b> đã bình luận về bài viết của bạn.`,
+                        referenceId: parseInt(id),
+                        referenceType: 'POST',
+                        imageUrl: actor.avatarUrl
+                    });
+                }
+            }
+        } catch (notifErr) {
+            console.error("Lỗi tạo thông báo comment:", notifErr);
+        }
+
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Lỗi gửi bình luận' });
     }
 };
@@ -148,28 +208,45 @@ const toggleCommentLike = async (req, res) => {
         const userId = req.userId;
         const connection = getConnection();
         const [check] = await connection.execute('SELECT id FROM comment_likes WHERE commentId = ? AND userId = ?', [commentId, userId]);
+        
         if (check.length > 0) {
             await connection.execute('DELETE FROM comment_likes WHERE commentId = ? AND userId = ?', [commentId, userId]);
             res.status(200).json({ message: 'Unliked', isLiked: false });
         } else {
             await connection.execute('INSERT INTO comment_likes (commentId, userId) VALUES (?, ?)', [commentId, userId]);
             res.status(200).json({ message: 'Liked', isLiked: true });
+
+            try {
+                const [cmt] = await connection.execute('SELECT userId, postId FROM comments WHERE id = ?', [commentId]);
+                
+                if (cmt.length > 0 && cmt[0].userId !== userId) {
+                    const actor = await getActorInfo(connection, userId);
+                    await Notification.create({
+                        userId: cmt[0].userId,
+                        type: 'COMMUNITY',
+                        title: 'Tương tác mới',
+                        message: `<b>${actor.fullName}</b> đã thích bình luận của bạn.`,
+                        referenceId: cmt[0].postId,
+                        referenceType: 'POST',
+                        imageUrl: actor.avatarUrl
+                    });
+                }
+            } catch (notifErr) {
+                console.error("Lỗi tạo thông báo like comment:", notifErr);
+            }
         }
     } catch (error) {
         res.status(500).json({ message: 'Lỗi like comment' });
     }
 };
 
-// --- NEW: REPORT & DELETE COMMENT ---
-
 const reportPost = async (req, res) => {
     try {
-        const { id } = req.params; // postId
+        const { id } = req.params;
         const { reason } = req.body;
         const userId = req.userId;
         const connection = getConnection();
 
-        // 1. Lấy nội dung hiện tại của bài viết để lưu bằng chứng
         const [posts] = await connection.execute(
             'SELECT content, imageUrl FROM posts WHERE id = ?', 
             [id]
@@ -181,7 +258,6 @@ const reportPost = async (req, res) => {
 
         const postSnapshot = posts[0];
 
-        // 2. Tạo report kèm theo snapshot nội dung
         await connection.execute(
             `INSERT INTO reports 
             (reporterId, targetId, targetType, reason, snapshotContent, snapshotImage) 
@@ -191,8 +267,8 @@ const reportPost = async (req, res) => {
                 id, 
                 'POST', 
                 reason, 
-                postSnapshot.content || '',   // Lưu nội dung text
-                postSnapshot.imageUrl || null // Lưu link ảnh
+                postSnapshot.content || '',   
+                postSnapshot.imageUrl || null 
             ]
         );
 

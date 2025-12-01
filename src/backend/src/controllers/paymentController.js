@@ -8,6 +8,7 @@ const paymentModel = require('../models/paymentModel');
 const orderModel = require('../models/orderModel'); 
 const comicModel = require('../models/comicModel');
 const { generateTransactionCode } = require('../utils/transactionGenerator');
+const Notification = require('../models/notificationModel');
 
 const rechargePacks = [
     { id: 1, coins: 500, price: 20000, bonus: 50 },
@@ -158,6 +159,15 @@ const vnpayReturn = async (req, res) => {
                             vnpTxnRef
                         );
                         
+                        await Notification.create({
+                            userId: userId,
+                            type: 'RECHARGE',
+                            title: 'Nạp xu thành công',
+                            message: `Bạn đã nạp thành công gói <b>${packId}</b>. Tài khoản được cộng <b>${totalCoinsToAdd}</b> xu.`,
+                            referenceId: packId,
+                            referenceType: 'RECHARGE'
+                        });
+
                         return res.json({ 
                             status: 'success', 
                             type: 'RECHARGE',
@@ -193,6 +203,15 @@ const vnpayReturn = async (req, res) => {
                     } catch (err) {
                         console.error('Error incrementing sold count:', err);
                     }
+
+                    await Notification.create({
+                        userId: userId,
+                        type: 'ORDER',
+                        title: 'Thanh toán thành công',
+                        message: `Đơn hàng <b>#${orderRef}</b> của bạn đã được thanh toán thành công.`,
+                        referenceId: parseInt(orderRef) || 0,
+                        referenceType: 'ORDER'
+                    });
 
                     return res.json({ 
                         status: 'success', 

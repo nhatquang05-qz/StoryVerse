@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter, FiBell, FiMessageSquare, FiInfo, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { type ComicSummary, type Genre } from '../types/comicTypes'; 
@@ -9,12 +9,38 @@ import DailyRewardModal from './common/DailyRewardModal';
 import coinIcon from '../assets/images/coin.png';
 import '../assets/styles/Header.css';
 
+interface Notification {
+  id: number;
+  type: 'SYSTEM' | 'ORDER' | 'COMIC' | 'COMMUNITY' | 'RECHARGE';
+  title: string;
+  message: string;
+  isRead: number;
+  createdAt: string;
+  imageUrl?: string;
+  referenceId?: number;
+  referenceType?: string;
+}
+
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const MAX_SUGGESTIONS_TOTAL = 10; 
 
 const formatPrice = (price: number) => {
   if (price === 0) return "Miễn phí";
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+};
+
+const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (seconds < 60) return 'Vừa xong';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} phút trước`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} giờ trước`;
+    const days = Math.floor(hours / 24);
+    return `${days} ngày trước`;
 };
 
 const Header: React.FC = () => {
@@ -26,14 +52,84 @@ const Header: React.FC = () => {
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);   
   const [allGenres, setAllGenres] = useState<Genre[]>([]);  
   const { cartCount, setCartIconRect } = useCart();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, token } = useAuth(); 
   const cartIconRef = useRef<HTMLAnchorElement>(null);
   const navigate = useNavigate();
   const searchBarRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<number | null>(null); 
   const location = useLocation();
-  const isReaderPage = location.pathname.startsWith('/read/');
+  const isReaderPage = location.pathname.startsWith('/read/');  
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
   const toggleMenu = () => { setIsMenuOpen(!isMenuOpen); };
+
+  const fetchNotifications = async () => {
+    if (!currentUser || !token) return;
+    try {
+        const res = await fetch(`${API_URL}/notifications?limit=20`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            setNotifications(data.notifications);
+            setUnreadCount(data.unreadCount);
+        }
+    } catch (err) {
+        console.error("Lỗi lấy thông báo", err);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser) {
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 60000);
+        return () => clearInterval(interval);
+    }
+  }, [currentUser, token]);
+
+  const handleMarkAllRead = async () => {
+    if (!currentUser || !token) return;
+    try {
+        await fetch(`${API_URL}/notifications/read-all`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: 1 })));
+        setUnreadCount(0);
+    } catch (err) { console.error(err); }
+  };
+
+  const handleNotificationClick = async (notif: Notification) => {
+    if (notif.isRead === 0 && token) {
+        fetch(`${API_URL}/notifications/${notif.id}/read`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(err => console.error(err));
+        
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: 1 } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+    }
+    
+    setIsNotifOpen(false);
+
+    if (notif.type === 'COMIC' && notif.referenceId) navigate(`/comic/${notif.referenceId}`);
+    else if (notif.type === 'ORDER') navigate(`/orders`);
+    else if (notif.type === 'RECHARGE') navigate(`/recharge`);
+    else if (notif.type === 'COMMUNITY' && notif.referenceId) navigate(`/community`); 
+  };
+
+  useEffect(() => {
+    const handleClickOutsideNotif = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutsideNotif);
+    return () => document.removeEventListener('mousedown', handleClickOutsideNotif);
+  }, []);
 
   useEffect(() => {
     const updateCartPosition = () => {
@@ -321,6 +417,64 @@ const Header: React.FC = () => {
 
           {currentUser ? (
             <>
+              <div className="notification-wrapper" ref={notifRef}>
+                <button 
+                    className="action-icon notification-btn" 
+                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                    aria-label="Thông báo"
+                >
+                    <FiBell />
+                    {unreadCount > 0 && <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+                </button>
+                
+                {isNotifOpen && (
+                    <div className="notification-dropdown">
+                        <div className="notification-header">
+                            <h3>Thông báo</h3>
+                            {unreadCount > 0 && (
+                                <button className="mark-all-read" onClick={handleMarkAllRead}>
+                                    Đánh dấu tất cả đã đọc
+                                </button>
+                            )}
+                        </div>
+                        <div className="notification-list">
+                            {notifications.length > 0 ? (
+                                notifications.map(notif => (
+                                    <div 
+                                        key={notif.id} 
+                                        className={`notification-item ${notif.isRead === 0 ? 'unread' : ''}`}
+                                        onClick={() => handleNotificationClick(notif)}
+                                    >
+                                        <div className="notif-icon-wrapper">
+                                            {notif.imageUrl ? (
+                                                <img src={notif.imageUrl} alt="" className="notif-img" />
+                                            ) : (
+                                                notif.type === 'ORDER' ? <FiShoppingCart size={20} color="#52c41a" /> :
+                                                notif.type === 'RECHARGE' ? <FiDollarSign size={20} color="#faad14" /> :
+                                                notif.type === 'COMMUNITY' ? <FiMessageSquare size={20} color="#1890ff" /> :
+                                                notif.type === 'SYSTEM' ? <FiAlertTriangle size={20} color="#f5222d" /> :
+                                                <FiInfo size={20} />
+                                            )}
+                                        </div>
+                                        <div className="notif-content">
+                                            <p className="notif-message">
+                                                <span dangerouslySetInnerHTML={{ __html: notif.message }} />
+                                            </p>
+                                            <span className="notif-time">{formatTimeAgo(notif.createdAt)}</span>
+                                        </div>
+                                        {notif.isRead === 0 && <div style={{width: 8, height: 8, borderRadius: '50%', background: 'var(--clr-primary)', alignSelf: 'center'}}></div>}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="notification-empty">
+                                    <p>Bạn chưa có thông báo nào</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+              </div>
+
               <div className="dropdown">
                 <button className="action-icon user-icon" aria-label="Tài khoản">
                   <img src={currentUser.avatarUrl} alt="Avatar" className="user-avatar-icon" />
@@ -371,7 +525,6 @@ const Header: React.FC = () => {
           <Link to="/physical-comics" onClick={toggleMenu}>Truyện In</Link>
           <Link to="/digital-comics" onClick={toggleMenu}>Đọc Online</Link>
           
-          {/* --- Đã thêm link Cộng đồng Mobile ở đây --- */}
           <Link to="/community" onClick={toggleMenu}>Cộng đồng</Link>
           <Link to="/about-us" onClick={toggleMenu}>Giới thiệu</Link>
           
@@ -403,7 +556,11 @@ const Header: React.FC = () => {
           </Link>
 
           {currentUser && (
-              <>
+            <>
+                 <button className="nav-mobile-action" onClick={() => { setIsNotifOpen(true); toggleMenu(); }}>
+                    <FiBell /> <span>Thông báo ({unreadCount})</span>
+                 </button>
+
                   <button className={`nav-mobile-action daily-reward-btn ${canClaimReward ? 'can-claim' : ''}`} onClick={handleOpenRewardModal}>
                       <FiGift /> <span>{canClaimReward ? 'Nhận Thưởng Hàng Ngày' : 'Đã Nhận Thưởng'}</span>
                   </button>
@@ -413,7 +570,7 @@ const Header: React.FC = () => {
                       <span className="coin-amount">{currentUser.coinBalance} Xu</span>
                   </div>
               </>
-           )}
+            )}
           <div className="nav-mobile-separator"></div>
           {currentUser ? (
             <div className="nav-mobile-user-section">
@@ -424,10 +581,10 @@ const Header: React.FC = () => {
                 <FiDollarSign /> <span>Nạp Xu</span>
               </Link>
               <Link to="/my-library" onClick={toggleMenu} className="nav-mobile-action"> 
-                 <span>Thư Viện Số</span>
+                  <span>Thư Viện Số</span>
               </Link>
               <Link to="/orders" onClick={toggleMenu} className="nav-mobile-action">
-                 <span>Lịch Sử Mua Hàng</span>
+                  <span>Lịch Sử Mua Hàng</span>
               </Link>
               <Link to="/settings" onClick={toggleMenu} className="nav-mobile-action">
                 <FiSettings /> <span>Cài Đặt</span>
