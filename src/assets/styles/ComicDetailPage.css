@@ -29,9 +29,41 @@
   display: block;
 }
 
+/* --- FLASH SALE BADGES STYLES START --- */
+.detail-fs-badge-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90px;
+  height: auto;
+  z-index: 20;
+}
+
+.detail-fs-badge-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #dc2626;
+  color: white;
+  font-weight: 800;
+  font-size: 1.2rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  z-index: 20;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+/* --- FLASH SALE BADGES STYLES END --- */
+
 .digital-badge {
     position: absolute;
-    top: 10px;
+    top: 50px;
     right: 10px;
     z-index: 10;
     background-color: var(--clr-primary);
@@ -102,12 +134,37 @@
     white-space: nowrap;
 }
 
+/* --- PRICE STYLES UPDATE --- */
+.price-display-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 .detail-price-text {
   font-size: 2.2rem;
   font-weight: bold;
   color: var(--clr-primary);
   line-height: 1;
 }
+
+.detail-price-fs-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.fs-active {
+  color: #dc2626 !important; /* Màu đỏ cho giá Sale */
+  font-size: 2.8rem; /* To hơn một chút */
+}
+
+.detail-price-original {
+  font-size: 1.5rem;
+  color: #9ca3af; /* Màu xám */
+  text-decoration: line-through;
+  font-weight: 500;
+}
+/* -------------------------- */
 
 .rating-container-row {
     display: flex;

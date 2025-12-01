@@ -3,7 +3,7 @@ const { getConnection } = require('../db/connection');
 const getCartByUserId = async (userId) => {
     const connection = getConnection();
     const query = `
-        SELECT c.id, c.title, c.author, c.price, c.coverImageUrl as imageUrl, c.isDigital, ci.quantity
+        SELECT c.id, c.id AS comicId, c.title, c.author, c.price, c.coverImageUrl as imageUrl, c.isDigital, ci.quantity
         FROM cart_items ci
         JOIN comics c ON ci.comicId = c.id
         WHERE ci.userId = ?

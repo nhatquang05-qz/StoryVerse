@@ -22,7 +22,7 @@ const getAllFlashSales = async (req, res) => {
 const getActiveFlashSale = async (req, res) => {
   try {
     const sale = await FlashSaleModel.getActiveSale();
-    res.json(sale); // Trả về null nếu không có sale nào
+    res.json(sale); 
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Lỗi server' });

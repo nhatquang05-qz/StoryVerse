@@ -1,9 +1,40 @@
 const cartModel = require('../models/cartModel');
+const FlashSaleModel = require('../models/flashSaleModel');
+
+const enrichCartWithFlashSale = async (cartItems) => {
+    if (!cartItems || cartItems.length === 0) return [];
+
+    const enrichedItems = await Promise.all(cartItems.map(async (item) => {
+        const saleInfo = await FlashSaleModel.getActiveFlashSaleForComic(item.comicId);
+
+        if (saleInfo) {
+            return {
+                ...item,
+                originalPrice: item.price,
+                price: saleInfo.salePrice,
+                flashSalePrice: saleInfo.salePrice,
+                isFlashSale: true,
+                saleName: saleInfo.saleName,
+            };
+        }
+        
+        return {
+            ...item,
+            isFlashSale: false
+        };
+    }));
+
+    return enrichedItems;
+};
 
 const getCart = async (req, res) => {
     try {
         const userId = req.userId; 
-        const cartItems = await cartModel.getCartByUserId(userId);
+        
+        const rawCartItems = await cartModel.getCartByUserId(userId);
+        
+        const cartItems = await enrichCartWithFlashSale(rawCartItems);
+
         res.json(cartItems);
     } catch (error) {
         console.error('Get Cart Error:', error);
@@ -16,8 +47,12 @@ const addToCart = async (req, res) => {
         const userId = req.userId;
         const { comicId, quantity } = req.body;        
         if (!comicId || !quantity) return res.status(400).json({ message: 'Thiếu thông tin' });
+
         await cartModel.addToCartRaw(userId, comicId, quantity);        
-        const updatedCart = await cartModel.getCartByUserId(userId);
+        
+        const rawCart = await cartModel.getCartByUserId(userId);
+        const updatedCart = await enrichCartWithFlashSale(rawCart);
+        
         res.json(updatedCart);
     } catch (error) {
         console.error('Add Cart Error:', error);
@@ -36,7 +71,9 @@ const updateQuantity = async (req, res) => {
             await cartModel.updateQuantityRaw(userId, comicId, quantity);
         }
 
-        const updatedCart = await cartModel.getCartByUserId(userId);
+        const rawCart = await cartModel.getCartByUserId(userId);
+        const updatedCart = await enrichCartWithFlashSale(rawCart);
+        
         res.json(updatedCart);
     } catch (error) {
         console.error('Update Cart Error:', error);
@@ -51,7 +88,9 @@ const removeFromCart = async (req, res) => {
 
         await cartModel.removeFromCartRaw(userId, comicId);
         
-        const updatedCart = await cartModel.getCartByUserId(userId);
+        const rawCart = await cartModel.getCartByUserId(userId);
+        const updatedCart = await enrichCartWithFlashSale(rawCart);
+        
         res.json(updatedCart);
     } catch (error) {
         console.error('Remove Cart Error:', error);

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaPlus, FaTrash, FaSearch } from 'react-icons/fa';
-import '../../assets/styles/FlashSaleManagement.css'; // Import file CSS
+import '../../assets/styles/FlashSaleManagement.css'; 
 
-// Sử dụng cổng 3000
 const API_BASE_URL = 'http://localhost:3000/api';
 
 interface Comic {
@@ -25,13 +24,11 @@ const FlashSaleManagement: React.FC = () => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   
-  // State cho việc chọn sản phẩm
   const [allComics, setAllComics] = useState<Comic[]>([]);
   const [selectedItems, setSelectedItems] = useState<FlashSaleItemInput[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResult, setSearchResult] = useState<Comic[]>([]);
 
-  // Thêm token để xác thực admin khi gọi API
   const token = localStorage.getItem('storyverse_token');
   const config = {
       headers: { Authorization: `Bearer ${token}` }
@@ -98,7 +95,6 @@ const FlashSaleManagement: React.FC = () => {
       
       setIsCreating(false);
       fetchSales();
-      // Reset form
       setName(''); setStartTime(''); setEndTime(''); setSelectedItems([]);
     } catch (err) {
       alert('Lỗi khi tạo Flash Sale. Kiểm tra quyền Admin.');

@@ -8,6 +8,9 @@ import { useNotification } from '../../contexts/NotificationContext';
 import StarRating from './StarRating';
 import '../../assets/styles/ProductCard.css';
 
+// Import hình ảnh Flash Sale
+import flashSaleBadgeIcon from '../../assets/images/fs.png'; 
+
 interface ProductCardProps {
   comic: ComicSummary; 
   isCarousel?: boolean;
@@ -20,6 +23,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const imgRef = useRef<HTMLImageElement>(null);
 
   const comicData: any = comic;
+
+  // --- LOGIC FLASH SALE ---
+  // Kiểm tra xem có giá Flash Sale và giá đó thấp hơn giá gốc không
+  const hasFlashSale = comicData.flashSalePrice && comicData.flashSalePrice < comicData.price;
+  
+  // Tính phần trăm giảm giá
+  const discountPercent = hasFlashSale 
+    ? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100) 
+    : 0;
+  // ------------------------
 
   const isFavorite = isWishlisted(comicData.id);
 
@@ -45,6 +58,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
+    // Nếu có Flash Sale thì add giá sale, logic này Backend đã xử lý nhưng Frontend gửi đi cũng được
     addToCart(comicData, 1, rect); 
   };
   
@@ -67,6 +81,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         className={`product-card ${isCarousel ? 'carousel-item' : ''}`}
     >
       <Link to={`/comic/${comicData.id}`} className="card-image-container">
+        
+        {/* --- BADGE BÊN TRÁI (HÌNH ẢNH) --- */}
+        {hasFlashSale && (
+            <img src={flashSaleBadgeIcon} alt="Flash Sale" className="fs-badge-left" />
+        )}
+
+        {/* --- BADGE BÊN PHẢI (% GIẢM) --- */}
+        {hasFlashSale && (
+            <span className="fs-badge-right">-{discountPercent}%</span>
+        )}
+
         <img ref={imgRef} src={comicData.coverImageUrl} alt={comicData.title} className="card-image" /> 
 
         <div className="card-image-overlay">
@@ -107,7 +132,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
         
         {!comicData.isDigital && (
             <div className="card-price-row">
-                <span className="card-price">{formatPrice(comicData.price)}</span>
+                {hasFlashSale ? (
+                    // --- HIỂN THỊ GIÁ KHI CÓ FLASH SALE ---
+                    <div className="price-container-fs">
+                        <span className="card-price fs-price">{formatPrice(comicData.flashSalePrice)}</span>
+                        <span className="card-original-price">{formatPrice(comicData.price)}</span>
+                    </div>
+                ) : (
+                    // --- HIỂN THỊ GIÁ BÌNH THƯỜNG ---
+                    <span className="card-price">{formatPrice(comicData.price)}</span>
+                )}
+                
                 <span className="card-sold-text">Đã bán {formatCompactNumber(soldCount)}</span>
             </div>
         )}

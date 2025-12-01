@@ -21,6 +21,7 @@ export interface ComicSummary {
     status: 'Ongoing' | 'Completed' | 'Dropped';
     isDigital: boolean;
     price: number;
+    flashSalePrice?: number | null;
     views: number; 
     updatedAt: string;
     genres?: Genre[]; 

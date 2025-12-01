@@ -10,6 +10,8 @@ import StarRating from '../components/common/StarRating';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ComicDetailPage.css';
+// IMPORT HÌNH FLASH SALE
+import flashSaleBadgeIcon from '../assets/images/fs.png';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
@@ -99,6 +101,15 @@ const ComicDetailPage: React.FC = () => {
   const [unlockedChapterIds, setUnlockedChapterIds] = useState<Set<number>>(new Set());
 
   const imgRef = useRef<HTMLImageElement>(null);
+
+  // --- LOGIC FLASH SALE ---
+  // Ép kiểu any để truy cập flashSalePrice nếu interface chưa cập nhật
+  const comicData: any = comic;
+  const hasFlashSale = comicData?.flashSalePrice && comicData.flashSalePrice < comicData.price;
+  const discountPercent = hasFlashSale 
+    ? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100) 
+    : 0;
+  // ------------------------
 
   useEffect(() => {
       setIsLoading(true);
@@ -198,7 +209,8 @@ const ComicDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     if (comic && !((comic.isDigital as any) === 1)) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
-      addToCart(comic as any, 1, rect);
+      // Gửi comicData (đã có flashSalePrice) vào giỏ
+      addToCart(comicData as any, 1, rect);
     }
   };
 
@@ -297,7 +309,7 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
                 onClick={handleAddToCart}
             >
                 <FiShoppingCart style={{ marginRight: '0.5rem' }} />
-                Thêm vào giỏ hàng
+                {hasFlashSale ? 'Săn Ngay' : 'Thêm vào giỏ hàng'}
             </button>
         </div>
     );
@@ -444,6 +456,15 @@ const toggleSort = () => {
     <div className="detail-page-container">
       <div className="detail-main-card">
         <div className="detail-image-wrapper">
+          
+          {/* --- FLASH SALE BADGES --- */}
+          {hasFlashSale && (
+             <img src={flashSaleBadgeIcon} alt="Flash Sale" className="detail-fs-badge-left" />
+          )}
+          {hasFlashSale && (
+             <span className="detail-fs-badge-right">-{discountPercent}%</span>
+          )}
+          
           <img ref={imgRef} src={comic.coverImageUrl} alt={comic.title} className="detail-image" /> 
           {isDigital && (
               <span className="digital-badge">DIGITAL</span>
@@ -454,7 +475,20 @@ const toggleSort = () => {
           <h1 className="detail-title">{comic.title}</h1>
           
           <div className="price-rating-row">
-                {!isDigital && <span className="detail-price-text">{formatPrice(comic.price)}</span>}
+                {!isDigital && (
+                    <div className="price-display-wrapper">
+                        {hasFlashSale ? (
+                            // --- HIỂN THỊ GIÁ FLASH SALE ---
+                            <div className="detail-price-fs-row">
+                                <span className="detail-price-text fs-active">{formatPrice(comicData.flashSalePrice)}</span>
+                                <span className="detail-price-original">{formatPrice(comic.price)}</span>
+                            </div>
+                        ) : (
+                            // --- HIỂN THỊ GIÁ THƯỜNG ---
+                            <span className="detail-price-text">{formatPrice(comic.price)}</span>
+                        )}
+                    </div>
+                )}
                 
                 <div className="rating-container-row" style={isDigital ? { marginLeft: 0 } : {}}>
                     <StarRating rating={comic.averageRating} />
