@@ -208,7 +208,7 @@ const vnpayReturn = async (req, res) => {
                         userId: userId,
                         type: 'ORDER',
                         title: 'Thanh toán thành công',
-                        message: `Đơn hàng <b>#${orderRef}</b> của bạn đã được thanh toán thành công.`,
+                        message: `Đơn hàng <b>#${vnpTxnRef}</b> của bạn đã được thanh toán thành công.`,
                         referenceId: parseInt(orderRef) || 0,
                         referenceType: 'ORDER'
                     });
