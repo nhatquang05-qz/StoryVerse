@@ -31,16 +31,17 @@ const createOrder = async (req, res) => {
         if (paymentMethod === 'COD') {
             await cartModel.clearCartRaw(userId);
 
+            const transCode = generateTransactionCode('SV', orderId);
+
             try {
-                const transCode = generateTransactionCode('SV', orderId);
                 await paymentModel.createTransactionRaw(
                     userId,
                     orderId,      
                     totalAmount,  
                     'PENDING',      
                     'PURCHASE',     
-                    `Đặt hàng #${orderId} (Thanh toán khi nhận hàng)`,
-                    transCode
+                    `Đặt hàng ${transCode} (Thanh toán khi nhận hàng)`,
+                    transCode 
                 );
             } catch (transErr) {
                 console.error('Lỗi tạo transaction COD:', transErr);
@@ -51,7 +52,7 @@ const createOrder = async (req, res) => {
                     userId: userId,
                     type: 'ORDER',
                     title: 'Đặt hàng thành công',
-                    message: `Đơn hàng <b>#${orderId}</b> đã được ghi nhận. Vui lòng thanh toán ${totalAmount.toLocaleString('vi-VN')}đ khi nhận hàng.`,
+                    message: `Đơn hàng <b>${transCode}</b> đã được ghi nhận. Vui lòng thanh toán ${totalAmount.toLocaleString('vi-VN')}đ khi nhận hàng.`,
                     referenceId: orderId,
                     referenceType: 'ORDER'
                 });
@@ -121,12 +122,15 @@ const adminUpdateStatus = async (req, res) => {
         const connection = require('../db/connection').getConnection();
 
         if (status === 'COMPLETED') {
+            let finalTransCode = '';
+            
             const [existing] = await connection.execute(
-                'SELECT id FROM payment_transactions WHERE orderId = ? AND type = ?',
+                'SELECT id, transactionCode FROM payment_transactions WHERE orderId = ? AND type = ?',
                 [id, 'PURCHASE']
             );
 
             if (existing.length > 0) {
+                finalTransCode = existing[0].transactionCode;
                 await connection.execute(
                     `UPDATE payment_transactions SET status = 'SUCCESS' WHERE orderId = ? AND type = 'PURCHASE'`,
                     [id]
@@ -135,7 +139,7 @@ const adminUpdateStatus = async (req, res) => {
                 const [orderRows] = await connection.execute('SELECT userId, totalAmount FROM orders WHERE id = ?', [id]);
                 if (orderRows.length > 0) {
                     const { userId, totalAmount } = orderRows[0];
-                    const transCode = generateTransactionCode('COD', id);
+                    finalTransCode = generateTransactionCode('SV', id); 
                     
                     await paymentModel.createTransactionRaw(
                         userId,
@@ -143,19 +147,21 @@ const adminUpdateStatus = async (req, res) => {
                         totalAmount,
                         'SUCCESS',
                         'PURCHASE',
-                        `Thanh toán đơn hàng #${id} (Hoàn tất bởi Admin)`,
-                        transCode
+                        `Thanh toán đơn hàng ${finalTransCode} (Hoàn tất bởi Admin)`,
+                        finalTransCode
                     );
                 }
             }
             
             const [rows] = await connection.execute('SELECT userId FROM orders WHERE id = ?', [id]);
             if (rows.length > 0) {
+                 const displayCode = finalTransCode || `#${id}`; 
+                 
                  await Notification.create({
                     userId: rows[0].userId,
                     type: 'ORDER',
                     title: 'Đơn hàng hoàn tất',
-                    message: `Đơn hàng <b>#${id}</b> đã được giao thành công. Cảm ơn bạn đã mua sắm!`,
+                    message: `Đơn hàng <b>${displayCode}</b> đã được giao thành công. Cảm ơn bạn đã mua sắm!`,
                     referenceId: id,
                     referenceType: 'ORDER'
                 });
