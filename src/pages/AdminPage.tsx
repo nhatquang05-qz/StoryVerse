@@ -14,12 +14,13 @@ import ManageChapters from '../components/admin/ManageChapters';
 import ComicManagementList from '../components/admin/ComicManagementList';
 import AdminFilterBar, { type SortOrder } from '../components/admin/AdminFilterBar';
 import PackManagement from '../components/admin/PackManagement';
+import FlashSaleManagement from '../components/admin/FlashSaleManagement'; // Import component Flash Sale
 
 import '../assets/styles/AdminPage.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:3000/api';
 
-export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs';
+export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs' | 'flash-sales';
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -41,7 +42,8 @@ const AdminPage: React.FC = () => {
     const isAdmin = currentUser?.email === 'admin@123';
 
     const fetchComicsAndGenres = async () => {
-        if(activeView === 'dashboard') {
+        // Chỉ fetch dữ liệu truyện khi ở view quản lý truyện
+        if(activeView === 'dashboard' || activeView === 'users' || activeView === 'packs' || activeView === 'flash-sales') {
             setIsLoading(false);
             return;
         }
@@ -73,7 +75,7 @@ const AdminPage: React.FC = () => {
 
     useEffect(() => {
         if (isAdmin) {
-            if (activeView !== 'dashboard' && activeView !== 'users') {
+            if (['digital', 'physical', 'add', 'edit', 'chapters'].includes(activeView)) {
                 fetchComicsAndGenres();
             } else {
                 setIsLoading(false); 
@@ -174,14 +176,15 @@ const AdminPage: React.FC = () => {
         switch (activeView) {
             case 'dashboard': return <DashboardView />;
             case 'users': return <UserManagement />;
+            case 'packs': return <PackManagement />;
+            case 'flash-sales': return <FlashSaleManagement />; // Thêm case này
             case 'add':
                 return <AddComicForm allGenres={allGenres} onCancel={handleAddCancel} onSuccess={handleAddSuccess} initialIsDigital={addFormType === 'digital'} />;
             case 'edit':
                 return selectedComic ? <EditComicForm comic={selectedComic} allGenres={allGenres} onCancel={handleFormCancel} onSuccess={handleFormSuccess} /> : <p>Lỗi</p>;
             case 'chapters':
                 return selectedComic ? <ManageChapters comic={selectedComic} onCancel={handleFormCancel} /> : <p>Lỗi</p>;
-            case 'packs':
-                return <PackManagement />;
+            
             case 'physical':
                 return (
                     <>

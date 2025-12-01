@@ -15,6 +15,7 @@ const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const postRoutes = require('./postRoutes');
 const notificationRoutes = require('./notificationRoutes');
+const flashSaleRoutes = require('./flashSaleRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/comics', comicRoutes);
@@ -30,5 +31,6 @@ router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/posts', postRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/flash-sales', flashSaleRoutes);
 
 module.exports = router;

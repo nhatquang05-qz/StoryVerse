@@ -348,3 +348,27 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   KEY `idx_user_read` (`userId`, `isRead`),
   FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Bảng lưu trữ đợt Flash Sale
+CREATE TABLE `flash_sales` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `startTime` datetime NOT NULL,
+  `endTime` datetime NOT NULL,
+  `status` enum('PENDING','ACTIVE','ENDED') DEFAULT 'PENDING',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Bảng lưu trữ sản phẩm trong Flash Sale
+CREATE TABLE `flash_sale_items` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `flashSaleId` int NOT NULL,
+  `comicId` int NOT NULL,
+  `salePrice` int NOT NULL, -- Giá ưu đãi
+  `quantityLimit` int NOT NULL DEFAULT 10, -- Giới hạn số lượng bán ra
+  `soldQuantity` int NOT NULL DEFAULT 0, -- Số lượng đã bán
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`flashSaleId`) REFERENCES `flash_sales` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

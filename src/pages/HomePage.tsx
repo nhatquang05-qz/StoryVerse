@@ -9,6 +9,7 @@ import TopMembersSection from '../components/common/TopMembersSection';
 import ChatLog from '../components/common/Chat/ChatLog';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import '../assets/styles/HomePage.css';
+import FlashSaleSection from '../components/common/FlashSaleSection';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -155,7 +156,7 @@ const HomePage: React.FC = () => {
     return (
         <React.Fragment>
             <Hero />
-
+            <FlashSaleSection />
             <div style={{ marginTop: '3rem' }}>
                 <HomeSection
                     title="Mới Phát Hành" 
