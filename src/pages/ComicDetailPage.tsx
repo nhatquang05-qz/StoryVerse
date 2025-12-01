@@ -268,10 +268,7 @@ const handleUnlockChapter = async (chapter: ChapterSummary) => {
 
         return (
             <div className="digital-actions-group" style={{ flexDirection: 'column', gap: '1rem' }}>
-                <p className="coin-warning-text" style={{ margin: '0', textAlign: 'center', fontWeight: 'bold' }}>
-                     {chapters.length > 0 && chapters.filter(c => c.price === 0).length > 0 ? 'Truyện có giới hạn chương đọc thử.' : 'Truyện Digital.'}
-                </p>
-                
+               
                 <div className="digital-main-buttons">
                     {firstFreeChapter && (
                         <button className="add-to-cart-btn" onClick={() => handleReadNow(Number(firstFreeChapter.chapterNumber))} style={{ backgroundColor: '#28a745', color: 'white', border: '1px solid #28a745' }}>
@@ -457,7 +454,6 @@ const toggleSort = () => {
           {isDigital && (
               <div className="digital-price-info" style={{ marginBottom: '2rem' }}>
                     <p className="detail-price" style={{ fontSize: '1.5rem', fontWeight: 500, color: 'var(--clr-text)', margin: 0, padding: 0, border: 'none' }}>
-                       Truyện Digital
                     </p>
               </div>
           )}
