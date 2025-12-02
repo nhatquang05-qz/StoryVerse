@@ -41,6 +41,7 @@ const PaymentReturnPage = lazy(() => import('./pages/PaymentReturnPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
 
 function App() {
   const { animationData, clearAnimation } = useCart();
@@ -56,6 +57,7 @@ function App() {
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
   const isForgotPassPage = location.pathname === '/forgot-password';
+  const isFAQPage = location.pathname === '/faq';
 
   const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
@@ -101,7 +103,7 @@ function App() {
 
       <main 
         className={isReaderPage ? "main-content reader-mode" : "main-content"}
-        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage || isContactPage || isPrivacyPage || isTermsPage || isCommunityPage) ? '0' : undefined }}
+        style={{ padding: (isAboutPage || isLoginPage || isRegisterPage || isForgotPassPage || isContactPage || isPrivacyPage || isTermsPage || isCommunityPage || isFAQPage) ? '0' : undefined }}
       >
         <Suspense fallback={<LoadingScreen />}>
           <Routes>
@@ -135,6 +137,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/admin/*" element={<AdminPage />} /> 
+            <Route path="/faq" element={<FAQPage />} />
           </Routes>
         </Suspense>
       </main>

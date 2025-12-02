@@ -21,6 +21,7 @@ const Footer: React.FC = () => {
           <ul className="footer-links">
             <li><Link to="/about-us">Về Chúng Tôi</Link></li>
             <li><Link to="/contact">Liên Hệ</Link></li>
+            <li><Link to="/faq">Câu Hỏi Thường Gặp</Link></li>
             <li><Link to="/privacy-policy">Chính Sách Bảo Mật</Link></li>
             <li><Link to="/terms-of-service">Điều Khoản Dịch Vụ</Link></li>
           </ul>

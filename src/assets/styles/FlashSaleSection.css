@@ -63,6 +63,7 @@
   top: 40%;
   transform: translateY(-40%);
   background-color: var(--clr-card-bg);
+  opacity: 0.5;
   color: var(--clr-text);
   border: 1px solid var(--clr-border-light);
   border-radius: 50%;
@@ -81,6 +82,7 @@
   background-color: #ef4444;
   border-color: #ef4444;
   color: white;
+  opacity: 1;
 }
 
 .fs-nav-prev {
