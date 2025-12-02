@@ -1,10 +1,17 @@
 import React, { useState, useRef, useEffect, type FormEvent } from 'react';
-import { FiX, FiLoader } from 'react-icons/fi';
+import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react'; 
 import { getBotResponse, type ChatHistory } from './ChatbotLogic';
 import chatbotIcon from '../../assets/images/chatbot-icon.avif';
 import '../../assets/styles/Chatbot.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
+
+const SUGGESTION_QUESTIONS = [
+  "Làm sao để nạp xu?",
+  "Top truyện hot tháng này?",
+  "Web có những thể loại gì?",
+  "Tôi muốn đổi mật khẩu"
+];
 
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 
@@ -12,139 +19,150 @@ const ChatbotUI: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<ChatHistory[]>([
-        { role: 'model', parts: "<p>Chào bạn! Tôi là StoryVerse Bot. Tôi có thể giúp gì cho bạn?</p>" }
+        { role: 'model', parts: "<p>Chào bạn! Tôi là trợ lý ảo StoryVerse. Tôi có thể giúp gì cho bạn hôm nay?</p>" }
     ]);
     const [isLoading, setIsLoading] = useState(false);
-    const chatboxRef = useRef<HTMLDivElement>(null);
+    const chatEndRef = useRef<HTMLDivElement>(null);
+    
     const { currentUser } = useAuth();
     const { showNotification } = useNotification();
 
     useEffect(() => {
-        if (chatboxRef.current) {
-            chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
-        }
-    }, [messages]);
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages, isOpen]);
 
-    const toggleChatbot = () => {
-        setIsOpen(!isOpen);
-    };
-
-    const handleSendMessage = async (e: FormEvent) => {
-        e.preventDefault();
-        const messageText = input.trim();
-        if (messageText === '' || isLoading) return;
+    const handleSendMessage = async (messageText: string) => {
+        if (!messageText.trim() || isLoading) return;
 
         if (!currentUser) {
             showNotification("Vui lòng đăng nhập để sử dụng chatbot.", "warning");
-            setIsOpen(false);
             return;
         }
         
         const token = localStorage.getItem(TOKEN_STORAGE_KEY);
         if (!token) {
              showNotification("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.", "error");
-             setIsOpen(false);
              return;
         }
 
         const userMessage: ChatHistory = { role: 'user', parts: `<p>${messageText}</p>` };
-        
-        const historyForBot = messages.map(msg => ({
-            ...msg,
-            content: msg.parts.replace(/<[^>]*>?/gm, ' ') 
-        }));
-
         setMessages(prev => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
 
         try {
+            const historyForBot = messages.map(msg => ({
+                ...msg,
+                content: msg.parts.replace(/<[^>]*>?/gm, ' ') 
+            }));
+
             const botReplyHtml = await getBotResponse(messageText, historyForBot, token);
+            
             const botMessage: ChatHistory = { role: 'model', parts: botReplyHtml };
             setMessages(prev => [...prev, botMessage]);
+
         } catch (error) {
-            console.error("Lỗi khi xử lý tin nhắn:", error);
-            const errorMessage: ChatHistory = { role: 'model', parts: "<p>Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại.</p>" };
+            console.error("Lỗi Chatbot:", error);
+            const errorMessage: ChatHistory = { role: 'model', parts: "<p>Hệ thống đang bận, vui lòng thử lại sau.</p>" };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
         }
     };
-    
-    const userFallbackAvatar = "https://i.imgur.com/tq9k3Yj.png";
-    
-    const getPlaceholderText = () => {
-        if (isLoading) return "Bot đang trả lời...";
-        if (!currentUser) return "Vui lòng đăng nhập để chat...";
-        return "Hỏi tôi bất cứ điều gì...";
+
+    const onSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        handleSendMessage(input);
     };
 
     return (
-        <>
-            <button className="chatbot-toggle-button" onClick={toggleChatbot} aria-label="Mở chatbot">
-                <img src={chatbotIcon} alt="Chatbot" />
-            </button>
+        <div className="chatbot-container">
+            {!isOpen && (
+                <button 
+                    className="chatbot-toggle-button" 
+                    onClick={() => setIsOpen(true)}
+                    aria-label="Mở Chatbot"
+                >
+                    <img src={chatbotIcon} alt="Chatbot" className="w-full h-full object-cover rounded-full" />
+                </button>
+            )}
 
             {isOpen && (
                 <div className="chatbot-window">
                     <div className="chatbot-header">
-                        <h3>StoryVerse Bot</h3>
-                        <button onClick={toggleChatbot} className="chatbot-close-btn" aria-label="Đóng chatbot">
-                            <FiX />
+                        <h3>
+                            <Bot size={20} className="mr-2" /> StoryVerse Support
+                        </h3>
+                        <button onClick={() => setIsOpen(false)} className="close-chat-btn">
+                            <X size={20} />
                         </button>
                     </div>
 
-                    <div className="chatbot-messages" ref={chatboxRef}>
+                    <div className="chatbot-messages">
                         {messages.map((msg, index) => (
-                            <div key={index} className={`chat-message ${msg.role}`}>
-                                <span className="message-icon">
-                                    {msg.role === 'model' ? (
-                                        <img src={chatbotIcon} alt="Bot icon" />
-                                    ) : (
-                                        <img 
-                                            src={currentUser?.avatarUrl || userFallbackAvatar} 
-                                            alt="User icon" 
-                                        />
-                                    )}
-                                </span>
+                            <div key={index} className={`message ${msg.role}`}>
+                                {msg.role === 'model' && (
+                                    <div className="message-avatar">
+                                        <img src={chatbotIcon} alt="Bot" />
+                                    </div>
+                                )}
                                 
                                 <div 
-                                    className="chatbot-message-content" 
+                                    className="message-content"
                                     dangerouslySetInnerHTML={{ __html: msg.parts }} 
                                 />
-
                             </div>
                         ))}
+                        
                         {isLoading && (
-                            <div className="chat-message model">
-                                <span className="message-icon">
-                                    <img src={chatbotIcon} alt="Bot icon" />
-                                </span>
-                                <p className="loading-dots">
-                                    <FiLoader className="animate-spin" />
-                                </p>
+                            <div className="message model">
+                                <div className="message-avatar">
+                                    <img src={chatbotIcon} alt="Bot" />
+                                </div>
+                                <div className="message-content typing-indicator">
+                                    <span></span><span></span><span></span>
+                                </div>
                             </div>
                         )}
+                        <div ref={chatEndRef} />
                     </div>
 
-                    <form className="chatbot-input-form" onSubmit={handleSendMessage}>
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder={getPlaceholderText()}
-                            disabled={isLoading || !currentUser}
-                        />
-                        <button 
-                            type="submit" 
-                            disabled={isLoading || input.trim() === '' || !currentUser}
-                            aria-label="Gửi tin nhắn"
-                        >
-                        </button>
-                    </form>
+                    <div className="chatbot-input-area">
+                        {!isLoading && (
+                            <div className="suggestions-container">
+                                {SUGGESTION_QUESTIONS.map((question, idx) => (
+                                    <button 
+                                        key={idx} 
+                                        className="suggestion-chip"
+                                        onClick={() => handleSendMessage(question)}
+                                    >
+                                        {question}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <form className="input-form" onSubmit={onSubmit}>
+                            <input
+                                type="text"
+                                className="chatbot-input"
+                                placeholder={currentUser ? "Nhập tin nhắn..." : "Đăng nhập để chat..."}
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                disabled={isLoading || !currentUser}
+                            />
+                            <button 
+                                type="submit" 
+                                className="send-btn"
+                                disabled={isLoading || !input.trim() || !currentUser}
+                            >
+                                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

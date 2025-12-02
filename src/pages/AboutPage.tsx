@@ -6,7 +6,7 @@ import logoDark from '../assets/images/logo.avif';
 import logoLight from '../assets/images/logo_dark.avif'; 
 import backgroundAboutUs from '../assets/images/background-aboutus.avif';
 import '../assets/styles/AboutPage.css'; 
-import avatar from '../assets/images/raw/nquang.png'; 
+import avatar from '../assets/images/nquang.png'; 
 import bgDiscover from '../assets/images/bg-discover.avif';
 import galaxyGif from '../assets/images/galaxy.gif';
 
