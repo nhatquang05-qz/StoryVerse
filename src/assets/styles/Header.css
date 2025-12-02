@@ -329,7 +329,7 @@
 
 .login-btn {
   background: var(--primary-gradient);  
-  color: white;
+  color: var(--clr-text);
   padding: 0.6rem 1.2rem;
   border-radius: var(--border-radius);
   text-decoration: none;

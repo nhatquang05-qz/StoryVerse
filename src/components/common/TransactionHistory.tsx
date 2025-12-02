@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../assets/styles/ProfilePage.css'; 
+import '../../assets/styles/TransactionHistory.css'; 
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 interface Transaction {
     id: number;
     orderId: string;
-    transactionCode?: string; 
+    transactionCode?: string;
     amount: number;
     status: string;
     type: 'RECHARGE' | 'PURCHASE';
@@ -60,42 +61,40 @@ const TransactionHistory: React.FC = () => {
                 <p style={{textAlign: 'center', color: '#666', marginTop: '20px'}}>Chưa có giao dịch nào.</p>
             ) : (
                 <div className="transaction-table-wrapper">
-                    <table className="transaction-table" style={{width: '100%', borderCollapse: 'collapse', marginTop: '15px'}}>
+                    <table className="transaction-table">
                         <thead>
-                            <tr style={{borderBottom: '2px solid #eee', color: 'var(--text-color)'}}>
-                                <th style={{padding: '12px', textAlign: 'left'}}>Thời gian</th>
-                                <th style={{padding: '12px', textAlign: 'left'}}>Mã GD</th>
-                                <th style={{padding: '12px', textAlign: 'left'}}>Nội dung</th>
-                                <th style={{padding: '12px', textAlign: 'left'}}>Loại</th>
-                                <th style={{padding: '12px', textAlign: 'right'}}>Số tiền</th>
-                                <th style={{padding: '12px', textAlign: 'center'}}>Trạng thái</th>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Mã GD</th>
+                                <th>Nội dung</th>
+                                <th style={{textAlign: 'center'}}>Loại</th>
+                                <th style={{textAlign: 'right'}}>Số tiền</th>
+                                <th style={{textAlign: 'center'}}>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
                             {transactions.map(item => (
-                                <tr key={item.id} style={{borderBottom: '1px solid #eee', color: 'var(--text-color)'}}>
-                                    <td style={{padding: '12px'}}>{formatDate(item.createdAt)}</td>
-                                    <td style={{padding: '12px', fontSize: '0.9rem', color: '#888', fontFamily: 'monospace'}}>
+                                <tr key={item.id}>
+                                    <td>{formatDate(item.createdAt)}</td>
+                                    
+                                    <td className="col-code">
                                         {item.transactionCode || item.orderId}
                                     </td>
-                                    <td style={{padding: '12px'}}>{item.description}</td>
-                                    <td style={{padding: '12px'}}>
-                                        <span style={{
-                                            padding: '4px 8px', 
-                                            borderRadius: '4px', 
-                                            fontSize: '0.8rem',
-                                            fontWeight: 'bold',
-                                            backgroundColor: item.type === 'RECHARGE' ? '#e6fffa' : '#ebf8ff',
-                                            color: item.type === 'RECHARGE' ? '#2c7a7b' : '#2b6cb0'
-                                        }}>
+                                    
+                                    <td className="col-desc">{item.description}</td>
+                                    
+                                    <td style={{textAlign: 'center'}}>
+                                        <span className={`transaction-badge ${item.type === 'RECHARGE' ? 'badge-recharge' : 'badge-purchase'}`}>
                                             {item.type === 'RECHARGE' ? 'Nạp Xu' : 'Mua Truyện'}
                                         </span>
                                     </td>
-                                    <td style={{padding: '12px', textAlign: 'right', fontWeight: 'bold', color: item.type === 'RECHARGE' ? '#38a169' : '#e53e3e'}}>
+
+                                    <td className={`col-amount ${item.type === 'RECHARGE' ? 'amount-plus' : 'amount-minus'}`}>
                                         {item.type === 'RECHARGE' ? '+' : '-'}{formatCurrency(item.amount)}
                                     </td>
-                                    <td style={{padding: '12px', textAlign: 'center'}}>
-                                        <span style={{color: item.status === 'SUCCESS' ? 'green' : 'red'}}>
+
+                                    <td style={{textAlign: 'center'}}>
+                                        <span className={`transaction-badge ${item.status === 'SUCCESS' ? 'status-success' : 'status-failed'}`}>
                                             {item.status === 'SUCCESS' ? 'Thành công' : 'Thất bại'}
                                         </span>
                                     </td>

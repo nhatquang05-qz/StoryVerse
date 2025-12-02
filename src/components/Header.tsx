@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiSearch, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter, FiBell, FiMessageSquare, FiInfo, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiHeart, FiMenu, FiX, FiDollarSign, FiGift, FiSettings, FiFilter, FiBell, FiMessageSquare, FiInfo, FiAlertTriangle } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { type ComicSummary, type Genre } from '../types/comicTypes'; 

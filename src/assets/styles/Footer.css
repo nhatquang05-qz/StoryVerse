@@ -1,4 +1,3 @@
-/* src/styles/Footer.css */
 .footer {
   background: var(--clr-footer-bg);
   color: var(--clr-footer-text);
@@ -12,18 +11,16 @@
   max-width: 1536px;
   margin: 0 auto;
   padding: 0 1.5rem;
-  /* Quan trọng: Thêm align-items: start để căn đều các cột theo cạnh trên */
   display: grid;
   grid-template-columns: repeat(4, 1fr); 
   gap: 2rem;
   padding-bottom: 2rem;
   position: relative;
   z-index: 1;
-  align-items: start; /* Sửa đổi 1: Căn đều nội dung cột theo phía trên */
+  align-items: start;
 }
 
 .footer-section {
-  /* Tùy chọn: Đảm bảo section chiếm hết chiều cao có sẵn trong container */
   height: 100%; 
 }
 
@@ -113,12 +110,9 @@
 }
 
 
-/* --- CSS CHO CỘT ẢNH GIF MỚI --- */
 
 .footer-gif-section {
-    /* Đảm bảo nội dung căn sang phải trong cột cuối */
     display: flex;
-    /* Quan trọng: căn chỉnh nội dung ảnh theo chiều dọc (để ảnh GIF nằm ở trên cùng) */
     align-items: flex-start; 
     justify-content: flex-end; 
 }

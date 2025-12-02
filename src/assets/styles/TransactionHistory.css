@@ -1,0 +1,128 @@
+.transaction-table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    background-color: var(--clr-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); 
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0;
+    min-width: 600px;
+}
+
+.transaction-table thead tr {
+    background-color: var(--clr-footer-bg); 
+    border-bottom: 2px solid var(--clr-border-light);
+}
+
+.transaction-table th {
+    padding: 16px;
+    text-align: left;
+    white-space: nowrap;
+    color: var(--clr-text);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.transaction-table tbody tr {
+    border-bottom: 1px solid var(--clr-border-light);
+    transition: background-color 0.2s ease;
+    background-color: var(--clr-card-bg);
+}
+
+.transaction-table tbody tr:hover {
+    background-color: var(--clr-footer-bg); 
+}
+
+.transaction-table td {
+    padding: 14px 16px;
+    color: var(--clr-text);
+    white-space: nowrap; 
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.col-code {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--clr-text-secondary); 
+    font-weight: 500;
+}
+
+.col-desc {
+    min-width: 220px;
+    white-space: normal !important; 
+    line-height: 1.5;
+    color: var(--clr-text);
+}
+
+.col-amount {
+    text-align: right;
+    font-weight: 700;
+    font-family: monospace; 
+    font-size: 1rem;
+}
+
+.amount-plus {
+    color: var(--clr-success-text);
+}
+
+.amount-minus {
+    color: var(--clr-error-text);
+}
+
+
+.transaction-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    border-radius: 50px; 
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    border: 1px solid transparent; 
+    min-width: 100px;
+}
+
+.badge-recharge {
+    background-color: var(--clr-success-bg);
+    color: var(--clr-success-text);
+    border-color: var(--clr-success-bg);
+}
+
+.badge-purchase {
+    background-color: var(--clr-info-bg);
+    color: var(--clr-info-text);
+    border-color: var(--clr-info-bg);
+}
+
+.status-success {
+    background-color: var(--clr-success-bg);
+    color: var(--clr-success-text);
+}
+
+.status-failed {
+    background-color: var(--clr-error-bg);
+    color: var(--clr-error-text);
+    border-color: var(--clr-error-border);
+}
+
+@media (max-width: 768px) {
+    .transaction-table th, 
+    .transaction-table td {
+        padding: 12px;
+    }
+    
+    .transaction-badge {
+        padding: 4px 10px;
+        min-width: 80px;
+        font-size: 0.7rem;
+    }
+}
