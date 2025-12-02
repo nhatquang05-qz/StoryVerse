@@ -2,7 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaInstagram, FaYoutube } from 'react-icons/fa';
 import '../assets/styles/Footer.css';
-import logoImage from '../assets/images/logo.avif';
+import logoLightMode from '../assets/images/logo_dark.avif'; 
+import logoDarkMode from '../assets/images/logo.avif';       
 import footerAdGif from '../assets/images/cute.gif'; 
 
 const Footer: React.FC = () => {
@@ -12,7 +13,16 @@ const Footer: React.FC = () => {
         
         <div className="footer-section">
           <Link to="/" aria-label="Trang chủ StoryVerse">
-            <img src={logoImage} alt="StoryVerse Logo" className="footer-logo" />
+            <img 
+              src={logoLightMode} 
+              alt="StoryVerse Logo" 
+              className="footer-logo logo-for-light-theme" 
+            />
+            <img 
+              src={logoDarkMode} 
+              alt="StoryVerse Logo" 
+              className="footer-logo logo-for-dark-theme" 
+            />
           </Link>                
         </div>
 

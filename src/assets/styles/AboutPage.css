@@ -693,3 +693,19 @@
 [data-theme="day"] .core-value-card:hover .value-card-title {
     color: #1e293b;
 }
+
+.logo-for-light {
+  display: block; 
+}
+
+.logo-for-dark {
+  display: none; 
+}
+
+html[data-theme="night"] .logo-for-light {
+  display: none; 
+}
+
+html[data-theme="night"] .logo-for-dark {
+  display: block;
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FiGift, FiX, FiCheck, FiLock, FiClock } from 'react-icons/fi'; 
+import { FiGift, FiCheck, FiLock, FiClock } from 'react-icons/fi'; 
 import { useAuth } from '../../contexts/AuthContext';
 import { dailyRewardsData } from '../../utils/authUtils';
 import '../../assets/styles/DailyRewardModal.css';

@@ -187,3 +187,20 @@
         margin-bottom: 0;
     }
 }
+
+.logo-for-light-theme {
+  display: block; 
+}
+
+.logo-for-dark-theme {
+  display: none; 
+}
+
+html[data-theme="night"] .logo-for-light-theme {
+  display: none;
+}
+
+html[data-theme="night"] .logo-for-dark-theme {
+  display: block; 
+}
+

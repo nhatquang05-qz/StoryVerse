@@ -2,10 +2,11 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion';
 import { BookOpen, Users, Zap, Heart, Target, Globe } from 'lucide-react';
-import logo from '../assets/images/logo.avif'; 
+import logoDark from '../assets/images/logo.avif';      
+import logoLight from '../assets/images/logo_dark.avif'; 
 import backgroundAboutUs from '../assets/images/background-aboutus.avif';
 import '../assets/styles/AboutPage.css'; 
-import avatar from '../assets/images/raw/nquang.png';
+import avatar from '../assets/images/raw/nquang.png'; 
 import bgDiscover from '../assets/images/bg-discover.avif';
 import galaxyGif from '../assets/images/galaxy.gif';
 
@@ -79,11 +80,22 @@ const AboutPage: React.FC = () => {
         
         <motion.div style={{ y, opacity }} className="hero-content">
           <motion.img 
-            src={logo} alt="StoryVerse Logo" className="logo-image"
+            src={logoLight} 
+            alt="StoryVerse Logo" 
+            className="logo-image logo-for-light"
             initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{ duration: 0.8, type: "spring" }}
           />
+          <motion.img 
+            src={logoDark} 
+            alt="StoryVerse Logo" 
+            className="logo-image logo-for-dark"
+            initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ duration: 0.8, type: "spring" }}
+          />
+
           <h1 className="hero-title">Vũ Trụ Truyện Tranh</h1>
           <p className="hero-subtitle">Nơi những câu chuyện trở nên sống động và cảm xúc được thăng hoa.</p>
         </motion.div>

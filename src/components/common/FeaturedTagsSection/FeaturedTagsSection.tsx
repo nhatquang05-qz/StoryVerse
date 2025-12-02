@@ -2,10 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRightCircle } from 'react-icons/fi'; 
 import '../../../assets/styles/FeaturedTagsSection.css';
-import action from './action.png';
-import romance from './romance.png';
-import comedy from './comedy.png';
-import fantasy from './fantasy.png';
+import action from './action.webp';
+import romance from './romance.webp';
+import comedy from './comedy.webp';
+import fantasy from './fantasy.webp';
 
 interface FeaturedTag {
   name: string;
