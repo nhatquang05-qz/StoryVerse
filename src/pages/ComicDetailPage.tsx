@@ -10,7 +10,7 @@ import StarRating from '../components/common/StarRating';
 import { useNotification } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ComicDetailPage.css';
-import flashSaleBadgeIcon from '../assets/images/fs.png';
+import flashSaleBadgeIcon from '../assets/images/fs.avif';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';

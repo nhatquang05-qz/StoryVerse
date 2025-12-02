@@ -3,7 +3,7 @@ import { FiGift, FiX, FiCheck, FiLock, FiClock } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { dailyRewardsData } from '../../utils/authUtils';
 import '../../assets/styles/DailyRewardModal.css';
-import closeBtnImg from '../../assets/images/close-btn.png';
+import closeBtnImg from '../../assets/images/close-btn.avif';
 
 interface DailyRewardModalProps {
     isOpen: boolean;
@@ -169,7 +169,7 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
                     <div className="balance-info">
                         <span>Số dư của bạn:</span>
                         <div className="coin-display">
-                            <img src="/src/assets/images/coin.png" alt="coin" width={20} />
+                            <img src="/src/assets/images/coin.avif" alt="coin" width={20} />
                             <span>{coinBalance.toLocaleString()} Xu</span>
                         </div>
                     </div>

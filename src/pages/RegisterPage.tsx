@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 import '../assets/styles/AuthPage.css';
-import bgRegister from '../assets/images/bg-reg.jpg';
+import bgRegister from '../assets/images/bg-reg.avif';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:3000/api/auth'; 

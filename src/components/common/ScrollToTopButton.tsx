@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import arrowImage from '/src/assets/images/arrow.png'; 
+import arrowImage from '/src/assets/images/arrow.webp'; 
 
 const ScrollToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);

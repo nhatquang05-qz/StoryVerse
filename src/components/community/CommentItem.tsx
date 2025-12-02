@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaEllipsisH, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
 import type { Comment } from '../../types/community';
-import defaultAvatar from '../../assets/images/defaultAvatar.png';
+import defaultAvatar from '../../assets/images/defaultAvatar.webp';
 
 interface CommentItemProps {
     comment: Comment;

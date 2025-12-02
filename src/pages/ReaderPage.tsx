@@ -12,8 +12,8 @@ import {
 } from 'react-icons/fi';
 import ChapterChat from '../components/common/Chat/ChapterChat';
 import '../assets/styles/ReaderPage.css';
-import minusImage from '../assets/images/minus.png'; 
-import plusImage from '../assets/images/plus.png';
+import minusImage from '../assets/images/minus.webp'; 
+import plusImage from '../assets/images/plus.webp';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';

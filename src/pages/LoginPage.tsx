@@ -5,7 +5,7 @@ import FacebookLogin from '@greatsumini/react-facebook-login';
 import { FaFacebook } from "react-icons/fa"; 
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/AuthPage.css';
-import bgLogin from '../assets/images/bg-login.webp';
+import bgLogin from '../assets/images/bg-login.avif';
 
 const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID || "";
 const LoginPage: React.FC = () => {

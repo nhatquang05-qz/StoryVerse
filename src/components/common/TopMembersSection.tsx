@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../assets/styles/TopMembersSection.css';
 import { FiLoader } from 'react-icons/fi';
-import top1Image from '../../assets/images/top1.png'; 
-import top2Image from '../../assets/images/top2.png';
-import top3Image from '../../assets/images/top3.png'; 
+import top1Image from '../../assets/images/top1.avif'; 
+import top2Image from '../../assets/images/top2.avif';
+import top3Image from '../../assets/images/top3.avif'; 
 
 
 interface TopMember {

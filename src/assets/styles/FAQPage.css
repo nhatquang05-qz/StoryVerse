@@ -9,7 +9,7 @@
 .faq-hero {
   background-image:
     linear-gradient(to bottom, rgba(14, 22, 36, 0.5), rgba(14, 22, 36, 0.8)),
-    url('../../assets/images/faq.webp');
+    url('../../assets/images/faq.avif');
   background-size: cover;          
   background-position: center;     
   background-repeat: no-repeat;    

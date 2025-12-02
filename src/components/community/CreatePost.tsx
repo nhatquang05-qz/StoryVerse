@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaCamera, FaSmile } from 'react-icons/fa';
-import closeBtnIcon from '../../assets/images/close-btn.png'; 
-import defaultAvatar from '../../assets/images/defaultAvatar.png';
+import closeBtnIcon from '../../assets/images/close-btn.avif'; 
+import defaultAvatar from '../../assets/images/defaultAvatar.webp';
 import '../../assets/styles/CreatePost.css';
 
 interface CreatePostProps {

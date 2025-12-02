@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
 import '../../assets/styles/TopComicSection.css';
 import { FiLoader } from 'react-icons/fi';
-import top1Image from '../../assets/images/top1comic.png'; 
-import top2Image from '../../assets/images/top2comic.png';
-import top3Image from '../../assets/images/top3comic.png';
+import top1Image from '../../assets/images/top1comic.avif'; 
+import top2Image from '../../assets/images/top2comic.avif';
+import top3Image from '../../assets/images/top3comic.avif';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 

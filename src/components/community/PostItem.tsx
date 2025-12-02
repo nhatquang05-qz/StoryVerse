@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaThumbsUp, FaRegThumbsUp, FaCommentAlt, FaShare, FaEllipsisH, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
 import type { Post } from '../../types/community';
-import defaultAvatar from '../../assets/images/defaultAvatar.png';
+import defaultAvatar from '../../assets/images/defaultAvatar.webp';
 import '../../assets/styles/PostItem.css';
 
 interface PostItemProps {

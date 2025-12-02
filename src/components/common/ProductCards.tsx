@@ -8,7 +8,7 @@ import { useNotification } from '../../contexts/NotificationContext';
 import StarRating from './StarRating';
 import '../../assets/styles/ProductCard.css';
 
-import flashSaleBadgeIcon from '../../assets/images/fs.png'; 
+import flashSaleBadgeIcon from '../../assets/images/fs.avif'; 
 
 interface ProductCardProps {
   comic: ComicSummary; 

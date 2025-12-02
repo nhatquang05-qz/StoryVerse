@@ -2,9 +2,9 @@ import React from 'react';
 import '../../../assets/styles/ChatMessage.css';
 import { useAuth } from '../../../contexts/AuthContext';
 import { FiHeart, FiMessageSquare } from 'react-icons/fi';
-import top1Icon from '../../../assets/images/top1.png';
-import top2Icon from '../../../assets/images/top2.png';
-import top3Icon from '../../../assets/images/top3.png';
+import top1Icon from '../../../assets/images/top1.avif';
+import top2Icon from '../../../assets/images/top2.avif';
+import top3Icon from '../../../assets/images/top3.avif';
 
 export interface ChatMessageData {
  id: number;

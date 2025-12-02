@@ -2,11 +2,11 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion';
 import { BookOpen, Users, Zap, Heart, Target, Globe } from 'lucide-react';
-import logo from '../assets/images/logo.png'; 
-import backgroundAboutUs from '../assets/images/background-aboutus.jpg';
+import logo from '../assets/images/logo.avif'; 
+import backgroundAboutUs from '../assets/images/background-aboutus.avif';
 import '../assets/styles/AboutPage.css'; 
-import avatar from '../assets/images/nquang.png';
-import bgDiscover from '../assets/images/bg-discover.jpg';
+import avatar from '../assets/images/raw/nquang.png';
+import bgDiscover from '../assets/images/bg-discover.avif';
 import galaxyGif from '../assets/images/galaxy.gif';
 
 const AnimatedCounter = ({ from = 0, to, suffix = "" }: { from?: number, to: number, suffix?: string }) => {

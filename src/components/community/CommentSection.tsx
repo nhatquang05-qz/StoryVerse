@@ -3,8 +3,8 @@ import { FaCamera, FaSmile, FaPaperPlane, FaTimes } from 'react-icons/fa';
 import StickerPicker from '../common/Chat/StickerPicker';
 import CommentItem from './CommentItem';
 import type { Post } from '../../types/community';
-import closeBtnIcon from '../../assets/images/close-btn.png';
-import defaultAvatar from '../../assets/images/defaultAvatar.png';
+import closeBtnIcon from '../../assets/images/close-btn.avif';
+import defaultAvatar from '../../assets/images/defaultAvatar.webp';
 import '../../assets/styles/CommentSection.css';
 
 interface CommentSectionProps {

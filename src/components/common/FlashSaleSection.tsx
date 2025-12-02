@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FaBolt, FaClock, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/FlashSaleSection.css';
-import fireIcon from '../../assets/images/fire.png';
+import fireIcon from '../../assets/images/fire.avif';
 import FlashSaleCountdown from './FlashSaleCountdown';
 
 const API_BASE_URL = 'http://localhost:3000/api';

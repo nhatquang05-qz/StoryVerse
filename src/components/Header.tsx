@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { type ComicSummary, type Genre } from '../types/comicTypes'; 
 import ThemeToggleButton from './common/ThemeToggleButton';
 import DailyRewardModal from './common/DailyRewardModal';
-import coinIcon from '../assets/images/coin.png';
+import coinIcon from '../assets/images/coin.avif';
 import '../assets/styles/Header.css';
 
 interface Notification {
@@ -490,7 +490,7 @@ const Header: React.FC = () => {
               </div>
 
               <div className="coin-balance-display">
-                  <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
+                  <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '30px' }}/>
                   <span className="coin-amount">{currentUser.coinBalance}</span>
               </div>
             </>
@@ -566,7 +566,7 @@ const Header: React.FC = () => {
                   </button>
 
                   <div className="coin-balance-display mobile-coin-balance">
-                      <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '20px' }}/>
+                      <img src={coinIcon} alt="Xu" className="coin-icon" style={{ width: '30px', height: '30px' }}/>
                       <span className="coin-amount">{currentUser.coinBalance} Xu</span>
                   </div>
               </>
