@@ -1,69 +1,147 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiCheckCircle } from 'react-icons/fi';
-import { getOrderById, type Order } from '../data/mockData';
+import { FiCheck, FiLoader } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
+import '../assets/styles/OrderSuccessPage.css'; 
+
+interface OrderDetail {
+    id: number;
+    transactionCode: string; 
+    totalAmount: number;
+    createdAt: string;
+    address: string;         
+    paymentMethod: string;   
+    status: string;
+}
 
 const OrderSuccessPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const { currentUser } = useAuth();
-    const [order, setOrder] = useState<Order | null>(null);
+    const [order, setOrder] = useState<OrderDetail | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
     useEffect(() => {
-        if (orderId && currentUser) {
-            setTimeout(() => {
-                const foundOrder = getOrderById(orderId);
-                if (foundOrder && foundOrder.userId === currentUser.id) {
-                    setOrder(foundOrder);
+        const fetchOrder = async () => {
+            if (!orderId || !currentUser) return;
+
+            try {
+                const token = localStorage.getItem('storyverse_token');
+                const response = await fetch(`${API_URL}/orders/${orderId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không tìm thấy đơn hàng');
                 }
-            }, 500);
-        }
+
+                const data = await response.json();
+                setOrder(data.data || data); 
+            } catch (err) {
+                console.error("Lỗi lấy đơn hàng:", err);
+                setError('Không thể tải thông tin đơn hàng.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const timer = setTimeout(() => {
+            fetchOrder();
+        }, 800);
+
+        return () => clearTimeout(timer);
     }, [orderId, currentUser]);
-    
-    const defaultAddress = currentUser?.addresses.find(a => a.isDefault);
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
 
-    if (!order) {
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('vi-VN', {
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+    };
+
+    if (isLoading) {
         return (
-            <div className="auth-page" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-                <h2>Đang xử lý đơn hàng...</h2>
-                <p>Nếu không tự chuyển, bạn có thể kiểm tra lại tại <Link to="/orders">Lịch sử mua hàng</Link>.</p>
+            <div className="order-success-page">
+                <div className="loading-container">
+                    <FiLoader className="animate-spin" size={40} />
+                    <h2>Đang xử lý đơn hàng...</h2>
+                    <p>Vui lòng đợi trong giây lát</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!order || error) {
+        return (
+            <div className="order-success-page">
+                <div className="success-card">
+                    <h2 className="text-error">Không tìm thấy đơn hàng</h2>
+                    <p>{error || "Có lỗi xảy ra hoặc bạn không có quyền xem đơn hàng này."}</p>
+                    <div className="success-actions mt-4">
+                        <Link to="/" className="btn-secondary-solid">Về Trang Chủ</Link>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="auth-page" style={{ padding: '2rem 1rem' }}>
-            <div className="auth-container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-                <FiCheckCircle style={{ color: '#28a745', fontSize: '4rem', marginBottom: '1rem' }} />
-                <h1 style={{ color: '#28a745' }}>ĐẶT HÀNG THÀNH CÔNG!</h1>
-                <p style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>
-                    Cảm ơn bạn đã mua hàng tại StoryVerse. Đơn hàng của bạn đã được tiếp nhận và đang được xử lý.
+        <div className="order-success-page">
+            <div className="success-card">
+                <div className="success-icon-wrapper">
+                    <FiCheck className="success-icon" />
+                </div>
+
+                <h1 className="success-title">Đặt Hàng Thành Công!</h1>
+                <p className="success-message">
+                    Cảm ơn bạn đã ủng hộ <strong>StoryVerse</strong>.<br />
+                    Đơn hàng của bạn đã được hệ thống ghi nhận.
                 </p>
 
-                <div style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
-                    <p><strong>Mã Đơn Hàng:</strong> #{order.id}</p>
-                    <p><strong>Ngày Đặt:</strong> {order.date}</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                        Tổng Cộng: {formatPrice(order.total)}
-                    </p>
-                </div>
-                
-                {defaultAddress && (
-                    <div style={{ border: '1px solid #e0e0e0', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', textAlign: 'left' }}>
-                        <h4>Địa Chỉ Giao Hàng</h4>
-                        <p style={{ margin: '0' }}>{currentUser?.fullName} - {currentUser?.phone}</p>
-                        <p style={{ margin: '0' }}>{defaultAddress.street}, {defaultAddress.ward}, {defaultAddress.district}, {defaultAddress.city}</p>
+                <div className="order-details-box">
+                    <div className="detail-row">
+                        <span className="detail-label">Mã vận đơn:</span>
+                        <span className="detail-value highlight">
+                            {order.transactionCode || `#${order.id}`}
+                        </span>
                     </div>
-                )}
+                    <div className="detail-row">
+                        <span className="detail-label">Ngày đặt:</span>
+                        <span className="detail-value">{formatDate(order.createdAt)}</span>
+                    </div>
+                    <div className="detail-row">
+                        <span className="detail-label">Phương thức:</span>
+                        <span className="detail-value">
+                            {order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng' : order.paymentMethod}
+                        </span>
+                    </div>
+                    <div className="detail-row">
+                        <span className="detail-label">Tổng thanh toán:</span>
+                        <span className="detail-value total-value">{formatPrice(order.totalAmount)}</span>
+                    </div>
+                </div>
 
+                <div className="shipping-info">
+                    <h4>Thông tin nhận hàng</h4>
+                    <p><strong>Người nhận:</strong> {currentUser?.fullName}</p> 
+                    <p><strong>Số điện thoại:</strong> {currentUser?.phone || order.address.split(',')[0]}</p>
+                    <p><strong>Địa chỉ:</strong> {order.address}</p>
+                </div>
 
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                    <Link to="/orders" className="detail-order-btn" style={{ padding: '0.8rem 1.5rem' }}>Xem Chi Tiết Đơn</Link>
-                    <Link to="/" className="checkout-btn" style={{ background: '#6c757d', padding: '0.8rem 1.5rem' }}>Tiếp Tục Mua Sắm</Link>
+                <div className="success-actions">
+                    <Link to={`/orders`} className="btn-primary-outline">
+                        Xem Chi Tiết
+                    </Link>
+                    <Link to="/" className="btn-secondary-solid">
+                        Tiếp Tục Mua Sắm
+                    </Link>
                 </div>
             </div>
         </div>

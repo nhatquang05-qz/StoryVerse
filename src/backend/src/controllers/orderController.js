@@ -197,10 +197,38 @@ const getOrderDetails = async (req, res) => {
     }
 };
 
+const getOrderById = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { id } = req.params;
+        const connection = require('../db/connection').getConnection(); 
+        const [rows] = await connection.execute(
+            `SELECT o.*, t.transactionCode 
+             FROM orders o
+             LEFT JOIN payment_transactions t ON o.id = t.orderId AND t.type = 'PURCHASE'
+             WHERE o.id = ? AND o.userId = ?
+             LIMIT 1`, 
+            [id, userId]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        }
+
+        const order = rows[0];
+        res.json({ data: order });
+
+    } catch (error) {
+        console.error('Get Order By ID Error:', error);
+        res.status(500).json({ message: 'Lỗi server khi lấy chi tiết đơn hàng' });
+    }
+};
+
 module.exports = { 
     createOrder, 
     getMyOrders,
     getAllOrders,      
     adminUpdateStatus,
-    getOrderDetails 
+    getOrderDetails,
+    getOrderById 
 };

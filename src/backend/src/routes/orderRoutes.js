@@ -11,4 +11,6 @@ router.get('/admin/all', authenticateAdmin, orderController.getAllOrders);
 router.put('/admin/:id/status', authenticateAdmin, orderController.adminUpdateStatus);
 router.get('/admin/:id/items', authenticateAdmin, orderController.getOrderDetails); 
 
+router.get('/:id', authenticateToken, orderController.getOrderById);
+
 module.exports = router;
