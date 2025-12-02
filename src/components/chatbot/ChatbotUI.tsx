@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, type FormEvent } from 'react';
-import { MessageCircle, X, Send, Bot, Loader2 } from 'lucide-react'; 
+import { X, Send, Bot, Loader2 } from 'lucide-react';
 import { getBotResponse, type ChatHistory } from './ChatbotLogic';
 import chatbotIcon from '../../assets/images/chatbot-icon.avif';
 import '../../assets/styles/Chatbot.css';
@@ -17,6 +17,8 @@ const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const ChatbotUI: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [showWelcome, setShowWelcome] = useState(true); 
+    const [isHovered, setIsHovered] = useState(false);   
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<ChatHistory[]>([
         { role: 'model', parts: "<p>Chào bạn! Tôi là trợ lý ảo StoryVerse. Tôi có thể giúp gì cho bạn hôm nay?</p>" }
@@ -30,6 +32,12 @@ const ChatbotUI: React.FC = () => {
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isOpen]);
+
+    useEffect(() => {
+        if (isOpen) {
+            setShowWelcome(false);
+        }
+    }, [isOpen]);
 
     const handleSendMessage = async (messageText: string) => {
         if (!messageText.trim() || isLoading) return;
@@ -78,13 +86,40 @@ const ChatbotUI: React.FC = () => {
     return (
         <div className="chatbot-container">
             {!isOpen && (
-                <button 
-                    className="chatbot-toggle-button" 
-                    onClick={() => setIsOpen(true)}
-                    aria-label="Mở Chatbot"
+                <div 
+                    className="chatbot-toggle-wrapper"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                 >
-                    <img src={chatbotIcon} alt="Chatbot" className="w-full h-full object-cover rounded-full" />
-                </button>
+                    {showWelcome && (
+                        <div className="chatbot-tooltip welcome-tooltip">
+                            <span>Chào bạn! Cần hỗ trợ gì không?</span>
+                            <button 
+                                className="tooltip-close-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowWelcome(false);
+                                }}
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    )}
+
+                    {!showWelcome && isHovered && (
+                        <div className="chatbot-tooltip hover-tooltip">
+                            <span>Chat ngay!</span>
+                        </div>
+                    )}
+
+                    <button 
+                        className="chatbot-toggle-button" 
+                        onClick={() => setIsOpen(true)}
+                        aria-label="Mở Chatbot"
+                    >
+                        <img src={chatbotIcon} alt="Chatbot" />
+                    </button>
+                </div>
             )}
 
             {isOpen && (
@@ -106,7 +141,6 @@ const ChatbotUI: React.FC = () => {
                                         <img src={chatbotIcon} alt="Bot" />
                                     </div>
                                 )}
-                                
                                 <div 
                                     className="message-content"
                                     dangerouslySetInnerHTML={{ __html: msg.parts }} 
