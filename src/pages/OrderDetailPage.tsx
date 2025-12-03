@@ -1,123 +1,199 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getOrderById, type Order } from '../data/mockData';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FiArrowLeft, FiMapPin, FiPackage, FiCreditCard, FiCalendar, FiBox, FiClock, FiCheckCircle, FiXCircle, FiTruck, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
-import ProfileSidebar from '../components/common/ProfileSideBar';
-import '../assets/styles/ProfilePage.css';
+import '../assets/styles/OrderDetailPage.css';
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const getImageUrl = (url: string) => {
+    if (!url) return 'https://via.placeholder.com/150';
+    if (url.startsWith('http')) return url;
+    const baseUrl = API_URL.replace('/api', ''); 
+    return `${baseUrl}/${url}`;
+};
+
+interface OrderItem {
+    id: number;
+    title: string;
+    coverImageUrl: string;
+    quantity: number;
+    price: number;
+}
+
+interface OrderDetail {
+    id: number;
+    transactionCode: string;
+    totalAmount: number;
+    createdAt: string;
+    address: string;
+    fullName: string;
+    phone: string;
+    status: string;
+    paymentMethod: string;
+    items: OrderItem[];
+}
 
 const OrderDetailPage: React.FC = () => {
     const { orderId } = useParams<{ orderId: string }>();
-    const { currentUser } = useAuth();
-    const [order, setOrder] = useState<Order | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const { token } = useAuth();
+    const navigate = useNavigate();
+    const [order, setOrder] = useState<OrderDetail | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (orderId && currentUser) {
-            setIsLoading(true);
-            setTimeout(() => {
-                const foundOrder = getOrderById(orderId);
-                if (foundOrder && foundOrder.userId === currentUser.id) {
-                    setOrder(foundOrder);
-                } else {
-                    setOrder(null);
-                }
-                setIsLoading(false);
-            }, 500); 
-        }
-    }, [orderId, currentUser]);
+        const fetchOrderDetail = async () => {
+            if (!token || !orderId) return;
+            try {
+                const res = await fetch(`${API_URL}/orders/${orderId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!res.ok) throw new Error("Không thể tải đơn hàng");
+                const json = await res.json();
+                setOrder(json.data || json);
+            } catch (error) {
+                console.error("Lỗi tải chi tiết:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOrderDetail();
+    }, [orderId, token]);
 
-    if (!currentUser) {
-        return (
-            <div className="profile-page-not-logged">
-                <h2>Bạn cần đăng nhập để xem chi tiết đơn hàng.</h2>
-            </div>
-        );
-    }
-    
-    if (isLoading) {
-        return (
-            <div className="profile-page-container">
-                <ProfileSidebar activeLink="/orders" />
-                <div className="profile-content">
-                    <h1>Chi Tiết Đơn Hàng</h1>
-                    <p>Đang tải chi tiết đơn hàng...</p>
-                </div>
-            </div>
-        );
-    }
+    const formatPrice = (p: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p);
+    const formatDate = (d: string) => new Date(d).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
 
-    if (!order) {
-        return (
-            <div className="profile-page-container">
-                <ProfileSidebar activeLink="/orders" />
-                <div className="profile-content">
-                    <h1>Không tìm thấy đơn hàng!</h1>
-                    <p>Mã đơn hàng {orderId} không tồn tại hoặc không thuộc về tài khoản của bạn.</p>
-                    <Link to="/orders" className="detail-order-btn">Quay lại Lịch sử mua hàng</Link>
-                </div>
-            </div>
-        );
-    }
+    const renderStatusBadge = (status: string) => {
+        let badgeClass = 'status-badge ';
+        let icon = <FiAlertCircle />;
+        let text = status;
+        let style = {};
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-    };
-
-    const getStatusClass = (status: string) => {
         switch (status) {
-          case 'Hoàn thành': return 'status-completed';
-          case 'Đang giao hàng': return 'status-shipping';
-          case 'Đã hủy': return 'status-cancelled';
-          case 'Đang chờ': return 'status-pending'; 
-          default: return '';
+            case 'PENDING': 
+                badgeClass += 'pending'; icon = <FiClock />; text = 'Chờ thanh toán'; style = { backgroundColor: '#fff7ed', color: '#c2410c' }; break;
+            case 'PAID':
+            case 'PROCESSING': 
+                badgeClass += 'processing'; icon = <FiBox />; text = 'Đang xử lý'; style = { backgroundColor: '#eff6ff', color: '#1d4ed8' }; break;
+            case 'SHIPPING': 
+                badgeClass += 'shipping'; icon = <FiTruck />; text = 'Đang giao hàng'; style = { backgroundColor: '#f0fdf4', color: '#15803d' }; break;
+            case 'COMPLETED': 
+                badgeClass += 'completed'; icon = <FiCheckCircle />; text = 'Hoàn thành'; style = { backgroundColor: '#ecfdf5', color: '#047857' }; break;
+            case 'CANCELLED': 
+                badgeClass += 'cancelled'; icon = <FiXCircle />; text = 'Đã hủy'; style = { backgroundColor: '#fef2f2', color: '#b91c1c' }; break;
+            default:
+                style = { backgroundColor: '#f3f4f6', color: '#374151' };
         }
+
+        return <span className={badgeClass} style={style}>{icon} {text}</span>;
     };
+
+    if (loading) return <div className="loading-container">Đang tải chi tiết đơn hàng...</div>;
+    if (!order) return (
+        <div className="error-container">
+            <h2 className="error-title">Không tìm thấy đơn hàng</h2>
+            <Link to="/orders" className="btn-home">Quay lại danh sách</Link>
+        </div>
+    );
+
+    const isPaid = order.status === 'PAID' || order.status === 'COMPLETED';
 
     return (
-        <div className="detail-page-container">
-            <div className="profile-page-container">
-                <ProfileSidebar activeLink="/orders" />
-                <div className="profile-content">
-                    <h1>Chi Tiết Đơn Hàng #{order.id}</h1>
-                    <div className="profile-info-card" style={{ marginBottom: '2rem' }}>
-                        <p><strong>Ngày đặt hàng:</strong> {order.date}</p>
-                        <p><strong>Tổng cộng:</strong> <span className="total-price" style={{ color: 'var(--primary-color)' }}>{formatPrice(order.total)}</span></p>
-                        <p>
-                            <strong>Trạng thái:</strong> 
-                            <span className={`status-badge ${getStatusClass(order.status)}`} style={{ marginLeft: '10px' }}>
-                                {order.status}
-                            </span>
+        <div className="order-detail-container">
+            <button onClick={() => navigate('/orders')} className="btn-back">
+                <FiArrowLeft /> Quay lại danh sách
+            </button>
+
+            <div className="order-detail-card">
+                <div className="od-header">
+                    <div className="od-title">
+                        <h2>Chi Tiết Đơn Hàng</h2>
+                        <p className="od-id">
+                            Mã vận đơn: <span className="od-transaction-code">{order.transactionCode || `#${order.id}`}</span>
                         </p>
                     </div>
+                    <div className="od-status">
+                        {renderStatusBadge(order.status)}
+                        <p className="od-date">
+                            <FiCalendar /> {formatDate(order.createdAt)}
+                        </p>
+                    </div>
+                </div>
 
-                    <h2>Danh sách sản phẩm</h2>
-                    <table className="orders-table">
-                        <thead>
-                            <tr>
-                                <th>Sản phẩm</th>
-                                <th>Đơn giá</th>
-                                <th>Số lượng</th>
-                                <th>Thành tiền</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {order.items.map(item => (
-                                <tr key={item.id}>
-                                    <td data-label="Sản phẩm">
-                                        <Link to={`/comic/${item.id}`} style={{ fontWeight: 'bold', color: 'var(--text-color-dark)' }}>
-                                            {item.title}
-                                        </Link>
-                                        <p style={{ fontSize: '0.9rem', color: '#6c757d' }}>{item.author}</p>
-                                    </td>
-                                    <td data-label="Đơn giá">{formatPrice(item.price)}</td>
-                                    <td data-label="Số lượng">{item.quantity}</td>
-                                    <td data-label="Thành tiền">{formatPrice(item.price * item.quantity)}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="od-info-grid">
+                    <div className="info-section">
+                        <h4><FiMapPin /> Địa Chỉ Nhận Hàng</h4>
+                        <div className="info-box">
+                            <div className="info-row">
+                                <span className="info-value" style={{ fontWeight: 700 }}>{order.fullName}</span>
+                            </div>
+                            <div className="info-row">
+                                <span className="info-value">{order.phone}</span>
+                            </div>
+                            <div className="info-row">
+                                <span className="info-value" style={{ color: 'var(--clr-text-secondary)' }}>{order.address}</span>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <Link to="/orders" className="detail-order-btn" style={{ marginTop: '2rem', display: 'inline-block' }}>Quay lại Lịch sử mua hàng</Link>
+                    <div className="info-section">
+                        <h4><FiCreditCard /> Thanh Toán</h4>
+                        <div className="info-box">
+                            <div className="info-row">
+                                <span className="info-label">Phương thức:</span>
+                                <span className="info-value">
+                                    {order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng (COD)' : order.paymentMethod}
+                                </span>
+                            </div>
+                            <div className="info-row">
+                                <span className="info-label">Trạng thái:</span>
+                                <span className={`payment-status ${isPaid ? 'paid' : 'unpaid'}`}>
+                                    {isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="od-items-section">
+                    <h4><FiPackage /> Sản Phẩm ({order.items ? order.items.length : 0})</h4>
+                    
+                    <div className="od-items-list">
+                        {order.items && order.items.length > 0 ? (
+                            order.items.map((item, index) => (
+                                <div key={index} className="od-item">
+                                    <img 
+                                        src={getImageUrl(item.coverImageUrl)} 
+                                        alt={item.title} 
+                                        className="item-image"
+                                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/60x90?text=Error'; }}
+                                    />
+                                    <div className="item-details">
+                                        <h5 className="item-title">{item.title}</h5>
+                                        <p className="item-quantity">Số lượng: x{item.quantity}</p>
+                                    </div>
+                                    <div className="item-price">
+                                        {formatPrice(item.price)}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="empty-items">Không có thông tin sản phẩm</div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="od-footer">
+                    <div className="total-summary">
+                        <div className="summary-row">
+                            <span>Tạm tính:</span>
+                            <span>{formatPrice(order.totalAmount)}</span> 
+                        </div>
+                        <div className="summary-row final">
+                            <span>Tổng tiền:</span>
+                            <span>{formatPrice(order.totalAmount)}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

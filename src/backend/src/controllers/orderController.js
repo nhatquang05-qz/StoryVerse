@@ -80,8 +80,29 @@ const createOrder = async (req, res) => {
 const getMyOrders = async (req, res) => {
     try {
         const userId = req.userId;
-        const orders = await orderModel.getOrdersByUserIdRaw(userId);
-        res.json(orders);
+        const connection = require('../db/connection').getConnection();
+
+        const [orders] = await connection.execute(
+            `SELECT o.*, t.transactionCode 
+             FROM orders o
+             LEFT JOIN payment_transactions t ON o.id = t.orderId AND t.type = 'PURCHASE'
+             WHERE o.userId = ?
+             ORDER BY o.createdAt DESC`, 
+            [userId]
+        );
+
+        const ordersWithItems = await Promise.all(orders.map(async (order) => {
+            const [items] = await connection.execute(
+                `SELECT oi.*, c.title, c.coverImageUrl, c.price 
+                 FROM order_items oi
+                 JOIN comics c ON oi.comicId = c.id
+                 WHERE oi.orderId = ?`,
+                [order.id]
+            );
+            return { ...order, items };
+        }));
+
+        res.json(ordersWithItems);
     } catch (error) {
         console.error('Get Orders Error:', error);
         res.status(500).json({ message: 'Lỗi lấy lịch sử đơn hàng' });
@@ -201,7 +222,9 @@ const getOrderById = async (req, res) => {
     try {
         const userId = req.userId;
         const { id } = req.params;
-        const connection = require('../db/connection').getConnection(); 
+        const connection = require('../db/connection').getConnection();
+        
+        // 1. Lấy thông tin đơn hàng cơ bản + transactionCode
         const [rows] = await connection.execute(
             `SELECT o.*, t.transactionCode 
              FROM orders o
@@ -216,7 +239,23 @@ const getOrderById = async (req, res) => {
         }
 
         const order = rows[0];
-        res.json({ data: order });
+
+        // 2. Lấy danh sách sản phẩm (Items) của đơn hàng này
+        const [items] = await connection.execute(
+            `SELECT oi.id, oi.quantity, oi.price, c.title, c.coverImageUrl 
+             FROM order_items oi
+             JOIN comics c ON oi.comicId = c.id
+             WHERE oi.orderId = ?`,
+            [id]
+        );
+
+        // 3. Trả về kết quả gộp: order + items
+        res.json({ 
+            data: { 
+                ...order, 
+                items: items // Thêm mảng items vào response
+            } 
+        });
 
     } catch (error) {
         console.error('Get Order By ID Error:', error);
