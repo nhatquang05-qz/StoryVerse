@@ -14,7 +14,6 @@ const authenticateToken = (req, res, next) => {
       return res.sendStatus(403);
     }
 
-    // --- SỬA LỖI: Kiểm tra user tồn tại ---
     if (!user || !user.id) {
         console.error("JWT Valid but missing user ID");
         return res.sendStatus(403);
