@@ -6,7 +6,3 @@
     font-family: var(--font-sans);
     color: var(--clr-text);
 }
-
-* {
-    box-sizing: border-box;
-}
