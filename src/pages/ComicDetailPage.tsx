@@ -87,7 +87,7 @@ const ComicDetailPage: React.FC = () => {
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
-  const { currentUser, unlockChapter } = useAuth();
+  const { currentUser, unlockChapter, openLoginRequest } = useAuth();
   const navigate = useNavigate();
   const { comicId } = useParams<{ comicId: string }>();
   const id = Number(comicId);
@@ -211,6 +211,10 @@ const ComicDetailPage: React.FC = () => {
   };
   
   const handleAddToCart = () => {
+    if (!currentUser) {
+        openLoginRequest();
+        return;
+    }
     if (comic && !((comic.isDigital as any) === 1)) {
       const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
       addToCart(comicData as any, quantity, rect); 
@@ -218,6 +222,10 @@ const ComicDetailPage: React.FC = () => {
   };
 
   const handleToggleWishlist = () => {
+    if (!currentUser) {
+        openLoginRequest();
+        return;
+    }
     if (comic) {
         toggleWishlist(comic as any);
         showNotification(isFavorite ? `Đã xóa ${comic.title} khỏi Yêu thích.` : `Đã thêm ${comic.title} vào Yêu thích.`, isFavorite ? 'error' : 'success');
@@ -226,7 +234,7 @@ const ComicDetailPage: React.FC = () => {
   
 const handleUnlockChapter = async (chapter: ChapterSummary) => {
       if (!currentUser) {
-          showNotification('Vui lòng đăng nhập để mở khóa chương.', 'warning');
+          openLoginRequest();
           return;
       }
       
@@ -421,7 +429,7 @@ const toggleSort = () => {
                                           <button 
                                               className="unlock-chapter-btn"
                                               onClick={() => handleUnlockChapter(chapter)}
-                                              disabled={!currentUser || !canUnlock} 
+                                              disabled={!canUnlock} 
                                           >
                                               <FiLock style={{ marginRight: '0.25rem' }} /> Mở khóa ({chapter.price} Xu)
                                           </button>
@@ -460,7 +468,6 @@ const toggleSort = () => {
       <div className="detail-main-card">
         <div className="detail-image-wrapper">
           
-          {/* --- FLASH SALE BADGES (CHỈ HIỆN NẾU CÒN HÀNG) --- */}
           {hasFlashSale && (
              <img src={flashSaleBadgeIcon} alt="Flash Sale" className="detail-fs-badge-left" />
           )}

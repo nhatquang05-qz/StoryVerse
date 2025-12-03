@@ -29,9 +29,7 @@ const updateAvatar = async (req, res) => {
     try {
         const { avatarUrl } = req.body;
         const result = await userService.updateAvatarService(req.userId, avatarUrl);
-
-        res.json({ message: result.message, user: result.user });
-
+        res.json(result); 
     } catch (error) {
         const status = error.status || 500;
         console.error('Update avatar error:', error);
@@ -202,6 +200,35 @@ const getPublicUserProfile = async (req, res) => {
     }
 };
 
+const getPendingAvatars = async (req, res) => {
+    try {
+        const list = await userService.getPendingAvatarsService();
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi lấy danh sách chờ duyệt' });
+    }
+};
+
+const approveAvatar = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const result = await userService.approveAvatarService(id);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi duyệt avatar' });
+    }
+};
+
+const rejectAvatar = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const result = await userService.rejectAvatarService(id);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: 'Lỗi từ chối avatar' });
+    }
+};
+
 module.exports = { 
     getMe, 
     updateProfile, 
@@ -217,5 +244,8 @@ module.exports = {
     getTransactionHistory,
     getUserDetailsAdmin,
     updateLevelSystem,
-    getPublicUserProfile
+    getPublicUserProfile,
+    getPendingAvatars,
+    approveAvatar,
+    rejectAvatar
 };

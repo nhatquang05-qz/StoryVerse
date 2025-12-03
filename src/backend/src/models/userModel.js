@@ -100,7 +100,6 @@ const getAllUsersRaw = async () => {
     return rows;
 };
 
-// [UPDATE] Đã sửa dòng cuối trong mảng params để dùng 'defaultAvatar.webp'
 const createNewUser = async (email, hashedPassword, fullName, addresses, avatarUrl = null) => {
     const connection = getConnection();
     const emptyAddresses = JSON.stringify([]);
@@ -117,7 +116,7 @@ const createNewUser = async (email, hashedPassword, fullName, addresses, avatarU
           1, 
           '0.00', 
           emptyAddresses, 
-          avatarUrl || 'defaultAvatar.webp' // Sửa ở đây
+          avatarUrl || 'defaultAvatar.webp' 
       ]
     );
     return result.insertId;
@@ -150,7 +149,7 @@ const updateProfileRaw = async (userId, fullName, phone) => {
 const updateAvatarRaw = async (userId, avatarUrl) => {
     const connection = getConnection();
     await connection.execute(
-        'UPDATE users SET avatarUrl = ? WHERE id = ?',
+        'UPDATE users SET pendingAvatarUrl = ? WHERE id = ?',
         [avatarUrl, userId]
     );
 };
@@ -264,13 +263,72 @@ const getUserRecentCommentsRaw = async (userId) => {
     return rows;
 };
 
+const getPendingAvatarsRaw = async () => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+        'SELECT id, fullName, email, avatarUrl, pendingAvatarUrl FROM users WHERE pendingAvatarUrl IS NOT NULL'
+    );
+    return rows;
+};
+
+const approveAvatarRaw = async (userId) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute('SELECT pendingAvatarUrl FROM users WHERE id = ?', [userId]);
+    if (rows.length === 0 || !rows[0].pendingAvatarUrl) return false;
+
+    const newUrl = rows[0].pendingAvatarUrl;
+
+    await connection.execute(
+        'UPDATE users SET avatarUrl = ?, pendingAvatarUrl = NULL WHERE id = ?',
+        [newUrl, userId]
+    );
+    return newUrl;
+};
+
+const rejectAvatarRaw = async (userId) => {
+    const connection = getConnection();
+    await connection.execute(
+        'UPDATE users SET pendingAvatarUrl = NULL WHERE id = ?',
+        [userId]
+    );
+};
+
+const createNotificationRaw = async (userId, title, message, type = 'SYSTEM') => {
+    const connection = getConnection();
+    await connection.execute(
+        'INSERT INTO notifications (userId, type, title, message) VALUES (?, ?, ?, ?)',
+        [userId, type, title, message]
+    );
+};
+
 module.exports = { 
-    findUserByEmail, findUserById, findUserByResetToken,
-    createNewUser, updateResetToken, resetPasswordRaw,
-    updateProfileRaw, updateAvatarRaw,
-    getTopUsersRaw, getUnlockedChaptersRaw, getWishlistRaw,
-    findWishlistEntry, checkComicExists, toggleWishlistAdd, toggleWishlistRemove,
+    findUserByEmail, 
+    findUserById, 
+    findUserByResetToken,
+    createNewUser, 
+    updateResetToken, 
+    resetPasswordRaw,
+    updateProfileRaw, 
+    updateAvatarRaw,
+    getTopUsersRaw, 
+    getUnlockedChaptersRaw, 
+    getWishlistRaw,
+    findWishlistEntry, 
+    checkComicExists, 
+    toggleWishlistAdd, 
+    toggleWishlistRemove,
     updateUserBalanceAndExpRaw,
-    getAllUsersRaw, updateAdminUserRaw, toggleUserBanRaw, deleteUserDependenciesRaw, deleteUserRaw,
-    updateLevelSystemRaw, getPublicUserByIdRaw, getUserRecentReviewsRaw, getUserRecentCommentsRaw
+    getAllUsersRaw, 
+    updateAdminUserRaw, 
+    toggleUserBanRaw, 
+    deleteUserDependenciesRaw, 
+    deleteUserRaw,
+    updateLevelSystemRaw, 
+    getPublicUserByIdRaw, 
+    getUserRecentReviewsRaw, 
+    getUserRecentCommentsRaw, 
+    getPendingAvatarsRaw, 
+    approveAvatarRaw,     
+    rejectAvatarRaw,      
+    createNotificationRaw 
 };

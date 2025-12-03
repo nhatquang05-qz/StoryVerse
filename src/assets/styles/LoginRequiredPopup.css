@@ -1,0 +1,98 @@
+.login-required-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+.login-required-modal {
+    background: var(--clr-card-bg, #fff);
+    padding: 2rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--clr-border-light, #eee);
+    position: relative;
+    animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.login-required-icon {
+    font-size: 3rem;
+    color: var(--clr-primary, #646cff);
+    margin-bottom: 1rem;
+    background: rgba(100, 108, 255, 0.1);
+    padding: 1rem;
+    border-radius: 50%;
+    display: inline-flex;
+}
+
+.login-required-modal h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--clr-text, #333);
+    font-size: 1.5rem;
+}
+
+.login-required-modal p {
+    color: var(--clr-text-secondary, #666);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.login-required-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-login-redirect {
+    background: linear-gradient(135deg, var(--clr-primary) 0%, var(--clr-primary-dark) 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex: 1;
+}
+
+.btn-login-redirect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(100, 108, 255, 0.3);
+}
+
+.btn-login-cancel {
+    background: transparent;
+    border: 1px solid var(--clr-border-light);
+    color: var(--clr-text);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+}
+
+.btn-login-cancel:hover {
+    background: var(--clr-card-bg, #f5f5f5);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

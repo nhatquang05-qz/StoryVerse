@@ -34,16 +34,15 @@ const updateAvatarService = async (userId, avatarUrl) => {
     if (!avatarUrl || typeof avatarUrl !== 'string') {
         throw { status: 400, error: 'Avatar URL không hợp lệ.' };
     }
-
     await userModel.updateAvatarRaw(userId, avatarUrl);
+    await userModel.createNotificationRaw(
+        userId,
+        'Hồ sơ',
+        'Ảnh đại diện của bạn đang chờ duyệt. Vui lòng đợi quản trị viên kiểm tra.',
+        'SYSTEM'
+    );
 
-    const userRow = await userModel.findUserById(userId); 
-    if (!userRow) throw { status: 404, error: 'User not found after update' };
-
-    const { password, ...updatedUser } = userRow;
-    const finalUserData = ensureUserDataTypes(updatedUser);
-
-    return { message: 'Avatar updated successfully', user: finalUserData };
+    return { message: 'Đã gửi yêu cầu đổi ảnh đại diện. Vui lòng chờ duyệt.' };
 };
 
 const getTopUsersService = async (limit = 10) => {
@@ -123,13 +122,10 @@ const toggleWishlistService = async (userId, comicId) => {
     }
 };
 
-// --- Admin Functions ---
-
 const getAllUsersService = async () => {
     try {
         const rows = await userModel.getAllUsersRaw();
         
-        // Data Formatting Logic
         const users = rows.map(user => ({
             ...user,
             id: String(user.id),
@@ -232,6 +228,36 @@ const getPublicUserProfileService = async (targetUserId) => {
         throw { status: error.status || 500, error: 'Lỗi lấy thông tin người dùng' };
     }
 };
+
+const getPendingAvatarsService = async () => {
+    return await userModel.getPendingAvatarsRaw();
+};
+
+const approveAvatarService = async (userId) => {
+    const newAvatarUrl = await userModel.approveAvatarRaw(userId);
+    
+    if (newAvatarUrl) {
+        await userModel.createNotificationRaw(
+            userId,
+            'Hồ sơ',
+            'Avatar của bạn đã được thay đổi thành công!',
+            'SYSTEM'
+        );
+    }
+    return { message: 'Đã duyệt ảnh đại diện thành công.' };
+};
+
+const rejectAvatarService = async (userId) => {
+    await userModel.rejectAvatarRaw(userId);
+    await userModel.createNotificationRaw(
+        userId,
+        'Hồ sơ',
+        'Ảnh đại diện bị từ chối. Vui lòng chọn hình ảnh hợp lệ (không nhạy cảm, bạo lực).',
+        'SYSTEM'
+    );
+    return { message: 'Đã từ chối ảnh đại diện.' };
+};
+
 module.exports = { 
     getMeService, 
     updateProfileService, 
@@ -245,5 +271,8 @@ module.exports = {
     toggleUserBanService,
     deleteUserByIdService,
     updateLevelSystemService,
-    getPublicUserProfileService
+    getPublicUserProfileService,    
+    getPendingAvatarsService,
+    approveAvatarService,
+    rejectAvatarService
 };

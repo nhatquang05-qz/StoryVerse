@@ -6,6 +6,7 @@ import LevelUpPopup from '../components/popups/LevelUpPopup';
 import LoginSuccessPopup from '../components/popups/LoginSuccessPopup';
 import ErrorPopup from '../components/popups/ErrorPopup'; 
 import RegisterSuccessPopup from '../components/popups/RegisterSuccessPopup'; 
+import LoginRequiredPopup from '../components/popups/LoginRequiredPopup';
 import type { User, Address } from '../types/userTypes';
 import {
     getLevelColor,
@@ -56,6 +57,7 @@ interface AuthContextType {
   showLoginError: (title: string, message: string) => void;
   isRegisterSuccessPopupOpen: boolean; 
   closeRegisterSuccessPopup: () => void; 
+  openLoginRequest: () => void; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,6 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [loginErrorMessage, setLoginErrorMessage] = useState('');
 
     const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false);
+    const [isLoginRequestOpen, setIsLoginRequestOpen] = useState(false); 
 
     useEffect(() => {
         if (currentUser && currentUser.levelSystem) {
@@ -132,13 +135,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updateSelectedSystemKey = useCallback((newKey: string) => {
         setSelectedSystemKey(newKey);
         localStorage.setItem(LEVEL_SYSTEM_STORAGE_KEY, newKey);
-        
-        setCurrentUser(prevUser => {
-            if (prevUser) {
-                return { ...prevUser, levelSystem: newKey };
-            }
-            return prevUser;
-        });
+        setCurrentUser(prevUser => prevUser ? { ...prevUser, levelSystem: newKey } : prevUser);
     }, []);
 
     const getEquivalentLevelTitle = useCallback((userLevel: number): string => {
@@ -165,6 +162,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const closeRegisterSuccessPopup = useCallback(() => {
         setIsRegisterSuccessPopupOpen(false);
+    }, []);
+
+    const openLoginRequest = useCallback(() => {
+        setIsLoginRequestOpen(true);
     }, []);
 
     const login = async (email: string, pass: string) => {
@@ -345,12 +346,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                  throw new Error('Cập nhật ảnh đại diện thất bại');
              }
 
-            const data = await response.json(); 
-            const updatedUser = ensureUserDataTypes(data.user); 
-            setCurrentUser(updatedUser); 
-            showNotification('Cập nhật ảnh đại diện thành công!', 'success');
-            return updatedUser;
-
+            return currentUser;
         } catch (error: any) {
             showNotification('Đã xảy ra lỗi khi cập nhật ảnh đại diện.', 'error');
             return null;
@@ -542,7 +538,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             closeLoginSuccessPopup,
             showLoginError,
             isRegisterSuccessPopupOpen,
-            closeRegisterSuccessPopup 
+            closeRegisterSuccessPopup,
+            openLoginRequest
         };
 
     return (
@@ -577,6 +574,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     onClose={closeRegisterSuccessPopup}
                 />
             )}
+            <LoginRequiredPopup 
+                isOpen={isLoginRequestOpen}
+                onClose={() => setIsLoginRequestOpen(false)}
+            />
         </AuthContext.Provider>
     );
 };

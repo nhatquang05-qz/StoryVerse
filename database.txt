@@ -374,3 +374,4 @@ CREATE TABLE `flash_sale_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE users ADD COLUMN levelSystem VARCHAR(50) DEFAULT 'default';
+ALTER TABLE users ADD COLUMN pendingAvatarUrl VARCHAR(1024) DEFAULT NULL;

@@ -241,7 +241,7 @@ html[data-theme="dark"] .orders-table a:hover {
 
 .detail-order-btn, .edit-btn, .save-btn {
     background-color: var(--clr-primary);
-    color: var(--clr-button-text);
+    color: white;
     padding: 0.6rem 1.2rem; 
     border-radius: 5px;
     font-size: 0.95rem; 
@@ -250,7 +250,12 @@ html[data-theme="dark"] .orders-table a:hover {
     border: none;
     font-weight: 500;
 }
-.detail-order-btn:hover, .checkout-btn:hover, .save-btn:hover, .edit-btn:hover, .cancel-btn:hover, .submit-review-btn:hover, .continue-shopping-btn:hover, .read-btn:hover, .page-nav-btn:hover:not(:disabled), .auth-button:hover {
+
+.detail-order-btn:hover{
+    color: rgb(221, 221, 221);
+}
+
+.checkout-btn:hover, .save-btn:hover, .edit-btn:hover, .cancel-btn:hover, .submit-review-btn:hover, .continue-shopping-btn:hover, .read-btn:hover, .page-nav-btn:hover:not(:disabled), .auth-button:hover {
     background-color: var(--clr-primary-dark);
 }
 .cancel-btn {

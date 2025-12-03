@@ -46,7 +46,20 @@ export const getEquivalentLevelTitle = (userLevel: number, selectedSystemKey: st
 export const ensureUserDataTypes = (userData: any): User => {
     if (!userData) {
        console.warn("ensureUserDataTypes received null or undefined userData");
-       return {} as User;
+       return {
+           id: '',
+           email: '',
+           fullName: '',
+           phone: '',
+           addresses: [],
+           coinBalance: 0,
+           lastDailyLogin: new Date().toISOString(),
+           consecutiveLoginDays: 0,
+           level: 1,
+           exp: 0,
+           avatarUrl: 'defaultAvatar.webp',
+           levelSystem: 'Bình Thường'
+       } as User;
     }
     const safeData = { ...userData };
 

@@ -60,7 +60,6 @@ const ProfilePage: React.FC = () => {
     }
   }, [currentUser]);
 
-  // [FIX] Helper xử lý nguồn ảnh
   const getAvatarSrc = (url: string | null | undefined) => {
       if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
       return url;
@@ -180,10 +179,12 @@ const ProfilePage: React.FC = () => {
 
           if (newAvatarUrl) {
               await updateAvatar(newAvatarUrl);
+              showNotification('Ảnh đã được gửi đi. Vui lòng chờ Admin duyệt!', 'info');
+              setAvatarFile(null);
+              setAvatarPreview(currentUser.avatarUrl);
           } else {
               throw new Error('Không nhận được URL từ Cloudinary.');
           }
-          setAvatarFile(null);
 
       } catch (error) {
           console.error('Lỗi khi cập nhật avatar:', error);
@@ -223,7 +224,6 @@ const ProfilePage: React.FC = () => {
                 <div className="profile-info-card profile-avatar-card">
                     <h3>Ảnh Đại Diện</h3>
                     <div className="avatar-display-section">
-                        {/* [FIX] Sử dụng hàm getAvatarSrc */}
                         <img 
                             src={avatarPreview ? (avatarPreview.startsWith('data:') ? avatarPreview : getAvatarSrc(avatarPreview)) : getAvatarSrc(currentUser.avatarUrl)} 
                             alt="Avatar" 

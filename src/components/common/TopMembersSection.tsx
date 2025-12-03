@@ -7,6 +7,7 @@ import top1Image from '../../assets/images/top1.avif';
 import top2Image from '../../assets/images/top2.avif';
 import top3Image from '../../assets/images/top3.avif'; 
 import defaultAvatarImg from '../../assets/images/defaultAvatar.webp'; 
+import UserDetailModal from './UserDetailModal'; 
 
 interface TopMember {
     id: string;
@@ -29,13 +30,19 @@ interface RawTopMember {
 const TopMembersSection: React.FC = () => {
     const [topMembers, setTopMembers] = useState<TopMember[]>([]);
     const [apiLoading, setApiLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    
+    const [error, setError] = useState<string | null>(null);    
+    const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const { getLevelColor, loading: authLoading } = useAuth();
 
     const getAvatarSrc = (url: string | null | undefined) => {
         if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
         return url;
+    };
+
+    const handleUserClick = (userId: string) => {
+        setSelectedUserProfileId(userId);
+        setIsUserModalOpen(true);
     };
 
     useEffect(() => {
@@ -121,34 +128,27 @@ const TopMembersSection: React.FC = () => {
 
                         const rank = index + 1;
                         const levelColor = getLevelColor(member.level);
-                        
                         const levelTitle = getLevelTitleUtil(member.level, member.levelSystem);
 
                         let rankElement;
                         if (rank === 1) {
                             rankElement = (
                                 <img 
-                                    src={top1Image} 
-                                    alt="Top 1" 
-                                    className="rank-image rank-1-image"
+                                    src={top1Image} alt="Top 1" className="rank-image rank-1-image"
                                     style={{ width: '40px', height: '40px', objectFit: 'contain' }} 
                                 />
                             );
                         } else if (rank === 2) {
                             rankElement = (
                                 <img 
-                                    src={top2Image} 
-                                    alt="Top 2" 
-                                    className="rank-image rank-2-image"
+                                    src={top2Image} alt="Top 2" className="rank-image rank-2-image"
                                     style={{ width: '35px', height: '35px', objectFit: 'contain' }}
                                 />
                             );
                         } else if (rank === 3) {
                             rankElement = (
                                 <img 
-                                    src={top3Image} 
-                                    alt="Top 3" 
-                                    className="rank-image rank-3-image"
+                                    src={top3Image} alt="Top 3" className="rank-image rank-3-image"
                                     style={{ width: '30px', height: '30px', objectFit: 'contain' }}
                                 />
                             );
@@ -160,11 +160,22 @@ const TopMembersSection: React.FC = () => {
                             <li key={member.id || index} className={`top-member-item`}>
                                 <span className="member-rank">{rankElement}</span>
 
-                                {/* [FIX] Sử dụng hàm getAvatarSrc */}
-                                <img src={getAvatarSrc(member.avatarUrl)} alt={member.fullName} className="member-avatar" />
+                                <img 
+                                    src={getAvatarSrc(member.avatarUrl)} 
+                                    alt={member.fullName} 
+                                    className="member-avatar" 
+                                    onClick={() => handleUserClick(member.id)}
+                                    style={{ cursor: 'pointer' }}
+                                    title="Xem trang cá nhân"
+                                />
 
                                 <div className="member-info">
-                                    <span className="member-name">
+                                    <span 
+                                        className="member-name"
+                                        onClick={() => handleUserClick(member.id)}
+                                        style={{ cursor: 'pointer' }}
+                                        title="Xem trang cá nhân"
+                                    >
                                         {member.fullName}
                                     </span>
                                     <div className="member-stats">
@@ -187,6 +198,12 @@ const TopMembersSection: React.FC = () => {
                     })}
                 </ol>
              )}
+
+            <UserDetailModal 
+                userId={selectedUserProfileId}
+                isOpen={isUserModalOpen}
+                onClose={() => setIsUserModalOpen(false)}
+            />
         </div>
     );
 };

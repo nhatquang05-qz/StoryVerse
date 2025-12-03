@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import DashboardView from '../components/admin/DashboardView';
 import UserManagement from '../components/admin/UserManagement';
+import AvatarApprovalManagement from '../components/admin/AvatarApprovalManagement'; 
 import AddComicForm from '../components/admin/AddComicForm';
 import EditComicForm from '../components/admin/EditComicForm';
 import ManageChapters from '../components/admin/ManageChapters';
@@ -18,10 +19,11 @@ import FlashSaleManagement from '../components/admin/FlashSaleManagement';
 import OrderManagement from '../components/admin/OrderManagement'; 
 
 import '../assets/styles/AdminPage.css';
+import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:3000/api';
 
-export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'add' | 'edit' | 'chapters' | 'packs' | 'flash-sales' | 'orders';
+export type AdminView = 'dashboard' | 'digital' | 'physical' | 'users' | 'avatars' | 'add' | 'edit' | 'chapters' | 'packs' | 'flash-sales' | 'orders';
 
 const AdminPage: React.FC = () => {
     const { currentUser } = useAuth();
@@ -42,9 +44,13 @@ const AdminPage: React.FC = () => {
 
     const isAdmin = currentUser?.email === 'admin@123';
 
+    const getAvatarSrc = (url: string | null | undefined) => {
+        if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+        return url;
+    };
+
     const fetchComicsAndGenres = async () => {
-        // Thêm 'orders' vào danh sách không cần fetch truyện
-        if(activeView === 'dashboard' || activeView === 'users' || activeView === 'packs' || activeView === 'flash-sales' || activeView === 'orders') {
+        if(activeView === 'dashboard' || activeView === 'users' || activeView === 'avatars' || activeView === 'packs' || activeView === 'flash-sales' || activeView === 'orders') {
             setIsLoading(false);
             return;
         }
@@ -177,6 +183,7 @@ const AdminPage: React.FC = () => {
         switch (activeView) {
             case 'dashboard': return <DashboardView />;
             case 'users': return <UserManagement />;
+            case 'avatars': return <AvatarApprovalManagement />; 
             case 'packs': return <PackManagement />;
             case 'flash-sales': return <FlashSaleManagement />;
             case 'orders': return <OrderManagement />;
@@ -241,7 +248,7 @@ const AdminPage: React.FC = () => {
                                 <span className="admin-role">Administrator</span>
                             </div>
                             <div className="admin-avatar">
-                                <img src={currentUser.avatarUrl || 'https://via.placeholder.com/40'} alt="Admin" />
+                                <img src={getAvatarSrc(currentUser.avatarUrl)} alt="Admin" />
                             </div>
                         </div>
 

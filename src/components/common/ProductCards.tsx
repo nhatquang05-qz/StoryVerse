@@ -5,6 +5,7 @@ import { type ComicSummary } from '../../types/comicTypes';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import { useAuth } from '../../contexts/AuthContext';
 import StarRating from './StarRating';
 import '../../assets/styles/ProductCard.css';
 
@@ -19,6 +20,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
   const { addToCart } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const { showNotification } = useNotification();
+  const { currentUser, openLoginRequest } = useAuth(); 
   const imgRef = useRef<HTMLImageElement>(null);
 
   const comicData: any = comic;
@@ -55,12 +57,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+        openLoginRequest();
+        return;
+    }
     const rect = imgRef.current ? imgRef.current.getBoundingClientRect() : null;
     addToCart(comicData, 1, rect); 
   };
   
   const handleToggleWishlist = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+        openLoginRequest();
+        return;
+    }
     toggleWishlist(comicData);
     showNotification(
         isFavorite ? `Đã xóa ${comicData.title} khỏi Yêu thích.` : `Đã thêm ${comicData.title} vào Yêu thích.`, 

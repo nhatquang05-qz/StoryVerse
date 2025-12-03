@@ -3,7 +3,7 @@ const router = express.Router();
 const { 
     getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist,
     getAllUsers, updateUserById, toggleUserBan, deleteUserById, getTransactionHistory, 
-    updateLevelSystem, getPublicUserProfile 
+    updateLevelSystem, getPublicUserProfile, getPendingAvatars, approveAvatar, rejectAvatar 
 } = require('../controllers/userController');
 const { authenticateToken, authenticateAdmin } = require('../middleware/authMiddleware');
 
@@ -27,6 +27,8 @@ router.get('/', authenticateAdmin, getAllUsers);
 router.put('/:id', authenticateAdmin, updateUserById); 
 router.post('/:id/ban', authenticateAdmin, toggleUserBan); 
 router.delete('/:id', authenticateAdmin, deleteUserById); 
-
+router.get('/admin/avatars/pending', authenticateAdmin, getPendingAvatars);
+router.post('/admin/avatars/:id/approve', authenticateAdmin, approveAvatar);
+router.post('/admin/avatars/:id/reject', authenticateAdmin, rejectAvatar)
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import React from 'react';
-import { FiBookOpen, FiArchive, FiUsers, FiBarChart2, FiGift, FiZap, FiClipboard } from 'react-icons/fi';
+// [NEW] Import thêm icon FiImage
+import { FiBookOpen, FiArchive, FiUsers, FiBarChart2, FiGift, FiZap, FiClipboard, FiImage } from 'react-icons/fi';
 import { type AdminView } from '../../pages/AdminPage'; 
 
 interface AdminSidebarProps {
@@ -46,6 +47,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
                 onClick={() => onNavigate('users')}
             >
                 <FiUsers /> Quản lý Người Dùng
+            </button>
+
+            <button
+                className={`sidebar-btn ${activeView === 'avatars' ? 'active' : ''}`}
+                onClick={() => onNavigate('avatars')}
+            >
+                <FiImage /> Duyệt Avatar
             </button>
 
             <button

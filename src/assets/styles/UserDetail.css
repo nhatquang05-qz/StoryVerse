@@ -10,17 +10,17 @@
 }
 
 .user-detail-modal {
-    background: var(--bg-color, #1a1a1a);
+    background: var(--clr-card-bg);
     width: 90%;
     max-width: 450px;
     border-radius: 16px;
     padding: 24px;
     position: relative;
-    border: 1px solid var(--border-color, #333);
+    border: 1px solid var(--clr-border-light);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     max-height: 85vh;
     overflow-y: auto;
-    color: var(--text-color, #fff);
+    color: var(--clr-text);
 }
 
 .close-modal-btn {
@@ -29,16 +29,21 @@
     right: 12px;
     background: none;
     border: none;
-    color: #999;
+    color: var(--clr-text-secondary);
     font-size: 24px;
     cursor: pointer;
+    transition: color 0.25s;
+}
+
+.close-modal-btn:hover {
+    color: var(--clr-primary);
 }
 
 .profile-header-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--clr-border-light);
     padding-bottom: 20px;
     margin-bottom: 20px;
 }
@@ -48,19 +53,21 @@
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--primary-color, #ff4757);
+    border: 3px solid var(--clr-primary);
 }
 
 .profile-fullname {
     margin: 12px 0 8px;
     font-size: 1.5rem;
     font-weight: bold;
+    color: var(--clr-text);
 }
 
 .profile-level-badge {
     padding: 4px 12px;
     border-radius: 20px;
-    color: #fff;
+    background-color: var(--clr-primary);
+    color: var(--clr-button-text);
     font-size: 0.9rem;
     font-weight: bold;
     margin-bottom: 12px;
@@ -71,7 +78,7 @@
     display: flex;
     gap: 16px;
     font-size: 0.85rem;
-    color: #aaa;
+    color: var(--clr-text-secondary);
 }
 
 .profile-meta span {
@@ -83,8 +90,9 @@
 .profile-body-section h3 {
     font-size: 1.1rem;
     margin-bottom: 12px;
-    border-left: 3px solid var(--primary-color, #ff4757);
+    border-left: 3px solid var(--clr-primary);
     padding-left: 10px;
+    color: var(--clr-text);
 }
 
 .recent-reviews-list {
@@ -96,9 +104,10 @@
 .review-mini-item {
     display: flex;
     gap: 12px;
-    background: rgba(255,255,255,0.05);
+    background: var(--clr-footer-bg);
     padding: 10px;
     border-radius: 8px;
+    border: 1px solid var(--clr-border-light);
 }
 
 .review-comic-cover {
@@ -116,11 +125,11 @@
     font-weight: bold;
     font-size: 0.9rem;
     margin-bottom: 4px;
-    color: var(--primary-color, #ff4757);
+    color: var(--clr-primary);
 }
 
 .review-rating {
-    color: #f1c40f;
+    color: var(--clr-coin-color);
     margin-bottom: 4px;
     display: flex;
     gap: 2px;
@@ -128,7 +137,7 @@
 
 .review-text {
     font-size: 0.85rem;
-    color: #ddd;
+    color: var(--clr-text);
     font-style: italic;
     margin-bottom: 4px;
     display: -webkit-box;
@@ -140,10 +149,10 @@
 
 .review-date {
     font-size: 0.75rem;
-    color: #666;
+    color: var(--clr-text-secondary);
     display: block;
     text-align: right;
 }
 
 .star-filled { fill: currentColor; }
-.star-empty { color: #444; }
+.star-empty { color: var(--clr-text-secondary); opacity: 0.3; }

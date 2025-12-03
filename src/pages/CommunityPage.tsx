@@ -10,14 +10,17 @@ import type { Post } from '../types/community';
 import '../assets/styles/CommunityPage.css';
 
 const CommunityPage: React.FC = () => {
-    const { currentUser, token } = useAuth();
+    const { currentUser, token, openLoginRequest } = useAuth();
     const { showNotification } = useNotification();
     const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
+    
     const [newPostContent, setNewPostContent] = useState('');
     const [newPostImage, setNewPostImage] = useState<string | null>(null);
     const [isUploadingPostImg, setIsUploadingPostImg] = useState(false);
+
     const [activeCommentPostId, setActiveCommentPostId] = useState<number | null>(null);
     const [commentContent, setCommentContent] = useState('');
     const [commentImage, setCommentImage] = useState<string | null>(null);
@@ -25,6 +28,7 @@ const CommunityPage: React.FC = () => {
     const [isUploadingCommentImg, setIsUploadingCommentImg] = useState(false);
     const [showStickerPicker, setShowStickerPicker] = useState<number | null>(null);
     const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+
     const [activeMenuId, setActiveMenuId] = useState<{id: number, type: 'post' | 'comment'} | null>(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [reportTarget, setReportTarget] = useState<{id: number, type: 'post' | 'comment'} | null>(null);
@@ -40,7 +44,6 @@ const CommunityPage: React.FC = () => {
 
     useEffect(() => {
         fetchPosts();
-        
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Element;
             if (!target.closest('.post-options-menu') && !target.closest('.btn-options')) {
@@ -60,10 +63,13 @@ const CommunityPage: React.FC = () => {
             const res = await fetch(`${API_URL}/posts`, { headers });
             if (res.ok) {
                 const data = await res.json();
-                setPosts(data);
+                setPosts(Array.isArray(data) ? data : []);
+            } else {
+                setPosts([]);
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
+            setPosts([]);
         } finally {
             setLoading(false);
         }
@@ -72,14 +78,12 @@ const CommunityPage: React.FC = () => {
     const uploadToCloudinary = async (file: File): Promise<string | null> => {
         const formData = new FormData();
         formData.append('image', file);
-
         try {
             const res = await fetch(`${API_URL}/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-
             if (res.ok) {
                 const data = await res.json();
                 return data.imageUrl;
@@ -99,7 +103,6 @@ const CommunityPage: React.FC = () => {
         const file = e.target.files?.[0];
         if (!file) return;
         e.target.value = '';
-
         if (type === 'post') {
             setIsUploadingPostImg(true);
             const url = await uploadToCloudinary(file);
@@ -119,19 +122,16 @@ const CommunityPage: React.FC = () => {
             showNotification('Đang tải ảnh lên, vui lòng chờ...', 'warning');
             return;
         }
-
         try {
             const headers: HeadersInit = token ? { 
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}` 
             } : { 'Content-Type': 'application/json' };
-
             const res = await fetch(`${API_URL}/posts`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({ content: newPostContent, imageUrl: newPostImage })
             });
-
             if (res.ok) {
                 const newPost = await res.json();
                 setPosts([newPost, ...posts]);
@@ -148,7 +148,7 @@ const CommunityPage: React.FC = () => {
 
     const handlePostLike = async (post: Post) => {
         if (!token) {
-            showNotification('Vui lòng đăng nhập để tương tác', 'warning');
+            openLoginRequest();
             return;
         }
         const updatedPosts = posts.map(p => {
@@ -243,7 +243,7 @@ const CommunityPage: React.FC = () => {
 
     const handleSendComment = async (postId: number) => {
         if (!token) {
-            showNotification('Vui lòng đăng nhập', 'warning');
+            openLoginRequest(); 
             return;
         }
         if (!commentContent.trim() && !commentImage && !commentSticker) return;
@@ -256,18 +256,15 @@ const CommunityPage: React.FC = () => {
                 stickerUrl: commentSticker,
                 parentId: replyingToCommentId
             };
-
             const headers: HeadersInit = {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             };
-
             const res = await fetch(`${API_URL}/posts/${postId}/comments`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(body)
             });
-
             if (res.ok) {
                 const newComment = await res.json();
                 setPosts(prev => prev.map(p => {
@@ -293,10 +290,9 @@ const CommunityPage: React.FC = () => {
 
     const handleCommentLike = async (postId: number, commentId: number) => {
         if (!token) {
-            showNotification('Vui lòng đăng nhập', 'warning');
+            openLoginRequest(); 
             return;
         }
-        
         setPosts(prev => prev.map(p => {
             if (p.id === postId && p.comments) {
                 return {
@@ -311,7 +307,6 @@ const CommunityPage: React.FC = () => {
             }
             return p;
         }));
-
         try {
             await fetch(`${API_URL}/posts/comments/${commentId}/like`, { 
                 method: 'POST', 
@@ -322,7 +317,7 @@ const CommunityPage: React.FC = () => {
 
     const handleOpenReport = (id: number, type: 'post' | 'comment') => {
         if (!token) {
-            showNotification('Vui lòng đăng nhập để báo cáo', 'warning');
+            openLoginRequest(); 
             return;
         }
         setReportTarget({ id, type });
@@ -332,11 +327,9 @@ const CommunityPage: React.FC = () => {
 
     const submitReport = async () => {
         if (!reportTarget || !token) return;
-        
         const url = reportTarget.type === 'post' 
             ? `${API_URL}/posts/${reportTarget.id}/report`
             : `${API_URL}/posts/comments/${reportTarget.id}/report`;
-        
         try {
             const res = await fetch(url, {
                 method: 'POST',
@@ -346,7 +339,6 @@ const CommunityPage: React.FC = () => {
                 },
                 body: JSON.stringify({ reason: reportReason })
             });
-
             if (res.ok) {
                 showNotification('Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét.', 'success');
                 setShowReportModal(false);
@@ -359,7 +351,7 @@ const CommunityPage: React.FC = () => {
         }
     };
 
-    if (loading) return <div className="community-container" style={{textAlign:'center'}}>Đang tải bảng tin...</div>;
+    if (loading) return <div className="community-container" style={{textAlign:'center', marginTop:'2rem'}}>Đang tải bảng tin...</div>;
 
     return (
         <div className="community-container">
@@ -375,43 +367,50 @@ const CommunityPage: React.FC = () => {
                 />
             )}
 
-            {posts.map(post => (
-                <PostItem 
-                    key={post.id} 
-                    post={post} 
-                    currentUser={currentUser}
-                    onLike={handlePostLike}
-                    onToggleComments={toggleComments}
-                    onDelete={handleDeletePost}
-                    onReport={(id) => handleOpenReport(id, 'post')}
-                    onUserClick={handleUserClick}
-                    activeMenuId={activeMenuId}
-                    setActiveMenuId={setActiveMenuId}
-                >
-                    {activeCommentPostId === post.id && (
-                        <CommentSection 
-                            post={post}
-                            currentUser={currentUser}
-                            commentContent={commentContent} setCommentContent={setCommentContent}
-                            commentImage={commentImage} setCommentImage={setCommentImage}
-                            commentSticker={commentSticker} setCommentSticker={setCommentSticker}
-                            isUploading={isUploadingCommentImg}
-                            onUpload={(e) => handleFileUpload(e, 'comment')}
-                            showStickerPicker={showStickerPicker === post.id}
-                            setShowStickerPicker={(show) => setShowStickerPicker(show ? post.id : null)}
-                            replyingToCommentId={replyingToCommentId}
-                            setReplyingToCommentId={setReplyingToCommentId}
-                            onSend={handleSendComment}
-                            onLikeComment={handleCommentLike}
-                            onDeleteComment={handleDeleteComment}
-                            onReportComment={(id) => handleOpenReport(id, 'comment')}
-                            onUserClick={handleUserClick}
-                            activeMenuId={activeMenuId}
-                            setActiveMenuId={setActiveMenuId}
-                        />
-                    )}
-                </PostItem>
-            ))}
+            {posts.length > 0 ? (
+                posts.map(post => (
+                    <PostItem 
+                        key={post.id} 
+                        post={post} 
+                        currentUser={currentUser}
+                        onLike={handlePostLike}
+                        onToggleComments={toggleComments}
+                        onDelete={handleDeletePost}
+                        onReport={(id) => handleOpenReport(id, 'post')}
+                        onUserClick={handleUserClick}
+                        activeMenuId={activeMenuId}
+                        setActiveMenuId={setActiveMenuId}
+                    >
+                        {activeCommentPostId === post.id && (
+                            <CommentSection 
+                                post={post}
+                                currentUser={currentUser}
+                                commentContent={commentContent} setCommentContent={setCommentContent}
+                                commentImage={commentImage} setCommentImage={setCommentImage}
+                                commentSticker={commentSticker} setCommentSticker={setCommentSticker}
+                                isUploading={isUploadingCommentImg}
+                                onUpload={(e) => handleFileUpload(e, 'comment')}
+                                showStickerPicker={showStickerPicker === post.id}
+                                setShowStickerPicker={(show) => setShowStickerPicker(show ? post.id : null)}
+                                replyingToCommentId={replyingToCommentId}
+                                setReplyingToCommentId={setReplyingToCommentId}
+                                onSend={handleSendComment}
+                                onLikeComment={handleCommentLike}
+                                onDeleteComment={handleDeleteComment}
+                                onReportComment={(id) => handleOpenReport(id, 'comment')}
+                                onUserClick={handleUserClick}
+                                activeMenuId={activeMenuId}
+                                setActiveMenuId={setActiveMenuId}
+                            />
+                        )}
+                    </PostItem>
+                ))
+            ) : (
+                <div style={{textAlign: 'center', marginTop: '3rem', color: 'var(--clr-text-secondary)'}}>
+                    <h3>Bạn chưa thể xem được các bài viết.</h3>
+                    {!currentUser && <p>Hãy đăng nhập để cùng nhau chia sẻ những điều thú vị!</p>}
+                </div>
+            )}
 
             <ReportModal 
                 isOpen={showReportModal}
