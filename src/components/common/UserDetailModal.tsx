@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import '../../assets/styles/UserDetail.css';
+import '../../assets/styles/UserDetail.css'; 
 import { FiX, FiCalendar, FiActivity, FiMessageCircle } from 'react-icons/fi';
 import { getEquivalentLevelTitle, getLevelColor } from '../../utils/authUtils';
 import { useAuth } from '../../contexts/AuthContext';
+import defaultAvatarImg from '../../assets/images/defaultAvatar.webp'; 
 
 interface Comment {
     id: number;
@@ -45,6 +46,11 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, isOpen, onClo
         }
     }, [isOpen, userId]);
 
+    const getAvatarSrc = (url: string | null | undefined) => {
+        if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+        return url;
+    };
+
     const fetchProfile = async (id: string) => {
         setLoading(true);
         try {
@@ -73,7 +79,8 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, isOpen, onClo
                     <>
                         <div className="profile-header-section">
                             <div className="profile-avatar-large">
-                                <img src={profile.avatarUrl} alt={profile.fullName} />
+                                {/* [FIX] Sử dụng hàm getAvatarSrc */}
+                                <img src={getAvatarSrc(profile.avatarUrl)} alt={profile.fullName} />
                             </div>
                             <h2 className="profile-fullname">{profile.fullName}</h2>
                             

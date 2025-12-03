@@ -6,6 +6,7 @@ import { FiLoader } from 'react-icons/fi';
 import top1Image from '../../assets/images/top1.avif'; 
 import top2Image from '../../assets/images/top2.avif';
 import top3Image from '../../assets/images/top3.avif'; 
+import defaultAvatarImg from '../../assets/images/defaultAvatar.webp'; 
 
 interface TopMember {
     id: string;
@@ -32,6 +33,11 @@ const TopMembersSection: React.FC = () => {
     
     const { getLevelColor, loading: authLoading } = useAuth();
 
+    const getAvatarSrc = (url: string | null | undefined) => {
+        if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+        return url;
+    };
+
     useEffect(() => {
         const fetchTopMembers = async () => {
             setApiLoading(true);
@@ -52,15 +58,10 @@ const TopMembersSection: React.FC = () => {
                 
                 const rawData: RawTopMember[] = await response.json();
                 
-                // [DEBUG] Kiểm tra xem API có trả về levelSystem không
-                console.log("Dữ liệu Top Users từ API:", rawData);
-
                 const processedData = rawData.map(member => {
                     const level = parseInt(String(member.level));
                     const score = parseInt(String(member.score));
                     
-                    // Logic lấy key system: Nếu API trả về null/undefined/'default' -> Gán 'Bình Thường'
-                    // Nếu API trả về đúng key (ví dụ 'Tu Tiên') -> Giữ nguyên
                     const systemKey = (member.levelSystem && member.levelSystem !== 'default') 
                                       ? member.levelSystem 
                                       : 'Bình Thường';
@@ -121,7 +122,6 @@ const TopMembersSection: React.FC = () => {
                         const rank = index + 1;
                         const levelColor = getLevelColor(member.level);
                         
-                        // Lấy danh hiệu dựa trên level và hệ thống của NGƯỜI ĐÓ
                         const levelTitle = getLevelTitleUtil(member.level, member.levelSystem);
 
                         let rankElement;
@@ -160,7 +160,8 @@ const TopMembersSection: React.FC = () => {
                             <li key={member.id || index} className={`top-member-item`}>
                                 <span className="member-rank">{rankElement}</span>
 
-                                <img src={member.avatarUrl} alt={member.fullName} className="member-avatar" />
+                                {/* [FIX] Sử dụng hàm getAvatarSrc */}
+                                <img src={getAvatarSrc(member.avatarUrl)} alt={member.fullName} className="member-avatar" />
 
                                 <div className="member-info">
                                     <span className="member-name">

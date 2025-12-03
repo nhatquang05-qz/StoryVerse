@@ -8,6 +8,7 @@ import '../assets/styles/ProfilePage.css';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import TransactionHistory from '../components/common/TransactionHistory'; 
 import AddressManagementPage from './AddressManagementPage';
+import defaultAvatarImg from '../assets/images/defaultAvatar.webp'; 
 
 interface LevelSelectorProps {
     currentUserLevel: number;
@@ -58,6 +59,12 @@ const ProfilePage: React.FC = () => {
       setAvatarFile(null);
     }
   }, [currentUser]);
+
+  // [FIX] Helper xử lý nguồn ảnh
+  const getAvatarSrc = (url: string | null | undefined) => {
+      if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+      return url;
+  };
 
   if (loading) {
     return <LoadingPage />;
@@ -216,7 +223,12 @@ const ProfilePage: React.FC = () => {
                 <div className="profile-info-card profile-avatar-card">
                     <h3>Ảnh Đại Diện</h3>
                     <div className="avatar-display-section">
-                        <img src={avatarPreview || currentUser.avatarUrl} alt="Avatar" className="profile-avatar-img" />
+                        {/* [FIX] Sử dụng hàm getAvatarSrc */}
+                        <img 
+                            src={avatarPreview ? (avatarPreview.startsWith('data:') ? avatarPreview : getAvatarSrc(avatarPreview)) : getAvatarSrc(currentUser.avatarUrl)} 
+                            alt="Avatar" 
+                            className="profile-avatar-img" 
+                        />
                         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarChange} style={{ display: 'none' }} />
                         <button type="button" className="change-avatar-btn" onClick={() => fileInputRef.current?.click()} disabled={isSaving}>
                             <FiUpload /> {avatarFile ? 'Chọn ảnh khác' : 'Thay đổi ảnh'}

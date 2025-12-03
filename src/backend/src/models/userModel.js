@@ -100,12 +100,25 @@ const getAllUsersRaw = async () => {
     return rows;
 };
 
+// [UPDATE] Đã sửa dòng cuối trong mảng params để dùng 'defaultAvatar.webp'
 const createNewUser = async (email, hashedPassword, fullName, addresses, avatarUrl = null) => {
     const connection = getConnection();
     const emptyAddresses = JSON.stringify([]);
     const [result] = await connection.execute(
       'INSERT INTO users (email, password, fullName, phone, coinBalance, lastDailyLogin, consecutiveLoginDays, level, exp, addresses, avatarUrl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [email, hashedPassword, fullName, '', 1000, '2000-01-01 00:00:00', 0, 1, '0.00', emptyAddresses, avatarUrl]
+      [
+          email, 
+          hashedPassword, 
+          fullName, 
+          '', 
+          1000, 
+          '2000-01-01 00:00:00', 
+          0, 
+          1, 
+          '0.00', 
+          emptyAddresses, 
+          avatarUrl || 'defaultAvatar.webp' // Sửa ở đây
+      ]
     );
     return result.insertId;
 };

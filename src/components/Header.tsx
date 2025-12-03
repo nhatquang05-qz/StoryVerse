@@ -8,6 +8,7 @@ import ThemeToggleButton from './common/ThemeToggleButton';
 import DailyRewardModal from './common/DailyRewardModal';
 import coinIcon from '../assets/images/coin.avif';
 import '../assets/styles/Header.css';
+import defaultAvatarImg from '../assets/images/defaultAvatar.webp'; 
 
 interface Notification {
   id: number;
@@ -63,6 +64,11 @@ const Header: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const getAvatarSrc = (url: string | null | undefined) => {
+      if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+      return url;
+  };
 
   const toggleMenu = () => { setIsMenuOpen(!isMenuOpen); };
 
@@ -477,7 +483,8 @@ const Header: React.FC = () => {
 
               <div className="dropdown">
                 <button className="action-icon user-icon" aria-label="Tài khoản">
-                  <img src={currentUser.avatarUrl} alt="Avatar" className="user-avatar-icon" />
+                  {/* [FIX] 3. Áp dụng getAvatarSrc vào thẻ img */}
+                  <img src={getAvatarSrc(currentUser.avatarUrl)} alt="Avatar" className="user-avatar-icon" />
                 </button>
                 <div className="dropdown-content user-dropdown">
                   <Link to="/profile">Tài Khoản Của Tôi</Link>
@@ -575,7 +582,7 @@ const Header: React.FC = () => {
           {currentUser ? (
             <div className="nav-mobile-user-section">
               <Link to="/profile" onClick={toggleMenu} className="nav-mobile-action">
-                <img src={currentUser.avatarUrl} alt="Avatar" className="user-avatar-icon small" /> <span>Tài Khoản Của Tôi</span>
+                <img src={getAvatarSrc(currentUser.avatarUrl)} alt="Avatar" className="user-avatar-icon small" /> <span>Tài Khoản Của Tôi</span>
               </Link>
               <Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
                 <FiDollarSign /> <span>Nạp Xu</span>

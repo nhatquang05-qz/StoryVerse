@@ -6,6 +6,7 @@ import { FiHeart, FiMessageSquare } from 'react-icons/fi';
 import top1Icon from '../../../assets/images/top1.avif';
 import top2Icon from '../../../assets/images/top2.avif';
 import top3Icon from '../../../assets/images/top3.avif';
+import defaultAvatarImg from '../../../assets/images/defaultAvatar.webp'; 
 
 export interface ChatMessageData {
     id: number;
@@ -68,6 +69,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
     const displayLevelTitle = getEquivalentLevelTitle(msg.userLevel, msg.levelSystem || 'Bình Thường');
 
+    const getAvatarSrc = (url: string | null | undefined) => {
+        if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+        return url;
+    };
+
     return (
         <div className={`chat-message-item ${msg.replyTo ? 'reply-message-item' : ''}`}>
             <div 
@@ -76,7 +82,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
                 style={{ cursor: 'pointer' }}
                 title="Xem trang cá nhân"
             >
-                <img src={msg.avatarUrl} alt={`${msg.userName}'s avatar`} />
+                <img src={getAvatarSrc(msg.avatarUrl)} alt={`${msg.userName}'s avatar`} />
             </div>
             <div className="chat-content">
                 <div className="chat-header">
