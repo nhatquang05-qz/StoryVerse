@@ -469,10 +469,7 @@ const toggleSort = () => {
           )}
           
           <img ref={imgRef} src={comic.coverImageUrl} alt={comic.title} className="detail-image" /> 
-          {isDigital && (
-              <span className="digital-badge">DIGITAL</span>
-          )}
-        </div>
+                  </div>
         <div className="detail-info-wrapper">
           <p className="detail-author">Tác giả: {comic.author}</p>
           <h1 className="detail-title">{comic.title}</h1>

@@ -38,8 +38,20 @@ const FlashSaleSection: React.FC = () => {
 
   if (!activeSale) return null;
 
+  const sortedItems = [...activeSale.items].sort((a: any, b: any) => {
+    const stockA = (a.quantityLimit || 1) - (a.soldQuantity || 0);
+    const stockB = (b.quantityLimit || 1) - (b.soldQuantity || 0);
+    const isSoldOutA = stockA <= 0;
+    const isSoldOutB = stockB <= 0;
+
+    if (isSoldOutA && !isSoldOutB) return 1;
+    if (!isSoldOutA && isSoldOutB) return -1;
+    return 0;
+  });
+  // -------------------------------------------------------
+
   const isUpcoming = new Date(activeSale.startTime) > new Date();
-  const totalItems = activeSale.items.length;
+  const totalItems = sortedItems.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   
   const handleNext = () => {
@@ -50,7 +62,7 @@ const FlashSaleSection: React.FC = () => {
     setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  const currentItems = activeSale.items.slice(
+  const currentItems = sortedItems.slice(
       currentPage * ITEMS_PER_PAGE, 
       (currentPage + 1) * ITEMS_PER_PAGE
   );
