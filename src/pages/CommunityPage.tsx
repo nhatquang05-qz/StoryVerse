@@ -6,6 +6,7 @@ import PostItem from '../components/community/PostItem';
 import CommentSection from '../components/community/CommentSection';
 import ReportModal from '../components/community/ReportModal';
 import UserDetailModal from '../components/common/UserDetailModal';
+import ConfirmModal from '../components/popups/ConfirmModal'; 
 import type { Post } from '../types/community';
 import '../assets/styles/CommunityPage.css';
 
@@ -13,14 +14,11 @@ const CommunityPage: React.FC = () => {
     const { currentUser, token, openLoginRequest } = useAuth();
     const { showNotification } = useNotification();
     const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-
     const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
-    
+    const [loading, setLoading] = useState(true);    
     const [newPostContent, setNewPostContent] = useState('');
     const [newPostImage, setNewPostImage] = useState<string | null>(null);
     const [isUploadingPostImg, setIsUploadingPostImg] = useState(false);
-
     const [activeCommentPostId, setActiveCommentPostId] = useState<number | null>(null);
     const [commentContent, setCommentContent] = useState('');
     const [commentImage, setCommentImage] = useState<string | null>(null);
@@ -28,14 +26,13 @@ const CommunityPage: React.FC = () => {
     const [isUploadingCommentImg, setIsUploadingCommentImg] = useState(false);
     const [showStickerPicker, setShowStickerPicker] = useState<number | null>(null);
     const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
-
     const [activeMenuId, setActiveMenuId] = useState<{id: number, type: 'post' | 'comment'} | null>(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [reportTarget, setReportTarget] = useState<{id: number, type: 'post' | 'comment'} | null>(null);
     const [reportReason, setReportReason] = useState('Spam');
-
     const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: number, type: 'post' | 'comment', parentId?: number } | null>(null);
 
     const handleUserClick = (userId: string) => {
         setSelectedUserProfileId(userId);
@@ -44,6 +41,7 @@ const CommunityPage: React.FC = () => {
 
     useEffect(() => {
         fetchPosts();
+        
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Element;
             if (!target.closest('.post-options-menu') && !target.closest('.btn-options')) {
@@ -78,12 +76,14 @@ const CommunityPage: React.FC = () => {
     const uploadToCloudinary = async (file: File): Promise<string | null> => {
         const formData = new FormData();
         formData.append('image', file);
+
         try {
             const res = await fetch(`${API_URL}/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
+
             if (res.ok) {
                 const data = await res.json();
                 return data.imageUrl;
@@ -103,6 +103,7 @@ const CommunityPage: React.FC = () => {
         const file = e.target.files?.[0];
         if (!file) return;
         e.target.value = '';
+
         if (type === 'post') {
             setIsUploadingPostImg(true);
             const url = await uploadToCloudinary(file);
@@ -122,16 +123,19 @@ const CommunityPage: React.FC = () => {
             showNotification('Đang tải ảnh lên, vui lòng chờ...', 'warning');
             return;
         }
+
         try {
             const headers: HeadersInit = token ? { 
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}` 
             } : { 'Content-Type': 'application/json' };
+
             const res = await fetch(`${API_URL}/posts`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify({ content: newPostContent, imageUrl: newPostImage })
             });
+
             if (res.ok) {
                 const newPost = await res.json();
                 setPosts([newPost, ...posts]);
@@ -170,49 +174,60 @@ const CommunityPage: React.FC = () => {
         } catch (error) { console.error(error); }
     };
 
-    const handleDeletePost = async (id: number) => {
-        if (!window.confirm('Bạn có chắc muốn xoá bài viết này?')) return;
-        try {
-            const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
-            const res = await fetch(`${API_URL}/posts/${id}`, {
-                method: 'DELETE',
-                headers: headers
-            });
-            if (res.ok) {
-                setPosts(posts.filter(p => p.id !== id));
-                showNotification('Đã xoá bài viết', 'success');
-            } else {
-                showNotification('Không thể xoá bài viết', 'error');
-            }
-        } catch(e) { showNotification('Lỗi xoá bài', 'error'); }
+    const handleDeletePostClick = (id: number) => {
+        setDeleteTarget({ id, type: 'post' });
         setActiveMenuId(null);
     };
 
-    const handleDeleteComment = async (postId: number, commentId: number) => {
-        if (!window.confirm('Bạn có chắc muốn xoá bình luận này?')) return;
-        try {
-            const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
-            const res = await fetch(`${API_URL}/posts/comments/${commentId}`, {
-                method: 'DELETE',
-                headers: headers
-            });
-            if (res.ok) {
-                setPosts(prev => prev.map(p => {
-                    if (p.id === postId && p.comments) {
-                        return {
-                            ...p,
-                            commentCount: p.commentCount - 1,
-                            comments: p.comments.filter(c => c.id !== commentId)
-                        };
-                    }
-                    return p;
-                }));
-                showNotification('Đã xoá bình luận', 'success');
-            } else {
-                showNotification('Không thể xoá bình luận', 'error');
-            }
-        } catch(e) { showNotification('Lỗi xoá bình luận', 'error'); }
+    const handleDeleteCommentClick = (postId: number, commentId: number) => {
+        setDeleteTarget({ id: commentId, type: 'comment', parentId: postId });
         setActiveMenuId(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteTarget || !token) return;
+
+        const { id, type, parentId } = deleteTarget;
+        const headers: HeadersInit = { 'Authorization': `Bearer ${token}` };
+
+        try {
+            if (type === 'post') {
+                const res = await fetch(`${API_URL}/posts/${id}`, {
+                    method: 'DELETE',
+                    headers: headers
+                });
+                if (res.ok) {
+                    setPosts(posts.filter(p => p.id !== id));
+                    showNotification('Đã xoá bài viết', 'success');
+                } else {
+                    showNotification('Không thể xoá bài viết', 'error');
+                }
+            } else if (type === 'comment' && parentId) {
+                const res = await fetch(`${API_URL}/posts/comments/${id}`, {
+                    method: 'DELETE',
+                    headers: headers
+                });
+                if (res.ok) {
+                    setPosts(prev => prev.map(p => {
+                        if (p.id === parentId && p.comments) {
+                            return {
+                                ...p,
+                                commentCount: p.commentCount - 1,
+                                comments: p.comments.filter(c => c.id !== id)
+                            };
+                        }
+                        return p;
+                    }));
+                    showNotification('Đã xoá bình luận', 'success');
+                } else {
+                    showNotification('Không thể xoá bình luận', 'error');
+                }
+            }
+        } catch (e) {
+            showNotification('Lỗi khi xóa', 'error');
+        }
+        
+        setDeleteTarget(null);
     };
 
     const toggleComments = async (postId: number) => {
@@ -243,7 +258,7 @@ const CommunityPage: React.FC = () => {
 
     const handleSendComment = async (postId: number) => {
         if (!token) {
-            openLoginRequest(); 
+            openLoginRequest();
             return;
         }
         if (!commentContent.trim() && !commentImage && !commentSticker) return;
@@ -256,15 +271,18 @@ const CommunityPage: React.FC = () => {
                 stickerUrl: commentSticker,
                 parentId: replyingToCommentId
             };
+
             const headers: HeadersInit = {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             };
+
             const res = await fetch(`${API_URL}/posts/${postId}/comments`, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(body)
             });
+
             if (res.ok) {
                 const newComment = await res.json();
                 setPosts(prev => prev.map(p => {
@@ -290,9 +308,10 @@ const CommunityPage: React.FC = () => {
 
     const handleCommentLike = async (postId: number, commentId: number) => {
         if (!token) {
-            openLoginRequest(); 
+            openLoginRequest();
             return;
         }
+        
         setPosts(prev => prev.map(p => {
             if (p.id === postId && p.comments) {
                 return {
@@ -307,6 +326,7 @@ const CommunityPage: React.FC = () => {
             }
             return p;
         }));
+
         try {
             await fetch(`${API_URL}/posts/comments/${commentId}/like`, { 
                 method: 'POST', 
@@ -317,7 +337,7 @@ const CommunityPage: React.FC = () => {
 
     const handleOpenReport = (id: number, type: 'post' | 'comment') => {
         if (!token) {
-            openLoginRequest(); 
+            openLoginRequest();
             return;
         }
         setReportTarget({ id, type });
@@ -327,9 +347,11 @@ const CommunityPage: React.FC = () => {
 
     const submitReport = async () => {
         if (!reportTarget || !token) return;
+        
         const url = reportTarget.type === 'post' 
             ? `${API_URL}/posts/${reportTarget.id}/report`
             : `${API_URL}/posts/comments/${reportTarget.id}/report`;
+        
         try {
             const res = await fetch(url, {
                 method: 'POST',
@@ -339,6 +361,7 @@ const CommunityPage: React.FC = () => {
                 },
                 body: JSON.stringify({ reason: reportReason })
             });
+
             if (res.ok) {
                 showNotification('Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét.', 'success');
                 setShowReportModal(false);
@@ -375,7 +398,7 @@ const CommunityPage: React.FC = () => {
                         currentUser={currentUser}
                         onLike={handlePostLike}
                         onToggleComments={toggleComments}
-                        onDelete={handleDeletePost}
+                        onDelete={handleDeletePostClick}
                         onReport={(id) => handleOpenReport(id, 'post')}
                         onUserClick={handleUserClick}
                         activeMenuId={activeMenuId}
@@ -396,7 +419,7 @@ const CommunityPage: React.FC = () => {
                                 setReplyingToCommentId={setReplyingToCommentId}
                                 onSend={handleSendComment}
                                 onLikeComment={handleCommentLike}
-                                onDeleteComment={handleDeleteComment}
+                                onDeleteComment={handleDeleteCommentClick}
                                 onReportComment={(id) => handleOpenReport(id, 'comment')}
                                 onUserClick={handleUserClick}
                                 activeMenuId={activeMenuId}
@@ -407,8 +430,8 @@ const CommunityPage: React.FC = () => {
                 ))
             ) : (
                 <div style={{textAlign: 'center', marginTop: '3rem', color: 'var(--clr-text-secondary)'}}>
-                    <h3>Bạn chưa thể xem được các bài viết.</h3>
-                    {!currentUser && <p>Hãy đăng nhập để cùng nhau chia sẻ những điều thú vị!</p>}
+                    <h3>Chưa có bài đăng nào trong cộng đồng.</h3>
+                    {!currentUser && <p>Hãy đăng nhập để là người đầu tiên chia sẻ!</p>}
                 </div>
             )}
 
@@ -419,6 +442,18 @@ const CommunityPage: React.FC = () => {
                 setReason={setReportReason}
                 onClose={() => setShowReportModal(false)}
                 onSubmit={submitReport}
+            />
+
+            {/* [NEW] Modal Xác Nhận Xóa */}
+            <ConfirmModal 
+                isOpen={!!deleteTarget}
+                title={deleteTarget?.type === 'post' ? 'Xóa bài viết?' : 'Xóa bình luận?'}
+                message={deleteTarget?.type === 'post' ? 'Hành động này sẽ xóa vĩnh viễn bài viết và không thể hoàn tác.' : 'Bạn có chắc muốn xóa bình luận này không?'}
+                confirmText="Xóa"
+                cancelText="Hủy"
+                isDestructive={true}
+                onClose={() => setDeleteTarget(null)}
+                onConfirm={handleConfirmDelete}
             />
 
             <UserDetailModal 
