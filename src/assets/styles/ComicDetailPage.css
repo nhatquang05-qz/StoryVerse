@@ -16,7 +16,6 @@
 .detail-image-wrapper {
   width: 100%;
   border-radius: var(--border-radius);
-  /* QUAN TRỌNG: Để visible để badge tràn ra ngoài */
   overflow: visible; 
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   align-self: start;
@@ -28,23 +27,20 @@
   width: 100%;
   height: auto;
   display: block;
-  /* Bo góc cho ảnh vì wrapper không còn hidden nữa */
   border-radius: var(--border-radius);
 }
 
-/* --- FLASH SALE BADGES STYLES START --- */
 .detail-fs-badge-left {
   position: absolute;
-  /* Chỉnh vị trí âm để tràn ra ngoài góc */
   top: -20px;
   left: -20px;
-  /* Kích thước lớn */
-  width: 120px; 
+  width: 200px; 
   height: auto;
-  z-index: 20; /* Nằm trên cùng */
+  z-index: 20; 
   object-fit: contain;
-  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); /* Đổ bóng */
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
   pointer-events: none;
+  animation: fs-fire-pulse 1.5s infinite ease-in-out; 
 }
 
 .detail-fs-badge-right {
@@ -62,12 +58,18 @@
   animation: pulseBadge 2s infinite;
 }
 
+@keyframes fs-fire-pulse {
+    0% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(249, 115, 22, 0.6)); }
+    50% { transform: scale(1.2); filter: brightness(1.3) drop-shadow(0 0 8px rgba(249, 115, 22, 0.9)); }
+    100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(249, 115, 22, 0.6)); }
+}
+
+
 @keyframes pulseBadge {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }
   100% { transform: scale(1); }
 }
-/* --- FLASH SALE BADGES STYLES END --- */
 
 .digital-badge {
     position: absolute;
@@ -142,7 +144,6 @@
     white-space: nowrap;
 }
 
-/* --- PRICE STYLES UPDATE --- */
 .price-display-wrapper {
   display: flex;
   align-items: center;
@@ -162,17 +163,16 @@
 }
 
 .fs-active {
-  color: #dc2626 !important; /* Màu đỏ cho giá Sale */
-  font-size: 2.8rem; /* To hơn một chút */
+  color: #dc2626 !important; 
+  font-size: 2.8rem;
 }
 
 .detail-price-original {
   font-size: 1.5rem;
-  color: #9ca3af; /* Màu xám */
+  color: #9ca3af; 
   text-decoration: line-through;
   font-weight: 500;
 }
-/* -------------------------- */
 
 .rating-container-row {
     display: flex;

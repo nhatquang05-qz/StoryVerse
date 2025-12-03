@@ -93,7 +93,7 @@ const ChatbotUI: React.FC = () => {
                 >
                     {showWelcome && (
                         <div className="chatbot-tooltip welcome-tooltip">
-                            <span>Chào bạn! Cần hỗ trợ gì không?</span>
+                            <span>Bạn cần hỗ trợ gì không!?</span>
                             <button 
                                 className="tooltip-close-btn"
                                 onClick={(e) => {
