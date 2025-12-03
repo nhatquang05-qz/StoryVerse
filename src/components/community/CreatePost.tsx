@@ -16,13 +16,22 @@ interface CreatePostProps {
     onShowStickerNotification: () => void;
 }
 
+const getAvatarSrc = (url: string | null | undefined) => {
+    if (!url || url === 'defaultAvatar.webp') return defaultAvatar;
+    return url;
+};
+
 const CreatePost: React.FC<CreatePostProps> = ({ 
     currentUser, content, setContent, image, setImage, isUploading, onUpload, onSubmit, onShowStickerNotification 
 }) => {
     return (
         <div className="create-post-card">
             <div className="create-post-top">
-                <img src={currentUser?.avatarUrl || defaultAvatar} className="current-user-avatar" alt="me" />
+                <img 
+                    src={getAvatarSrc(currentUser?.avatarUrl)} 
+                    className="current-user-avatar" 
+                    alt="me" 
+                />
                 <input 
                     className="post-input-trigger" 
                     placeholder={`Bạn đang nghĩ gì, ${currentUser?.fullName}?`} 

@@ -12,23 +12,41 @@ interface CommentItemProps {
     onReply: (commentId: number) => void;
     onDelete: (postId: number, commentId: number) => void;
     onReport: (id: number) => void;
+    onUserClick: (userId: string) => void;
     activeMenuId: {id: number, type: 'post' | 'comment'} | null;
     setActiveMenuId: (val: any) => void;
 }
 
+const getAvatarSrc = (url: string | null | undefined) => {
+    if (!url || url === 'defaultAvatar.webp') return defaultAvatar;
+    return url;
+};
+
 const CommentItem: React.FC<CommentItemProps> = ({ 
-    comment, postId, currentUser, isReply, onLike, onReply, onDelete, onReport, activeMenuId, setActiveMenuId 
+    comment, postId, currentUser, isReply, onLike, onReply, onDelete, onReport, onUserClick, activeMenuId, setActiveMenuId 
 }) => {
     const isOwner = Number(currentUser?.id) === comment.userId;
     const showMenu = activeMenuId?.id === comment.id && activeMenuId.type === 'comment';
 
     return (
         <div className={`comment-item ${isReply ? 'reply-item' : ''}`}>
-            <img src={comment.avatar || defaultAvatar} className="comment-avatar" alt="u" />
+            <img 
+                src={getAvatarSrc(comment.avatar)} 
+                className="comment-avatar" 
+                alt="u" 
+                onClick={() => onUserClick(String(comment.userId))}
+                style={{ cursor: 'pointer' }}
+            />
             <div className="comment-content-block">
                 <div className="comment-bubble-wrapper" style={{display:'flex', alignItems:'center', gap: 5}}>
                     <div className="comment-bubble">
-                        <div className="comment-user">{comment.userName}</div>
+                        <div 
+                            className="comment-user"
+                            onClick={() => onUserClick(String(comment.userId))}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            {comment.userName}
+                        </div>
                         {comment.content && <div className="comment-text">{comment.content}</div>}
                         {comment.imageUrl && <img src={comment.imageUrl} className="comment-image-preview" alt="img" />}
                         {comment.stickerUrl && <img src={comment.stickerUrl} className="sticker-img" alt="sticker" />}

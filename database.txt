@@ -372,3 +372,5 @@ CREATE TABLE `flash_sale_items` (
   FOREIGN KEY (`flashSaleId`) REFERENCES `flash_sales` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE users ADD COLUMN levelSystem VARCHAR(50) DEFAULT 'default';

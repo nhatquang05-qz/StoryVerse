@@ -5,6 +5,7 @@ import CreatePost from '../components/community/CreatePost';
 import PostItem from '../components/community/PostItem';
 import CommentSection from '../components/community/CommentSection';
 import ReportModal from '../components/community/ReportModal';
+import UserDetailModal from '../components/common/UserDetailModal';
 import type { Post } from '../types/community';
 import '../assets/styles/CommunityPage.css';
 
@@ -28,6 +29,14 @@ const CommunityPage: React.FC = () => {
     const [showReportModal, setShowReportModal] = useState(false);
     const [reportTarget, setReportTarget] = useState<{id: number, type: 'post' | 'comment'} | null>(null);
     const [reportReason, setReportReason] = useState('Spam');
+
+    const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+    const handleUserClick = (userId: string) => {
+        setSelectedUserProfileId(userId);
+        setIsUserModalOpen(true);
+    };
 
     useEffect(() => {
         fetchPosts();
@@ -375,6 +384,7 @@ const CommunityPage: React.FC = () => {
                     onToggleComments={toggleComments}
                     onDelete={handleDeletePost}
                     onReport={(id) => handleOpenReport(id, 'post')}
+                    onUserClick={handleUserClick}
                     activeMenuId={activeMenuId}
                     setActiveMenuId={setActiveMenuId}
                 >
@@ -395,6 +405,7 @@ const CommunityPage: React.FC = () => {
                             onLikeComment={handleCommentLike}
                             onDeleteComment={handleDeleteComment}
                             onReportComment={(id) => handleOpenReport(id, 'comment')}
+                            onUserClick={handleUserClick}
                             activeMenuId={activeMenuId}
                             setActiveMenuId={setActiveMenuId}
                         />
@@ -409,6 +420,12 @@ const CommunityPage: React.FC = () => {
                 setReason={setReportReason}
                 onClose={() => setShowReportModal(false)}
                 onSubmit={submitReport}
+            />
+
+            <UserDetailModal 
+                userId={selectedUserProfileId}
+                isOpen={isUserModalOpen}
+                onClose={() => setIsUserModalOpen(false)}
             />
         </div>
     );

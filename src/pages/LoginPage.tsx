@@ -9,7 +9,6 @@ import bgLogin from '../assets/images/bg-login.avif';
 
 const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID || "";
 const LoginPage: React.FC = () => {
-  console.log("App ID từ env:", import.meta.env.VITE_FACEBOOK_APP_ID);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, isLoginSuccessPopupOpen, loginWithGoogle, loginWithFacebook, showLoginError } = useAuth();

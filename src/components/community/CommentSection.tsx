@@ -27,9 +27,15 @@ interface CommentSectionProps {
     onLikeComment: (postId: number, commentId: number) => void;
     onDeleteComment: (postId: number, commentId: number) => void;
     onReportComment: (id: number) => void;
+    onUserClick: (userId: string) => void;
     activeMenuId: any;
     setActiveMenuId: any;
 }
+
+const getAvatarSrc = (url: string | null | undefined) => {
+    if (!url || url === 'defaultAvatar.webp') return defaultAvatar;
+    return url;
+};
 
 const CommentSection: React.FC<CommentSectionProps> = (props) => {
     const { post, replyingToCommentId, setReplyingToCommentId } = props;
@@ -44,16 +50,20 @@ const CommentSection: React.FC<CommentSectionProps> = (props) => {
             <div className="comments-list">
                 {rootComments.map(comment => (
                     <div key={comment.id} className="comment-thread">
-                        <CommentItem comment={comment} postId={post.id} currentUser={props.currentUser} 
+                        <CommentItem 
+                            comment={comment} postId={post.id} currentUser={props.currentUser} 
                             onLike={props.onLikeComment} onReply={setReplyingToCommentId} 
                             onDelete={props.onDeleteComment} onReport={props.onReportComment}
+                            onUserClick={props.onUserClick}
                             activeMenuId={props.activeMenuId} setActiveMenuId={props.setActiveMenuId}
                         />
                         <div className="comment-replies">
                             {getReplies(comment.id).map(reply => (
-                                <CommentItem key={reply.id} comment={reply} postId={post.id} currentUser={props.currentUser} isReply={true}
+                                <CommentItem 
+                                    key={reply.id} comment={reply} postId={post.id} currentUser={props.currentUser} isReply={true}
                                     onLike={props.onLikeComment} onReply={setReplyingToCommentId}
                                     onDelete={props.onDeleteComment} onReport={props.onReportComment}
+                                    onUserClick={props.onUserClick}
                                     activeMenuId={props.activeMenuId} setActiveMenuId={props.setActiveMenuId}
                                 />
                             ))}
@@ -62,7 +72,6 @@ const CommentSection: React.FC<CommentSectionProps> = (props) => {
                 ))}
             </div>
 
-            {/* Input Area */}
             <div className="comment-input-area sticky-input">
                 {replyingToCommentId && (
                      <div className="reply-input-indicator" style={{position:'absolute', top: '-35px', left: 40, right: 0}}>
@@ -70,7 +79,11 @@ const CommentSection: React.FC<CommentSectionProps> = (props) => {
                        <button onClick={() => setReplyingToCommentId(null)}><FaTimes/></button>
                      </div>
                 )}
-                <img src={props.currentUser?.avatarUrl || defaultAvatar} className="comment-avatar" alt="me" />
+                <img 
+                    src={getAvatarSrc(props.currentUser?.avatarUrl)} 
+                    className="comment-avatar" 
+                    alt="me" 
+                />
                 <div className="comment-input-wrapper">
                     <input className="comment-input" 
                         placeholder={replyingToCommentId ? "Viết câu trả lời..." : "Viết bình luận..."} 
@@ -97,7 +110,6 @@ const CommentSection: React.FC<CommentSectionProps> = (props) => {
                 )}
             </div>
             
-            {/* Image Preview */}
             {props.isUploading ? <div className="comment-img-preview-box">⏳ Đang tải ảnh...</div> 
             : (props.commentImage || props.commentSticker) && (
                 <div className="comment-img-preview-box">

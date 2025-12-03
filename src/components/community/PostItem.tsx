@@ -11,13 +11,19 @@ interface PostItemProps {
     onToggleComments: (postId: number) => void;
     onDelete: (id: number) => void;
     onReport: (id: number) => void;
+    onUserClick: (userId: string) => void;
     activeMenuId: {id: number, type: 'post' | 'comment'} | null;
     setActiveMenuId: (val: {id: number, type: 'post' | 'comment'} | null) => void;
     children?: React.ReactNode; 
 }
 
+const getAvatarSrc = (url: string | null | undefined) => {
+    if (!url || url === 'defaultAvatar.webp') return defaultAvatar;
+    return url;
+};
+
 const PostItem: React.FC<PostItemProps> = ({ 
-    post, currentUser, onLike, onToggleComments, onDelete, onReport, activeMenuId, setActiveMenuId, children 
+    post, currentUser, onLike, onToggleComments, onDelete, onReport, onUserClick, activeMenuId, setActiveMenuId, children 
 }) => {
     const isOwner = Number(currentUser?.id) === post.userId;
     const showMenu = activeMenuId?.id === post.id && activeMenuId.type === 'post';
@@ -25,9 +31,20 @@ const PostItem: React.FC<PostItemProps> = ({
     return (
         <div className="post-item">
             <div className="post-header">
-                <img src={post.avatar || defaultAvatar} className="post-avatar" alt="ava" />
+                <img 
+                    src={getAvatarSrc(post.avatar)} 
+                    className="post-avatar" 
+                    alt="ava" 
+                    onClick={() => onUserClick(String(post.userId))}
+                    style={{ cursor: 'pointer' }}
+                />
                 <div className="post-info">
-                    <h4>{post.userName}</h4>
+                    <h4 
+                        onClick={() => onUserClick(String(post.userId))}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        {post.userName}
+                    </h4>
                     <p className="post-time">{new Date(post.createdAt).toLocaleString('vi-VN')}</p>
                 </div>
                 <div className="post-options-wrapper">
