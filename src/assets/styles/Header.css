@@ -846,8 +846,8 @@ html[data-theme='night'] .daily-reward-tooltip {
   background-color: rgb(231, 84, 84);
   color: white;
   border-radius: 50%;
-  width: 15px;
-  height: 15px;
+  width: 17px;
+  height: 17px;
   font-size: 0.7rem;
   display: flex;
   align-items: center;

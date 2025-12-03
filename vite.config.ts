@@ -21,5 +21,6 @@ export default defineConfig({
   build: {
     sourcemap: false, 
     manifest: false,
+    minify: 'esbuild',
   },
 })
