@@ -13,6 +13,7 @@ const formatMessage = (row) => ({
     likes: row.likes ? row.likes.split(',') : [],
     replyTo: row.replyToMessageId,
     replyToAuthor: row.replyToAuthor,
+    levelSystem: row.levelSystem || 'Bình Thường',
 });
 
 const getGlobalMessagesService = async () => {

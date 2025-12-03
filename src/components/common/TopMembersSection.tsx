@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getEquivalentLevelTitle as getLevelTitleUtil } from '../../utils/authUtils'; 
 import '../../assets/styles/TopMembersSection.css';
 import { FiLoader } from 'react-icons/fi';
 import top1Image from '../../assets/images/top1.avif'; 
 import top2Image from '../../assets/images/top2.avif';
 import top3Image from '../../assets/images/top3.avif'; 
 
-
 interface TopMember {
     id: string;
     fullName: string;
     level: number;
     avatarUrl?: string; 
-    score?: number;    
+    score?: number;
+    levelSystem: string; 
 }
 
 interface RawTopMember {
@@ -21,21 +22,25 @@ interface RawTopMember {
     level: string | number;
     avatarUrl?: string;
     score?: string | number;
+    levelSystem?: string;
 }
 
 const TopMembersSection: React.FC = () => {
     const [topMembers, setTopMembers] = useState<TopMember[]>([]);
     const [apiLoading, setApiLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { getLevelColor, getEquivalentLevelTitle, loading: authLoading } = useAuth();
+    
+    const { getLevelColor, loading: authLoading } = useAuth();
 
     useEffect(() => {
         const fetchTopMembers = async () => {
             setApiLoading(true);
             setError(null);
             try {
-                const apiUrl = import.meta.env.VITE_API_BASE_URL;
+                const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+                
                 const response = await fetch(`${apiUrl}/users/top?limit=7`);
+                
                 if (!response.ok) {
                     let errorMsg = 'Không thể tải danh sách thành viên';
                     try {
@@ -44,17 +49,29 @@ const TopMembersSection: React.FC = () => {
                     } catch (jsonError) { }
                     throw new Error(errorMsg);
                 }
+                
                 const rawData: RawTopMember[] = await response.json();
+                
+                // [DEBUG] Kiểm tra xem API có trả về levelSystem không
+                console.log("Dữ liệu Top Users từ API:", rawData);
 
                 const processedData = rawData.map(member => {
                     const level = parseInt(String(member.level));
                     const score = parseInt(String(member.score));
+                    
+                    // Logic lấy key system: Nếu API trả về null/undefined/'default' -> Gán 'Bình Thường'
+                    // Nếu API trả về đúng key (ví dụ 'Tu Tiên') -> Giữ nguyên
+                    const systemKey = (member.levelSystem && member.levelSystem !== 'default') 
+                                      ? member.levelSystem 
+                                      : 'Bình Thường';
+
                     return {
                         id: String(member.id),
                         fullName: member.fullName || 'Người dùng ẩn danh',
                         level: !isNaN(level) && level >= 1 ? level : 1,
                         avatarUrl: member.avatarUrl || 'https://via.placeholder.com/45', 
-                        score: !isNaN(score) ? score : undefined 
+                        score: !isNaN(score) ? score : undefined,
+                        levelSystem: systemKey 
                     }
                 }).filter(member => member !== null) as TopMember[];
 
@@ -74,7 +91,6 @@ const TopMembersSection: React.FC = () => {
 
         fetchTopMembers();
     }, []);
-
 
     const isLoading = authLoading || apiLoading;
 
@@ -99,13 +115,14 @@ const TopMembersSection: React.FC = () => {
                 <ol className="top-members-list">
                     {topMembers.map((member, index) => {
                         if (!member || typeof member.level !== 'number' || member.level < 1) {
-                            console.warn("Invalid member data skipped:", member);
                             return null;
                         }
 
                         const rank = index + 1;
                         const levelColor = getLevelColor(member.level);
-                        const levelTitle = getEquivalentLevelTitle(member.level);
+                        
+                        // Lấy danh hiệu dựa trên level và hệ thống của NGƯỜI ĐÓ
+                        const levelTitle = getLevelTitleUtil(member.level, member.levelSystem);
 
                         let rankElement;
                         if (rank === 1) {
@@ -153,7 +170,7 @@ const TopMembersSection: React.FC = () => {
                                         <span
                                             className="member-level-badge"
                                             style={{ backgroundColor: levelColor }}
-                                            title={`Cấp ${member.level}`}
+                                            title={`Cấp ${member.level} - Hệ thống: ${member.levelSystem}`}
                                         >
                                             {levelTitle}
                                         </span>

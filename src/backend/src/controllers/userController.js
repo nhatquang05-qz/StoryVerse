@@ -179,6 +179,18 @@ const getUserDetailsAdmin = async (req, res) => {
     }
 };
 
+const updateLevelSystem = async (req, res) => {
+    try {
+        const { systemKey } = req.body;
+        const updatedUser = await userService.updateLevelSystemService(req.userId, systemKey);
+        res.json({ message: 'Updated level system successfully', user: updatedUser });
+    } catch (error) {
+        const status = error.status || 500;
+        console.error("Update Level System Error:", error);
+        res.status(status).json({ error: error.error || 'Failed to update level system' });
+    }
+};
+
 module.exports = { 
     getMe, 
     updateProfile, 
@@ -192,5 +204,6 @@ module.exports = {
     toggleUserBan,
     deleteUserById,
     getTransactionHistory,
-    getUserDetailsAdmin
+    getUserDetailsAdmin,
+    updateLevelSystem
 };

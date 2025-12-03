@@ -48,16 +48,15 @@ const updateAvatarService = async (userId, avatarUrl) => {
 
 const getTopUsersService = async (limit = 10) => {
     try {
-        const safeLimit = Math.max(1, Math.floor(parseInt(limit)));
-        
+        const safeLimit = Math.max(1, Math.floor(parseInt(limit)));        
         const rows = await userModel.getTopUsersRaw(safeLimit);
-
         const topUsers = rows.map(user => ({
              id: String(user.id),
              fullName: user.fullName || 'Người dùng ẩn danh',
              level: parseInt(user.level) || 1,
              avatarUrl: user.avatarUrl || 'https://via.placeholder.com/45',
-             score: parseFloat(user.score) || 0
+             score: parseFloat(user.score) || 0,             
+             levelSystem: user.levelSystem || 'Bình Thường' 
         }));
 
         return topUsers;
@@ -80,8 +79,6 @@ const getUnlockedChaptersService = async (userId) => {
 const getWishlistService = async (userId) => {
     try {
         const rows = await userModel.getWishlistRaw(userId);
-
-        // Data Formatting Logic
         const comicsWithRating = rows.map(comic => ({
             ...comic,
             isDigital: comic.isDigital === 1,
@@ -99,7 +96,6 @@ const getWishlistService = async (userId) => {
 };
 
 const toggleWishlistService = async (userId, comicId) => {
-    // Validation
     if (!comicId) {
         throw { status: 400, error: 'Comic ID is required' };
     }
@@ -198,6 +194,12 @@ const deleteUserByIdService = async (id) => {
     }
 };
 
+const updateLevelSystemService = async (userId, systemKey) => {
+    await userModel.updateLevelSystemRaw(userId, systemKey);
+    const updatedUser = await getMeService(userId);
+    return updatedUser;
+};
+
 module.exports = { 
     getMeService, 
     updateProfileService, 
@@ -209,5 +211,6 @@ module.exports = {
     getAllUsersService,
     updateUserService,
     toggleUserBanService,
-    deleteUserByIdService
+    deleteUserByIdService,
+    updateLevelSystemService
 };

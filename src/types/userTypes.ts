@@ -19,5 +19,6 @@ export interface User {
   level: number;
   exp: number; 
   avatarUrl: string;
+  levelSystem?: string;
 }
 

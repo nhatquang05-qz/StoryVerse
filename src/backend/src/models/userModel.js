@@ -25,7 +25,7 @@ const findUserByResetToken = async (token) => {
 const getTopUsersRaw = async (safeLimit) => {
     const connection = getConnection();
     const query = `
-        SELECT id, fullName, level, exp, avatarUrl, CAST(level AS UNSIGNED) * 100 + CAST(exp AS DECIMAL(5,2)) AS score
+        SELECT id, fullName, level, exp, avatarUrl, levelSystem, CAST(level AS UNSIGNED) * 100 + CAST(exp AS DECIMAL(5,2)) AS score
         FROM users
         ORDER BY CAST(level AS UNSIGNED) DESC, CAST(exp AS DECIMAL(5,2)) DESC
         LIMIT ${safeLimit}
@@ -99,8 +99,6 @@ const getAllUsersRaw = async () => {
     );
     return rows;
 };
-
-// --- WRITE OPERATIONS ---
 
 const createNewUser = async (email, hashedPassword, fullName, addresses, avatarUrl = null) => {
     const connection = getConnection();
@@ -203,6 +201,14 @@ const deleteUserRaw = async (id) => {
     return result.affectedRows;
 };
 
+const updateLevelSystemRaw = async (userId, systemKey) => {
+    const connection = getConnection();
+    await connection.execute(
+        'UPDATE users SET levelSystem = ? WHERE id = ?',
+        [systemKey, userId]
+    );
+};
+
 module.exports = { 
     findUserByEmail, findUserById, findUserByResetToken,
     createNewUser, updateResetToken, resetPasswordRaw,
@@ -210,5 +216,6 @@ module.exports = {
     getTopUsersRaw, getUnlockedChaptersRaw, getWishlistRaw,
     findWishlistEntry, checkComicExists, toggleWishlistAdd, toggleWishlistRemove,
     updateUserBalanceAndExpRaw,
-    getAllUsersRaw, updateAdminUserRaw, toggleUserBanRaw, deleteUserDependenciesRaw, deleteUserRaw
+    getAllUsersRaw, updateAdminUserRaw, toggleUserBanRaw, deleteUserDependenciesRaw, deleteUserRaw,
+    updateLevelSystemRaw
 };

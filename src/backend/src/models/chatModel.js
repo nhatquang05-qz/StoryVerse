@@ -3,7 +3,7 @@ const { getConnection } = require('../db/connection');
 const getMessagesQuery = `
     SELECT 
         m.id, m.userId, m.message, m.imageUrl, m.stickerUrl, m.createdAt, m.replyToMessageId,
-        u.fullName AS userName, u.avatarUrl, u.level,
+        u.fullName AS userName, u.avatarUrl, u.level, u.levelSystem,
         ru.fullName AS replyToAuthor,
         (SELECT GROUP_CONCAT(l.userId) FROM chat_message_likes l WHERE l.messageId = m.id) AS likes
     FROM chat_messages m

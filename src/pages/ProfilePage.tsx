@@ -19,7 +19,7 @@ interface LevelSelectorProps {
 const LevelSystemSelector: React.FC<LevelSelectorProps> = React.lazy(() => import('../components/common/LevelSystemSelector'));
 
 const ProfilePage: React.FC = () => {
-  const { currentUser, updateProfile, updateAvatar, getLevelColor, selectedSystemKey, updateSelectedSystemKey, getEquivalentLevelTitle, loading, logout } = useAuth();
+  const { currentUser, updateProfile, updateAvatar, getLevelColor, selectedSystemKey, updateSelectedSystemKey, getEquivalentLevelTitle, loading, logout, token } = useAuth();
   const { showNotification } = useNotification();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -79,9 +79,42 @@ const ProfilePage: React.FC = () => {
     });
   };
 
-  const handleLevelSystemChange = (newSystemKey: string) => {
-      updateSelectedSystemKey(newSystemKey);
-      showNotification(`Đã đổi hệ thống cấp bậc thành ${newSystemKey}`, 'success');
+  const handleLevelSystemChange = async (newSystemKey: string) => {
+      try {
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'; 
+          
+          if (!token) {
+              showNotification('Bạn chưa đăng nhập hoặc phiên làm việc hết hạn.', 'error');
+              return;
+          }
+
+          const response = await fetch(`${apiUrl}/users/level-system`, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}` 
+              },
+              body: JSON.stringify({ systemKey: newSystemKey })
+          });
+
+          if (!response.ok) {
+              const contentType = response.headers.get("content-type");
+              if (contentType && contentType.indexOf("application/json") !== -1) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || 'Lỗi khi cập nhật hệ thống cấp bậc');
+              } else {
+                  const textError = await response.text();
+                  throw new Error(textError || `Lỗi máy chủ (${response.status})`);
+              }
+          }
+
+          updateSelectedSystemKey(newSystemKey);
+          showNotification(`Đã đổi hệ thống cấp bậc thành ${newSystemKey}`, 'success');
+
+      } catch (error: any) {
+          console.error('Lỗi cập nhật level system:', error);
+          showNotification(error.message || 'Không thể lưu thay đổi hệ thống cấp bậc.', 'error');
+      }
   };
 
   const handleSave = async (e: React.FormEvent) => {

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { 
     getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist,
-    getAllUsers, updateUserById, toggleUserBan, deleteUserById, getTransactionHistory 
+    getAllUsers, updateUserById, toggleUserBan, deleteUserById, getTransactionHistory, updateLevelSystem 
 } = require('../controllers/userController');
 const { authenticateToken, authenticateAdmin } = require('../middleware/authMiddleware');
 
@@ -14,6 +14,7 @@ router.use(authenticateToken);
 router.get('/me', getMe);
 router.put('/profile', updateProfile);
 router.put('/profile/avatar', updateAvatar);
+router.put('/level-system', updateLevelSystem);
 router.get('/unlocked-chapters', getUnlockedChapters);
 router.get('/wishlist', getWishlist);
 router.post('/wishlist/toggle', toggleWishlist);

@@ -6,11 +6,12 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) return res.sendStatus(401);
+  if (token == null || token === 'undefined' || token === 'null' || token.trim() === '') {
+      return res.sendStatus(401);
+  }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      console.error("JWT Verification Error:", err.message);
       return res.sendStatus(403);
     }
 
@@ -27,6 +28,10 @@ const authenticateToken = (req, res, next) => {
 const authenticateAdmin = (req, res, next) => {
     authenticateToken(req, res, async () => {
         try {
+            if (!req.userId) {
+                return res.sendStatus(403);
+            }
+
             const connection = getConnection();
             const [rows] = await connection.execute('SELECT email FROM users WHERE id = ?', [req.userId]);
 

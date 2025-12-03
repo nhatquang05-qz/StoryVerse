@@ -85,6 +85,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false);
 
+    useEffect(() => {
+        if (currentUser && currentUser.levelSystem) {
+            setSelectedSystemKey(currentUser.levelSystem);
+            localStorage.setItem(LEVEL_SYSTEM_STORAGE_KEY, currentUser.levelSystem);
+        }
+    }, [currentUser]);
+
     const fetchUser = useCallback(async () => {
         const storedToken = getToken();
         setToken(storedToken); 
@@ -125,6 +132,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updateSelectedSystemKey = useCallback((newKey: string) => {
         setSelectedSystemKey(newKey);
         localStorage.setItem(LEVEL_SYSTEM_STORAGE_KEY, newKey);
+        
+        setCurrentUser(prevUser => {
+            if (prevUser) {
+                return { ...prevUser, levelSystem: newKey };
+            }
+            return prevUser;
+        });
     }, []);
 
     const getEquivalentLevelTitle = useCallback((userLevel: number): string => {

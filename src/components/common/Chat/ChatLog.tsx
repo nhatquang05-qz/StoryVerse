@@ -20,7 +20,7 @@ interface TopMember {
 }
 
 const ChatLog: React.FC = () => {
-    const { currentUser, getEquivalentLevelTitle } = useAuth();
+    const { currentUser } = useAuth(); 
     const { showNotification } = useNotification();
     const [messages, setMessages] = useState<ChatMessageData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -345,14 +345,6 @@ const ChatLog: React.FC = () => {
         setShowStickerPicker(!showStickerPicker);
     }
 
-    const getLevelTitleForDisplay = (userId: string, userLevel: number): string => {
-        if (currentUser && userId === currentUser.id) {
-            return getEquivalentLevelTitle(userLevel);
-        } else {
-            return `Cấp ${userLevel}`;
-        }
-    };
-
     const getRank = (userId: string) => {
         const index = topMembers.findIndex(member => member.id === userId);
         return index !== -1 ? index + 1 : undefined;
@@ -375,11 +367,10 @@ const ChatLog: React.FC = () => {
                     <ChatMessage
                         key={msg.id}
                         msg={msg}
-                        levelTitle={getLevelTitleForDisplay(msg.userId, msg.userLevel)}
                         onLike={handleLikeMessage}
                         onReply={handleReplyMessage}
                         currentUserId={currentUser?.id || null}
-                            rank={rank}
+                        rank={rank}
                     />
                 )})}
             </div>
@@ -425,7 +416,7 @@ const ChatLog: React.FC = () => {
                             title="Chọn sticker"
                             disabled={!!selectedImage || isCurrentlyBanned || isSending}
                         >
-                           <FiSmile />
+                            <FiSmile />
                         </button>
                         <button
                             type="button"
