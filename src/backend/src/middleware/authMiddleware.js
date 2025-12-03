@@ -13,6 +13,13 @@ const authenticateToken = (req, res, next) => {
       console.error("JWT Verification Error:", err.message);
       return res.sendStatus(403);
     }
+
+    // --- SỬA LỖI: Kiểm tra user tồn tại ---
+    if (!user || !user.id) {
+        console.error("JWT Valid but missing user ID");
+        return res.sendStatus(403);
+    }
+
     req.userId = user.id;
     next();
   });
