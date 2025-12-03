@@ -6,7 +6,7 @@ const PrivacyPolicyPage = () => {
       <div className="legal-wrapper">
         <div className="legal-header">
           <h1 className="legal-title">Chính Sách Bảo Mật</h1>
-          <p className="legal-last-updated">Cập nhật lần cuối: 01/12/2025</p>
+          <p className="legal-last-updated">Cập nhật lần cuối: 4/12/2025</p>
         </div>
 
         <div className="legal-content">
@@ -56,12 +56,6 @@ const PrivacyPolicyPage = () => {
             </p>
           </section>
 
-          <section>
-            <h2>6. Cookie</h2>
-            <p>
-              Trang web của chúng tôi sử dụng cookie để phân biệt bạn với những người dùng khác trên trang web của chúng tôi. Điều này giúp chúng tôi cung cấp cho bạn trải nghiệm tốt khi bạn duyệt trang web của chúng tôi và cũng cho phép chúng tôi cải thiện trang web của mình.
-            </p>
-          </section>
         </div>
       </div>
     </div>

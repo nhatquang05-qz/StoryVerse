@@ -18,17 +18,29 @@ export const LEVEL_SYSTEMS: LevelSystem[] = [
 ];
 
 export const LEVEL_COLORS: { [key: number]: string } = {
-    1: '#6c757d', 2: '#007bff', 3: '#28a745', 4: '#ffc107', 5: '#dc3545',
-    6: '#6f42c1', 7: '#d704d5', 8: '#ecdcef', 9: '#eb4107', 10: '#441498',
-    11: '#306983', 12: '#e919a7', 13: '#fef750', 14: '#1d93f3', 15: '#f87b77',
-    16: '#df7ee2', 17: '#90037e', 18: '#eeb5ea', 19: '#16c4b0', 20: '#25d2b0'
+    1: '#95a5a6', 2: '#7f8c8d', 3: '#535c68',
+    4: '#2ecc71', 5: '#27ae60', 6: '#16a085', 7: '#006266',
+    8: '#3498db', 9: '#2980b9', 10: '#0984e3', 11: '#0c2461',
+    12: '#9b59b6', 13: '#8e44ad', 14: '#e056fd', 15: '#be2edd',
+    16: '#e67e22', 17: '#d35400', 18: '#e74c3c', 19: '#c0392b',
+   20: '#f1c40f' 
 };
-export const DEFAULT_LEVEL_COLOR = '#6c757d';
+
+export const DEFAULT_LEVEL_COLOR = '#95a5a6';
 
 export const getLevelColor = (level: number): string => {
     const applicableLevels = Object.keys(LEVEL_COLORS).map(Number).filter(l => l <= level).sort((a, b) => b - a);
     const highestApplicableLevel = applicableLevels[0];
     return LEVEL_COLORS[highestApplicableLevel] || DEFAULT_LEVEL_COLOR;
+};
+
+export const getTextColorForBackground = (bgColor: string): string => {
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;    
+    return luminance > 0.5 ? '#333333' : '#FFFFFF';
 };
 
 export const getEquivalentLevelTitle = (userLevel: number, selectedSystemKey: string): string => {
@@ -56,7 +68,7 @@ export const ensureUserDataTypes = (userData: any): User => {
            lastDailyLogin: new Date().toISOString(),
            consecutiveLoginDays: 0,
            level: 1,
-           exp: 0,
+           exp: 0, 
            avatarUrl: 'defaultAvatar.webp',
            levelSystem: 'Bình Thường'
        } as User;

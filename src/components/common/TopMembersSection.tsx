@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getEquivalentLevelTitle as getLevelTitleUtil } from '../../utils/authUtils'; 
+import { getEquivalentLevelTitle as getLevelTitleUtil, getTextColorForBackground } from '../../utils/authUtils'; 
 import '../../assets/styles/TopMembersSection.css';
 import { FiLoader } from 'react-icons/fi';
 import top1Image from '../../assets/images/top1.avif'; 
@@ -30,9 +30,11 @@ interface RawTopMember {
 const TopMembersSection: React.FC = () => {
     const [topMembers, setTopMembers] = useState<TopMember[]>([]);
     const [apiLoading, setApiLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);    
+    const [error, setError] = useState<string | null>(null);
+    
     const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
     const { getLevelColor, loading: authLoading } = useAuth();
 
     const getAvatarSrc = (url: string | null | undefined) => {
@@ -128,6 +130,7 @@ const TopMembersSection: React.FC = () => {
 
                         const rank = index + 1;
                         const levelColor = getLevelColor(member.level);
+                        const textColor = getTextColorForBackground(levelColor);
                         const levelTitle = getLevelTitleUtil(member.level, member.levelSystem);
 
                         let rankElement;
@@ -181,7 +184,8 @@ const TopMembersSection: React.FC = () => {
                                     <div className="member-stats">
                                         <span
                                             className="member-level-badge"
-                                            style={{ backgroundColor: levelColor }}
+                                            // [UPDATED] Áp dụng màu chữ
+                                            style={{ backgroundColor: levelColor, color: textColor }}
                                             title={`Cấp ${member.level} - Hệ thống: ${member.levelSystem}`}
                                         >
                                             {levelTitle}

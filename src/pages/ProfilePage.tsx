@@ -9,6 +9,7 @@ import LoadingPage from '../components/common/Loading/LoadingScreen';
 import TransactionHistory from '../components/common/TransactionHistory'; 
 import AddressManagementPage from './AddressManagementPage';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp'; 
+import { getTextColorForBackground } from '../utils/authUtils';
 
 interface LevelSelectorProps {
     currentUserLevel: number;
@@ -25,7 +26,6 @@ const ProfilePage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-
   const [activeTab, setActiveTab] = useState('info'); 
 
   useEffect(() => {
@@ -65,9 +65,7 @@ const ProfilePage: React.FC = () => {
       return url;
   };
 
-  if (loading) {
-    return <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
 
   if (!currentUser) {
     return (
@@ -79,27 +77,19 @@ const ProfilePage: React.FC = () => {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleLevelSystemChange = async (newSystemKey: string) => {
       try {
           const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'; 
-          
           if (!token) {
               showNotification('Bạn chưa đăng nhập hoặc phiên làm việc hết hạn.', 'error');
               return;
           }
-
           const response = await fetch(`${apiUrl}/users/level-system`, {
               method: 'PUT',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}` 
-              },
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ systemKey: newSystemKey })
           });
 
@@ -113,10 +103,8 @@ const ProfilePage: React.FC = () => {
                   throw new Error(textError || `Lỗi máy chủ (${response.status})`);
               }
           }
-
           updateSelectedSystemKey(newSystemKey);
           showNotification(`Đã đổi hệ thống cấp bậc thành ${newSystemKey}`, 'success');
-
       } catch (error: any) {
           console.error('Lỗi cập nhật level system:', error);
           showNotification(error.message || 'Không thể lưu thay đổi hệ thống cấp bậc.', 'error');
@@ -144,9 +132,7 @@ const ProfilePage: React.FC = () => {
           const file = e.target.files[0];
           setAvatarFile(file);
           const reader = new FileReader();
-          reader.onloadend = () => {
-              setAvatarPreview(reader.result as string);
-          };
+          reader.onloadend = () => { setAvatarPreview(reader.result as string); };
           reader.readAsDataURL(file);
       }
   };
@@ -203,6 +189,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const levelColor = getLevelColor(currentUser.level);
+  const levelTextColor = getTextColorForBackground(levelColor);
   const isNeonActive = currentUser.level >= 8;
   const isProfileChanged = formData.fullName !== (currentUser.fullName || '') || formData.phone !== (currentUser.phone || '');
   const hasAvatarChanged = avatarFile !== null;
@@ -245,7 +232,7 @@ const ProfilePage: React.FC = () => {
                     <h3>Cấp Độ & Kinh Nghiệm</h3>
                     <div className="level-display">
                         <span className={`level-badge-wrapper ${isNeonActive ? 'neon-active' : ''}`} style={{'--progress-bar-color': levelColor, '--level-color': levelColor} as React.CSSProperties}>
-                            <span className="level-badge" style={{ backgroundColor: levelColor }}>{equivalentLevelTextOnBadge}</span>
+                            <span className="level-badge" style={{ backgroundColor: levelColor, color: levelTextColor }}>{equivalentLevelTextOnBadge}</span>
                         </span>
                     </div>
                     <div className="exp-progress-bar-container" style={{'--progress-bar-color': levelColor} as React.CSSProperties}>
@@ -264,8 +251,7 @@ const ProfilePage: React.FC = () => {
                         />
                     </React.Suspense>
                 </div>
-
-                <form onSubmit={handleSave}>
+                 <form onSubmit={handleSave}>
                     <div className="profile-info-card">
                         <h3>Thông Tin Cá Nhân</h3>
                         <div className="form-group">
