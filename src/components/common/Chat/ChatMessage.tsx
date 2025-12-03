@@ -27,6 +27,7 @@ interface ChatMessageProps {
     msg: ChatMessageData;
     onLike: (messageId: number) => void;
     onReply: (messageId: number, authorName: string) => void;
+    onUserClick: (userId: string) => void;
     currentUserId: string | null;
     rank?: number;
 }
@@ -55,6 +56,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     msg,
     onLike,
     onReply,
+    onUserClick, 
     currentUserId,
     rank,
 }) => {
@@ -68,13 +70,25 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
     return (
         <div className={`chat-message-item ${msg.replyTo ? 'reply-message-item' : ''}`}>
-            <div className="chat-avatar">
+            <div 
+                className="chat-avatar" 
+                onClick={() => onUserClick(msg.userId)} 
+                style={{ cursor: 'pointer' }}
+                title="Xem trang cá nhân"
+            >
                 <img src={msg.avatarUrl} alt={`${msg.userName}'s avatar`} />
             </div>
             <div className="chat-content">
                 <div className="chat-header">
                     <span className="user-info">
-                        <span className="user-name">{msg.userName}</span>
+                        <span 
+                            className="user-name" 
+                            onClick={() => onUserClick(msg.userId)}
+                            style={{ cursor: 'pointer' }}
+                            title="Xem trang cá nhân"
+                        >
+                            {msg.userName}
+                        </span>
                         {rank === 1 && <img src={top1Icon} alt="Top 1" className="chat-rank-icon" />}
                         {rank === 2 && <img src={top2Icon} alt="Top 2" className="chat-rank-icon" />}
                         {rank === 3 && <img src={top3Icon} alt="Top 3" className="chat-rank-icon" />}

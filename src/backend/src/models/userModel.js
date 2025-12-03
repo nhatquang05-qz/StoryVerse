@@ -209,6 +209,48 @@ const updateLevelSystemRaw = async (userId, systemKey) => {
     );
 };
 
+const getPublicUserByIdRaw = async (id) => {
+    const connection = getConnection();
+    const query = `
+        SELECT id, fullName, avatarUrl, level, levelSystem, acc_created_at AS createdAt, exp
+        FROM users 
+        WHERE id = ?
+    `;
+    const [rows] = await connection.execute(query, [id]);
+    return rows.length > 0 ? rows[0] : null;
+};
+const getUserRecentReviewsRaw = async (userId) => {
+    const connection = getConnection();
+    const query = `
+        SELECT r.id, r.rating, r.comment, r.createdAt,
+               c.title AS comicTitle, c.coverImageUrl, c.id AS comicId
+        FROM reviews r
+        JOIN comics c ON r.comicId = c.id
+        WHERE r.userId = ?
+        ORDER BY r.createdAt DESC
+        LIMIT 10
+    `;
+    const [rows] = await connection.execute(query, [userId]);
+    return rows;
+};
+
+const getUserRecentCommentsRaw = async (userId) => {
+    const connection = getConnection();
+    const query = `
+        SELECT m.id, m.message, m.createdAt,
+               c.title AS comicTitle, c.coverImageUrl, c.id AS comicId,
+               ch.chapterNumber, ch.title AS chapterTitle
+        FROM chat_messages m
+        JOIN comics c ON m.comicId = c.id
+        LEFT JOIN chapters ch ON m.chapterId = ch.id
+        WHERE m.userId = ? AND m.comicId IS NOT NULL
+        ORDER BY m.createdAt DESC
+        LIMIT 10
+    `;
+    const [rows] = await connection.execute(query, [userId]);
+    return rows;
+};
+
 module.exports = { 
     findUserByEmail, findUserById, findUserByResetToken,
     createNewUser, updateResetToken, resetPasswordRaw,
@@ -217,5 +259,5 @@ module.exports = {
     findWishlistEntry, checkComicExists, toggleWishlistAdd, toggleWishlistRemove,
     updateUserBalanceAndExpRaw,
     getAllUsersRaw, updateAdminUserRaw, toggleUserBanRaw, deleteUserDependenciesRaw, deleteUserRaw,
-    updateLevelSystemRaw
+    updateLevelSystemRaw, getPublicUserByIdRaw, getUserRecentReviewsRaw, getUserRecentCommentsRaw
 };

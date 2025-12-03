@@ -191,6 +191,17 @@ const updateLevelSystem = async (req, res) => {
     }
 };
 
+const getPublicUserProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const profile = await userService.getPublicUserProfileService(id);
+        res.json(profile);
+    } catch (error) {
+        const status = error.status || 500;
+        res.status(status).json({ error: error.error || 'Failed to fetch user profile' });
+    }
+};
+
 module.exports = { 
     getMe, 
     updateProfile, 
@@ -205,5 +216,6 @@ module.exports = {
     deleteUserById,
     getTransactionHistory,
     getUserDetailsAdmin,
-    updateLevelSystem
+    updateLevelSystem,
+    getPublicUserProfile
 };

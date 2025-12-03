@@ -9,6 +9,7 @@ import { isProfane } from '../../../utils/profanityList';
 import StickerPicker from './StickerPicker';
 import type { Sticker } from '../../../utils/stickerUtils';
 import { getBanInfo, setBanInfo, calculateBanDurationMinutes, formatRemainingTime, type BanInfo } from '../../../utils/chatBanUtils';
+import UserDetailModal from '../UserDetailModal';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
@@ -39,6 +40,8 @@ const ChatLog: React.FC = () => {
     const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
     const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
     const [topMembers, setTopMembers] = useState<TopMember[]>([]);
+    const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
     const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
     const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default';
@@ -334,6 +337,11 @@ const ChatLog: React.FC = () => {
         setShowStickerPicker(false);
     }, [currentUser]);
 
+    const handleUserClick = useCallback((userId: string) => {
+        setSelectedUserProfileId(userId);
+        setIsUserModalOpen(true);
+    }, []);
+
     const cancelReply = () => {
         setReplyingTo(null);
     };
@@ -369,6 +377,7 @@ const ChatLog: React.FC = () => {
                         msg={msg}
                         onLike={handleLikeMessage}
                         onReply={handleReplyMessage}
+                        onUserClick={handleUserClick} 
                         currentUserId={currentUser?.id || null}
                         rank={rank}
                     />
@@ -447,6 +456,13 @@ const ChatLog: React.FC = () => {
                     Bạn phải đăng nhập để nói chuyện.
                 </div>
             )}
+
+            {/* [NEW] Render Modal User Detail */}
+            <UserDetailModal 
+                userId={selectedUserProfileId}
+                isOpen={isUserModalOpen}
+                onClose={() => setIsUserModalOpen(false)}
+            />
 
             <ProfanityWarningPopup
                 isOpen={isWarningPopupOpen}

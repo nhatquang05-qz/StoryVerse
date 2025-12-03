@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { 
     getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist,
-    getAllUsers, updateUserById, toggleUserBan, deleteUserById, getTransactionHistory, updateLevelSystem 
+    getAllUsers, updateUserById, toggleUserBan, deleteUserById, getTransactionHistory, 
+    updateLevelSystem, getPublicUserProfile 
 } = require('../controllers/userController');
 const { authenticateToken, authenticateAdmin } = require('../middleware/authMiddleware');
 
 // --- 1. PUBLIC ROUTES ---
 router.get('/top', getTopUsers); 
+router.get('/profile/:id', getPublicUserProfile); 
 
 // --- 2. AUTHENTICATED ROUTES 
 router.use(authenticateToken); 

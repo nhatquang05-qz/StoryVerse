@@ -200,6 +200,38 @@ const updateLevelSystemService = async (userId, systemKey) => {
     return updatedUser;
 };
 
+const getPublicUserProfileService = async (targetUserId) => {
+    try {
+        const user = await userModel.getPublicUserByIdRaw(targetUserId);
+        if (!user) throw { status: 404, error: 'Người dùng không tồn tại' };
+
+        const comments = await userModel.getUserRecentCommentsRaw(targetUserId);
+
+        return {
+            id: String(user.id),
+            fullName: user.fullName || 'Người dùng ẩn danh',
+            avatarUrl: user.avatarUrl || 'https://via.placeholder.com/150',
+            level: parseInt(user.level) || 1,
+            levelSystem: user.levelSystem || 'Bình Thường',
+            joinDate: user.createdAt,
+            exp: parseFloat(user.exp) || 0,
+            
+            recentComments: comments.map(c => ({
+                id: c.id,
+                content: c.message,
+                createdAt: c.createdAt,
+                comicTitle: c.comicTitle,
+                comicCover: c.coverImageUrl,
+                comicId: c.comicId,
+                chapterNumber: c.chapterNumber,
+                chapterTitle: c.chapterTitle
+            }))
+        };
+    } catch (error) {
+        console.error("Get public profile error:", error);
+        throw { status: error.status || 500, error: 'Lỗi lấy thông tin người dùng' };
+    }
+};
 module.exports = { 
     getMeService, 
     updateProfileService, 
@@ -212,5 +244,6 @@ module.exports = {
     updateUserService,
     toggleUserBanService,
     deleteUserByIdService,
-    updateLevelSystemService
+    updateLevelSystemService,
+    getPublicUserProfileService
 };
