@@ -161,6 +161,12 @@ html[data-theme="night"] .exp-progress-bar-fill {
     opacity: 0.7;
 }
 
+.form-group input{
+    color: var(--clr-text);
+    border-width: 1px;
+    border-color: var(--clr-border-light);
+}
+
 .orders-table {
     width: 100%;
     border-collapse: collapse;

@@ -9,11 +9,16 @@ import { isProfane } from '../../../utils/profanityList';
 import StickerPicker from './StickerPicker';
 import type { Sticker } from '../../../utils/stickerUtils';
 import { getBanInfo, setBanInfo, calculateBanDurationMinutes, formatRemainingTime, type BanInfo } from '../../../utils/chatBanUtils';
-import UserDetailModal from '../UserDetailModal';
+import UserDetailModal from '../UserDetailModal'; // Modal xem thông tin người dùng
+import { io, Socket } from 'socket.io-client'; // Import Socket.io
 
+// Cấu hình URL cho API và Socket
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+// Lấy root URL cho socket (bỏ /api)
+const SOCKET_URL = API_URL.replace('/api', '') || 'http://localhost:3000';
+
 const TOKEN_STORAGE_KEY = 'storyverse_token';
-const MAX_GLOBAL_MESSAGES = 30;
+const MAX_GLOBAL_MESSAGES = 50; // Tăng giới hạn tin nhắn lưu trữ
 
 interface TopMember {
   id: string;
@@ -21,8 +26,10 @@ interface TopMember {
 }
 
 const ChatLog: React.FC = () => {
-    const { currentUser } = useAuth(); 
+    const { currentUser } = useAuth();
     const { showNotification } = useNotification();
+    
+    // States quản lý tin nhắn và giao diện
     const [messages, setMessages] = useState<ChatMessageData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [newMessage, setNewMessage] = useState('');
@@ -30,39 +37,100 @@ const ChatLog: React.FC = () => {
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
     const [replyingTo, setReplyingTo] = useState<{ id: number; author: string } | null>(null);
     const [showStickerPicker, setShowStickerPicker] = useState(false);
-    const chatMessagesListRef = useRef<HTMLDivElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const messageInputRef = useRef<HTMLInputElement>(null);
-    const stickerPickerRef = useRef<HTMLDivElement>(null);
     const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
     const [isSending, setIsSending] = useState(false);
 
+    // States quản lý cấm chat
     const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
     const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
+    
+    // States quản lý Top thành viên và Modal Profile
     const [topMembers, setTopMembers] = useState<TopMember[]>([]);
     const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
+    // Refs
+    const chatMessagesListRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const messageInputRef = useRef<HTMLInputElement>(null);
+    const stickerPickerRef = useRef<HTMLDivElement>(null);
+    const socketRef = useRef<Socket | null>(null); // Ref giữ kết nối Socket
+
     const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
     const renderKey = currentUser ? `${currentUser.id}-${currentUser.level}-${systemKey}` : 'default';
 
+    // 1. Kết nối Socket.io
+    useEffect(() => {
+        // Khởi tạo socket
+        socketRef.current = io(SOCKET_URL);
+
+        // Join phòng Global
+        socketRef.current.emit('join_room', 'global');
+
+        // Lắng nghe tin nhắn mới
+        socketRef.current.on('receive_message', (newMsg: ChatMessageData) => {
+            setMessages((prevMessages) => {
+                // Tránh trùng lặp tin nhắn
+                if (prevMessages.some(m => m.id === newMsg.id)) return prevMessages;
+                
+                const updatedMessages = [...prevMessages, newMsg];
+                return updatedMessages.slice(-MAX_GLOBAL_MESSAGES);
+            });
+            
+            // Auto scroll xuống dưới
+            if (chatMessagesListRef.current) {
+                setTimeout(() => {
+                    chatMessagesListRef.current!.scrollTop = chatMessagesListRef.current!.scrollHeight;
+                }, 100);
+            }
+        });
+
+        // Lắng nghe sự kiện Like realtime
+        socketRef.current.on('update_like', (data: { messageId: number; userId: string; isLiked: boolean }) => {
+            setMessages(prevMessages => 
+                prevMessages.map(msg => {
+                    if (msg.id === data.messageId) {
+                        const currentLikes = msg.likes || [];
+                        let newLikes = [...currentLikes];
+                        
+                        if (data.isLiked) {
+                            if (!newLikes.includes(data.userId)) newLikes.push(data.userId);
+                        } else {
+                            newLikes = newLikes.filter(id => id !== data.userId);
+                        }
+                        return { ...msg, likes: newLikes };
+                    }
+                    return msg;
+                })
+            );
+        });
+
+        // Cleanup khi unmount
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.emit('leave_room', 'global');
+                socketRef.current.disconnect();
+            }
+        };
+    }, []);
+
+    // 2. Lấy danh sách Top Member (để hiển thị icon rank)
     useEffect(() => {
         const fetchTopMembers = async () => {
             try {
                 const response = await fetch(`${API_URL}/users/top?limit=3`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch top members');
+                if (response.ok) {
+                    const data = await response.json();
+                    setTopMembers(data);
                 }
-                const data = await response.json();
-                setTopMembers(data);
             } catch (error) {
                 console.error('Error fetching top members:', error);
             }
         };
-
         fetchTopMembers();
     }, []);
 
+    // 3. Lấy tin nhắn ban đầu
     const fetchMessages = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -76,12 +144,13 @@ const ChatLog: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [showNotification]);
 
     useEffect(() => {
         fetchMessages();
     }, [fetchMessages]);
     
+    // 4. Quản lý trạng thái Ban (Cấm chat)
     useEffect(() => {
         if (currentUser) {
             const banInfo = getBanInfo(currentUser.id);
@@ -105,18 +174,21 @@ const ChatLog: React.FC = () => {
         return () => clearInterval(interval);
     }, [currentUser, currentBanInfo?.banExpiry]);
 
+    // Auto scroll khi tin nhắn thay đổi
     useEffect(() => {
         if (chatMessagesListRef.current) {
             chatMessagesListRef.current.scrollTop = chatMessagesListRef.current.scrollHeight;
         }
     }, [messages, renderKey]);
 
-     useEffect(() => {
+    // Focus input khi reply
+    useEffect(() => {
         if (replyingTo && messageInputRef.current) {
             messageInputRef.current.focus();
         }
     }, [replyingTo]);
 
+    // Click outside để đóng sticker picker
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (stickerPickerRef.current && !stickerPickerRef.current.contains(event.target as Node)) {
@@ -132,7 +204,7 @@ const ChatLog: React.FC = () => {
         };
     }, [stickerPickerRef]);
 
-
+    // Xử lý chọn ảnh
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             const file = event.target.files[0];
@@ -149,6 +221,7 @@ const ChatLog: React.FC = () => {
         }
     };
 
+    // Gọi API gửi tin nhắn
     const postMessageToApi = async (payload: { message?: string; imageUrl?: string; stickerUrl?: string; replyToMessageId?: number }) => {
         const token = localStorage.getItem(TOKEN_STORAGE_KEY);
         try {
@@ -170,7 +243,12 @@ const ChatLog: React.FC = () => {
             const newMsgData = await response.json();
             if (!response.ok) throw new Error(newMsgData.error || 'Failed to send message');
             
-            setMessages(prev => [...prev, newMsgData].slice(-MAX_GLOBAL_MESSAGES));
+            // Lưu ý: Không cần setMessages thủ công ở đây nữa vì Socket sẽ trả về tin nhắn
+            // Tuy nhiên, nếu muốn hiển thị ngay lập tức (optimistic) có thể giữ lại logic check ID
+            setMessages(prev => {
+                 if (prev.some(m => m.id === newMsgData.id)) return prev;
+                 return [...prev, newMsgData].slice(-MAX_GLOBAL_MESSAGES)
+            });
 
         } catch (error: any) {
             console.error("Error posting message:", error);
@@ -178,6 +256,7 @@ const ChatLog: React.FC = () => {
         }
     };
 
+    // Xử lý logic gửi tin nhắn (bao gồm check ban, profanity)
     const handleSendMessage = async (sticker?: Sticker) => {
         if (!currentUser) {
              showNotification("Bạn cần đăng nhập để nói chuyện", "warning");
@@ -210,6 +289,7 @@ const ChatLog: React.FC = () => {
             if (fileInputRef.current) fileInputRef.current.value = "";
         };
 
+        // Kiểm tra từ ngữ không phù hợp
         if (messageContent && isProfane(messageContent)) {
             setIsWarningPopupOpen(true);
 
@@ -247,6 +327,7 @@ const ChatLog: React.FC = () => {
 
         try {
             let imageUrl: string | undefined = undefined;
+            // Upload ảnh trước nếu có
             if (selectedImage) {
                 const token = localStorage.getItem(TOKEN_STORAGE_KEY);
                 const formData = new FormData();
@@ -298,23 +379,24 @@ const ChatLog: React.FC = () => {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
+    // Xử lý Like tin nhắn
     const handleLikeMessage = useCallback(async (messageId: number) => {
         if (!currentUser) return;
 
-        const originalMessages = messages;
-        const msgToLike = messages.find(m => m.id === messageId);
-        if (!msgToLike) return;
-
-        const currentLikes = msgToLike.likes || [];
-        const isLiked = currentLikes.includes(currentUser.id);
-        const newLikes = isLiked
-            ? currentLikes.filter(id => id !== currentUser.id)
-            : [...currentLikes, currentUser.id];
-
+        // Optimistic update (cập nhật giao diện ngay lập tức)
+        // Socket sẽ đồng bộ lại sau để đảm bảo nhất quán
         setMessages(prevMessages => 
-            prevMessages.map(msg => 
-                msg.id === messageId ? { ...msg, likes: newLikes } : msg
-            )
+            prevMessages.map(msg => {
+                if (msg.id === messageId) {
+                    const currentLikes = msg.likes || [];
+                    const isLiked = currentLikes.includes(currentUser.id);
+                    const newLikes = isLiked
+                        ? currentLikes.filter(id => id !== currentUser.id)
+                        : [...currentLikes, currentUser.id];
+                    return { ...msg, likes: newLikes };
+                }
+                return msg;
+            })
         );
 
         try {
@@ -327,20 +409,15 @@ const ChatLog: React.FC = () => {
         } catch (error) {
             console.error("Error liking message:", error);
             showNotification('Lỗi khi thích tin nhắn.', 'error');
-            setMessages(originalMessages);
+            // Revert nếu lỗi (có thể bỏ qua nếu tin tưởng socket update lại)
         }
-    }, [currentUser, messages, showNotification]);
+    }, [currentUser, showNotification]);
 
     const handleReplyMessage = useCallback((messageId: number, authorName: string) => {
         if (!currentUser) return;
         setReplyingTo({ id: messageId, author: authorName });
         setShowStickerPicker(false);
     }, [currentUser]);
-
-    const handleUserClick = useCallback((userId: string) => {
-        setSelectedUserProfileId(userId);
-        setIsUserModalOpen(true);
-    }, []);
 
     const cancelReply = () => {
         setReplyingTo(null);
@@ -357,6 +434,12 @@ const ChatLog: React.FC = () => {
         const index = topMembers.findIndex(member => member.id === userId);
         return index !== -1 ? index + 1 : undefined;
     };
+
+    // Hàm mở modal khi click vào user
+    const handleUserClick = useCallback((userId: string) => {
+        setSelectedUserProfileId(userId);
+        setIsUserModalOpen(true);
+    }, []);
 
     const isCurrentlyBanned = !!remainingBanTime;
 
@@ -377,7 +460,7 @@ const ChatLog: React.FC = () => {
                         msg={msg}
                         onLike={handleLikeMessage}
                         onReply={handleReplyMessage}
-                        onUserClick={handleUserClick} 
+                        onUserClick={handleUserClick} // Truyền prop xử lý click user
                         currentUserId={currentUser?.id || null}
                         rank={rank}
                     />
@@ -457,7 +540,7 @@ const ChatLog: React.FC = () => {
                 </div>
             )}
 
-            {/* [NEW] Render Modal User Detail */}
+            {/* Modal Xem thông tin người dùng */}
             <UserDetailModal 
                 userId={selectedUserProfileId}
                 isOpen={isUserModalOpen}

@@ -1,4 +1,5 @@
 const chatService = require('../services/chatService');
+const socket = require('../utils/socket'); 
 
 const getGlobalMessages = async (req, res) => {
     try {
@@ -30,6 +31,18 @@ const postMessage = async (req, res) => {
 
         const newMessage = await chatService.postMessageService(userId, comicId, chapterId, message, imageUrl, stickerUrl, replyToMessageId);
 
+        let room = 'global';
+        if (comicId && chapterId) {
+            room = `chapter_${comicId}_${chapterId}`;
+        }
+
+        try {
+            const io = socket.getIO();
+            io.to(room).emit('receive_message', newMessage);
+        } catch (socketError) {
+            console.error("Socket emit message error:", socketError);
+        }
+
         res.status(201).json(newMessage);
     } catch (error) {
         const status = error.status || 500;
@@ -43,9 +56,20 @@ const toggleLikeMessage = async (req, res) => {
         const { userId } = req;
         const { messageId } = req.params;
 
-        await chatService.toggleLikeMessageService(userId, messageId);
+        const result = await chatService.toggleLikeMessageService(userId, messageId);
         
-        res.status(200).json({ success: true });
+        try {
+            const io = socket.getIO();
+            io.emit('update_like', { 
+                messageId: parseInt(messageId), 
+                userId: userId, 
+                isLiked: result.isLiked 
+            });
+        } catch (socketError) {
+            console.error("Socket emit like error:", socketError);
+        }
+
+        res.status(200).json({ success: true, isLiked: result.isLiked });
     } catch (error) {
         const status = error.status || 500;
         console.error("Toggle like error:", error);
