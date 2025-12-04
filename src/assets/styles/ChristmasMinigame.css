@@ -1,26 +1,23 @@
-/* --- 1. FULL SCREEN SETUP (Che Header/Footer/Chatbot) --- */
 .xmas-container {
-  position: fixed; /* Quan trọng: Đè lên toàn bộ app */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 100000; /* Z-index cực cao để che Chatbot và Header */
+  z-index: 99999;
   background: linear-gradient(180deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  overflow: hidden; /* Không cho cuộn trang */
-  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 0;
 }
 
-/* Nút Quay Về Trang Chủ */
 .back-home-btn {
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 200; /* Cao hơn các lớp tuyết */
+  z-index: 200;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -40,37 +37,93 @@
   transform: translateX(-5px);
 }
 
+.snowfall-zone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
 
-/* --- 3. FLYING WISHES (DANMU) --- */
+.snowflake {
+  position: absolute;
+  top: -50px;
+  color: #fff;
+  will-change: transform;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.snowflake img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px white);
+}
+
+.snowflake-char {
+  font-size: 100%;
+  color: white;
+  text-shadow: 0 0 5px cyan;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fall {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(110vh) translateX(20px); opacity: 0.9; }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .flying-wishes-zone {
   position: absolute;
-  top: 50px; /* Tránh đè nút back */
+  top: 10%;
   left: 0;
   width: 100%;
   height: 25%;
   pointer-events: none;
   z-index: 15;
-  overflow: hidden;
 }
-/* ... Giữ nguyên style .flying-wish cũ ... */
+
 .flying-wish {
   position: absolute;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   font-weight: bold;
   font-size: 16px;
   text-shadow: 0 0 5px #000;
   animation: flyAcross linear infinite;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 5px 15px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 18px;
   border-radius: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  will-change: transform;
 }
 
 .flying-wish img {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 28px; 
+  height: 28px; 
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #fff;
 }
 
 @keyframes flyAcross {
@@ -78,200 +131,300 @@
   to { transform: translateX(-100%); }
 }
 
-/* --- 4. CÂY THÔNG --- */
 .tree-display-area {
   position: relative;
   width: 100%;
-  max-width: 600px;
-  height: 65vh; /* Giảm chiều cao cây một chút để nhường chỗ */
+  max-width: 650px;
+  height: 60vh;
   display: flex;
   justify-content: center;
   align-items: flex-end;
   z-index: 10;
-  margin-top: 50px; /* Đẩy cây xuống dưới 1 chút */
+  margin-top: 50px;
 }
 
-/* ... Giữ nguyên .main-tree-img, .tree-decor ... */
 .main-tree-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.2));
 }
 
 .tree-decor {
   position: absolute;
-  width: 40px; 
-  height: 40px;
+  width: 45px;
+  height: 45px;
   cursor: pointer;
   transition: transform 0.3s;
   animation: glowPulse 2s infinite alternate;
   z-index: 20;
 }
-.tree-decor:hover { transform: scale(1.5) !important; z-index: 30; }
+
+.tree-decor:hover {
+  transform: scale(1.4);
+  z-index: 30;
+}
 
 .decor-tooltip {
-  position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95); color: #003366; padding: 8px 12px;
-  border-radius: 8px; width: 200px; text-align: center; font-size: 13px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; visibility: hidden;
-  transition: 0.2s; pointer-events: none;
-}
-.tree-decor:hover .decor-tooltip { opacity: 1; visibility: visible; }
-.decor-user { font-weight: bold; display: block; margin-bottom: 4px; color: #d35400; }
-@keyframes glowPulse {
-  0% { filter: drop-shadow(0 0 2px gold); transform: scale(1); }
-  100% { filter: drop-shadow(0 0 10px yellow); transform: scale(1.1); }
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.98);
+  color: #003366;
+  padding: 10px 15px;
+  border-radius: 10px;
+  width: max-content;
+  max-width: 250px;
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.2s;
+  pointer-events: none;
 }
 
-/* --- 5. Ô NHẬP LỜI CHÚC (Đã sửa khoảng cách) --- */
+.tree-decor:hover .decor-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.decor-user {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+  color: #d35400;
+}
+
+@keyframes glowPulse {
+  0% { filter: drop-shadow(0 0 2px gold); transform: scale(1); }
+  100% { filter: drop-shadow(0 0 8px #ffeb3b); transform: scale(1.1); }
+}
+
 .wish-input-bar {
-  /* Xóa margin âm cũ */
-  margin-top: 20px; /* TẠO KHOẢNG CÁCH VỚI CÂY */
+  margin-top: 30px;
   z-index: 50;
   display: flex;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px 25px;
   border-radius: 50px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* ... Giữ nguyên style input và button ... */
 .wish-input-field {
-  padding: 12px 20px; border-radius: 25px; border: none; width: 300px; outline: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: none;
+  width: 350px;
+  outline: none;
+  font-size: 16px;
+  background: rgba(255,255,255,0.95);
+  color: #333;
 }
-.wish-submit-btn {
-  background: #ff4d4d; color: white; border: none; padding: 12px 30px;
-  border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s;
-}
-.wish-submit-btn:hover { background: #e60000; box-shadow: 0 0 15px #ff4d4d; }
 
-/* ... Giữ nguyên style Vòng quay, Modal ... */
-.lucky-wheel-trigger {
-  position: fixed; bottom: 30px; right: 30px; width: 80px; height: 80px;
-  background: radial-gradient(circle, #ffd700, #ff8c00);
-  border-radius: 50%; border: 4px solid #fff; cursor: pointer; z-index: 100;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); animation: spinSlow 10s linear infinite;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: bold; color: #fff; text-align: center; font-size: 12px;
+.wish-submit-btn {
+  background: linear-gradient(135deg, #ff4d4d, #c0392b);
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 16px;
+  text-transform: uppercase;
 }
-.lucky-wheel-trigger:hover { transform: scale(1.1); }
-@keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.wish-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 77, 77, 0.5);
+}
+
+.lucky-wheel-trigger {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, #ffd700, #ff8c00);
+  border-radius: 50%;
+  border: 5px solid #fff;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  animation: spinSlow 15s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.2;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.lucky-wheel-trigger:hover {
+  transform: scale(1.1);
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 .wheel-modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
-  z-index: 100001; /* Phải cao hơn xmas-container */
-  display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s;
-}
-/* ... Các class còn lại của modal giữ nguyên ... */
-.wheel-modal-content {
-  position: relative; background: transparent; padding: 20px;
-  border-radius: 20px; text-align: center; animation: zoomIn 0.4s;
-}
-.close-modal-btn {
-  position: absolute; top: -20px; right: -20px; background: white; color: #333;
-  width: 40px; height: 40px; border-radius: 50%; border: none; font-weight: bold;
-  font-size: 20px; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-.wheel-board-wrapper { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 50%; border: 5px solid rgba(255,215,0,0.5); }
-.wheel-container { width: 350px; height: 350px; position: relative; }
-.wheel {
-  width: 100%; height: 100%; border-radius: 50%; border: 8px solid #ffd700;
-  transition: transform 4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  background: conic-gradient(#ff4d4d 0deg 60deg, #ffffff 60deg 120deg, #2ecc71 120deg 180deg, #ffffff 180deg 240deg, #ff4d4d 240deg 300deg, #ffffff 300deg 360deg);
-  position: relative; overflow: hidden;
-}
-.wheel-text {
-  position: absolute; top: 50%; left: 50%; width: 50%; transform-origin: 0 0; padding-left: 45px; display: flex; align-items: center;
-}
-.wheel-text span { display: block; transform: rotate(90deg); font-weight: bold; color: #003366; }
-.wheel-text:nth-child(odd) span { color: white; }
-.pointer {
-  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
-  width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent;
-  border-top: 40px solid #ffd700; z-index: 10; filter: drop-shadow(0 2px 4px #000);
-}
-.spin-action-btn {
-  margin-top: 30px; background: linear-gradient(45deg, #ff9966, #ff5e62);
-  border: none; padding: 15px 50px; font-size: 20px; font-weight: bold; color: white;
-  border-radius: 50px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
-}
-.spin-action-btn:disabled { background: #777; cursor: not-allowed; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes zoomIn { from { transform: scale(0.5); } to { transform: scale(1); } }
-
-/* --- VÙNG CHỨA TUYẾT (Phủ kín màn hình) --- */
-.snowfall-zone {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Để chuột bấm xuyên qua được */
-  z-index: 999999; /* Thấp hơn cây thông và các nút bấm */
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  z-index: 100001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s;
 }
 
-/* --- TỪNG BÔNG TUYẾT --- */
-.snowflake {
+.wheel-modal-content {
+  position: relative;
+  background: transparent;
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.close-modal-btn {
   position: absolute;
-  top: -50px; /* Xuất phát từ trên nóc màn hình */
-  color: #fff; /* Màu cho ký tự fallback ❄ */
-  opacity: 0.9;
-  
-  /* Animation kết hợp: Rơi xuống (fall) và Xoay (rotate) */
-  animation-name: fall, rotate;
-  animation-timing-function: linear, ease-in-out;
-  animation-iteration-count: infinite, infinite;
+  top: -30px;
+  right: -30px;
+  background: #fff;
+  color: #c0392b;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  font-weight: bold;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
 }
 
-/* Ảnh bông tuyết nằm trong thẻ div */
-.snowflake img {
+.close-modal-btn:hover {
+  background: #ffeded;
+  transform: rotate(90deg);
+}
+
+.wheel-board-wrapper {
+  background: rgba(255,255,255,0.1);
+  padding: 40px;
+  border-radius: 50%;
+  border: 10px solid rgba(255,215,0,0.4);
+  box-shadow: 0 0 60px rgba(255,215,0,0.2);
+}
+
+.wheel-container {
+  width: 450px;
+  height: 450px;
+  position: relative;
+}
+
+.wheel {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 0 5px rgba(255,255,255,0.8)); /* Làm bông tuyết sáng lên */
+  border-radius: 50%;
+  border: 12px solid #ffd700;
+  transition: transform 5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: conic-gradient(
+    #e74c3c 0deg 60deg,
+    #ffffff 60deg 120deg,
+    #2ecc71 120deg 180deg,
+    #ffffff 180deg 240deg,
+    #e74c3c 240deg 300deg,
+    #ffffff 300deg 360deg
+  );
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
 }
 
-.snowflake span {
-  text-shadow: 0 0 5px #fff;
+.wheel-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  transform-origin: 0 0;
+  padding-left: 60px;
+  display: flex;
+  align-items: center;
+  height: 0;
 }
 
-/* --- ĐỊNH NGHĨA CHUYỂN ĐỘNG (KEYFRAMES) - BẮT BUỘC PHẢI CÓ --- */
-
-/* 1. Hiệu ứng rơi từ trên xuống (có lắc lư qua lại) */
-@keyframes fall {
-  0% {
-    transform: translateY(-50px) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  25% {
-    transform: translateY(25vh) translateX(20px); /* Lắc sang phải */
-  }
-  50% {
-    transform: translateY(50vh) translateX(-20px); /* Lắc sang trái */
-  }
-  75% {
-    transform: translateY(75vh) translateX(20px); /* Lắc sang phải */
-  }
-  100% {
-    transform: translateY(110vh) translateX(0); /* Rơi quá màn hình */
-    opacity: 0.5;
-  }
+.wheel-text span {
+  display: block;
+  transform: rotate(90deg);
+  font-weight: 800;
+  color: #2c3e50;
+  font-size: 18px;
+  text-transform: uppercase;
 }
 
-/* 2. Hiệu ứng xoay tròn */
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.wheel-text:nth-child(odd) span {
+  color: white;
 }
+
+.pointer {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; 
+  height: 0; 
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-top: 60px solid #e74c3c;
+  z-index: 10;
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
+}
+
+.spin-action-btn {
+  margin-top: 50px;
+  background: linear-gradient(45deg, #f1c40f, #e67e22);
+  border: none;
+  padding: 20px 70px;
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+  border-radius: 60px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(230, 126, 34, 0.5);
+  transition: 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.spin-action-btn:hover:not(:disabled) {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 15px 40px rgba(230, 126, 34, 0.7);
+}
+
+.spin-action-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }

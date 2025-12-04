@@ -15,10 +15,9 @@ import decor6 from '../assets/images/minigameChristmas/decor6.png';
 import flake1 from '../assets/images/minigameChristmas/flake.png'; 
 
 const DECOR_IMAGES = [decor1, decor2, decor3, decor4, decor5, decor6];
-const FLAKE_IMAGES = [flake1]; 
-
+const FLAKE_IMAGES = [flake1];
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png"; 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const PRIZES_CONFIG = [
   { label: '10 Xu', deg: 30 },
@@ -41,7 +40,7 @@ interface DisplayWish {
 
 const ChristmasEventPage: React.FC = () => {
   const { currentUser, token, fetchUser } = useAuth();
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   
   const [isSpinning, setIsSpinning] = useState(false);
   const [wheelDeg, setWheelDeg] = useState(0);
@@ -76,7 +75,7 @@ const ChristmasEventPage: React.FC = () => {
             animationDelay: Math.random() * 2
         }));
         setDisplayWishes(mapped);
-      } catch (error) { console.error("Lỗi tải lời chúc", error); }
+      } catch (error) { console.error(error); }
     };
     fetchWishes();
   }, []);
@@ -133,22 +132,18 @@ const ChristmasEventPage: React.FC = () => {
 
   return (
     <div className="xmas-container">
-      {/* 1. NÚT QUAY LẠI TRANG CHỦ */}
       <button className="back-home-btn" onClick={() => navigate('/')}>
         ⬅ Trang chủ
       </button>
 
-      {/* 2. HIỆU ỨNG TUYẾT RƠI (Chậm & Xoay) */}
       <div className="snowfall-zone">
         <SnowfallManager />
       </div>
 
-      {/* 3. LỜI CHÚC BAY (DANMU) */}
       <div className="flying-wishes-zone">
         <FlyingWishesManager wishes={displayWishes} />
       </div>
 
-      {/* 4. CÂY THÔNG & LỜI CHÚC TREO CÂY */}
       <div className="tree-display-area">
         <img src={treeImg} alt="Christmas Tree" className="main-tree-img" />
         {displayWishes.map((w) => (
@@ -167,7 +162,6 @@ const ChristmasEventPage: React.FC = () => {
         ))}
       </div>
 
-      {/* 5. FORM NHẬP (Đã chỉnh margin trong CSS) */}
       <div className="wish-input-bar">
         <input 
           type="text" 
@@ -183,12 +177,10 @@ const ChristmasEventPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 6. TRIGGER VÒNG QUAY */}
       <div className="lucky-wheel-trigger" onClick={() => setShowWheelModal(true)}>
         VÒNG QUAY<br/>MAY MẮN
       </div>
 
-      {/* 7. MODAL VÒNG QUAY */}
       {showWheelModal && (
         <div className="wheel-modal-overlay">
           <div className="wheel-modal-content">
@@ -217,15 +209,14 @@ const ChristmasEventPage: React.FC = () => {
   );
 };
 
-
 const SnowfallManager: React.FC = () => {
     const snowflakes = React.useMemo(() => {
-        return Array.from({ length: 40 }).map((_, i) => {
-            const left = Math.floor(Math.random() * 100);
-            const fallDuration = Math.floor(Math.random() * 10) + 10; 
-            const delay = Math.floor(Math.random() * 10); 
-            const size = Math.floor(Math.random() * 20) + 15;             
-            const rotationDuration = Math.floor(Math.random() * 5) + 3; 
+        return Array.from({ length: 60 }).map((_, i) => {
+            const left = Math.floor(Math.random() * 100); 
+            const fallDuration = Math.floor(Math.random() * 10) + 15; 
+            const animationDelay = `-${Math.random() * 2}s`;
+            const size = Math.floor(Math.random() * 25) + 10; 
+            const rotationDuration = Math.floor(Math.random() * 8) + 5; 
 
             return (
                 <div 
@@ -235,15 +226,25 @@ const SnowfallManager: React.FC = () => {
                         left: `${left}%`,
                         width: `${size}px`,
                         height: `${size}px`,
+                        animationName: 'fall, rotate',
                         animationDuration: `${fallDuration}s, ${rotationDuration}s`, 
-                        animationDelay: `${delay}s, ${delay}s`
+                        animationDelay: `${animationDelay}, ${animationDelay}`
                     }}
                 >
                     {FLAKE_IMAGES.length > 0 ? (
                         <img 
                             src={FLAKE_IMAGES[0]} 
-                            alt="snow" 
-                            style={{width: '100%', height: '100%'}}
+                            alt="snowflake" 
+                            style={{width: '100%', height: '100%', display: 'block'}}
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const span = document.createElement('span');
+                                span.innerText = '❄';
+                                span.style.fontSize = `${size}px`;
+                                span.style.color = 'white';
+                                span.style.display = 'block';
+                                e.currentTarget.parentElement?.appendChild(span);
+                            }}
                         />
                     ) : (
                         <span style={{fontSize: `${size}px`, color: 'white'}}>❄</span>
@@ -263,23 +264,23 @@ const FlyingWishesManager: React.FC<{ wishes: DisplayWish[] }> = ({ wishes }) =>
     if (wishes.length === 0) return;
     const interval = setInterval(() => {
       setFlyingItems(current => {
-        if (current.length > 5) return current;
+        if (current.length > 6) return current;
         const randomWish = wishes[Math.floor(Math.random() * wishes.length)];
         const newItem = {
           id: Date.now(),
           wish: randomWish,
           top: Math.floor(Math.random() * 80),
-          duration: Math.floor(Math.random() * 5) + 10
+          duration: Math.floor(Math.random() * 20) + 40 
         };
         return [...current, newItem];
       });
-    }, 2000);
+    }, 4000);
     return () => clearInterval(interval);
   }, [wishes]);
 
   useEffect(() => {
     const cleanup = setInterval(() => {
-        setFlyingItems(current => current.filter(item => Date.now() - item.id < 16000));
+        setFlyingItems(current => current.filter(item => Date.now() - item.id < 60000));
     }, 5000);
     return () => clearInterval(cleanup);
   }, []);
