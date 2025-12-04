@@ -253,7 +253,6 @@ const MyLibraryPage: React.FC = () => {
                                         <div className="lib-item-info">
                                             <h4>{comic.title}</h4>
                                             
-                                            {/* HIỂN THỊ TÁC GIẢ BÊN WISHLIST NẾU MUỐN */}
                                             {comic.author && (
                                                 <p className="lib-author-text" style={{ fontSize: '0.85rem', color: '#888', marginBottom: '4px' }}>
                                                     {comic.author}
