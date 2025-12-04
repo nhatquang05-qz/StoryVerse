@@ -1,207 +1,277 @@
+/* --- 1. FULL SCREEN SETUP (Che Header/Footer/Chatbot) --- */
 .xmas-container {
-  background: linear-gradient(180deg, #001f3f 0%, #003366 100%);
-  min-height: 100vh;
-  color: #fff;
-  padding: 40px 20px;
-  position: relative;
-  overflow: hidden;
+  position: fixed; /* Quan trọng: Đè lên toàn bộ app */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100000; /* Z-index cực cao để che Chatbot và Header */
+  background: linear-gradient(180deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  overflow: hidden; /* Không cho cuộn trang */
   font-family: 'Arial', sans-serif;
-}
-
-.xmas-banner {
-  text-align: center;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 2;
-}
-
-.xmas-banner img {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-  border: 2px solid #ffd700;
-  object-fit: cover;
-}
-
-.game-layout {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 40px;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-}
-
-/* --- VÒNG QUAY --- */
-.wheel-wrapper {
-  flex: 1;
-  min-width: 320px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 20px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.wheel-container {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 20px auto;
-}
-
-.wheel {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 8px solid #ffd700;
-  box-shadow: 0 0 15px #ffd700;
-  transition: transform 4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  background: conic-gradient(
-    #ff4d4d 0deg 60deg,
-    #ffffff 60deg 120deg,
-    #2ecc71 120deg 180deg,
-    #ffffff 180deg 240deg,
-    #ff4d4d 240deg 300deg,
-    #ffffff 300deg 360deg
-  );
-  position: relative;
-  overflow: hidden;
-}
-
-/* CHỮ TRÊN VÒNG QUAY */
-.wheel-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50%;
-  height: 0;
-  transform-origin: 0 0; /* Xoay từ tâm */
-  padding-left: 40px; /* Đẩy chữ ra xa tâm */
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-}
-
-.wheel-text span {
-  display: block;
-  transform: rotate(90deg); /* Xoay chữ nằm ngang */
-  font-weight: bold;
-  font-size: 14px;
-  color: #003366;
-  white-space: nowrap;
-}
-
-/* Chữ trắng cho ô màu đỏ/xanh */
-.wheel-text:nth-child(1) span, 
-.wheel-text:nth-child(3) span, 
-.wheel-text:nth-child(5) span {
-  color: #fff;
-}
-
-.pointer {
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 40px solid #ff0000;
-  z-index: 10;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
-}
-
-.spin-btn {
-  background: linear-gradient(45deg, #ff0000, #990000);
-  border: none;
-  padding: 12px 40px;
-  font-size: 18px;
-  font-weight: bold;
-  color: white;
-  border-radius: 30px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
-  transition: 0.3s;
-}
-
-.spin-btn:disabled {
-  background: #555;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.spin-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-}
-
-/* --- CÂY THÔNG --- */
-.tree-wrapper {
-  flex: 1;
-  min-width: 320px;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 20px;
-  padding: 20px;
-  border: 1px solid #2ecc71;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding-top: 0;
 }
 
-.wish-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.wish-input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
-  font-size: 14px;
-}
-
-.wish-btn {
-  background: #2ecc71;
-  color: white;
-  border: none;
+/* Nút Quay Về Trang Chủ */
+.back-home-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 200; /* Cao hơn các lớp tuyết */
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
   font-weight: bold;
-  transition: 0.2s;
-}
-
-.wish-btn:hover {
-  background: #27ae60;
-}
-
-.wishes-list {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 10px;
-  height: 250px;
-  overflow-y: auto;
-}
-
-.wish-item {
-  background: rgba(255, 255, 255, 0.95);
-  color: #333;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  transition: 0.3s;
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  animation: fadeIn 0.5s ease;
+  align-items: center;
+  gap: 8px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.back-home-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateX(-5px);
+}
+
+
+/* --- 3. FLYING WISHES (DANMU) --- */
+.flying-wishes-zone {
+  position: absolute;
+  top: 50px; /* Tránh đè nút back */
+  left: 0;
+  width: 100%;
+  height: 25%;
+  pointer-events: none;
+  z-index: 15;
+  overflow: hidden;
+}
+/* ... Giữ nguyên style .flying-wish cũ ... */
+.flying-wish {
+  position: absolute;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 0 0 5px #000;
+  animation: flyAcross linear infinite;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flying-wish img {
+  width: 24px; height: 24px; border-radius: 50%;
+}
+
+@keyframes flyAcross {
+  from { transform: translateX(100vw); }
+  to { transform: translateX(-100%); }
+}
+
+/* --- 4. CÂY THÔNG --- */
+.tree-display-area {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 65vh; /* Giảm chiều cao cây một chút để nhường chỗ */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 10;
+  margin-top: 50px; /* Đẩy cây xuống dưới 1 chút */
+}
+
+/* ... Giữ nguyên .main-tree-img, .tree-decor ... */
+.main-tree-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+}
+
+.tree-decor {
+  position: absolute;
+  width: 40px; 
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  animation: glowPulse 2s infinite alternate;
+  z-index: 20;
+}
+.tree-decor:hover { transform: scale(1.5) !important; z-index: 30; }
+
+.decor-tooltip {
+  position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95); color: #003366; padding: 8px 12px;
+  border-radius: 8px; width: 200px; text-align: center; font-size: 13px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3); opacity: 0; visibility: hidden;
+  transition: 0.2s; pointer-events: none;
+}
+.tree-decor:hover .decor-tooltip { opacity: 1; visibility: visible; }
+.decor-user { font-weight: bold; display: block; margin-bottom: 4px; color: #d35400; }
+@keyframes glowPulse {
+  0% { filter: drop-shadow(0 0 2px gold); transform: scale(1); }
+  100% { filter: drop-shadow(0 0 10px yellow); transform: scale(1.1); }
+}
+
+/* --- 5. Ô NHẬP LỜI CHÚC (Đã sửa khoảng cách) --- */
+.wish-input-bar {
+  /* Xóa margin âm cũ */
+  margin-top: 20px; /* TẠO KHOẢNG CÁCH VỚI CÂY */
+  z-index: 50;
+  display: flex;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* ... Giữ nguyên style input và button ... */
+.wish-input-field {
+  padding: 12px 20px; border-radius: 25px; border: none; width: 300px; outline: none;
+}
+.wish-submit-btn {
+  background: #ff4d4d; color: white; border: none; padding: 12px 30px;
+  border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s;
+}
+.wish-submit-btn:hover { background: #e60000; box-shadow: 0 0 15px #ff4d4d; }
+
+/* ... Giữ nguyên style Vòng quay, Modal ... */
+.lucky-wheel-trigger {
+  position: fixed; bottom: 30px; right: 30px; width: 80px; height: 80px;
+  background: radial-gradient(circle, #ffd700, #ff8c00);
+  border-radius: 50%; border: 4px solid #fff; cursor: pointer; z-index: 100;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); animation: spinSlow 10s linear infinite;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; color: #fff; text-align: center; font-size: 12px;
+}
+.lucky-wheel-trigger:hover { transform: scale(1.1); }
+@keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.wheel-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+  z-index: 100001; /* Phải cao hơn xmas-container */
+  display: flex; justify-content: center; align-items: center; animation: fadeIn 0.3s;
+}
+/* ... Các class còn lại của modal giữ nguyên ... */
+.wheel-modal-content {
+  position: relative; background: transparent; padding: 20px;
+  border-radius: 20px; text-align: center; animation: zoomIn 0.4s;
+}
+.close-modal-btn {
+  position: absolute; top: -20px; right: -20px; background: white; color: #333;
+  width: 40px; height: 40px; border-radius: 50%; border: none; font-weight: bold;
+  font-size: 20px; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.wheel-board-wrapper { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 50%; border: 5px solid rgba(255,215,0,0.5); }
+.wheel-container { width: 350px; height: 350px; position: relative; }
+.wheel {
+  width: 100%; height: 100%; border-radius: 50%; border: 8px solid #ffd700;
+  transition: transform 4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: conic-gradient(#ff4d4d 0deg 60deg, #ffffff 60deg 120deg, #2ecc71 120deg 180deg, #ffffff 180deg 240deg, #ff4d4d 240deg 300deg, #ffffff 300deg 360deg);
+  position: relative; overflow: hidden;
+}
+.wheel-text {
+  position: absolute; top: 50%; left: 50%; width: 50%; transform-origin: 0 0; padding-left: 45px; display: flex; align-items: center;
+}
+.wheel-text span { display: block; transform: rotate(90deg); font-weight: bold; color: #003366; }
+.wheel-text:nth-child(odd) span { color: white; }
+.pointer {
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent;
+  border-top: 40px solid #ffd700; z-index: 10; filter: drop-shadow(0 2px 4px #000);
+}
+.spin-action-btn {
+  margin-top: 30px; background: linear-gradient(45deg, #ff9966, #ff5e62);
+  border: none; padding: 15px 50px; font-size: 20px; font-weight: bold; color: white;
+  border-radius: 50px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
+}
+.spin-action-btn:disabled { background: #777; cursor: not-allowed; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { transform: scale(0.5); } to { transform: scale(1); } }
+
+/* --- VÙNG CHỨA TUYẾT (Phủ kín màn hình) --- */
+.snowfall-zone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Để chuột bấm xuyên qua được */
+  z-index: 999999; /* Thấp hơn cây thông và các nút bấm */
+  overflow: hidden;
+}
+
+/* --- TỪNG BÔNG TUYẾT --- */
+.snowflake {
+  position: absolute;
+  top: -50px; /* Xuất phát từ trên nóc màn hình */
+  color: #fff; /* Màu cho ký tự fallback ❄ */
+  opacity: 0.9;
+  
+  /* Animation kết hợp: Rơi xuống (fall) và Xoay (rotate) */
+  animation-name: fall, rotate;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+/* Ảnh bông tuyết nằm trong thẻ div */
+.snowflake img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.8)); /* Làm bông tuyết sáng lên */
+}
+
+.snowflake span {
+  text-shadow: 0 0 5px #fff;
+}
+
+/* --- ĐỊNH NGHĨA CHUYỂN ĐỘNG (KEYFRAMES) - BẮT BUỘC PHẢI CÓ --- */
+
+/* 1. Hiệu ứng rơi từ trên xuống (có lắc lư qua lại) */
+@keyframes fall {
+  0% {
+    transform: translateY(-50px) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(25vh) translateX(20px); /* Lắc sang phải */
+  }
+  50% {
+    transform: translateY(50vh) translateX(-20px); /* Lắc sang trái */
+  }
+  75% {
+    transform: translateY(75vh) translateX(20px); /* Lắc sang phải */
+  }
+  100% {
+    transform: translateY(110vh) translateX(0); /* Rơi quá màn hình */
+    opacity: 0.5;
+  }
+}
+
+/* 2. Hiệu ứng xoay tròn */
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
