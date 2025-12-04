@@ -375,3 +375,24 @@ CREATE TABLE `flash_sale_items` (
 
 ALTER TABLE users ADD COLUMN levelSystem VARCHAR(50) DEFAULT 'default';
 ALTER TABLE users ADD COLUMN pendingAvatarUrl VARCHAR(1024) DEFAULT NULL;
+
+-- 1. Bảng lưu lịch sử quay thưởng (để tra soát và thống kê)
+CREATE TABLE `event_christmas_history` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `rewardType` enum('coin','voucher','physical_comic','luck') NOT NULL, -- Loại phần thưởng
+  `rewardValue` varchar(255) DEFAULT NULL, -- Giá trị (VD: 50, 'GIAM20', 'Conan Tap 1')
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_event` (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. Bảng lưu lời chúc Cây thông
+CREATE TABLE `event_christmas_wishes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `content` varchar(200) NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

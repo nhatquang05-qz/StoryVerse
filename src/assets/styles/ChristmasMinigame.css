@@ -1,0 +1,207 @@
+.xmas-container {
+  background: linear-gradient(180deg, #001f3f 0%, #003366 100%);
+  min-height: 100vh;
+  color: #fff;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+.xmas-banner {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.xmas-banner img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  border: 2px solid #ffd700;
+  object-fit: cover;
+}
+
+.game-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* --- VÒNG QUAY --- */
+.wheel-wrapper {
+  flex: 1;
+  min-width: 320px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wheel-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 20px auto;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 8px solid #ffd700;
+  box-shadow: 0 0 15px #ffd700;
+  transition: transform 4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: conic-gradient(
+    #ff4d4d 0deg 60deg,
+    #ffffff 60deg 120deg,
+    #2ecc71 120deg 180deg,
+    #ffffff 180deg 240deg,
+    #ff4d4d 240deg 300deg,
+    #ffffff 300deg 360deg
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+/* CHỮ TRÊN VÒNG QUAY */
+.wheel-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 0;
+  transform-origin: 0 0; /* Xoay từ tâm */
+  padding-left: 40px; /* Đẩy chữ ra xa tâm */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.wheel-text span {
+  display: block;
+  transform: rotate(90deg); /* Xoay chữ nằm ngang */
+  font-weight: bold;
+  font-size: 14px;
+  color: #003366;
+  white-space: nowrap;
+}
+
+/* Chữ trắng cho ô màu đỏ/xanh */
+.wheel-text:nth-child(1) span, 
+.wheel-text:nth-child(3) span, 
+.wheel-text:nth-child(5) span {
+  color: #fff;
+}
+
+.pointer {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid #ff0000;
+  z-index: 10;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+}
+
+.spin-btn {
+  background: linear-gradient(45deg, #ff0000, #990000);
+  border: none;
+  padding: 12px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+  transition: 0.3s;
+}
+
+.spin-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.spin-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+/* --- CÂY THÔNG --- */
+.tree-wrapper {
+  flex: 1;
+  min-width: 320px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #2ecc71;
+  display: flex;
+  flex-direction: column;
+}
+
+.wish-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.wish-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 14px;
+}
+
+.wish-btn {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.wish-btn:hover {
+  background: #27ae60;
+}
+
+.wishes-list {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  height: 250px;
+  overflow-y: auto;
+}
+
+.wish-item {
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -22,18 +22,14 @@
   --font-belisa: 'Belisa', var(--font-sans);
   --font-captain-comic: 'CaptainComic', var(--font-sans);
   --font-rangsun: 'RangSun', var(--font-sans);
-
   --font-family-base: var(--font-sans);
-
   font-family: var(--font-family-base);
   line-height: 1.5;
   font-weight: 400;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
   --border-radius: 8px;
   --header-height: 70px;
 }

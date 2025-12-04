@@ -483,7 +483,6 @@ const Header: React.FC = () => {
 
               <div className="dropdown">
                 <button className="action-icon user-icon" aria-label="Tài khoản">
-                  {/* [FIX] 3. Áp dụng getAvatarSrc vào thẻ img */}
                   <img src={getAvatarSrc(currentUser.avatarUrl)} alt="Avatar" className="user-avatar-icon" />
                 </button>
                 <div className="dropdown-content user-dropdown">
