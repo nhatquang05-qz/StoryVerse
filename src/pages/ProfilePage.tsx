@@ -10,6 +10,7 @@ import TransactionHistory from '../components/common/TransactionHistory';
 import AddressManagementPage from './AddressManagementPage';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp'; 
 import { getTextColorForBackground } from '../utils/authUtils';
+import MyLibraryPage from './MyLibraryPage';
 
 interface LevelSelectorProps {
     currentUserLevel: number;
@@ -31,7 +32,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
-    if (tabParam && ['info', 'history', 'addresses'].includes(tabParam)) {
+    if (tabParam && ['info', 'history', 'addresses', 'my-library'].includes(tabParam)) {
         setActiveTab(tabParam);
     } else {
         setActiveTab('info');
@@ -281,8 +282,8 @@ const ProfilePage: React.FC = () => {
         )}
 
         {activeTab === 'addresses' && <AddressManagementPage />}
-
         {activeTab === 'history' && <TransactionHistory />}
+        {activeTab === 'my-library' && <MyLibraryPage />}
 
       </div>
     </div>

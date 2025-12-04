@@ -45,8 +45,8 @@ const ProfileSideBar: React.FC<SidebarProps> = ({ activeTab, onLogout }) => {
                 </button>
 
                 <button 
-                    className={`sidebar-item ${activeTab === 'library' ? 'active' : ''}`}
-                    onClick={() => handleProfileTabClick('library')}
+                    className={`sidebar-item ${activeTab === 'my-library' ? 'active' : ''}`}
+                    onClick={() => handleProfileTabClick('my-library')}
                 >
                     <FiBook className="sidebar-icon" />
                     <span>Thư viện số</span>
