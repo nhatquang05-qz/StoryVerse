@@ -1,8 +1,8 @@
 .community-container {
-    max-width: 680px;
-    margin: 80px auto 40px;
-    padding: 0 15px;
-    min-height: 80vh;
-    font-family: var(--font-sans);
-    color: var(--clr-text);
+	max-width: 680px;
+	margin: 80px auto 40px;
+	padding: 0 15px;
+	min-height: 80vh;
+	font-family: var(--font-sans);
+	color: var(--clr-text);
 }

@@ -15,182 +15,195 @@ const ITEMS_PER_SECTION_PAGE = 14;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 interface HomeSectionProps {
-    title: string;
-    comics: ComicSummary[];
-    isLoading: boolean;
-    addSpacing?: boolean;
-    showTabs?: boolean; 
+	title: string;
+	comics: ComicSummary[];
+	isLoading: boolean;
+	addSpacing?: boolean;
+	showTabs?: boolean;
 }
 
-const HomeSection: React.FC<HomeSectionProps> = ({ title, comics, isLoading, addSpacing = false, showTabs = false }) => {
-    const [pageIndex, setPageIndex] = useState(0); 
-    const [activeTab, setActiveTab] = useState<'physical' | 'digital'>('digital');
+const HomeSection: React.FC<HomeSectionProps> = ({
+	title,
+	comics,
+	isLoading,
+	addSpacing = false,
+	showTabs = false,
+}) => {
+	const [pageIndex, setPageIndex] = useState(0);
+	const [activeTab, setActiveTab] = useState<'physical' | 'digital'>('digital');
 
-    const filteredComics = useMemo(() => {
-        if (!showTabs) return comics;
-        
-        if (activeTab === 'physical') {
-            return comics.filter(c => (c.isDigital as any) === 0);
-        }
-        return comics.filter(c => (c.isDigital as any) === 1);
-        
-    }, [comics, activeTab, showTabs]);
+	const filteredComics = useMemo(() => {
+		if (!showTabs) return comics;
 
-    const totalItems = filteredComics.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_SECTION_PAGE);
-    
-    useEffect(() => {
-        if (pageIndex >= totalPages) {
-            setPageIndex(Math.max(0, totalPages - 1));
-        }
-    }, [pageIndex, totalPages]);
-    
-    const startIndex = pageIndex * ITEMS_PER_SECTION_PAGE;
-    const endIndex = startIndex + ITEMS_PER_SECTION_PAGE;
-    const currentComics = filteredComics.slice(startIndex, endIndex);
+		if (activeTab === 'physical') {
+			return comics.filter((c) => (c.isDigital as any) === 0);
+		}
+		return comics.filter((c) => (c.isDigital as any) === 1);
+	}, [comics, activeTab, showTabs]);
 
-    const handleTabClick = (tab: 'physical' | 'digital') => {
-        setActiveTab(tab);
-        setPageIndex(0); 
-    };
+	const totalItems = filteredComics.length;
+	const totalPages = Math.ceil(totalItems / ITEMS_PER_SECTION_PAGE);
 
-    const handlePageChange = (page: number) => {
-        setPageIndex(page - 1); 
-    };
+	useEffect(() => {
+		if (pageIndex >= totalPages) {
+			setPageIndex(Math.max(0, totalPages - 1));
+		}
+	}, [pageIndex, totalPages]);
 
-    const sectionStyle: React.CSSProperties = addSpacing ? { marginTop: '2rem' } : { marginBottom: '4rem' };
+	const startIndex = pageIndex * ITEMS_PER_SECTION_PAGE;
+	const endIndex = startIndex + ITEMS_PER_SECTION_PAGE;
+	const currentComics = filteredComics.slice(startIndex, endIndex);
 
-    return (
-        <div style={sectionStyle}>
-            <div className="home-section-header">
-                <h2 style={{ marginBottom: 0, fontSize: '2rem', fontWeight: 'bold' }}>{title}</h2>
-                
-                {showTabs && (
-                    <div className="home-section-tabs">
-                        <button
-                            className={`tab-button ${activeTab === 'digital' ? 'active' : ''}`}
-                            onClick={() => handleTabClick('digital')}
-                        >
-                            Truyện Online
-                        </button>
-                        <button
-                            className={`tab-button ${activeTab === 'physical' ? 'active' : ''}`}
-                            onClick={() => handleTabClick('physical')}
-                        >
-                            Truyện In
-                        </button>
+	const handleTabClick = (tab: 'physical' | 'digital') => {
+		setActiveTab(tab);
+		setPageIndex(0);
+	};
 
-                    </div>
-                )}
-                
-                {totalPages > 1 && (
-                    <div className="home-section-pagination">
-                        <Pagination
-                            currentPage={pageIndex + 1} 
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    </div>
-                )}
-            </div>
-            
-            {isLoading ? (
-                 <div className="skeleton-placeholder-chat" style={{ height: '500px', width: '100%', animation: 'pulse 1.5s infinite ease-in-out' }}></div>
-            ) : (
-                <ProductList comics={currentComics as any[]} />
-            )}
-        </div>
-    );
+	const handlePageChange = (page: number) => {
+		setPageIndex(page - 1);
+	};
+
+	const sectionStyle: React.CSSProperties = addSpacing
+		? { marginTop: '2rem' }
+		: { marginBottom: '4rem' };
+
+	return (
+		<div style={sectionStyle}>
+			<div className="home-section-header">
+				<h2 style={{ marginBottom: 0, fontSize: '2rem', fontWeight: 'bold' }}>{title}</h2>
+
+				{showTabs && (
+					<div className="home-section-tabs">
+						<button
+							className={`tab-button ${activeTab === 'digital' ? 'active' : ''}`}
+							onClick={() => handleTabClick('digital')}
+						>
+							Truyện Online
+						</button>
+						<button
+							className={`tab-button ${activeTab === 'physical' ? 'active' : ''}`}
+							onClick={() => handleTabClick('physical')}
+						>
+							Truyện In
+						</button>
+					</div>
+				)}
+
+				{totalPages > 1 && (
+					<div className="home-section-pagination">
+						<Pagination
+							currentPage={pageIndex + 1}
+							totalPages={totalPages}
+							onPageChange={handlePageChange}
+						/>
+					</div>
+				)}
+			</div>
+
+			{isLoading ? (
+				<div
+					className="skeleton-placeholder-chat"
+					style={{
+						height: '500px',
+						width: '100%',
+						animation: 'pulse 1.5s infinite ease-in-out',
+					}}
+				></div>
+			) : (
+				<ProductList comics={currentComics as any[]} />
+			)}
+		</div>
+	);
 };
 
-
 const HomePage: React.FC = () => {
-    const [isLoading, setIsLoading] = useState(true);
-    
-    const [newReleasesComics, setNewReleasesComics] = useState<ComicSummary[]>([]);
-    const [recommendedDigitalComics, setRecommendedDigitalComics] = useState<ComicSummary[]>([]);
-    const [trendingComics, setTrendingComics] = useState<ComicSummary[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchAllComics = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch(`${API_URL}/comics?limit=100`); 
-                if (!response.ok) {
-                    throw new Error('Không thể tải truyện từ backend');
-                }
-                
-                const responseData = await response.json();
-                const allComics: ComicSummary[] = Array.isArray(responseData) 
-                    ? responseData 
-                    : responseData.data || [];
+	const [newReleasesComics, setNewReleasesComics] = useState<ComicSummary[]>([]);
+	const [recommendedDigitalComics, setRecommendedDigitalComics] = useState<ComicSummary[]>([]);
+	const [trendingComics, setTrendingComics] = useState<ComicSummary[]>([]);
 
-                setNewReleasesComics(
-                    [...allComics].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-                );
+	useEffect(() => {
+		const fetchAllComics = async () => {
+			setIsLoading(true);
+			try {
+				const response = await fetch(`${API_URL}/comics?limit=100`);
+				if (!response.ok) {
+					throw new Error('Không thể tải truyện từ backend');
+				}
 
-                setRecommendedDigitalComics(
-                    allComics.filter(c => (c.isDigital as any) === 1).slice(0, 10)
-                );
+				const responseData = await response.json();
+				const allComics: ComicSummary[] = Array.isArray(responseData)
+					? responseData
+					: responseData.data || [];
 
-                setTrendingComics(
-                    [...allComics]
-                        .filter(c => (c.isDigital as any) === 0) 
-                        .sort((a, b) => ((b as any).soldCount ?? 0) - ((a as any).soldCount ?? 0)) 
-                );
+				setNewReleasesComics(
+					[...allComics].sort(
+						(a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+					),
+				);
 
-            } catch (error) {
-                console.error("Lỗi khi tải truyện:", error);
-            } finally {
-                setTimeout(() => setIsLoading(false), 500); 
-            }
-        };
-        
-        fetchAllComics();
-    }, []);
+				setRecommendedDigitalComics(
+					allComics.filter((c) => (c.isDigital as any) === 1).slice(0, 10),
+				);
 
-    if (isLoading) {
-        return <LoadingPage />;
-    }
+				setTrendingComics(
+					[...allComics]
+						.filter((c) => (c.isDigital as any) === 0)
+						.sort((a, b) => ((b as any).soldCount ?? 0) - ((a as any).soldCount ?? 0)),
+				);
+			} catch (error) {
+				console.error('Lỗi khi tải truyện:', error);
+			} finally {
+				setTimeout(() => setIsLoading(false), 500);
+			}
+		};
 
-    return (
-        <React.Fragment>
-            <Hero />
-            <FlashSaleSection />
-            <div style={{ marginTop: '3rem' }}>
-                <HomeSection
-                    title="Mới Phát Hành" 
-                    comics={newReleasesComics}
-                    isLoading={false}
-                    showTabs={true} 
-                />
-            </div>
+		fetchAllComics();
+	}, []);
 
-            <FeaturedTagsSection />
-            <div className="top-and-chat-section">
-                <div className="chat-column">
-                   <ChatLog />
-                   <HomeSection
-                        title="Truyện Đề Xuất"
-                        comics={recommendedDigitalComics}
-                        isLoading={false}
-                        addSpacing={true}
-                    />
-                </div>
+	if (isLoading) {
+		return <LoadingPage />;
+	}
 
-                 <aside className="top-comics-column">
-                       <TopComicsSection />
-                       <TopMembersSection />
-                 </aside>
-            </div>
-            <HomeSection
-                title="Truyện Bán Chạy" 
-                comics={trendingComics}
-                isLoading={false}
-                showTabs={false} 
-            /> 
-        </React.Fragment>
-    );
+	return (
+		<React.Fragment>
+			<Hero />
+			<FlashSaleSection />
+			<div style={{ marginTop: '3rem' }}>
+				<HomeSection
+					title="Mới Phát Hành"
+					comics={newReleasesComics}
+					isLoading={false}
+					showTabs={true}
+				/>
+			</div>
+
+			<FeaturedTagsSection />
+			<div className="top-and-chat-section">
+				<div className="chat-column">
+					<ChatLog />
+					<HomeSection
+						title="Truyện Đề Xuất"
+						comics={recommendedDigitalComics}
+						isLoading={false}
+						addSpacing={true}
+					/>
+				</div>
+
+				<aside className="top-comics-column">
+					<TopComicsSection />
+					<TopMembersSection />
+				</aside>
+			</div>
+			<HomeSection
+				title="Truyện Bán Chạy"
+				comics={trendingComics}
+				isLoading={false}
+				showTabs={false}
+			/>
+		</React.Fragment>
+	);
 };
 
 export default HomePage;

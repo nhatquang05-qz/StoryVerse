@@ -1,124 +1,123 @@
 .review-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--clr-border-light);
-    color: var(--clr-text);
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--clr-border-light);
+	color: var(--clr-text);
 }
 
 .review-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    color: var(--clr-text);
-    font-weight: 600;
+	font-size: 1.8rem;
+	margin-bottom: 1.5rem;
+	color: var(--clr-text);
+	font-weight: 600;
 }
 
 .rating-summary {
-    display: flex;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--clr-border-light);
+	display: flex;
+	align-items: center;
+	margin-bottom: 2rem;
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid var(--clr-border-light);
 }
 .rating-summary p {
-    color: var(--clr-text-secondary);
+	color: var(--clr-text-secondary);
 }
 
 .average-rating {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--clr-primary);
-    margin-right: 1.5rem;
+	font-size: 3rem;
+	font-weight: bold;
+	color: var(--clr-primary);
+	margin-right: 1.5rem;
 }
 
 .star-rating {
-    display: flex;
-    gap: 0.2rem;
-    font-size: 1.5rem;
-    color: var(--clr-coin-color);
+	display: flex;
+	gap: 0.2rem;
+	font-size: 1.5rem;
+	color: var(--clr-coin-color);
 }
 
-.star-rating .star-icon[fill="none"] {
-    stroke: var(--clr-border-light);
+.star-rating .star-icon[fill='none'] {
+	stroke: var(--clr-border-light);
 }
-html[data-theme="dark"] .star-rating .star-icon[fill="none"] {
-    stroke: var(--clr-text-secondary);
+html[data-theme='dark'] .star-rating .star-icon[fill='none'] {
+	stroke: var(--clr-text-secondary);
 }
-
 
 .review-item {
-    border: 1px solid var(--clr-border-light);
-    padding: 1.2rem;
-    border-radius: var(--border-radius);
-    margin-bottom: 1rem;
-    background-color: var(--clr-card-bg);
+	border: 1px solid var(--clr-border-light);
+	padding: 1.2rem;
+	border-radius: var(--border-radius);
+	margin-bottom: 1rem;
+	background-color: var(--clr-card-bg);
 }
 
 .review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
 }
 
 .review-author {
-    font-weight: bold;
-    color: var(--clr-primary-dark);
+	font-weight: bold;
+	color: var(--clr-primary-dark);
 }
 
 .review-date {
-    font-size: 0.9rem;
-    color: var(--clr-text-secondary);
+	font-size: 0.9rem;
+	color: var(--clr-text-secondary);
 }
 
 .review-text {
-    line-height: 1.6;
-    margin-top: 0.5rem;
-    color: var(--clr-text);
+	line-height: 1.6;
+	margin-top: 0.5rem;
+	color: var(--clr-text);
 }
 
 .review-form-container h3 {
-    font-size: 1.5rem;
-    margin-top: 3rem;
-    margin-bottom: 1.5rem;
-    color: var(--clr-text);
+	font-size: 1.5rem;
+	margin-top: 3rem;
+	margin-bottom: 1.5rem;
+	color: var(--clr-text);
 }
 
 .review-form-container textarea {
-    width: 100%;
-    padding: 1rem;
-    border: 1px solid var(--clr-border-light);
-    border-radius: var(--border-radius);
-    resize: vertical;
-    min-height: 100px;
-    margin-bottom: 1rem;
-    box-sizing: border-box;
-    background-color: var(--clr-card-bg);
-    color: var(--clr-text);
+	width: 100%;
+	padding: 1rem;
+	border: 1px solid var(--clr-border-light);
+	border-radius: var(--border-radius);
+	resize: vertical;
+	min-height: 100px;
+	margin-bottom: 1rem;
+	box-sizing: border-box;
+	background-color: var(--clr-card-bg);
+	color: var(--clr-text);
 }
 
 .submit-review-btn {
-    background-color: var(--clr-primary);
-    color: var(--clr-button-text);
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: var(--border-radius);
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+	background-color: var(--clr-primary);
+	color: var(--clr-button-text);
+	padding: 0.8rem 1.5rem;
+	border: none;
+	border-radius: var(--border-radius);
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
 }
 .submit-review-btn:hover {
-    background-color: var(--clr-primary-dark);
+	background-color: var(--clr-primary-dark);
 }
 
-.comment-box{
-    background-color: var(--clr-card-bg) !important;
-    color: var(--clr-text) !important;
-    border-color: var(--clr-border-light) !important;
+.comment-box {
+	background-color: var(--clr-card-bg) !important;
+	color: var(--clr-text) !important;
+	border-color: var(--clr-border-light) !important;
 }
 .review-form-container p {
-     color: var(--clr-text);
+	color: var(--clr-text);
 }
 .review-form-container p a {
-     color: var(--clr-primary);
-     font-weight: bold;
+	color: var(--clr-primary);
+	font-weight: bold;
 }

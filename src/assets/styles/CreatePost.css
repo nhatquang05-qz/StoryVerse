@@ -1,162 +1,171 @@
 .create-post-card {
-    background-color: var(--clr-card-bg);
-    border: 1px solid var(--clr-border-light); 
-    border-radius: var(--border-radius);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
-    padding: 12px 16px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
+	background-color: var(--clr-card-bg);
+	border: 1px solid var(--clr-border-light);
+	border-radius: var(--border-radius);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	display: flex;
+	flex-direction: column;
 }
 
 .create-post-top {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--clr-border-light);
-    padding-bottom: 12px;
-    margin-bottom: 12px;
+	display: flex;
+	align-items: center;
+	border-bottom: 1px solid var(--clr-border-light);
+	padding-bottom: 12px;
+	margin-bottom: 12px;
 }
 
 .current-user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    object-fit: cover;
-    border: 1px solid var(--clr-border-light);
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	margin-right: 10px;
+	object-fit: cover;
+	border: 1px solid var(--clr-border-light);
 }
 
 .post-input-trigger {
-    background-color: var(--clr-footer-bg);
-    border-radius: 20px;
-    padding: 10px 15px;
-    flex-grow: 1;
-    color: var(--clr-text-secondary);
-    cursor: text;
-    border: 1px solid var(--clr-border-light);
-    font-size: 1rem;
-    outline: none;
-    transition: background-color 0.2s, border-color 0.2s;
+	background-color: var(--clr-footer-bg);
+	border-radius: 20px;
+	padding: 10px 15px;
+	flex-grow: 1;
+	color: var(--clr-text-secondary);
+	cursor: text;
+	border: 1px solid var(--clr-border-light);
+	font-size: 1rem;
+	outline: none;
+	transition:
+		background-color 0.2s,
+		border-color 0.2s;
 }
 
 .post-input-trigger:hover {
-    background-color: var(--clr-border-light);
+	background-color: var(--clr-border-light);
 }
 
 .create-post-actions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-    align-items: center;
+	display: flex;
+	justify-content: flex-start;
+	gap: 10px;
+	align-items: center;
 }
 
 .action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    color: var(--clr-text-secondary);
-    font-weight: 600;
-    transition: background-color 0.2s;
-    text-transform: none !important;
-    font-size: 0.95rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px 16px;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+	color: var(--clr-text-secondary);
+	font-weight: 600;
+	transition: background-color 0.2s;
+	text-transform: none !important;
+	font-size: 0.95rem;
 }
 
 .action-btn:hover {
-    background-color: var(--clr-footer-bg);
+	background-color: var(--clr-footer-bg);
 }
 
 .action-btn.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
-.icon { margin-right: 8px; font-size: 1.2rem; }
-.photo-icon { color: #45bd62; }
-.sticker-icon { color: #f7b928; }
+.icon {
+	margin-right: 8px;
+	font-size: 1.2rem;
+}
+.photo-icon {
+	color: #45bd62;
+}
+.sticker-icon {
+	color: #f7b928;
+}
 
 .btn-submit-post {
-    width: auto;
-    min-width: 100px;
-    margin-left: auto; 
-    margin-top: 0;     
-    padding: 6px 16px;
-    background-color: var(--clr-primary);
-    color: var(--clr-button-text);
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    text-transform: none;
-    display: block;
+	width: auto;
+	min-width: 100px;
+	margin-left: auto;
+	margin-top: 0;
+	padding: 6px 16px;
+	background-color: var(--clr-primary);
+	color: var(--clr-button-text);
+	border: none;
+	border-radius: 6px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	text-transform: none;
+	display: block;
 }
 
 .btn-submit-post:hover {
-    background-color: var(--clr-primary-dark);
+	background-color: var(--clr-primary-dark);
 }
 
 .btn-submit-post:disabled {
-    background-color: var(--clr-text-secondary);
-    opacity: 0.7;
-    cursor: not-allowed;
+	background-color: var(--clr-text-secondary);
+	opacity: 0.7;
+	cursor: not-allowed;
 }
 
 .image-upload-preview-container {
-    position: relative;
-    padding: 10px 0;
+	position: relative;
+	padding: 10px 0;
 }
 
 .preview-img-upload {
-    max-width: 100%;
-    max-height: 300px;
-    border-radius: 8px;
-    border: 1px solid var(--clr-border-light);
+	max-width: 100%;
+	max-height: 300px;
+	border-radius: 8px;
+	border: 1px solid var(--clr-border-light);
 }
 
 .btn-remove-img {
-    position: absolute;
-    top: 15px;
-    right: 5px;
-    background: rgba(0,0,0,0.6);
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-    padding: 6px;
+	position: absolute;
+	top: 15px;
+	right: 5px;
+	background: rgba(0, 0, 0, 0.6);
+	border: none;
+	border-radius: 50%;
+	width: 30px;
+	height: 30px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s;
+	padding: 6px;
 }
 
 .btn-remove-img:hover {
-    background-color: rgba(255, 0, 0, 0.8);
+	background-color: rgba(255, 0, 0, 0.8);
 }
 
 .btn-remove-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-    filter: brightness(0) invert(1);
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+	filter: brightness(0) invert(1);
 }
 
 @media (max-width: 500px) {
-    .create-post-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .action-btn {
-        width: 100%;
-        justify-content: flex-start;
-    }
-    .btn-submit-post {
-        width: 100%;
-        margin-top: 10px;
-        margin-left: 0;
-    }
+	.create-post-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.action-btn {
+		width: 100%;
+		justify-content: flex-start;
+	}
+	.btn-submit-post {
+		width: 100%;
+		margin-top: 10px;
+		margin-left: 0;
+	}
 }

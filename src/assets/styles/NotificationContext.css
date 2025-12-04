@@ -1,53 +1,56 @@
 .toast-notification {
-    visibility: hidden;
-    min-width: 250px;
-    margin-left: -125px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: var(--border-radius);
-    padding: 16px;
-    position: fixed;
-    z-index: 99999;
-    left: 50%;
-    bottom: 30px;
-    font-size: 17px;
-    opacity: 0;
-    transition: opacity 0.5s, bottom 0.5s, background-color 0.2s;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    border: 1px solid transparent;
+	visibility: hidden;
+	min-width: 250px;
+	margin-left: -125px;
+	background-color: #333;
+	color: #fff;
+	text-align: center;
+	border-radius: var(--border-radius);
+	padding: 16px;
+	position: fixed;
+	z-index: 99999;
+	left: 50%;
+	bottom: 30px;
+	font-size: 17px;
+	opacity: 0;
+	transition:
+		opacity 0.5s,
+		bottom 0.5s,
+		background-color 0.2s;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	border: 1px solid transparent;
 }
 
 .toast-notification.show {
-    visibility: visible;
-    opacity: 1;
-    bottom: 50px;
+	visibility: visible;
+	opacity: 1;
+	bottom: 50px;
 }
 
 .toast-notification.success {
-    background-color: var(--clr-success-bg);
-    color: var(--clr-success-text);
-    border-color: var(--clr-success-text);
+	background-color: var(--clr-success-bg);
+	color: var(--clr-success-text);
+	border-color: var(--clr-success-text);
 }
 
 .toast-notification.error {
-    background-color: var(--clr-error-bg);
-    color: var(--clr-error-text);
-    border-color: var(--clr-error-text);
+	background-color: var(--clr-error-bg);
+	color: var(--clr-error-text);
+	border-color: var(--clr-error-text);
 }
 
 .toast-notification.info {
-    background-color: var(--clr-info-bg);
-    color: var(--clr-info-text);
-    border-color: var(--clr-info-text);
+	background-color: var(--clr-info-bg);
+	color: var(--clr-info-text);
+	border-color: var(--clr-info-text);
 }
 
 .toast-notification.warning {
-    background-color: var(--clr-warning-bg);
-    color: var(--clr-warning-text);
-    border-color: var(--clr-warning-text);
+	background-color: var(--clr-warning-bg);
+	color: var(--clr-warning-text);
+	border-color: var(--clr-warning-text);
 }
 
 html[data-theme='light'] .toast-notification.warning {
-     color: #333;
+	color: #333;
 }

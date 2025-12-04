@@ -1,125 +1,245 @@
-import type { User} from '../types/userTypes';
+import type { User } from '../types/userTypes';
 
 export interface LevelSystem {
-    key: string;
-    name: string;
-    description: string;
-    levels: string[];
-    minLevels: number[];
+	key: string;
+	name: string;
+	description: string;
+	levels: string[];
+	minLevels: number[];
 }
 
 export const LEVEL_SYSTEMS: LevelSystem[] = [
-    { key: 'Bình Thường', name: 'Bình Thường', description: 'Hệ thống cấp bậc cơ bản từ Cấp 0 đến Cấp 15+.', levels: ['Cấp 0', 'Cấp 1', 'Cấp 2', 'Cấp 3', 'Cấp 4', 'Cấp 5', 'Cấp 6', 'Cấp 7', 'Cấp 8', 'Cấp 9', 'Cấp 10', 'Cấp 11', 'Cấp 12', 'Cấp 13', 'Cấp 14', 'Cấp 15+'], minLevels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] },
-    { key: 'Tu Tiên', name: 'Tu Tiên', description: 'Thế giới tu luyện linh khí, truy cầu trường sinh bất tử.', levels: ['Phàm nhân', 'Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Hợp Thể', 'Đại Thừa', 'Phi Thăng', 'Tiên Nhân'], minLevels: [0, 1, 2, 4, 6, 7, 8, 10, 12, 15], },
-    { key: 'Game', name: 'Game', description: 'Thế giới trò chơi, nhân vật thăng cấp, săn boss, vượt nhiệm vụ.', levels: ['Vô hạng', 'Đồng', 'Bạc', 'Vàng', 'Bạch Kim', 'Kim Cương', 'Huyền Thoại', 'Cao thủ', 'Thách đấu'], minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15], },
-    { key: 'Ma Vương', name: 'Ma Vương', description: 'Thế giới hắc ám, ma giới, chiến đấu với anh hùng và thần linh.', levels: ['Ma thường', 'Ma Nhân', 'Ma Sĩ', 'Ma Tướng', 'Ma Tôn', 'Ma Đế', 'Ma Thần', 'Ma Vương', 'Hắc Ma Vạn Tôn'], minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15], },
-    { key: 'Pháp Sư', name: 'Pháp Sư', description: 'Thế giới phép thuật, học viện, chiến đấu bằng ma pháp và trí tuệ.', levels: ['Học đồ', 'Pháp sư sơ cấp', 'Pháp sư trung cấp', 'Pháp sư cao cấp', 'Đại Pháp Sư', 'Pháp Thánh', 'Pháp Thần', 'Ma đạo sư'], minLevels: [0, 1, 3, 6, 9, 11, 13, 15], },
-    { key: 'Tinh Không', name: 'Tinh Không', description: 'Thế giới vũ trụ, du hành giữa các hành tinh và hệ sao.', levels: ['Binh lính', 'Chiến Sĩ', 'Vệ Tinh', 'Tinh Vương', 'Tinh Hoàng', 'Tinh Đế', 'Tinh Tôn', 'Vũ Trụ Chi Chủ'], minLevels: [0, 1, 3, 6, 9, 11, 13, 15], }
+	{
+		key: 'Bình Thường',
+		name: 'Bình Thường',
+		description: 'Hệ thống cấp bậc cơ bản từ Cấp 0 đến Cấp 15+.',
+		levels: [
+			'Cấp 0',
+			'Cấp 1',
+			'Cấp 2',
+			'Cấp 3',
+			'Cấp 4',
+			'Cấp 5',
+			'Cấp 6',
+			'Cấp 7',
+			'Cấp 8',
+			'Cấp 9',
+			'Cấp 10',
+			'Cấp 11',
+			'Cấp 12',
+			'Cấp 13',
+			'Cấp 14',
+			'Cấp 15+',
+		],
+		minLevels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+	},
+	{
+		key: 'Tu Tiên',
+		name: 'Tu Tiên',
+		description: 'Thế giới tu luyện linh khí, truy cầu trường sinh bất tử.',
+		levels: [
+			'Phàm nhân',
+			'Luyện Khí',
+			'Trúc Cơ',
+			'Kim Đan',
+			'Nguyên Anh',
+			'Hóa Thần',
+			'Hợp Thể',
+			'Đại Thừa',
+			'Phi Thăng',
+			'Tiên Nhân',
+		],
+		minLevels: [0, 1, 2, 4, 6, 7, 8, 10, 12, 15],
+	},
+	{
+		key: 'Game',
+		name: 'Game',
+		description: 'Thế giới trò chơi, nhân vật thăng cấp, săn boss, vượt nhiệm vụ.',
+		levels: [
+			'Vô hạng',
+			'Đồng',
+			'Bạc',
+			'Vàng',
+			'Bạch Kim',
+			'Kim Cương',
+			'Huyền Thoại',
+			'Cao thủ',
+			'Thách đấu',
+		],
+		minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15],
+	},
+	{
+		key: 'Ma Vương',
+		name: 'Ma Vương',
+		description: 'Thế giới hắc ám, ma giới, chiến đấu với anh hùng và thần linh.',
+		levels: [
+			'Ma thường',
+			'Ma Nhân',
+			'Ma Sĩ',
+			'Ma Tướng',
+			'Ma Tôn',
+			'Ma Đế',
+			'Ma Thần',
+			'Ma Vương',
+			'Hắc Ma Vạn Tôn',
+		],
+		minLevels: [0, 1, 3, 5, 7, 9, 11, 13, 15],
+	},
+	{
+		key: 'Pháp Sư',
+		name: 'Pháp Sư',
+		description: 'Thế giới phép thuật, học viện, chiến đấu bằng ma pháp và trí tuệ.',
+		levels: [
+			'Học đồ',
+			'Pháp sư sơ cấp',
+			'Pháp sư trung cấp',
+			'Pháp sư cao cấp',
+			'Đại Pháp Sư',
+			'Pháp Thánh',
+			'Pháp Thần',
+			'Ma đạo sư',
+		],
+		minLevels: [0, 1, 3, 6, 9, 11, 13, 15],
+	},
+	{
+		key: 'Tinh Không',
+		name: 'Tinh Không',
+		description: 'Thế giới vũ trụ, du hành giữa các hành tinh và hệ sao.',
+		levels: [
+			'Binh lính',
+			'Chiến Sĩ',
+			'Vệ Tinh',
+			'Tinh Vương',
+			'Tinh Hoàng',
+			'Tinh Đế',
+			'Tinh Tôn',
+			'Vũ Trụ Chi Chủ',
+		],
+		minLevels: [0, 1, 3, 6, 9, 11, 13, 15],
+	},
 ];
 
 export const LEVEL_COLORS: { [key: number]: string } = {
-    1: '#95a5a6', 2: '#7f8c8d', 3: '#535c68',
-    4: '#2ecc71', 5: '#27ae60', 6: '#16a085', 7: '#006266',
-    8: '#3498db', 9: '#2980b9', 10: '#0984e3', 11: '#0c2461',
-    12: '#9b59b6', 13: '#8e44ad', 14: '#e056fd', 15: '#be2edd',
-    16: '#e67e22', 17: '#d35400', 18: '#e74c3c', 19: '#c0392b',
-   20: '#f1c40f' 
+	1: '#95a5a6',
+	2: '#7f8c8d',
+	3: '#535c68',
+	4: '#2ecc71',
+	5: '#27ae60',
+	6: '#16a085',
+	7: '#006266',
+	8: '#3498db',
+	9: '#2980b9',
+	10: '#0984e3',
+	11: '#0c2461',
+	12: '#9b59b6',
+	13: '#8e44ad',
+	14: '#e056fd',
+	15: '#be2edd',
+	16: '#e67e22',
+	17: '#d35400',
+	18: '#e74c3c',
+	19: '#c0392b',
+	20: '#f1c40f',
 };
 
 export const DEFAULT_LEVEL_COLOR = '#95a5a6';
 
 export const getLevelColor = (level: number): string => {
-    const applicableLevels = Object.keys(LEVEL_COLORS).map(Number).filter(l => l <= level).sort((a, b) => b - a);
-    const highestApplicableLevel = applicableLevels[0];
-    return LEVEL_COLORS[highestApplicableLevel] || DEFAULT_LEVEL_COLOR;
+	const applicableLevels = Object.keys(LEVEL_COLORS)
+		.map(Number)
+		.filter((l) => l <= level)
+		.sort((a, b) => b - a);
+	const highestApplicableLevel = applicableLevels[0];
+	return LEVEL_COLORS[highestApplicableLevel] || DEFAULT_LEVEL_COLOR;
 };
 
 export const getTextColorForBackground = (bgColor: string): string => {
-    const hex = bgColor.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;    
-    return luminance > 0.5 ? '#333333' : '#FFFFFF';
+	const hex = bgColor.replace('#', '');
+	const r = parseInt(hex.substring(0, 2), 16);
+	const g = parseInt(hex.substring(2, 4), 16);
+	const b = parseInt(hex.substring(4, 6), 16);
+	const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+	return luminance > 0.5 ? '#333333' : '#FFFFFF';
 };
 
 export const getEquivalentLevelTitle = (userLevel: number, selectedSystemKey: string): string => {
-    const system = LEVEL_SYSTEMS.find(s => s.key === selectedSystemKey) || LEVEL_SYSTEMS[0];
-    let matchingLevel = system.levels[0]; 
-    for (let i = system.minLevels.length - 1; i >= 0; i--) {
-        if (userLevel >= system.minLevels[i]) {
-            matchingLevel = system.levels[i];
-            break;
-        }
-    }
-    return matchingLevel;
+	const system = LEVEL_SYSTEMS.find((s) => s.key === selectedSystemKey) || LEVEL_SYSTEMS[0];
+	let matchingLevel = system.levels[0];
+	for (let i = system.minLevels.length - 1; i >= 0; i--) {
+		if (userLevel >= system.minLevels[i]) {
+			matchingLevel = system.levels[i];
+			break;
+		}
+	}
+	return matchingLevel;
 };
 
 export const ensureUserDataTypes = (userData: any): User => {
-    if (!userData) {
-       console.warn("ensureUserDataTypes received null or undefined userData");
-       return {
-           id: '',
-           email: '',
-           fullName: '',
-           phone: '',
-           addresses: [],
-           coinBalance: 0,
-           lastDailyLogin: new Date().toISOString(),
-           consecutiveLoginDays: 0,
-           level: 1,
-           exp: 0, 
-           avatarUrl: 'defaultAvatar.webp',
-           levelSystem: 'Bình Thường'
-       } as User;
-    }
-    const safeData = { ...userData };
+	if (!userData) {
+		console.warn('ensureUserDataTypes received null or undefined userData');
+		return {
+			id: '',
+			email: '',
+			fullName: '',
+			phone: '',
+			addresses: [],
+			coinBalance: 0,
+			lastDailyLogin: new Date().toISOString(),
+			consecutiveLoginDays: 0,
+			level: 1,
+			exp: 0,
+			avatarUrl: 'defaultAvatar.webp',
+			levelSystem: 'Bình Thường',
+		} as User;
+	}
+	const safeData = { ...userData };
 
-    try {
-        safeData.exp = typeof safeData.exp === 'string' ? parseFloat(safeData.exp) : (safeData.exp || 0);
-        if (isNaN(safeData.exp)) safeData.exp = 0;
-    } catch (e) {
-        safeData.exp = 0;
-    }
+	try {
+		safeData.exp =
+			typeof safeData.exp === 'string' ? parseFloat(safeData.exp) : safeData.exp || 0;
+		if (isNaN(safeData.exp)) safeData.exp = 0;
+	} catch (e) {
+		safeData.exp = 0;
+	}
 
-    try {
-        if (typeof safeData.addresses === 'string') {
-           safeData.addresses = JSON.parse(safeData.addresses || '[]');
-        }
-        if (!Array.isArray(safeData.addresses)) safeData.addresses = [];
-    } catch(e) {
-        console.error("Error parsing addresses:", e, "Original value:", safeData.addresses);
-        safeData.addresses = []; 
-    }
+	try {
+		if (typeof safeData.addresses === 'string') {
+			safeData.addresses = JSON.parse(safeData.addresses || '[]');
+		}
+		if (!Array.isArray(safeData.addresses)) safeData.addresses = [];
+	} catch (e) {
+		console.error('Error parsing addresses:', e, 'Original value:', safeData.addresses);
+		safeData.addresses = [];
+	}
 
-    safeData.avatarUrl = String(safeData.avatarUrl || 'https://via.placeholder.com/150');
+	safeData.avatarUrl = String(safeData.avatarUrl || 'https://via.placeholder.com/150');
 
-    safeData.level = parseInt(String(safeData.level || 1));
-    if (isNaN(safeData.level) || safeData.level < 1) safeData.level = 1;
+	safeData.level = parseInt(String(safeData.level || 1));
+	if (isNaN(safeData.level) || safeData.level < 1) safeData.level = 1;
 
-    safeData.coinBalance = parseInt(String(safeData.coinBalance || 0));
-     if (isNaN(safeData.coinBalance)) safeData.coinBalance = 0;
+	safeData.coinBalance = parseInt(String(safeData.coinBalance || 0));
+	if (isNaN(safeData.coinBalance)) safeData.coinBalance = 0;
 
-    safeData.consecutiveLoginDays = parseInt(String(safeData.consecutiveLoginDays || 0));
-     if (isNaN(safeData.consecutiveLoginDays)) safeData.consecutiveLoginDays = 0;
+	safeData.consecutiveLoginDays = parseInt(String(safeData.consecutiveLoginDays || 0));
+	if (isNaN(safeData.consecutiveLoginDays)) safeData.consecutiveLoginDays = 0;
 
-    if (typeof safeData.id !== 'undefined' && typeof safeData.id !== 'string') {
-        safeData.id = String(safeData.id);
-    }
+	if (typeof safeData.id !== 'undefined' && typeof safeData.id !== 'string') {
+		safeData.id = String(safeData.id);
+	}
 
-    safeData.email = String(safeData.email || '');
-    safeData.fullName = String(safeData.fullName || '');
-    safeData.phone = String(safeData.phone || '');
-    safeData.lastDailyLogin = String(safeData.lastDailyLogin || '2000-01-01T00:00:00.000Z'); 
-    return safeData as User; 
+	safeData.email = String(safeData.email || '');
+	safeData.fullName = String(safeData.fullName || '');
+	safeData.phone = String(safeData.phone || '');
+	safeData.lastDailyLogin = String(safeData.lastDailyLogin || '2000-01-01T00:00:00.000Z');
+	return safeData as User;
 };
 
 export const dailyRewardsData = [
-    { day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '/src/assets/images/coin.png' }, 
-    { day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '/src/assets/images/coin.png' },
-    { day: 3, type: 'Xu', amount: 60, color: '#e63946', icon: '/src/assets/images/coin.png' },
-    { day: 4, type: 'Xu', amount: 70, color: '#f7b731', icon: '/src/assets/images/coin.png' },
-    { day: 5, type: 'Xu', amount: 100, color: '#28a745', icon: '/src/assets/images/coin.png' },
-    { day: 6, type: 'Xu', amount: 120, color: '#f7b731', icon: '/src/assets/images/coin.png' },
-    { day: 7, type: 'Xu', amount: 200, color: '#747bff', icon: '/src/assets/images/coin.png' },
+	{ day: 1, type: 'Xu', amount: 30, color: '#f7b731', icon: '/src/assets/images/coin.png' },
+	{ day: 2, type: 'Xu', amount: 50, color: '#28a745', icon: '/src/assets/images/coin.png' },
+	{ day: 3, type: 'Xu', amount: 60, color: '#e63946', icon: '/src/assets/images/coin.png' },
+	{ day: 4, type: 'Xu', amount: 70, color: '#f7b731', icon: '/src/assets/images/coin.png' },
+	{ day: 5, type: 'Xu', amount: 100, color: '#28a745', icon: '/src/assets/images/coin.png' },
+	{ day: 6, type: 'Xu', amount: 120, color: '#f7b731', icon: '/src/assets/images/coin.png' },
+	{ day: 7, type: 'Xu', amount: 200, color: '#747bff', icon: '/src/assets/images/coin.png' },
 ];

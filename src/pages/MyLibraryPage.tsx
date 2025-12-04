@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaBook, FaHeart, FaSearch, FaTrash, FaBookOpen, FaUser } from 'react-icons/fa'; 
+import { FaBook, FaHeart, FaSearch, FaTrash, FaBookOpen, FaUser } from 'react-icons/fa';
 import '../assets/styles/MyLibraryPage.css';
 import LoadingScreen from '../components/common/Loading/LoadingScreen';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,272 +9,301 @@ import { toast } from 'react-toastify';
 import StarRating from '../components/common/StarRating';
 
 interface UnlockedChapterRaw {
-    id: number;
-    comicId: number;
-    title: string;
-    coverImageUrl: string;
-    author: string; 
-    chapterNumber: number;
-    chapterTitle: string;
-    unlockedAt: string;
-    price: number;
+	id: number;
+	comicId: number;
+	title: string;
+	coverImageUrl: string;
+	author: string;
+	chapterNumber: number;
+	chapterTitle: string;
+	unlockedAt: string;
+	price: number;
 }
 
 interface LibraryComic {
-    comicId: number;
-    title: string;
-    coverImageUrl: string;
-    author: string;
-    unlockedChaptersCount: number;
-    latestUnlockedChapter: number;
-    lastInteraction: string;
+	comicId: number;
+	title: string;
+	coverImageUrl: string;
+	author: string;
+	unlockedChaptersCount: number;
+	latestUnlockedChapter: number;
+	lastInteraction: string;
 }
 
 interface WishlistItem {
-    id: number;
-    title: string;
-    coverImageUrl: string;
-    author?: string;
-    genre?: string;
-    averageRating?: number;
-    status: string;
+	id: number;
+	title: string;
+	coverImageUrl: string;
+	author?: string;
+	genre?: string;
+	averageRating?: number;
+	status: string;
 }
 
 const MyLibraryPage: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'purchased' | 'wishlist'>('purchased');
-    const [purchasedComics, setPurchasedComics] = useState<LibraryComic[]>([]);
-    const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    
-    const { currentUser, token } = useAuth(); 
+	const [activeTab, setActiveTab] = useState<'purchased' | 'wishlist'>('purchased');
+	const [purchasedComics, setPurchasedComics] = useState<LibraryComic[]>([]);
+	const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [searchQuery, setSearchQuery] = useState('');
 
-    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-    const DOMAIN_URL = 'http://localhost:3000';
+	const { currentUser, token } = useAuth();
 
-    const api = axios.create({
-        baseURL: API_URL,
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+	const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+	const DOMAIN_URL = 'http://localhost:3000';
 
-    useEffect(() => {
-        if (currentUser) {
-            fetchData();
-        }
-    }, [activeTab, currentUser]);
+	const api = axios.create({
+		baseURL: API_URL,
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
 
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            if (activeTab === 'purchased') {
-                await fetchPurchasedComics();
-            } else {
-                await fetchWishlist();
-            }
-        } catch (error) {
-            console.error("Error fetching library data", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+	useEffect(() => {
+		if (currentUser) {
+			fetchData();
+		}
+	}, [activeTab, currentUser]);
 
-    const fetchPurchasedComics = async () => {
-        try {
-            const response = await api.get('/users/unlocked-chapters');
-            const rawChapters: UnlockedChapterRaw[] = response.data;
+	const fetchData = async () => {
+		setLoading(true);
+		try {
+			if (activeTab === 'purchased') {
+				await fetchPurchasedComics();
+			} else {
+				await fetchWishlist();
+			}
+		} catch (error) {
+			console.error('Error fetching library data', error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-            const groupedMap = new Map<number, LibraryComic>();
+	const fetchPurchasedComics = async () => {
+		try {
+			const response = await api.get('/users/unlocked-chapters');
+			const rawChapters: UnlockedChapterRaw[] = response.data;
 
-            rawChapters.forEach(chap => {
-                if (!groupedMap.has(chap.comicId)) {
-                    groupedMap.set(chap.comicId, {
-                        comicId: chap.comicId,
-                        title: chap.title || `Truyện #${chap.comicId}`,
-                        coverImageUrl: chap.coverImageUrl,
-                        author: chap.author || 'Đang cập nhật',  
-                        unlockedChaptersCount: 0,
-                        latestUnlockedChapter: 0,
-                        lastInteraction: chap.unlockedAt
-                    });
-                }
+			const groupedMap = new Map<number, LibraryComic>();
 
-                const comic = groupedMap.get(chap.comicId)!;
-                comic.unlockedChaptersCount += 1;
-                if (chap.chapterNumber > comic.latestUnlockedChapter) {
-                    comic.latestUnlockedChapter = chap.chapterNumber;
-                }
-                if (new Date(chap.unlockedAt) > new Date(comic.lastInteraction)) {
-                    comic.lastInteraction = chap.unlockedAt;
-                }
-            });
+			rawChapters.forEach((chap) => {
+				if (!groupedMap.has(chap.comicId)) {
+					groupedMap.set(chap.comicId, {
+						comicId: chap.comicId,
+						title: chap.title || `Truyện #${chap.comicId}`,
+						coverImageUrl: chap.coverImageUrl,
+						author: chap.author || 'Đang cập nhật',
+						unlockedChaptersCount: 0,
+						latestUnlockedChapter: 0,
+						lastInteraction: chap.unlockedAt,
+					});
+				}
 
-            const groupedList = Array.from(groupedMap.values()).sort((a, b) => 
-                new Date(b.lastInteraction).getTime() - new Date(a.lastInteraction).getTime()
-            );
+				const comic = groupedMap.get(chap.comicId)!;
+				comic.unlockedChaptersCount += 1;
+				if (chap.chapterNumber > comic.latestUnlockedChapter) {
+					comic.latestUnlockedChapter = chap.chapterNumber;
+				}
+				if (new Date(chap.unlockedAt) > new Date(comic.lastInteraction)) {
+					comic.lastInteraction = chap.unlockedAt;
+				}
+			});
 
-            setPurchasedComics(groupedList);
+			const groupedList = Array.from(groupedMap.values()).sort(
+				(a, b) =>
+					new Date(b.lastInteraction).getTime() - new Date(a.lastInteraction).getTime(),
+			);
 
-        } catch (error) {
-            console.error("Failed to fetch unlocked chapters", error);
-        }
-    };
+			setPurchasedComics(groupedList);
+		} catch (error) {
+			console.error('Failed to fetch unlocked chapters', error);
+		}
+	};
 
-    const fetchWishlist = async () => {
-        try {
-            const response = await api.get('/users/wishlist');
-            setWishlist(response.data);
-        } catch (error) {
-            console.error("Failed to fetch wishlist", error);
-        }
-    };
+	const fetchWishlist = async () => {
+		try {
+			const response = await api.get('/users/wishlist');
+			setWishlist(response.data);
+		} catch (error) {
+			console.error('Failed to fetch wishlist', error);
+		}
+	};
 
-    const handleRemoveFromWishlist = async (e: React.MouseEvent, comicId: number) => {
-        e.preventDefault();
-        if (!window.confirm("Bạn có chắc muốn bỏ truyện này khỏi yêu thích?")) return;
+	const handleRemoveFromWishlist = async (e: React.MouseEvent, comicId: number) => {
+		e.preventDefault();
+		if (!window.confirm('Bạn có chắc muốn bỏ truyện này khỏi yêu thích?')) return;
 
-        try {
-            await api.post('/users/toggle-wishlist', { comicId });
-            toast.success("Đã xóa khỏi danh sách yêu thích");
-            setWishlist(prev => prev.filter(item => item.id !== comicId));
-        } catch (error) {
-            toast.error("Lỗi khi xóa khỏi wishlist");
-        }
-    };
+		try {
+			await api.post('/users/toggle-wishlist', { comicId });
+			toast.success('Đã xóa khỏi danh sách yêu thích');
+			setWishlist((prev) => prev.filter((item) => item.id !== comicId));
+		} catch (error) {
+			toast.error('Lỗi khi xóa khỏi wishlist');
+		}
+	};
 
-    const filteredPurchased = purchasedComics.filter(c => 
-        c.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const filteredWishlist = wishlist.filter(c => 
-        c.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+	const filteredPurchased = purchasedComics.filter((c) =>
+		c.title.toLowerCase().includes(searchQuery.toLowerCase()),
+	);
+	const filteredWishlist = wishlist.filter((c) =>
+		c.title.toLowerCase().includes(searchQuery.toLowerCase()),
+	);
 
-    const getImageUrl = (url: string | undefined | null) => {
-        if (!url || typeof url !== 'string' || url.trim() === "") {
-            return undefined;
-        }
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-            return url;
-        }
-        const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-        return `${DOMAIN_URL}${cleanUrl}`;
-    };
+	const getImageUrl = (url: string | undefined | null) => {
+		if (!url || typeof url !== 'string' || url.trim() === '') {
+			return undefined;
+		}
+		if (url.startsWith('http://') || url.startsWith('https://')) {
+			return url;
+		}
+		const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+		return `${DOMAIN_URL}${cleanUrl}`;
+	};
 
-    if (loading && !purchasedComics.length && !wishlist.length) return <LoadingScreen />;
+	if (loading && !purchasedComics.length && !wishlist.length) return <LoadingScreen />;
 
-    return (
-        <div className="my-library-container">
-            <div className="library-header-row">
-                <h2 className="library-page-title">Thư viện cá nhân</h2>
-                
-                <div className="library-mini-search">
-                    <FaSearch className="mini-search-icon" />
-                    <input 
-                        type="text" 
-                        placeholder="Tìm truyện..." 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
-            </div>
+	return (
+		<div className="my-library-container">
+			<div className="library-header-row">
+				<h2 className="library-page-title">Thư viện cá nhân</h2>
 
-            <div className="library-tabs-nav">
-                <button 
-                    className={`lib-tab-item ${activeTab === 'purchased' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('purchased')}
-                >
-                    <FaBook /> Tủ sách ({purchasedComics.length})
-                </button>
-                <button 
-                    className={`lib-tab-item ${activeTab === 'wishlist' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('wishlist')}
-                >
-                    <FaHeart /> Yêu thích ({wishlist.length})
-                </button>
-            </div>
+				<div className="library-mini-search">
+					<FaSearch className="mini-search-icon" />
+					<input
+						type="text"
+						placeholder="Tìm truyện..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+					/>
+				</div>
+			</div>
 
-            <div className="library-tab-content">
-                {activeTab === 'purchased' ? (
-                    <>
-                        {filteredPurchased.length > 0 ? (
-                            <div className="library-grid-view">
-                                {filteredPurchased.map((comic) => (
-                                    <Link to={`/comic/${comic.comicId}`} key={comic.comicId} className="lib-item-card">
-                                        <div className="lib-item-img">
-                                            <img 
-                                                src={getImageUrl(comic.coverImageUrl)} 
-                                                alt={comic.title} 
-                                            />
-                                            <span className="lib-badge-count">{comic.unlockedChaptersCount} chương</span>
-                                        </div>
-                                        <div className="lib-item-info">
-                                            <h4>{comic.title}</h4>
-                                            
-                                            {/* HIỂN THỊ TÁC GIẢ Ở ĐÂY */}
-                                            <p className="lib-author-text" style={{ fontSize: '0.85rem', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                                <FaUser size={10} /> {comic.author}
-                                            </p>
+			<div className="library-tabs-nav">
+				<button
+					className={`lib-tab-item ${activeTab === 'purchased' ? 'active' : ''}`}
+					onClick={() => setActiveTab('purchased')}
+				>
+					<FaBook /> Tủ sách ({purchasedComics.length})
+				</button>
+				<button
+					className={`lib-tab-item ${activeTab === 'wishlist' ? 'active' : ''}`}
+					onClick={() => setActiveTab('wishlist')}
+				>
+					<FaHeart /> Yêu thích ({wishlist.length})
+				</button>
+			</div>
 
-                                            <p>Mới nhất: Chương {comic.latestUnlockedChapter}</p>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="library-empty-state">
-                                <FaBookOpen size={40} />
-                                <p>Bạn chưa sở hữu chương truyện nào.</p>
-                                <Link to="/search" className="lib-link-action">Khám phá ngay</Link>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <>
-                        {filteredWishlist.length > 0 ? (
-                            <div className="library-grid-view">
-                                {filteredWishlist.map((comic) => (
-                                    <Link to={`/comic/${comic.id}`} key={comic.id} className="lib-item-card wishlist-card">
-                                        <button 
-                                            className="btn-remove-wish"
-                                            onClick={(e) => handleRemoveFromWishlist(e, comic.id)}
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                        <div className="lib-item-img">
-                                            <img 
-                                                src={getImageUrl(comic.coverImageUrl)} 
-                                                alt={comic.title}
-                                            />
-                                            <span className={`status-badge ${comic.status}`}>
-                                                {comic.status === 'completed' ? 'Full' : 'On-going'}
-                                            </span>
-                                        </div>
-                                        <div className="lib-item-info">
-                                            <h4>{comic.title}</h4>
-                                            
-                                            {comic.author && (
-                                                <p className="lib-author-text" style={{ fontSize: '0.85rem', color: '#888', marginBottom: '4px' }}>
-                                                    {comic.author}
-                                                </p>
-                                            )}
+			<div className="library-tab-content">
+				{activeTab === 'purchased' ? (
+					<>
+						{filteredPurchased.length > 0 ? (
+							<div className="library-grid-view">
+								{filteredPurchased.map((comic) => (
+									<Link
+										to={`/comic/${comic.comicId}`}
+										key={comic.comicId}
+										className="lib-item-card"
+									>
+										<div className="lib-item-img">
+											<img
+												src={getImageUrl(comic.coverImageUrl)}
+												alt={comic.title}
+											/>
+											<span className="lib-badge-count">
+												{comic.unlockedChaptersCount} chương
+											</span>
+										</div>
+										<div className="lib-item-info">
+											<h4>{comic.title}</h4>
 
-                                            <StarRating rating={comic.averageRating || 0} />
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="library-empty-state">
-                                <FaHeart size={40} />
-                                <p>Danh sách yêu thích trống.</p>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-        </div>
-    );
+											{/* HIỂN THỊ TÁC GIẢ Ở ĐÂY */}
+											<p
+												className="lib-author-text"
+												style={{
+													fontSize: '0.85rem',
+													color: '#888',
+													marginBottom: '4px',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '5px',
+												}}
+											>
+												<FaUser size={10} /> {comic.author}
+											</p>
+
+											<p>Mới nhất: Chương {comic.latestUnlockedChapter}</p>
+										</div>
+									</Link>
+								))}
+							</div>
+						) : (
+							<div className="library-empty-state">
+								<FaBookOpen size={40} />
+								<p>Bạn chưa sở hữu chương truyện nào.</p>
+								<Link to="/search" className="lib-link-action">
+									Khám phá ngay
+								</Link>
+							</div>
+						)}
+					</>
+				) : (
+					<>
+						{filteredWishlist.length > 0 ? (
+							<div className="library-grid-view">
+								{filteredWishlist.map((comic) => (
+									<Link
+										to={`/comic/${comic.id}`}
+										key={comic.id}
+										className="lib-item-card wishlist-card"
+									>
+										<button
+											className="btn-remove-wish"
+											onClick={(e) => handleRemoveFromWishlist(e, comic.id)}
+										>
+											<FaTrash />
+										</button>
+										<div className="lib-item-img">
+											<img
+												src={getImageUrl(comic.coverImageUrl)}
+												alt={comic.title}
+											/>
+											<span className={`status-badge ${comic.status}`}>
+												{comic.status === 'completed' ? 'Full' : 'On-going'}
+											</span>
+										</div>
+										<div className="lib-item-info">
+											<h4>{comic.title}</h4>
+
+											{comic.author && (
+												<p
+													className="lib-author-text"
+													style={{
+														fontSize: '0.85rem',
+														color: '#888',
+														marginBottom: '4px',
+													}}
+												>
+													{comic.author}
+												</p>
+											)}
+
+											<StarRating rating={comic.averageRating || 0} />
+										</div>
+									</Link>
+								))}
+							</div>
+						) : (
+							<div className="library-empty-state">
+								<FaHeart size={40} />
+								<p>Danh sách yêu thích trống.</p>
+							</div>
+						)}
+					</>
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default MyLibraryPage;

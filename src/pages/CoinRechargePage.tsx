@@ -8,160 +8,178 @@ import '../assets/styles/CoinRechargePage.css';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 interface RechargePack {
-    id: number;
-    coins: number;
-    price: number;
-    bonus: number;
+	id: number;
+	coins: number;
+	price: number;
+	bonus: number;
 }
 
 const CoinRechargePage: React.FC = () => {
-    const { currentUser, token } = useAuth(); 
-    const { showNotification } = useNotification();
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [selectedPack, setSelectedPack] = useState<number | null>(null);
-    
-    const [rechargePacks, setRechargePacks] = useState<RechargePack[]>([]);
-    const [isLoadingPacks, setIsLoadingPacks] = useState(true);
+	const { currentUser, token } = useAuth();
+	const { showNotification } = useNotification();
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [selectedPack, setSelectedPack] = useState<number | null>(null);
 
-    useEffect(() => {
-        const fetchPacks = async () => {
-            try {
-                const response = await fetch(`${API_URL}/packs/public`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setRechargePacks(data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch packs", error);
-            } finally {
-                setIsLoadingPacks(false);
-            }
-        };
+	const [rechargePacks, setRechargePacks] = useState<RechargePack[]>([]);
+	const [isLoadingPacks, setIsLoadingPacks] = useState(true);
 
-        fetchPacks();
-    }, []);
+	useEffect(() => {
+		const fetchPacks = async () => {
+			try {
+				const response = await fetch(`${API_URL}/packs/public`);
+				if (response.ok) {
+					const data = await response.json();
+					setRechargePacks(data);
+				}
+			} catch (error) {
+				console.error('Failed to fetch packs', error);
+			} finally {
+				setIsLoadingPacks(false);
+			}
+		};
 
-    const handleRecharge = async (packId: number) => {
-        if (!currentUser) {
-            showNotification('Vui lòng đăng nhập để nạp xu.', 'warning');
-            return;
-        }
+		fetchPacks();
+	}, []);
 
-        if (!token) {
-            showNotification('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.', 'error');
-            return;
-        }
+	const handleRecharge = async (packId: number) => {
+		if (!currentUser) {
+			showNotification('Vui lòng đăng nhập để nạp xu.', 'warning');
+			return;
+		}
 
-        const pack = rechargePacks.find(p => p.id === packId);
-        if (!pack) return;
+		if (!token) {
+			showNotification('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.', 'error');
+			return;
+		}
 
-        if (isProcessing) return;
+		const pack = rechargePacks.find((p) => p.id === packId);
+		if (!pack) return;
 
-        setIsProcessing(true);
-        setSelectedPack(packId);
+		if (isProcessing) return;
 
-        try {
-            const response = await fetch(`${API_URL}/payment/create_payment_url`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({ 
-                    paymentType: 'RECHARGE', 
-                    packId 
-                })
-            });
+		setIsProcessing(true);
+		setSelectedPack(packId);
 
-            const data = await response.json();
+		try {
+			const response = await fetch(`${API_URL}/payment/create_payment_url`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					paymentType: 'RECHARGE',
+					packId,
+				}),
+			});
 
-            if (response.ok && data.paymentUrl) {
-                window.location.href = data.paymentUrl;
-            } else {
-                if (response.status === 401) {
-                    showNotification('Phiên đăng nhập hết hạn hoặc không hợp lệ.', 'error');
-                } else {
-                    throw new Error(data.message || 'Không thể tạo giao dịch');
-                }
-            }
+			const data = await response.json();
 
-        } catch (error: any) {
-            console.error('Lỗi khi nạp xu:', error);
-            showNotification(error.message || 'Khởi tạo thanh toán thất bại. Vui lòng thử lại.', 'error');
-        } finally {
-            setIsProcessing(false);
-            setSelectedPack(null);
-        }
-    };
+			if (response.ok && data.paymentUrl) {
+				window.location.href = data.paymentUrl;
+			} else {
+				if (response.status === 401) {
+					showNotification('Phiên đăng nhập hết hạn hoặc không hợp lệ.', 'error');
+				} else {
+					throw new Error(data.message || 'Không thể tạo giao dịch');
+				}
+			}
+		} catch (error: any) {
+			console.error('Lỗi khi nạp xu:', error);
+			showNotification(
+				error.message || 'Khởi tạo thanh toán thất bại. Vui lòng thử lại.',
+				'error',
+			);
+		} finally {
+			setIsProcessing(false);
+			setSelectedPack(null);
+		}
+	};
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-    };
+	const formatPrice = (price: number) => {
+		return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+	};
 
-    if (!currentUser) {
-        return (
-            <div className="auth-page">
-                <div className="auth-container">
-                    <h2>Vui lòng đăng nhập</h2>
-                    <p>Bạn cần đăng nhập để nạp Xu vào tài khoản.</p>
-                    <Link to="/login" className="auth-button">Đăng Nhập Ngay</Link>
-                </div>
-            </div>
-        );
-    }
+	if (!currentUser) {
+		return (
+			<div className="auth-page">
+				<div className="auth-container">
+					<h2>Vui lòng đăng nhập</h2>
+					<p>Bạn cần đăng nhập để nạp Xu vào tài khoản.</p>
+					<Link to="/login" className="auth-button">
+						Đăng Nhập Ngay
+					</Link>
+				</div>
+			</div>
+		);
+	}
 
-    const CoinIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) => (
-        <img src="../src/assets/images/coin.png" alt="Xu" {...props} />
-    );
+	const CoinIcon: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) => (
+		<img src="../src/assets/images/coin.png" alt="Xu" {...props} />
+	);
 
-    return (
-        <div className="recharge-page-container">
-            <div className="recharge-card-wrapper">
-                <h2>Nạp Xu Vào Tài Khoản</h2>
+	return (
+		<div className="recharge-page-container">
+			<div className="recharge-card-wrapper">
+				<h2>Nạp Xu Vào Tài Khoản</h2>
 
-                <div className="current-balance-info">
-                    <div className="balance-text" style={{ fontSize: '1.1rem', marginBottom: '20px' }}>
-                        Số dư hiện tại: <span className="coin-amount-display" style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                            {currentUser.coinBalance} <span className="coin-text"> Xu</span>
-                        </span>
-                    </div>
-                </div>
+				<div className="current-balance-info">
+					<div
+						className="balance-text"
+						style={{ fontSize: '1.1rem', marginBottom: '20px' }}
+					>
+						Số dư hiện tại:{' '}
+						<span
+							className="coin-amount-display"
+							style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}
+						>
+							{currentUser.coinBalance} <span className="coin-text"> Xu</span>
+						</span>
+					</div>
+				</div>
 
-                <h3 className="pack-selection-title">Chọn Gói Nạp</h3>
+				<h3 className="pack-selection-title">Chọn Gói Nạp</h3>
 
-                {isLoadingPacks ? (
-                    <div style={{textAlign: 'center', padding: '20px'}}>Đang tải các gói nạp...</div>
-                ) : (
-                    <div className="recharge-grid">
-                        {rechargePacks.map(pack => (
-                            <div key={pack.id} className="recharge-card">
-                                <div className="recharge-content">
-                                    <div className="recharge-coin-display">
-                                        <span className="coin-amount-large">{pack.coins}</span> <CoinIcon className="coin-icon-large" />
-                                    </div>
-                                    {pack.bonus > 0 ? (
-                                        <p className="recharge-bonus">Tặng {pack.bonus} Xu</p>
-                                    ) : (
-                                        <div className="recharge-bonus-placeholder"></div>
-                                    )}
-                                    <p className="recharge-price">{formatPrice(pack.price)}</p>
-                                </div>
-                                <button
-                                    className="auth-button"
-                                    onClick={() => handleRecharge(pack.id)}
-                                    disabled={isProcessing && selectedPack === pack.id}
-                                    style={{ background: 'var(--primary-color)' }}
-                                >
-                                    {isProcessing && selectedPack === pack.id ? 'Đang xử lý...' : 'Nạp qua VNPAY'}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                <p className="recharge-info-note">*Mỗi Xu nạp sẽ tăng kinh nghiệm (tỉ lệ giảm theo cấp).</p>
-            </div>
-        </div>
-    );
+				{isLoadingPacks ? (
+					<div style={{ textAlign: 'center', padding: '20px' }}>
+						Đang tải các gói nạp...
+					</div>
+				) : (
+					<div className="recharge-grid">
+						{rechargePacks.map((pack) => (
+							<div key={pack.id} className="recharge-card">
+								<div className="recharge-content">
+									<div className="recharge-coin-display">
+										<span className="coin-amount-large">{pack.coins}</span>{' '}
+										<CoinIcon className="coin-icon-large" />
+									</div>
+									{pack.bonus > 0 ? (
+										<p className="recharge-bonus">Tặng {pack.bonus} Xu</p>
+									) : (
+										<div className="recharge-bonus-placeholder"></div>
+									)}
+									<p className="recharge-price">{formatPrice(pack.price)}</p>
+								</div>
+								<button
+									className="auth-button"
+									onClick={() => handleRecharge(pack.id)}
+									disabled={isProcessing && selectedPack === pack.id}
+									style={{ background: 'var(--primary-color)' }}
+								>
+									{isProcessing && selectedPack === pack.id
+										? 'Đang xử lý...'
+										: 'Nạp qua VNPAY'}
+								</button>
+							</div>
+						))}
+					</div>
+				)}
+				<p className="recharge-info-note">
+					*Mỗi Xu nạp sẽ tăng kinh nghiệm (tỉ lệ giảm theo cấp).
+				</p>
+			</div>
+		</div>
+	);
 };
 
 export default CoinRechargePage;

@@ -1,46 +1,46 @@
 #root {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  text-align: left;
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	text-align: left;
 }
 
 .main-content {
-  flex-grow: 1;
-  max-width: 1536px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: var(--clr-background);
+	flex-grow: 1;
+	max-width: 1536px;
+	margin: 0 auto;
+	padding: 2rem;
+	width: 100%;
+	box-sizing: border-box;
+	background-color: var(--clr-background);
 }
 
 .main-content.reader-mode {
-  max-width: none;
-  padding: 0;
+	max-width: none;
+	padding: 0;
 }
 
 .app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--clr-background);
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	background-color: var(--clr-background);
 }
 
 body.admin-cursor-mode,
 body.admin-cursor-mode * {
-  cursor: auto !important; 
+	cursor: auto !important;
 }
 
-body.admin-cursor-mode a, 
+body.admin-cursor-mode a,
 body.admin-cursor-mode button,
-body.admin-cursor-mode input[type="submit"],
-body.admin-cursor-mode [role="button"],
+body.admin-cursor-mode input[type='submit'],
+body.admin-cursor-mode [role='button'],
 body.admin-cursor-mode .cursor-pointer {
-  cursor: pointer !important;
+	cursor: pointer !important;
 }
 
 body.admin-cursor-mode input,
 body.admin-cursor-mode textarea {
-  cursor: text !important;
+	cursor: text !important;
 }

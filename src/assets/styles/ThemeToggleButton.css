@@ -1,180 +1,180 @@
 :root {
-  --ease: cubic-bezier(.4,-0.3,.6,1.3);
-  --clr-background-day: #1b7fcc;
-  --clr-background-night: #070b34;
-  --clr-sun: #FCE570;
-  --clr-sun-lgt: #ffffe3;
-  --clr-moon: hsl(212, 13%, 75%);
-  --button-width: 1.5em; 
-  --button-wrapper-height: 2.2em; 
-  --button-wrapper-width: 4.5em; 
+	--ease: cubic-bezier(0.4, -0.3, 0.6, 1.3);
+	--clr-background-day: #1b7fcc;
+	--clr-background-night: #070b34;
+	--clr-sun: #fce570;
+	--clr-sun-lgt: #ffffe3;
+	--clr-moon: hsl(212, 13%, 75%);
+	--button-width: 1.5em;
+	--button-wrapper-height: 2.2em;
+	--button-wrapper-width: 4.5em;
 }
 
 .theme-toggle-button-wrapper {
-  --x: 3px; 
-  --y: 5px;
-  --spread: 4px;
-  --offset: 0px;
+	--x: 3px;
+	--y: 5px;
+	--spread: 4px;
+	--offset: 0px;
 
-  position: relative; 
-  background-color: var(--clr-background-day);
-  width: var(--button-wrapper-width);
-  height: var(--button-wrapper-height);
-  border-radius: 2em;
-  font-size: 1em; 
-  border: none;
-  overflow: hidden;
-  outline: none;
-  box-shadow:
-    var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
-    var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
-    inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35);
-  isolation: isolate;
-  transition: all 0.75s var(--ease);
-  padding: 0; 
-  display: inline-flex; 
-  vertical-align: middle; 
+	position: relative;
+	background-color: var(--clr-background-day);
+	width: var(--button-wrapper-width);
+	height: var(--button-wrapper-height);
+	border-radius: 2em;
+	font-size: 1em;
+	border: none;
+	overflow: hidden;
+	outline: none;
+	box-shadow:
+		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
+		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
+		inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35);
+	isolation: isolate;
+	transition: all 0.75s var(--ease);
+	padding: 0;
+	display: inline-flex;
+	vertical-align: middle;
 }
 
 .theme-toggle-button {
-  position: absolute;
-  left: 0.25em;
-  right: auto;
-  top: 50%;
-  transform: translate(0, -50%);
-  width: var(--button-width);
-  height: var(--button-width);
-  border-radius: 50%;
-  background: radial-gradient(var(--clr-sun-lgt), transparent);
-  background-color: var(--clr-sun);
-  box-shadow:
-    0px 0px 0em 0.5em rgb(255 255 255 / 0.2), 
-    0px 0px 0em 1em rgb(255 255 255 / 0.2),
-    0px 0px 0em 1.5em rgb(255 255 255 / 0.2),
-    0 0 0.25em 0 #fff; 
-  transition: all 0.75s var(--ease);
+	position: absolute;
+	left: 0.25em;
+	right: auto;
+	top: 50%;
+	transform: translate(0, -50%);
+	width: var(--button-width);
+	height: var(--button-width);
+	border-radius: 50%;
+	background: radial-gradient(var(--clr-sun-lgt), transparent);
+	background-color: var(--clr-sun);
+	box-shadow:
+		0px 0px 0em 0.5em rgb(255 255 255 / 0.2),
+		0px 0px 0em 1em rgb(255 255 255 / 0.2),
+		0px 0px 0em 1.5em rgb(255 255 255 / 0.2),
+		0 0 0.25em 0 #fff;
+	transition: all 0.75s var(--ease);
 }
 
-.theme-toggle-button::after { 
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 60%;
-  width: 25%;
-  height: 25%;
-  background-color: #c5c5c500;
-  border-radius: 50%;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow:
-    -0.5em -0.4em 0 0.05em #d5d5d500, 
-    0.05em -0.5em 0 -0.05em #d5d5d500;
+.theme-toggle-button::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 60%;
+	width: 25%;
+	height: 25%;
+	background-color: #c5c5c500;
+	border-radius: 50%;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	box-shadow:
+		-0.5em -0.4em 0 0.05em #d5d5d500,
+		0.05em -0.5em 0 -0.05em #d5d5d500;
 }
 
 .theme-toggle-button-wrapper::before {
-  content: '';
-  position: absolute;
-  width: 1.5em;
-  aspect-ratio: 1 / 1;
-  background-color: #fff;
-  border-radius: 50%;
-  right: -0.15em;
-  bottom: 0.25em;
-  box-shadow:
-    -0.6em 0.6em 0 -0.15em #fff,
-    -1.2em 0.75em 0 -0.3em #fff,
-    -1.8em 0.9em 0 -0.15em #fff,
-    -2.4em 0.9em 0 -0.35em #fff,
-    -3em 1.05em 0 -0.3em #fff;
-  opacity: 0.5;
-  transition: all 0.75s ease;
+	content: '';
+	position: absolute;
+	width: 1.5em;
+	aspect-ratio: 1 / 1;
+	background-color: #fff;
+	border-radius: 50%;
+	right: -0.15em;
+	bottom: 0.25em;
+	box-shadow:
+		-0.6em 0.6em 0 -0.15em #fff,
+		-1.2em 0.75em 0 -0.3em #fff,
+		-1.8em 0.9em 0 -0.15em #fff,
+		-2.4em 0.9em 0 -0.35em #fff,
+		-3em 1.05em 0 -0.3em #fff;
+	opacity: 0.5;
+	transition: all 0.75s ease;
 }
 
 .theme-toggle-button-wrapper::after {
-  position: absolute;
-  width: var(--button-width);
-  height: var(--button-width);
-  background-color: #fff;
-  border-radius: 50%;
-  right: -0.6em;
-  bottom: 0em;
-  box-shadow:
-    -0.6em 0.6em 0 -0.15em #fff,
-    -1.2em 0.75em 0 -0.3em #fff,
-    -1.8em 0.9em 0 -0.15em #fff,
-    -2.4em 0.9em 0 -0.35em #fff,
-    -3em 1.05em 0 -0.3em #fff;
-  transition: all 0.75s ease;
+	position: absolute;
+	width: var(--button-width);
+	height: var(--button-width);
+	background-color: #fff;
+	border-radius: 50%;
+	right: -0.6em;
+	bottom: 0em;
+	box-shadow:
+		-0.6em 0.6em 0 -0.15em #fff,
+		-1.2em 0.75em 0 -0.3em #fff,
+		-1.8em 0.9em 0 -0.15em #fff,
+		-2.4em 0.9em 0 -0.35em #fff,
+		-3em 1.05em 0 -0.3em #fff;
+	transition: all 0.75s ease;
 }
 
-.theme-toggle-button-wrapper[data-theme="night"] {
-  background-color: var(--clr-background-night);
+.theme-toggle-button-wrapper[data-theme='night'] {
+	background-color: var(--clr-background-night);
 }
 
-.theme-toggle-button-wrapper[data-theme="night"] .theme-toggle-button {
-  background: radial-gradient(#eee, transparent);
-  background-color: var(--clr-moon);
-  left: calc(100% - 0.25em - var(--button-width));
-  box-shadow:
-    0px 0px 0em 0.5em rgb(255 255 255 / 0.1),
-    0px 0px 0em 1em rgb(255 255 255 / 0.1),
-    0px 0px 0em 1.5em rgb(255 255 255 / 0.1),
-    0 0 0.25em 0 #fff;
+.theme-toggle-button-wrapper[data-theme='night'] .theme-toggle-button {
+	background: radial-gradient(#eee, transparent);
+	background-color: var(--clr-moon);
+	left: calc(100% - 0.25em - var(--button-width));
+	box-shadow:
+		0px 0px 0em 0.5em rgb(255 255 255 / 0.1),
+		0px 0px 0em 1em rgb(255 255 255 / 0.1),
+		0px 0px 0em 1.5em rgb(255 255 255 / 0.1),
+		0 0 0.25em 0 #fff;
 }
 
-.theme-toggle-button-wrapper[data-theme="night"] .theme-toggle-button::after {
-  transition-delay: 0.5s;
-  background-color: #c5c5c5ff;
-  box-shadow:
-    -0.5em -0.4em 0 0.05em #d5d5d5ff,
-    0.05em -0.5em 0 -0.05em #d5d5d5ff;
+.theme-toggle-button-wrapper[data-theme='night'] .theme-toggle-button::after {
+	transition-delay: 0.5s;
+	background-color: #c5c5c5ff;
+	box-shadow:
+		-0.5em -0.4em 0 0.05em #d5d5d5ff,
+		0.05em -0.5em 0 -0.05em #d5d5d5ff;
 }
 
-.theme-toggle-button-wrapper[data-theme="night"]::before {
-  right: -3em;
-  bottom: -0.6em;
-  scale: 1.2;
+.theme-toggle-button-wrapper[data-theme='night']::before {
+	right: -3em;
+	bottom: -0.6em;
+	scale: 1.2;
 }
 
-.theme-toggle-button-wrapper[data-theme="night"]::after {
-  right: -3em;
-  bottom: -1.2em;
-  scale: 1.8;
-}
-
-.theme-toggle-button-wrapper canvas#stars {
-  opacity: 1;
+.theme-toggle-button-wrapper[data-theme='night']::after {
+	right: -3em;
+	bottom: -1.2em;
+	scale: 1.8;
 }
 
 .theme-toggle-button-wrapper canvas#stars {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  opacity: 0;
-  transition: all 0.75s ease;
+	opacity: 1;
+}
+
+.theme-toggle-button-wrapper canvas#stars {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	opacity: 0;
+	transition: all 0.75s ease;
 }
 
 body {
-  transition: none; 
+	transition: none;
 }
 
 .theme-toggle-button-wrapper:focus,
 .theme-toggle-button-wrapper:focus-visible {
-  outline: none !important;
-  box-shadow:
-    var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
-    var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
-    inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35) !important;
+	outline: none !important;
+	box-shadow:
+		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
+		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
+		inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35) !important;
 }
 
 .theme-toggle-button-wrapper:active {
-  outline: none !important;
-  transform: scale(0.95);
-  box-shadow:
-    var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
-    var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
-    inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35) !important;
+	outline: none !important;
+	transform: scale(0.95);
+	box-shadow:
+		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.15),
+		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
+		inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35) !important;
 }
