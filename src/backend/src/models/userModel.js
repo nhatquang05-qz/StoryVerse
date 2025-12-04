@@ -41,9 +41,11 @@ const getUnlockedChaptersRaw = async (userId) => {
         SELECT 
             uuc.chapterId,
             ch.comicId,
-            c.title AS comicTitle,
+            c.title,                  
+            c.coverImageUrl,        
+            c.author,                 
             ch.chapterNumber,
-            ch.title AS title,
+            ch.title AS chapterTitle, 
             ch.price,
             uuc.unlockedAt
         FROM user_unlocked_chapters uuc

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaBook, FaHeart, FaSearch, FaTrash, FaBookOpen } from 'react-icons/fa';
+import { FaBook, FaHeart, FaSearch, FaTrash, FaBookOpen, FaUser } from 'react-icons/fa'; 
 import '../assets/styles/MyLibraryPage.css';
 import LoadingScreen from '../components/common/Loading/LoadingScreen';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import StarRating from '../components/common/StarRating';
-import defaultCover from '../assets/images/logo.avif';
 
 interface UnlockedChapterRaw {
     id: number;
     comicId: number;
     title: string;
     coverImageUrl: string;
+    author: string; 
     chapterNumber: number;
     chapterTitle: string;
     unlockedAt: string;
@@ -24,6 +24,7 @@ interface LibraryComic {
     comicId: number;
     title: string;
     coverImageUrl: string;
+    author: string;
     unlockedChaptersCount: number;
     latestUnlockedChapter: number;
     lastInteraction: string;
@@ -49,6 +50,7 @@ const MyLibraryPage: React.FC = () => {
     const { currentUser, token } = useAuth(); 
 
     const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+    const DOMAIN_URL = 'http://localhost:3000';
 
     const api = axios.create({
         baseURL: API_URL,
@@ -91,6 +93,7 @@ const MyLibraryPage: React.FC = () => {
                         comicId: chap.comicId,
                         title: chap.title || `Truyện #${chap.comicId}`,
                         coverImageUrl: chap.coverImageUrl,
+                        author: chap.author || 'Đang cập nhật',  
                         unlockedChaptersCount: 0,
                         latestUnlockedChapter: 0,
                         lastInteraction: chap.unlockedAt
@@ -148,9 +151,14 @@ const MyLibraryPage: React.FC = () => {
     );
 
     const getImageUrl = (url: string | undefined | null) => {
-        if (!url || url === "") return defaultCover;
-        if (url.startsWith('http')) return url;
-        return `http://localhost:3000/${url}`;
+        if (!url || typeof url !== 'string' || url.trim() === "") {
+            return undefined;
+        }
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+        return `${DOMAIN_URL}${cleanUrl}`;
     };
 
     if (loading && !purchasedComics.length && !wishlist.length) return <LoadingScreen />;
@@ -197,14 +205,17 @@ const MyLibraryPage: React.FC = () => {
                                             <img 
                                                 src={getImageUrl(comic.coverImageUrl)} 
                                                 alt={comic.title} 
-                                                onError={(e) => {
-                                                    e.currentTarget.src = defaultCover;
-                                                }}
                                             />
                                             <span className="lib-badge-count">{comic.unlockedChaptersCount} chương</span>
                                         </div>
                                         <div className="lib-item-info">
                                             <h4>{comic.title}</h4>
+                                            
+                                            {/* HIỂN THỊ TÁC GIẢ Ở ĐÂY */}
+                                            <p className="lib-author-text" style={{ fontSize: '0.85rem', color: '#888', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <FaUser size={10} /> {comic.author}
+                                            </p>
+
                                             <p>Mới nhất: Chương {comic.latestUnlockedChapter}</p>
                                         </div>
                                     </Link>
@@ -234,9 +245,6 @@ const MyLibraryPage: React.FC = () => {
                                             <img 
                                                 src={getImageUrl(comic.coverImageUrl)} 
                                                 alt={comic.title}
-                                                onError={(e) => {
-                                                    e.currentTarget.src = defaultCover;
-                                                }}
                                             />
                                             <span className={`status-badge ${comic.status}`}>
                                                 {comic.status === 'completed' ? 'Full' : 'On-going'}
@@ -244,6 +252,14 @@ const MyLibraryPage: React.FC = () => {
                                         </div>
                                         <div className="lib-item-info">
                                             <h4>{comic.title}</h4>
+                                            
+                                            {/* HIỂN THỊ TÁC GIẢ BÊN WISHLIST NẾU MUỐN */}
+                                            {comic.author && (
+                                                <p className="lib-author-text" style={{ fontSize: '0.85rem', color: '#888', marginBottom: '4px' }}>
+                                                    {comic.author}
+                                                </p>
+                                            )}
+
                                             <StarRating rating={comic.averageRating || 0} />
                                         </div>
                                     </Link>
