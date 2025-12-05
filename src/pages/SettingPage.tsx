@@ -3,6 +3,7 @@ import { FiArrowLeft, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 import { useFont } from '../contexts/FontContext';
+import { useSnowfall } from '../contexts/SnowfallContext'; 
 import '../assets/styles/SettingPage.css';
 import mikaelaPreview from '../assets/cursors/Mikaela_Hykuya.png';
 import krulTepesPreview from '../assets/cursors/Krul_Tepes.png';
@@ -77,6 +78,7 @@ const applyCursorStyles = (packId: string) => {
 const SettingsPage: React.FC = () => {
 	const { showNotification } = useNotification();
 	const { selectedFont, selectFont, fontOptions } = useFont();
+	const { isSnowfallEnabled, toggleSnowfall } = useSnowfall(); 
 
 	const [selectedCursorPackId, setSelectedCursorPackId] = useState<string>(() => {
 		const storedId = localStorage.getItem(CURSOR_STORAGE_KEY);
@@ -108,6 +110,14 @@ const SettingsPage: React.FC = () => {
 		showNotification(`Đã đổi font chữ thành ${fontName}`, 'success');
 	};
 
+	const handleSnowfallToggle = () => {
+		toggleSnowfall();
+		showNotification(
+			`Đã ${!isSnowfallEnabled ? 'bật' : 'tắt'} hiệu ứng tuyết rơi`,
+			'success',
+		);
+	};
+
 	return (
 		<div className="settings-page-container">
 			<div className="settings-content-wrapper">
@@ -117,6 +127,45 @@ const SettingsPage: React.FC = () => {
 				<h1 className="settings-page-title">
 					<FiSettings /> Cài Đặt{' '}
 				</h1>
+
+				<div className="settings-card" style={{ marginBottom: '2rem' }}>
+					<h2>Hiệu Ứng Hình Ảnh</h2>
+					<p className="description">
+						Tùy chỉnh các hiệu ứng hình ảnh trên trang web.
+					</p>
+					<div 
+						className={`font-option ${isSnowfallEnabled ? 'selected' : ''}`}
+						onClick={handleSnowfallToggle}
+						style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', marginTop: '1rem' }}
+					>
+						<div className="font-option-name">Hiệu ứng tuyết rơi</div>
+						<div style={{ display: 'flex', alignItems: 'center' }}>
+							<div 
+								style={{
+									width: '40px',
+									height: '20px',
+									backgroundColor: isSnowfallEnabled ? '#4CAF50' : '#ccc',
+									borderRadius: '20px',
+									position: 'relative',
+									transition: 'background-color 0.3s'
+								}}
+							>
+								<div 
+									style={{
+										width: '16px',
+										height: '16px',
+										backgroundColor: 'white',
+										borderRadius: '50%',
+										position: 'absolute',
+										top: '2px',
+										left: isSnowfallEnabled ? '22px' : '2px',
+										transition: 'left 0.3s'
+									}}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div className="settings-card" style={{ marginBottom: '2rem' }}>
 					<h2>Tùy Chỉnh Font Chữ</h2>

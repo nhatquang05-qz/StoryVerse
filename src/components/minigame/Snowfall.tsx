@@ -1,10 +1,23 @@
 import React, { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../assets/styles/minigame/Snowfall.css';
 import { IMAGES } from './minigameConstants';
 
 const Snowfall: React.FC = () => {
+	const location = useLocation();
+
+	const snowflakeCount = useMemo(() => {
+		const highDensityPaths = ['/christmas-event'];
+
+		const isHighDensity = highDensityPaths.some((path) =>
+			location.pathname.startsWith(path),
+		);
+
+		return isHighDensity ? 60 : 20;
+	}, [location.pathname]);
+
 	const snowflakes = useMemo(() => {
-		return Array.from({ length: 60 }).map((_, i) => {
+		return Array.from({ length: snowflakeCount }).map((_, i) => {
 			const left = Math.floor(Math.random() * 100);
 			const fallDuration = Math.floor(Math.random() * 15) + 15;
 			const animDelay = -(Math.random() * 20);
@@ -40,7 +53,7 @@ const Snowfall: React.FC = () => {
 				</div>
 			);
 		});
-	}, []);
+	}, [snowflakeCount]);
 
 	return <div className="snowfall-zone">{snowflakes}</div>;
 };

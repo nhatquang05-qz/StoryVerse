@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { WishlistProvider } from './contexts/WishListContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { FontProvider } from './contexts/FontContext';
+import { SnowfallProvider } from './contexts/SnowfallContext'; 
 import './index.css';
 import App from './App.tsx';
 
@@ -21,7 +22,9 @@ createRoot(document.getElementById('root')!).render(
 						<CartProvider>
 							<WishlistProvider>
 								<FontProvider>
+									<SnowfallProvider>
 									<App />
+									</SnowfallProvider>
 								</FontProvider>
 							</WishlistProvider>
 						</CartProvider>
