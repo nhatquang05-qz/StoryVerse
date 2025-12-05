@@ -1,6 +1,8 @@
 const comicService = require('../services/comicService');
 const Notification = require('../models/notificationModel'); 
 const { getConnection } = require('../db/connection'); 
+const christmasService = require('../services/christmasService'); // Import service minigame
+
 const addComic = async (req, res) => {
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
     try {
@@ -152,6 +154,15 @@ const unlockChapter = async (req, res) => {
 
     try {
         const result = await comicService.unlockChapterService(userId, chapterId);
+        
+        // --- [MINIGAME] CẬP NHẬT NHIỆM VỤ ĐỌC 3 CHƯƠNG ---
+        try {
+            await christmasService.updateMissionProgress(userId, 'READ_CHAPTER');
+        } catch (e) {
+            console.error("Lỗi cập nhật nhiệm vụ Đọc Minigame:", e.message);
+            // Không throw lỗi để flow chính vẫn chạy
+        }
+        // -------------------------------------------------
 
         res.json({
             level: result.level,

@@ -10,30 +10,36 @@ import backgroundImg from '../../assets/images/minigameChristmas/background.jpg'
 import coinImg from '../../assets/images/coin.avif';
 
 export const IMAGES = {
-	tree: treeImg,
-	background: backgroundImg,
-	coin: coinImg,
-	flakes: [flake1],
-	decors: [decor1, decor2, decor3, decor4, decor5, decor6],
+  tree: treeImg,
+  background: backgroundImg,
+  coin: coinImg,
+  flakes: [flake1],
+  decors: [decor1, decor2, decor3, decor4, decor5, decor6]
 };
 
-export const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+export const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
 
 export const PRIZES_CONFIG = [
-	{ label: '10 Xu', deg: 30 },
-	{ label: '50 Xu', deg: 90 },
-	{ label: 'May mắn', deg: 150 },
-	{ label: '100 Xu', deg: 210 },
-	{ label: 'Voucher', deg: 270 },
-	{ label: 'Truyện In', deg: 330 },
+  { label: '10 Xu', deg: 30 },
+  { label: '50 Xu', deg: 90 },
+  { label: 'May mắn', deg: 150 },
+  { label: '100 Xu', deg: 210 },
+  { label: 'Voucher', deg: 270 },
+  { label: 'Truyện In', deg: 330 }
+];
+
+export const WHEEL_LABELS = [
+    '10 Xu', '50 Xu', '10 Xu', 'May mắn', '10 Xu',
+    '50 Xu', '10 Xu', 'May mắn', '50 Xu', '10 Xu',
+    '500 Xu', 'Truyện', '50 Xu', '10 Xu', 'May mắn'
 ];
 
 export interface DisplayWish {
-	_id: string | number;
-	user: { fullName: string; avatarUrl: string };
-	content: string;
-	top: number;
-	left: number;
-	decorIndex: number;
-	animationDelay: number;
+  _id: string | number;
+  user: { fullName: string; avatarUrl: string; };
+  content: string;
+  top: number; 
+  left: number;
+  decorIndex: number;
+  animationDelay: number;
 }

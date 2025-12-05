@@ -396,3 +396,19 @@ CREATE TABLE `event_christmas_wishes` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Thêm cột lượt quay và thời gian chúc
+ALTER TABLE `users` 
+ADD COLUMN `spins` INT DEFAULT 0,
+ADD COLUMN `lastWishDate` DATE DEFAULT NULL;
+
+-- Tạo bảng lưu tiến độ nhiệm vụ (nếu muốn làm kỹ nhiệm vụ đọc/mua)
+CREATE TABLE IF NOT EXISTS `user_missions` (
+  `userId` int NOT NULL,
+  `missionType` varchar(50) NOT NULL, -- 'LOGIN', 'BUY_COMIC', 'READ_CHAPTER'
+  `progress` int DEFAULT 0,
+  `target` int DEFAULT 1,
+  `isClaimed` tinyint(1) DEFAULT 0,
+  `updatedAt` date NOT NULL, -- Reset mỗi ngày
+  PRIMARY KEY (`userId`, `missionType`, `updatedAt`)
+);

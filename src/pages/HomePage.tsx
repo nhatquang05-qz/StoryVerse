@@ -180,19 +180,23 @@ const HomePage: React.FC = () => {
                     margin: '20px auto 0',
                     padding: '0 15px',
                     boxSizing: 'border-box',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+					userSelect: 'none', 
+                    WebkitUserSelect: 'none'
                 }}
                 onClick={() => navigate('/christmas-event')}
             >
                 <img 
                     src={minigameBanner} 
                     alt="Christmas Minigame Event" 
+					draggable={false}  
+                    onContextMenu={(e) => e.preventDefault()}
                     style={{
                         width: '100%',
                         height: 'auto',
                         borderRadius: '12px',
                         boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-                        transition: 'transform 0.3s ease'
+                        transition: 'transform 0.3s ease',
                     }}
                     onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.01)'}
                     onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}

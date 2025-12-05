@@ -1,14 +1,16 @@
 const authService = require('../services/authService');
-const userModel = require('../models/userModel'); 
+const userModel = require('../models/userModel');
+const christmasService = require('../services/christmasService'); 
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'duongnguyennhatquang@gmail.com', 
-    pass: 'cxwuplnsorqyxyfq'      
+    user: 'duongnguyennhatquang@gmail.com',
+    pass: 'cxwuplnsorqyxyfq'
   }
 });
+
 const otpStore = new Map();
 
 const sendOtp = async (req, res) => {
@@ -29,7 +31,7 @@ const sendOtp = async (req, res) => {
 
     otpStore.set(email, {
       code: otpCode,
-      expires: Date.now() + 5 * 60 * 1000 
+      expires: Date.now() + 5 * 60 * 1000
     });
 
     const mailOptions = {
@@ -93,6 +95,15 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const result = await authService.loginService({ email, password });
+
+    if (result.status === 200 && result.user) {
+        try {
+            await christmasService.updateMissionProgress(result.user.id, 'LOGIN');
+        } catch (e) {
+            console.error("Lỗi cập nhật nhiệm vụ Minigame (Login):", e.message);
+        }
+    }
+
     res.status(result.status).json({ message: result.message, token: result.token, user: result.user });
   } catch (error) {
     const status = error.status || 500;
@@ -105,6 +116,15 @@ const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
     const result = await authService.googleLoginService({ token });
+
+    if (result.status === 200 && result.user) {
+        try {
+            await christmasService.updateMissionProgress(result.user.id, 'LOGIN');
+        } catch (e) {
+            console.error("Lỗi cập nhật nhiệm vụ Minigame (Google):", e.message);
+        }
+    }
+
     res.status(result.status).json({ message: result.message, token: result.token, user: result.user });
   } catch (error) {
     const status = error.status || 500;
@@ -117,6 +137,15 @@ const facebookLogin = async (req, res) => {
   try {
     const { accessToken } = req.body;
     const result = await authService.facebookLoginService({ accessToken });
+
+    if (result.status === 200 && result.user) {
+        try {
+            await christmasService.updateMissionProgress(result.user.id, 'LOGIN');
+        } catch (e) {
+            console.error("Lỗi cập nhật nhiệm vụ Minigame (Facebook):", e.message);
+        }
+    }
+
     res.status(result.status).json({ message: result.message, token: result.token, user: result.user });
   } catch (error) {
     const status = error.status || 500;

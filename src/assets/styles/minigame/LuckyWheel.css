@@ -1,31 +1,3 @@
-.lucky-wheel-trigger {
-	position: fixed;
-	bottom: 40px;
-	right: 40px;
-	width: 100px;
-	height: 100px;
-	background: radial-gradient(circle, #ffd700, #ff8c00);
-	border-radius: 50%;
-	border: 5px solid #fff;
-	cursor: pointer;
-	z-index: 100;
-	box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-	animation: spinSlow 15s linear infinite;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
-	color: #fff;
-	text-align: center;
-	font-size: 14px;
-	line-height: 1.2;
-	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.lucky-wheel-trigger:hover {
-	transform: scale(1.1);
-}
-
 .wheel-modal-overlay {
 	position: fixed;
 	top: 0;
@@ -34,7 +6,7 @@
 	height: 100vh;
 	background: rgba(0, 0, 0, 0.85);
 	backdrop-filter: blur(15px);
-	z-index: 100001;
+	z-index: 100000;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -47,13 +19,16 @@
 	padding: 20px;
 	border-radius: 20px;
 	text-align: center;
-	animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	animation: zoomIn 0.4s;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .close-modal-btn {
 	position: absolute;
-	top: -30px;
-	right: -30px;
+	top: -40px;
+	right: -40px;
 	background: #fff;
 	color: #c0392b;
 	width: 50px;
@@ -63,7 +38,7 @@
 	font-weight: bold;
 	font-size: 28px;
 	cursor: pointer;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -76,16 +51,15 @@
 }
 
 .wheel-board-wrapper {
-	background: rgba(255, 255, 255, 0.1);
-	padding: 40px;
+	background: rgba(255,255,255,0.1);
+	padding: 30px;
 	border-radius: 50%;
-	border: 10px solid rgba(255, 215, 0, 0.4);
-	box-shadow: 0 0 60px rgba(255, 215, 0, 0.2);
+	box-shadow: 0 0 80px rgba(255,215,0,0.3);
 }
 
 .wheel-container {
-	width: 450px;
-	height: 450px;
+	width: 500px; 
+	height: 500px;
 	position: relative;
 }
 
@@ -93,19 +67,9 @@
 	width: 100%;
 	height: 100%;
 	border-radius: 50%;
-	border: 12px solid #ffd700;
-	transition: transform 5s cubic-bezier(0.2, 0.8, 0.2, 1);
-	background: conic-gradient(
-		#e74c3c 0deg 60deg,
-		#ffffff 60deg 120deg,
-		#2ecc71 120deg 180deg,
-		#ffffff 180deg 240deg,
-		#e74c3c 240deg 300deg,
-		#ffffff 300deg 360deg
-	);
 	position: relative;
 	overflow: hidden;
-	box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 0 25px rgba(0,0,0,0.5); 
 }
 
 .wheel-text {
@@ -113,45 +77,42 @@
 	top: 50%;
 	left: 50%;
 	width: 50%;
+	height: 0;
 	transform-origin: 0 0;
-	padding-left: 60px;
+	padding-left: 65px; 
 	display: flex;
 	align-items: center;
-	height: 0;
+	justify-content: flex-start;
 }
 
 .wheel-text span {
 	display: block;
-	transform: rotate(90deg);
-	font-weight: 800;
-	color: #2c3e50;
-	font-size: 18px;
+	font-weight: 900; 
+	font-size: 16px;
 	text-transform: uppercase;
-}
-
-.wheel-text:nth-child(odd) span {
-	color: white;
+	white-space: nowrap;
+	text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+	font-family: 'Arial', sans-serif;
 }
 
 .pointer {
 	position: absolute;
-	top: -35px;
+	top: -30px;
 	left: 50%;
 	transform: translateX(-50%);
-	width: 0;
-	height: 0;
-	border-left: 30px solid transparent;
-	border-right: 30px solid transparent;
+	width: 0; 
+	height: 0; 
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
 	border-top: 60px solid #e74c3c;
 	z-index: 10;
-	filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.5));
+	filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5));
 }
 
 .spin-action-btn {
-	margin-top: 50px;
 	background: linear-gradient(45deg, #f1c40f, #e67e22);
 	border: none;
-	padding: 20px 70px;
+	padding: 18px 70px;
 	font-size: 24px;
 	font-weight: 800;
 	color: white;
@@ -160,45 +121,13 @@
 	box-shadow: 0 10px 30px rgba(230, 126, 34, 0.5);
 	transition: 0.3s;
 	text-transform: uppercase;
-	letter-spacing: 1px;
-}
-
-.spin-action-btn:hover:not(:disabled) {
-	transform: scale(1.05) translateY(-2px);
-	box-shadow: 0 15px 40px rgba(230, 126, 34, 0.7);
 }
 
 .spin-action-btn:disabled {
 	background: #95a5a6;
 	cursor: not-allowed;
 	box-shadow: none;
-	transform: none;
 }
 
-@keyframes spinSlow {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-@keyframes zoomIn {
-	from {
-		transform: scale(0.8);
-		opacity: 0;
-	}
-	to {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }

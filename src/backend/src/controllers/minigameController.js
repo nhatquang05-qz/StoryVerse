@@ -28,3 +28,12 @@ exports.getWishList = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+exports.getInfo = async (req, res) => {
+    try {
+        const info = await service.getUserGameInfo(req.userId);
+        res.json(info);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};

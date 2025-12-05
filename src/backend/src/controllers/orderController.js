@@ -6,6 +6,7 @@ const paymentModel = require('../models/paymentModel');
 const Notification = require('../models/notificationModel'); 
 const FlashSaleModel = require('../models/flashSaleModel'); 
 const { generateTransactionCode } = require('../utils/transactionGenerator'); 
+const christmasService = require('../services/christmasService'); 
 
 const createOrder = async (req, res) => {
     try {
@@ -68,6 +69,12 @@ const createOrder = async (req, res) => {
             } catch (err) {
                 console.error('Error incrementing sold count for COD:', err);
             }
+        }
+        
+        try {
+            await christmasService.updateMissionProgress(userId, 'BUY_COMIC');
+        } catch (e) {
+            console.error("Lỗi cập nhật nhiệm vụ Mua Minigame:", e.message);
         }
 
         res.json({ message: 'Tạo đơn hàng thành công', orderId });
@@ -224,7 +231,6 @@ const getOrderById = async (req, res) => {
         const { id } = req.params;
         const connection = require('../db/connection').getConnection();
         
-        // 1. Lấy thông tin đơn hàng cơ bản + transactionCode
         const [rows] = await connection.execute(
             `SELECT o.*, t.transactionCode 
              FROM orders o
@@ -240,7 +246,6 @@ const getOrderById = async (req, res) => {
 
         const order = rows[0];
 
-        // 2. Lấy danh sách sản phẩm (Items) của đơn hàng này
         const [items] = await connection.execute(
             `SELECT oi.id, oi.quantity, oi.price, c.title, c.coverImageUrl 
              FROM order_items oi
@@ -249,11 +254,10 @@ const getOrderById = async (req, res) => {
             [id]
         );
 
-        // 3. Trả về kết quả gộp: order + items
         res.json({ 
             data: { 
                 ...order, 
-                items: items // Thêm mảng items vào response
+                items: items 
             } 
         });
 
