@@ -4,6 +4,10 @@ import { type ComicSummary } from '../types/comicTypes';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
+import logoImage from '../assets/images/logo.avif';
+
+import '../assets/styles/ComicsPage.css';
+
 import '../assets/styles/FilterSidebar.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -22,8 +26,10 @@ interface FilterState {
 const DigitalComicsPage: React.FC = () => {
 	const [allComics, setAllComics] = useState<ComicSummary[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [categoryTitle] = useState('Truyện online');
-	const [categoryDescription] = useState('Đọc Truyện online mọi lúc mọi nơi trên mọi thiết bị.');
+	const [categoryTitle] = useState('Truyện tranh online');
+	const [categoryDescription] = useState(
+		'Khám phá đa vũ trụ truyện tranh online chất lượng cao, sắc nét trên mọi thiết bị của bạn.',
+	);
 
 	const [sortState, setSortState] = useState<SortState>({
 		time: null,
@@ -181,53 +187,62 @@ const DigitalComicsPage: React.FC = () => {
 	if (isLoading) return <LoadingPage />;
 
 	return (
-		<div className="search-page-layout">
-			<div className="main-content">
-				<div className="category-header">
-					<h1>{categoryTitle}</h1>
-					<p>{categoryDescription}</p>
-				</div>
+		<div className="comics-page-wrapper">
+			{}
+			<section className="comics-hero">
+				<h1 className="hero-title">{categoryTitle}</h1>
+				<p className="hero-desc">{categoryDescription}</p>
+			</section>
 
-				{currentItems.length > 0 ? (
-					<>
-						<p style={{ marginBottom: '15px', color: 'var(--clr-text-secondary)' }}>
-							Hiển thị {currentItems.length} trên tổng số {currentComics.length}{' '}
-							truyện
-						</p>
-						<ProductList comics={currentItems} />
-						{totalPages > 1 && (
-							<div
-								style={{
-									marginTop: '40px',
-									display: 'flex',
-									justifyContent: 'center',
-								}}
-							>
-								<Pagination
-									currentPage={currentPage}
-									totalPages={totalPages}
-									onPageChange={handlePageChange}
-								/>
+			{}
+			<div className="comics-layout">
+				{}
+				<aside className="filter-sidebar-wrapper">
+					<FilterSidebar
+						filters={filters}
+						onFilterChange={(newFilters) => {
+							setFilters(newFilters);
+							setCurrentPage(1);
+						}}
+						showPriceFilter={false}
+						sortState={sortState}
+						onSortChange={handleSortChange}
+					/>
+				</aside>
+
+				{}
+				<main className="main-content-area">
+					{currentItems.length > 0 ? (
+						<>
+							<div className="results-count">
+								Hiển thị <span>{currentItems.length}</span> trên tổng số{' '}
+								<span>{currentComics.length}</span> truyện
 							</div>
-						)}
-					</>
-				) : (
-					<div className="empty-state">
-						<p>Không có sản phẩm nào phù hợp.</p>
-					</div>
-				)}
-			</div>
 
-			<FilterSidebar
-				filters={filters}
-				onFilterChange={(newFilters) => {
-					setFilters(newFilters);
-					setCurrentPage(1);
-				}}
-				showPriceFilter={false}
-				sortState={sortState}
-				onSortChange={handleSortChange}
-			/>
+							<ProductList comics={currentItems} />
+
+							{totalPages > 1 && (
+								<div className="pagination-container">
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										onPageChange={handlePageChange}
+									/>
+								</div>
+							)}
+						</>
+					) : (
+						<div className="empty-state-container">
+							<img
+								src={logoImage}
+								alt="Empty"
+								style={{ width: '120px', opacity: 0.5, marginBottom: '20px' }}
+							/>
+							<p className="empty-state-text">Không tìm thấy truyện nào phù hợp.</p>
+						</div>
+					)}
+				</main>
+			</div>
 		</div>
 	);
 };

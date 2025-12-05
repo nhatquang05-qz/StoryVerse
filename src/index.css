@@ -567,3 +567,38 @@ select:focus {
 	outline: none !important;
 	box-shadow: none !important;
 }
+
+html[data-theme='night'] body,
+html[data-theme='night'] .app-container {
+	background-color: var(--clr-background);
+	background-image: url('/src/assets/images/sky-bg.webp');
+	background-size: cover;
+	background-position: center;
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-blend-mode: multiply, multiply, normal;
+	min-height: 100vh;
+	transition: background 0.5s ease-in-out;
+}
+
+html[data-theme='night'] .card,
+html[data-theme='night'] .product-card,
+html[data-theme='night'] .featured-tags-section,
+html[data-theme='night'] .top-comics-section,
+html[data-theme='night'] .top-members-section,
+html[data-theme='night'] .fs-card,
+html[data-theme='night'] .sidebar {
+	background-color: rgba(42, 42, 42, 0.3) !important;
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='night'] .chat-room-container {
+	background-color: rgba(42, 42, 42, 0.5) !important;
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+html[data-theme='night'] .chat-content {
+	background-color: rgba(42, 42, 42, 0.2) !important;
+	backdrop-filter: blur(10px);
+}

@@ -63,6 +63,8 @@ function App() {
 	const isRegisterPage = location.pathname === '/register';
 	const isForgotPassPage = location.pathname === '/forgot-password';
 	const isFAQPage = location.pathname === '/faq';
+	const isPCPage = location.pathname === '/physical-comics';
+	const isDCPage = location.pathname === '/digital-comics';
 
 	const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
@@ -122,7 +124,9 @@ function App() {
 						isPrivacyPage ||
 						isTermsPage ||
 						isCommunityPage ||
-						isFAQPage
+						isFAQPage ||
+						isPCPage ||
+						isDCPage
 							? '0'
 							: undefined,
 				}}
