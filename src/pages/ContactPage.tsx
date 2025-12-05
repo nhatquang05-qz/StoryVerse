@@ -8,41 +8,78 @@ import {
 	FaPhoneAlt,
 	FaEnvelope,
 	FaPaperPlane,
+	FaCheckCircle,
+	FaExclamationCircle,
+	FaExclamationTriangle,
 } from 'react-icons/fa';
 import '../assets/styles/ContactPage.css';
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+
 const ContactPage = () => {
+	const [toast, setToast] = useState<{
+		message: string;
+		type: 'success' | 'error' | 'warning';
+	} | null>(null);
+
+	const showToast = (message: string, type: 'success' | 'error' | 'warning') => {
+		setToast({ message, type });
+
+		setTimeout(() => setToast(null), 3000);
+	};
+
 	const [formData, setFormData] = useState({
 		name: '',
 		email: '',
 		subject: '',
 		message: '',
 	});
-
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		const { name, value } = e.target;
-		setFormData((prev) => ({
-			...prev,
-			[name]: value,
-		}));
+		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 
-		setTimeout(() => {
-			console.log('Form data submitted:', formData);
-			alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
-			setFormData({ name: '', email: '', subject: '', message: '' });
+		try {
+			const response = await fetch(`${API_URL}/contact`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(formData),
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				showToast('Gửi thành công! Chúng tôi sẽ phản hồi sớm.', 'success');
+				setFormData({ name: '', email: '', subject: '', message: '' });
+			} else {
+				showToast(data.message || 'Có lỗi xảy ra.', 'warning');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			showToast('Lỗi kết nối server.', 'error');
+		} finally {
 			setIsSubmitting(false);
-		}, 1500);
+		}
 	};
 
 	return (
 		<div className="contact-page-container">
+			{}
+			{toast && (
+				<div className={`local-toast ${toast.type}`}>
+					{toast.type === 'success' && <FaCheckCircle />}
+					{toast.type === 'error' && <FaExclamationCircle />}
+					{toast.type === 'warning' && <FaExclamationTriangle />}
+					<span>{toast.message}</span>
+				</div>
+			)}
+
 			<div className="contact-wrapper">
 				<div className="contact-header">
 					<h1 className="contact-title">Liên Hệ Với Chúng Tôi</h1>
@@ -77,18 +114,8 @@ const ContactPage = () => {
 								</a>
 							</div>
 						</div>
-
 						<div className="info-card">
 							<h3 className="info-title">Mạng Xã Hội</h3>
-							<p
-								style={{
-									color: 'var(--clr-text-secondary, #94a3b8)',
-									marginBottom: '1.5rem',
-								}}
-							>
-								Theo dõi chúng tôi để cập nhật những truyện mới nhất và các sự kiện
-								hấp dẫn.
-							</p>
 							<div className="social-links">
 								<a
 									href="https://facebook.com"
@@ -127,7 +154,7 @@ const ContactPage = () => {
 					</div>
 
 					<div className="contact-form-card">
-						<h3 className="info-title" style={{ marginBottom: '2rem' }}>
+						<h3 className="info-title" style={{ marginBottom: '1.5rem' }}>
 							Gửi Tin Nhắn
 						</h3>
 						<form onSubmit={handleSubmit}>
@@ -146,7 +173,6 @@ const ContactPage = () => {
 									required
 								/>
 							</div>
-
 							<div className="form-group">
 								<label htmlFor="email" className="form-label">
 									Email
@@ -162,7 +188,6 @@ const ContactPage = () => {
 									required
 								/>
 							</div>
-
 							<div className="form-group">
 								<label htmlFor="subject" className="form-label">
 									Chủ đề
@@ -178,7 +203,6 @@ const ContactPage = () => {
 									required
 								/>
 							</div>
-
 							<div className="form-group">
 								<label htmlFor="message" className="form-label">
 									Nội dung
@@ -193,13 +217,12 @@ const ContactPage = () => {
 									required
 								></textarea>
 							</div>
-
 							<button type="submit" className="submit-btn" disabled={isSubmitting}>
 								{isSubmitting ? (
 									'Đang gửi...'
 								) : (
 									<>
-										Gửi Tin Nhắn <FaPaperPlane />
+										<FaPaperPlane /> Gửi Tin Nhắn
 									</>
 								)}
 							</button>
