@@ -11,7 +11,7 @@ import {
 	FiArrowUp,
 	FiShoppingCart,
 } from 'react-icons/fi';
-import { type ComicDetail, type ChapterSummary } from '../types/comicTypes';
+import { type ComicDetail, type ChapterSummary, type ComicSummary } from '../types/comicTypes';
 import { loadOrders } from '../data/mockData';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishListContext';
@@ -21,6 +21,7 @@ import { useNotification } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ComicDetailPage.css';
 import flashSaleBadgeIcon from '../assets/images/fs.avif';
+import ProductList from '../components/common/ProductList';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TOKEN_STORAGE_KEY = 'storyverse_token';
@@ -108,6 +109,7 @@ const ComicDetailPage: React.FC = () => {
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
 	const [unlockedChapterIds, setUnlockedChapterIds] = useState<Set<number>>(new Set());
+	const [relatedComics, setRelatedComics] = useState<ComicSummary[]>([]);
 
 	const imgRef = useRef<HTMLImageElement>(null);
 	const comicData: any = comic;
@@ -125,11 +127,70 @@ const ComicDetailPage: React.FC = () => {
 		? Math.round(((comicData.price - comicData.flashSalePrice) / comicData.price) * 100)
 		: 0;
 
+	const fetchRelatedComics = async (currentComic: ComicDetail) => {
+		try {
+			const response = await fetch(`${API_URL}/comics?limit=100`);
+			if (!response.ok) throw new Error('Lỗi tải truyện liên quan');
+			const responseData = await response.json();
+			const allComics: ComicSummary[] = Array.isArray(responseData)
+				? responseData
+				: responseData.data || [];
+
+			const currentKeywords = currentComic.title
+				.toLowerCase()
+				.split(/[\s:.-]+/)
+				.filter((w) => w.length > 2);
+
+			const scoredComics = allComics
+				.filter((c) => c.id !== currentComic.id)
+				.map((c) => {
+					let score = 0;
+
+					const targetTitleLower = c.title.toLowerCase();
+					let matchedKeywordCount = 0;
+					currentKeywords.forEach((kw) => {
+						if (targetTitleLower.includes(kw)) {
+							matchedKeywordCount++;
+						}
+					});
+					score += matchedKeywordCount * 10;
+
+					if (currentComic.genres && c.genres) {
+						const currentGenreIds = currentComic.genres.map((g) => g.id);
+						const commonGenres = c.genres.filter((g) => currentGenreIds.includes(g.id));
+						score += commonGenres.length * 3;
+					}
+
+					const currentIsDigital = currentComic.isDigital ? 1 : 0;
+					const targetIsDigital = c.isDigital ? 1 : 0;
+
+					if (currentIsDigital === targetIsDigital) {
+						score += 2;
+					}
+
+					return { comic: c, score };
+				});
+
+			const sortedRelated = scoredComics
+				.filter((item) => item.score > 0)
+				.sort((a, b) => b.score - a.score)
+				.map((item) => item.comic)
+				.slice(0, 10);
+
+			setRelatedComics(sortedRelated);
+		} catch (error) {
+			console.error('Lỗi khi tải truyện liên quan:', error);
+		}
+	};
+
 	useEffect(() => {
 		setIsLoading(true);
 		fetchComicDetail(id)
 			.then((data) => {
 				setComic(data || null);
+				if (data) {
+					fetchRelatedComics(data);
+				}
 			})
 			.catch(() => {
 				setComic(null);
@@ -576,6 +637,16 @@ const ComicDetailPage: React.FC = () => {
 			<div className="review-section-wrapper">
 				<ReviewSection comicId={comic.id} comicTitle={comic.title} />
 			</div>
+
+			{}
+			{relatedComics.length > 0 && (
+				<div className="related-comics-section">
+					<h2 className="related-title">Có thể bạn sẽ thích</h2>
+					<div className="related-list-container">
+						<ProductList comics={relatedComics as any[]} />
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
