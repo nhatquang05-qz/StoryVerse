@@ -9,6 +9,7 @@ import '../assets/styles/AboutPage.css';
 import avatar from '../assets/images/nquang.png';
 import bgDiscover from '../assets/images/bg-discover.avif';
 import galaxyGif from '../assets/images/galaxy.gif';
+import aboutusImage from '../assets/images/about1.avif';
 
 const AnimatedCounter = ({
 	from = 0,
@@ -165,7 +166,7 @@ const AboutPage: React.FC = () => {
 						<InViewAnimation delay={0.3}>
 							<div className="story-image-wrapper">
 								<img
-									src="https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?q=80&w=2070&auto=format&fit=crop"
+									src={aboutusImage}
 									alt="Comic Workspace"
 									className="story-image"
 								/>
