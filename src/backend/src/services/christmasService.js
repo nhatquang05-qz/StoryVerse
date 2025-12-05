@@ -113,7 +113,8 @@ const addWish = async (userId, content) => {
     const config = getRandomItem(WISH_RATES);
     const rewardCoins = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min;
 
-    await db.query('INSERT INTO event_christmas_wishes (userId, content) VALUES (?, ?)', [userId, content]);    
+    await db.query('INSERT INTO event_christmas_wishes (userId, content) VALUES (?, ?)', [userId, content]);
+    
     await db.query('UPDATE user_event_status SET lastWishDate = NOW() WHERE userId = ?', [userId]);
     await db.query('UPDATE users SET coinBalance = coinBalance + ? WHERE id = ?', [rewardCoins, userId]);
     
@@ -129,6 +130,7 @@ const getUserGameInfo = async (userId) => {
     
     await ensureEventStatus(db, userId);
 
+    // Lấy spins và lastWishDate từ bảng riêng
     const [statusRows] = await db.query('SELECT spins, lastWishDate FROM user_event_status WHERE userId = ?', [userId]);
     const [missions] = await db.query(
         'SELECT missionType, progress, target, isClaimed FROM user_missions WHERE userId = ? AND updatedAt = ?',
@@ -175,6 +177,7 @@ const updateMissionProgress = async (userId, type) => {
     );
 
     if (mission[0].progress >= target && mission[0].isClaimed === 0) {
+        // Cộng lượt quay vào bảng user_event_status
         await db.query('UPDATE user_event_status SET spins = spins + ? WHERE userId = ?', [rewardSpins, userId]);
         await db.query('UPDATE user_missions SET isClaimed = 1 WHERE userId = ? AND missionType = ? AND updatedAt = ?', [userId, type, today]);
         return true;

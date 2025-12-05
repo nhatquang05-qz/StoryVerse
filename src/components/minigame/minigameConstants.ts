@@ -10,36 +10,48 @@ import backgroundImg from '../../assets/images/minigameChristmas/background.jpg'
 import coinImg from '../../assets/images/coin.avif';
 
 export const IMAGES = {
-  tree: treeImg,
-  background: backgroundImg,
-  coin: coinImg,
-  flakes: [flake1],
-  decors: [decor1, decor2, decor3, decor4, decor5, decor6]
+	tree: treeImg,
+	background: backgroundImg,
+	coin: coinImg,
+	flakes: [flake1],
+	decors: [decor1, decor2, decor3, decor4, decor5, decor6],
 };
 
-export const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/847/847969.png";
+export const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
 
-export const PRIZES_CONFIG = [
-  { label: '10 Xu', deg: 30 },
-  { label: '50 Xu', deg: 90 },
-  { label: 'May mắn', deg: 150 },
-  { label: '100 Xu', deg: 210 },
-  { label: 'Voucher', deg: 270 },
-  { label: 'Truyện In', deg: 330 }
-];
-
+// DANH SÁCH 15 Ô - BẮT BUỘC KHỚP VỚI BACKEND
+// Thứ tự: ID 1 -> ID 15
 export const WHEEL_LABELS = [
-    '10 Xu', '50 Xu', '10 Xu', 'May mắn', '10 Xu',
-    '50 Xu', '10 Xu', 'May mắn', '50 Xu', '10 Xu',
-    '500 Xu', '10 xu', '50 Xu', 'Truyện', 'May mắn'
+	'10 Xu', // 1
+	'50 Xu', // 2
+	'10 Xu', // 3
+	'May mắn', // 4
+	'10 Xu', // 5
+	'50 Xu', // 6
+	'10 Xu', // 7
+	'May mắn', // 8
+	'50 Xu', // 9
+	'10 Xu', // 10
+	'500 Xu', // 11
+	'May mắn', // 12
+	'50 Xu', // 13
+	'10 Xu', // 14
+	'Truyện In', // 15
 ];
+
+export const SEGMENT_ANGLE = 24;
+export const INITIAL_WHEEL_DEG = 12;
+export const PRIZES_CONFIG = WHEEL_LABELS.map((label, index) => ({
+	label,
+	deg: index * SEGMENT_ANGLE,
+}));
 
 export interface DisplayWish {
-  _id: string | number;
-  user: { fullName: string; avatarUrl: string; };
-  content: string;
-  top: number; 
-  left: number;
-  decorIndex: number;
-  animationDelay: number;
+	_id: string | number;
+	user: { fullName: string; avatarUrl: string };
+	content: string;
+	top: number;
+	left: number;
+	decorIndex: number;
+	animationDelay: number;
 }
