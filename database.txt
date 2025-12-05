@@ -429,3 +429,5 @@ SELECT id, IFNULL(spins, 0), lastWishDate FROM `users`;
 ALTER TABLE `users` 
 DROP COLUMN `spins`,
 DROP COLUMN `lastWishDate`;
+
+ALTER TABLE `reports` MODIFY COLUMN `targetType` ENUM('POST', 'COMMENT', 'CHAT_MESSAGE') NOT NULL;
