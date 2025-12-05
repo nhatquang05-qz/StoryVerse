@@ -11,7 +11,7 @@ import FlyingWishes from '../components/minigame/FlyingWishes';
 import WishingTree from '../components/minigame/WishingTree';
 import LuckyWheelModal from '../components/minigame/LuckyWheelModal';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ChristmasEventPage: React.FC = () => {
 	const { currentUser, token, fetchUser } = useAuth();
@@ -98,7 +98,7 @@ const ChristmasEventPage: React.FC = () => {
 
 			setTimeout(() => {
 				setIsSpinning(false);
-				setRewardMessage(result.type === 'luck' ? "Chúc bạn may mắn lần sau!" : `🎉 Bạn nhận được: ${result.label}`);
+				setRewardMessage(result.type === 'luck' ? "Chúc bạn may mắn lần sau!" : ` Bạn nhận được: ${result.label}`);
 				if(result.type !== 'luck') toast.success(`Trúng ${result.label}`);
 				setFreeSpins(remainingSpins);
 				fetchUser();
@@ -162,7 +162,7 @@ const ChristmasEventPage: React.FC = () => {
 
 			<div className="wish-input-bar">
 				{hasWishedToday ? (
-					<div className="wished-message">✨ Bạn đã gửi lời chúc hôm nay rồi. Hãy quay lại ngày mai nhé! ✨</div>
+					<div className="wished-message"> Bạn đã gửi lời chúc hôm nay rồi. Hãy quay lại ngày mai nhé! </div>
 				) : (
 					<>
 						<input 
@@ -176,16 +176,16 @@ const ChristmasEventPage: React.FC = () => {
 			</div>
 
 			<div className="mission-board">
-				<h3>🎄 Nhiệm Vụ</h3>
+				<h3>Nhiệm Vụ</h3>
 				<ul>
 					<li className={missions.LOGIN.isClaimed ? 'completed' : ''}>
-						<span>🔥 Đăng nhập</span><span>{missions.LOGIN.isClaimed ? 'Đã nhận' : `${missions.LOGIN.progress}/${missions.LOGIN.target}`} (+1)</span>
+						<span> Đăng nhập</span><span>{missions.LOGIN.isClaimed ? 'Đã nhận' : `${missions.LOGIN.progress}/${missions.LOGIN.target}`} (+1 lượt quay)</span>
 					</li>
 					<li className={missions.BUY_COMIC.isClaimed ? 'completed' : ''}>
-						<span>📚 Mua truyện</span><span>{missions.BUY_COMIC.isClaimed ? 'Đã nhận' : `${missions.BUY_COMIC.progress}/${missions.BUY_COMIC.target}`} (+5)</span>
+						<span> Mua truyện</span><span>{missions.BUY_COMIC.isClaimed ? 'Đã nhận' : `${missions.BUY_COMIC.progress}/${missions.BUY_COMIC.target}`} (+5 lượt quay)</span>
 					</li>
 					<li className={missions.READ_CHAPTER.isClaimed ? 'completed' : ''}>
-						<span>🔓 Mở 3 chương</span><span>{missions.READ_CHAPTER.isClaimed ? 'Đã nhận' : `${missions.READ_CHAPTER.progress}/${missions.READ_CHAPTER.target}`} (+1)</span>
+						<span> Mở 3 chương</span><span>{missions.READ_CHAPTER.isClaimed ? 'Đã nhận' : `${missions.READ_CHAPTER.progress}/${missions.READ_CHAPTER.target}`} (+1 lượt quay)</span>
 					</li>
 				</ul>
 			</div>

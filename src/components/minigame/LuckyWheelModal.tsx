@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../assets/styles/minigame/LuckyWheel.css';
-import { PRIZES_CONFIG, WHEEL_LABELS } from './minigameConstants';
+import { WHEEL_LABELS } from './minigameConstants';
 
 const WHEEL_GRADIENT = "conic-gradient(#ffffff 0deg 24deg, #ff4d4d 24deg 48deg, #ffffff 48deg 72deg, #2ecc71 72deg 96deg, #ffffff 96deg 120deg, #ff4d4d 120deg 144deg, #ffffff 144deg 168deg, #2ecc71 168deg 192deg, #ff4d4d 192deg 216deg, #ffffff 216deg 240deg, #c9c29fff 240deg 264deg, #2ecc71 264deg 288deg, #ff4d4d 288deg 312deg, #ffffff 312deg 336deg, #eeff00ff 336deg 360deg)";
 

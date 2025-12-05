@@ -412,3 +412,20 @@ CREATE TABLE IF NOT EXISTS `user_missions` (
   `updatedAt` date NOT NULL, -- Reset mỗi ngày
   PRIMARY KEY (`userId`, `missionType`, `updatedAt`)
 );
+
+CREATE TABLE IF NOT EXISTS `user_event_status` (
+  `userId` int NOT NULL,
+  `spins` int DEFAULT 0,
+  `lastWishDate` date DEFAULT NULL,
+  PRIMARY KEY (`userId`),
+  CONSTRAINT `fk_event_status_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. (Tùy chọn) Chuyển dữ liệu cũ sang bảng mới nếu muốn giữ lại
+INSERT IGNORE INTO `user_event_status` (userId, spins, lastWishDate)
+SELECT id, IFNULL(spins, 0), lastWishDate FROM `users`;
+
+-- 3. Xóa các cột sự kiện ở bảng users cho sạch sẽ
+ALTER TABLE `users` 
+DROP COLUMN `spins`,
+DROP COLUMN `lastWishDate`;
