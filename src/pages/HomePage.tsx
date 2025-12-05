@@ -11,7 +11,7 @@ import ChatLog from '../components/common/Chat/ChatLog';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import '../assets/styles/HomePage.css';
 import FlashSaleSection from '../components/common/FlashSaleSection';
-import minigameBanner from '../assets/images/minigameChristmas/banner_minigame.png';
+import minigameBanner from '../assets/images/minigameChristmas/banner_minigame.webp';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';

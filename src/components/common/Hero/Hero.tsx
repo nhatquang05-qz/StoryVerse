@@ -2,26 +2,26 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import '../../../assets/styles/Hero.css';
-import bgSlide1 from './bg-slide1.avif';
-import bgSlide2 from './bg-slide2.avif';
-import bgSlide3 from './bg-slide3.avif';
-import bgSlide4 from './bg-slide4.webp';
-import bgSlide5 from './bg-slide5.avif';
-import mb11 from './mb-11.webp';
-import mb12 from './mb-12.webp';
-import mb13 from './mb-13.webp';
-import mb21 from './mb-21.webp';
-import mb22 from './mb-22.webp';
-import mb23 from './mb-23.webp';
-import mb31 from './mb-31.webp';
-import mb32 from './mb-32.webp';
-import mb33 from './mb-33.webp';
-import mb41 from './mb-41.webp';
-import mb42 from './mb-42.webp';
-import mb43 from './mb-43.webp';
-import mb51 from './mb-51.webp';
-import mb52 from './mb-52.webp';
-import mb53 from './mb-53.webp';
+import bgSlide1 from '../../../assets/images/Hero/bg-slide1.avif';
+import bgSlide2 from '../../../assets/images/Hero/bg-slide2.avif';
+import bgSlide3 from '../../../assets/images/Hero/bg-slide3.avif';
+import bgSlide4 from '../../../assets/images/Hero/bg-slide4.webp';
+import bgSlide5 from '../../../assets/images/Hero/bg-slide5.avif';
+import mb11 from '../../../assets/images/Hero/mb-11.webp';
+import mb12 from '../../../assets/images/Hero/mb-12.webp';
+import mb13 from '../../../assets/images/Hero/mb-13.webp';
+import mb21 from '../../../assets/images/Hero/mb-21.webp';
+import mb22 from '../../../assets/images/Hero/mb-22.webp';
+import mb23 from '../../../assets/images/Hero/mb-23.webp';
+import mb31 from '../../../assets/images/Hero/mb-31.webp';
+import mb32 from '../../../assets/images/Hero/mb-32.webp';
+import mb33 from '../../../assets/images/Hero/mb-33.webp';
+import mb41 from '../../../assets/images/Hero/mb-41.webp';
+import mb42 from '../../../assets/images/Hero/mb-42.webp';
+import mb43 from '../../../assets/images/Hero/mb-43.webp';
+import mb51 from '../../../assets/images/Hero/mb-51.webp';
+import mb52 from '../../../assets/images/Hero/mb-52.webp';
+import mb53 from '../../../assets/images/Hero/mb-53.webp';
 
 const sections = [
 	{
@@ -79,7 +79,16 @@ const Hero: React.FC = () => {
 	const current = sections[index];
 
 	return (
-		<section className="hero-slider">
+		<section
+			className="hero-slider"
+			onContextMenu={(e) => e.preventDefault()}
+			style={{
+				userSelect: 'none',
+				WebkitUserSelect: 'none',
+				MozUserSelect: 'none',
+				msUserSelect: 'none',
+			}}
+		>
 			<AnimatePresence>
 				<motion.div
 					key={index}
@@ -134,6 +143,8 @@ const Hero: React.FC = () => {
 								initial={{ opacity: 0, x: i === 0 ? -100 : i === 2 ? 100 : 0 }}
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: i * 0.2, duration: 0.8 }}
+								draggable={false}
+								onDragStart={(e) => e.preventDefault()}
 							/>
 						))}
 					</motion.div>

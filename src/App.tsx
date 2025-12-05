@@ -11,6 +11,7 @@ import LoadingScreen from './components/common/Loading/LoadingScreen';
 import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
 import './assets/styles/App.css';
+import ImageProtection from './components/Global/ImageProtection';
 
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -99,6 +100,7 @@ function App() {
 
 	return (
 		<div className="app-container">
+			<ImageProtection />
 			<ScrollToTop />
 
 			{!isAdminPage && <Header />}
