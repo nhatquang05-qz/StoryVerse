@@ -1,10 +1,10 @@
 const { getConnection } = require('../db/connection');
 
 const PRIZE_TIERS = [
-    { min: 1, max: 10, rate: 64 },
-    { min: 11, max: 100, rate: 30 },
-    { min: 101, max: 1000, rate: 5 },
-    { min: 2412, max: 2412, rate: 0.99 },
+    { min: 1, max: 10, rate: 90 },
+    { min: 11, max: 100, rate: 7 },
+    { min: 101, max: 1000, rate: 2.5 },
+    { min: 2412, max: 2412, rate: 0.49 },
     { min: 24120, max: 24120, rate: 0.01 }
 ];
 

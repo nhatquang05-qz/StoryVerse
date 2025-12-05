@@ -19,33 +19,6 @@ export const IMAGES = {
 
 export const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
 
-// DANH SÁCH 15 Ô - BẮT BUỘC KHỚP VỚI BACKEND
-// Thứ tự: ID 1 -> ID 15
-export const WHEEL_LABELS = [
-	'10 Xu', // 1
-	'50 Xu', // 2
-	'10 Xu', // 3
-	'May mắn', // 4
-	'10 Xu', // 5
-	'50 Xu', // 6
-	'10 Xu', // 7
-	'May mắn', // 8
-	'50 Xu', // 9
-	'10 Xu', // 10
-	'500 Xu', // 11
-	'May mắn', // 12
-	'50 Xu', // 13
-	'10 Xu', // 14
-	'Truyện In', // 15
-];
-
-export const SEGMENT_ANGLE = 24;
-export const INITIAL_WHEEL_DEG = 12;
-export const PRIZES_CONFIG = WHEEL_LABELS.map((label, index) => ({
-	label,
-	deg: index * SEGMENT_ANGLE,
-}));
-
 export interface DisplayWish {
 	_id: string | number;
 	user: { fullName: string; avatarUrl: string };
