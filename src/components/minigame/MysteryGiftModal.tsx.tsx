@@ -40,7 +40,7 @@ const MysteryGiftModal: React.FC<Props> = ({
 	return (
 		<div className="gift-modal-overlay">
 			<div className="gift-modal-content">
-				<button className="close-modal-btn" onClick={onClose} disabled={isSpinning}>
+				<button className="event-close-modal-btn" onClick={onClose} disabled={isSpinning}>
 					✕
 				</button>
 
@@ -64,8 +64,6 @@ const MysteryGiftModal: React.FC<Props> = ({
 								{finalReward?.type === 'coin' && (
 									<img src={IMAGES.coin} alt="Coin" />
 								)}
-								{finalReward?.type === 'gift' && <span>📚</span>}
-								{finalReward?.type === 'luck' && <span>🍀</span>}
 							</div>
 							<div className="prize-label">{finalReward?.label}</div>
 						</div>
@@ -94,7 +92,6 @@ const MysteryGiftModal: React.FC<Props> = ({
 							className="open-gift-btn confirm"
 							onClick={() => {
 								setShowResult(false);
-								// Reset về trạng thái chờ
 							}}
 						>
 							CHƠI TIẾP

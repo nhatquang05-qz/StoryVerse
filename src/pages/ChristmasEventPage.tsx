@@ -9,7 +9,7 @@ import { IMAGES, DEFAULT_AVATAR, type DisplayWish } from '../components/minigame
 import Snowfall from '../components/minigame/Snowfall';
 import FlyingWishes from '../components/minigame/FlyingWishes';
 import WishingTree from '../components/minigame/WishingTree';
-import MysteryGiftModal from '../components/minigame/MysteryGiftModal.tsx'; 
+import MysteryGiftModal from '../components/minigame/MysteryGiftModal.tsx';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ChristmasEventPage: React.FC = () => {
@@ -19,7 +19,7 @@ const ChristmasEventPage: React.FC = () => {
 	const [isSpinning, setIsSpinning] = useState(false);
 	const [showWheelModal, setShowWheelModal] = useState(false);
 	const [rewardMessage, setRewardMessage] = useState('');
-	const [finalReward, setFinalReward] = useState<any>(null); 
+	const [finalReward, setFinalReward] = useState<any>(null);
 
 	const [displayWishes, setDisplayWishes] = useState<DisplayWish[]>([]);
 	const [wishInput, setWishInput] = useState('');
@@ -27,6 +27,8 @@ const ChristmasEventPage: React.FC = () => {
 
 	const [freeSpins, setFreeSpins] = useState(0);
 	const [hasWishedToday, setHasWishedToday] = useState(false);
+	const [wishRewardCoins, setWishRewardCoins] = useState<number | null>(null);
+
 	const [missions, setMissions] = useState<any>({
 		LOGIN: { progress: 0, target: 1, isClaimed: 0 },
 		BUY_COMIC: { progress: 0, target: 1, isClaimed: 0 },
@@ -64,6 +66,9 @@ const ChristmasEventPage: React.FC = () => {
 					});
 					setFreeSpins(resInfo.data.spins);
 					setHasWishedToday(resInfo.data.hasWishedToday);
+					if (resInfo.data.todayWishReward) {
+						setWishRewardCoins(resInfo.data.todayWishReward);
+					}
 					setMissions(resInfo.data.missions);
 				}
 			} catch (error) {
@@ -91,18 +96,11 @@ const ChristmasEventPage: React.FC = () => {
 			);
 			const { result, remainingSpins } = response.data;
 
-			// Giả lập thời gian chờ animation (2 giây lắc hộp)
 			setTimeout(() => {
 				setIsSpinning(false);
-				setFinalReward(result); // Lưu kết quả để hiển thị
-				setRewardMessage(
-					result.type === 'luck'
-						? 'Chúc bạn may mắn lần sau!'
-						: `🎉 Bạn nhận được: ${result.label}`,
-				);
-
-				if (result.type !== 'luck') toast.success(`Nhận quà thành công: ${result.label}`);
-
+				setFinalReward(result);
+				setRewardMessage(`🎉 Bạn nhận được: ${result.label}`);
+				toast.success(`Nhận quà thành công: ${result.label}`);
 				setFreeSpins(remainingSpins);
 				fetchUser();
 			}, 2000);
@@ -140,6 +138,7 @@ const ChristmasEventPage: React.FC = () => {
 			setDisplayWishes((prev) => [newWish, ...prev]);
 			setWishInput('');
 			setHasWishedToday(true);
+			setWishRewardCoins(res.data.reward);
 			toast.success(res.data.message);
 			fetchUser();
 		} catch (error: any) {
@@ -185,8 +184,26 @@ const ChristmasEventPage: React.FC = () => {
 
 			<div className="wish-input-bar">
 				{hasWishedToday ? (
-					<div className="wished-message">
-						✨ Bạn đã gửi lời chúc hôm nay rồi. Hãy quay lại ngày mai nhé! ✨
+					<div
+						className="wished-content"
+						style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+					>
+						<div className="wished-message">
+							Bạn đã gửi lời chúc hôm nay rồi. Hãy quay lại ngày mai nhé!
+						</div>
+						{wishRewardCoins !== null && wishRewardCoins > 0 && (
+							<div
+								className="wish-reward-info"
+								style={{
+									color: '#FFD700',
+									marginTop: '8px',
+									fontWeight: 'bold',
+									textAlign: 'center',
+								}}
+							>
+								Bạn đã nhận được: {wishRewardCoins} Xu
+							</div>
+						)}
 					</div>
 				) : (
 					<>
@@ -214,30 +231,30 @@ const ChristmasEventPage: React.FC = () => {
 				<h3>🎄 Nhiệm Vụ</h3>
 				<ul>
 					<li className={missions.LOGIN.isClaimed ? 'completed' : ''}>
-						<span>🔥 Đăng nhập</span>
+						<span>Đăng nhập</span>
 						<span>
 							{missions.LOGIN.isClaimed
 								? 'Đã nhận'
 								: `${missions.LOGIN.progress}/${missions.LOGIN.target}`}{' '}
-							(+1)
+							(+1 lượt mở quà)
 						</span>
 					</li>
 					<li className={missions.BUY_COMIC.isClaimed ? 'completed' : ''}>
-						<span>📚 Mua truyện</span>
+						<span>Mua truyện</span>
 						<span>
 							{missions.BUY_COMIC.isClaimed
 								? 'Đã nhận'
 								: `${missions.BUY_COMIC.progress}/${missions.BUY_COMIC.target}`}{' '}
-							(+5)
+							(+5 lượt mở quà)
 						</span>
 					</li>
 					<li className={missions.READ_CHAPTER.isClaimed ? 'completed' : ''}>
-						<span>🔓 Mở 3 chương</span>
+						<span>Mở 3 chương</span>
 						<span>
 							{missions.READ_CHAPTER.isClaimed
 								? 'Đã nhận'
 								: `${missions.READ_CHAPTER.progress}/${missions.READ_CHAPTER.target}`}{' '}
-							(+1)
+							(+1 lượt mở quà)
 						</span>
 					</li>
 				</ul>
