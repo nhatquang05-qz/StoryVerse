@@ -35,15 +35,44 @@ const sendOtp = async (req, res) => {
     });
 
     const mailOptions = {
-      from: '"StoryVerse" <no-reply@storyverse.com>',
+      from: '"StoryVerse Support" <no-reply@storyverse.com>',
       to: email,
       subject: 'Mã xác thực đăng ký tài khoản - StoryVerse',
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Xin chào!</h2>
-          <p>Mã xác thực OTP của bạn là:</p>
-          <h1 style="color: #4CAF50; letter-spacing: 5px;">${otpCode}</h1>
-          <p>Mã này sẽ hết hạn trong vòng 5 phút.</p>
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 40px 0; margin: 0;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+            
+            <div style="background-color: #0f172a; padding: 30px 20px; text-align: center; border-bottom: 3px solid #3b82f6;">
+              <img src="https://res.cloudinary.com/dyefom7du/image/upload/v1764951838/ld6yhb7jry6tcptfxmw5.png" alt="StoryVerse Logo" style="max-width: 220px; height: auto; display: block; margin: 0 auto;">
+            </div>
+
+            <div style="padding: 40px 30px; text-align: center; color: #333333;">
+              <h2 style="margin-top: 0; color: #1e293b; font-size: 24px; font-weight: 700;">Xác thực tài khoản</h2>
+              <p style="font-size: 16px; line-height: 1.6; color: #64748b; margin-bottom: 25px;">
+                Xin chào! Cảm ơn bạn đã tham gia vào vũ trụ <strong>StoryVerse</strong>. <br>
+                Vui lòng nhập mã OTP bên dưới để hoàn tất quá trình đăng ký:
+              </p>
+              
+              <div style="margin: 30px 0;">
+                <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #3b82f6; background-color: #eff6ff; padding: 15px 40px; border-radius: 8px; border: 2px dashed #93c5fd; display: inline-block;">${otpCode}</span>
+              </div>
+
+              <div style="background-color: #fff1f2; border-left: 4px solid #f43f5e; padding: 15px; text-align: left; margin-top: 30px; border-radius: 4px;">
+                <p style="margin: 0; font-size: 14px; color: #be123c;">
+                  <strong>Lưu ý:</strong> Mã xác thực này sẽ hết hạn sau <strong>5 phút</strong>. Tuyệt đối không chia sẻ mã này cho bất kỳ ai.
+                </p>
+              </div>
+            </div>
+
+            <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="font-size: 13px; color: #94a3b8; margin: 0;">
+                Nếu bạn không yêu cầu mã này, vui lòng bỏ qua email này.
+              </p>
+              <p style="font-size: 12px; color: #cbd5e1; margin-top: 10px;">
+                &copy; ${new Date().getFullYear()} StoryVerse. All rights reserved.
+              </p>
+            </div>
+          </div>
         </div>
       `
     };
