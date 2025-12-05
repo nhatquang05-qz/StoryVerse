@@ -851,7 +851,6 @@
 	font-size: 1.8rem;
 	font-weight: 700;
 	margin-bottom: 1.5rem;
-	color: var(--clr-heading, #333);
 	position: relative;
 	padding-left: 15px;
 }
