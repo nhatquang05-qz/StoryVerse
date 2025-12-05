@@ -27,8 +27,8 @@
 
 .close-modal-btn {
 	position: absolute;
-	top: -40px;
-	right: -40px;
+	top: 50px;
+	right: -100px;
 	background: #fff;
 	color: #c0392b;
 	width: 50px;

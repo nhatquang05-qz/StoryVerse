@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
-
 import '../assets/styles/minigame/ChristmasEventPage.css';
 import { IMAGES, DEFAULT_AVATAR, type DisplayWish } from '../components/minigame/minigameConstants';
 import Snowfall from '../components/minigame/Snowfall';

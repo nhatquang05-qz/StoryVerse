@@ -31,7 +31,7 @@ export const PRIZES_CONFIG = [
 export const WHEEL_LABELS = [
     '10 Xu', '50 Xu', '10 Xu', 'May mắn', '10 Xu',
     '50 Xu', '10 Xu', 'May mắn', '50 Xu', '10 Xu',
-    '500 Xu', 'Truyện', '50 Xu', '10 Xu', 'May mắn'
+    '500 Xu', '10 xu', '50 Xu', 'Truyện', 'May mắn'
 ];
 
 export interface DisplayWish {

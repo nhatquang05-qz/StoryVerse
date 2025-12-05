@@ -41,7 +41,7 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 210;
+  z-index: 1000000;
   display: flex;
   align-items: center;
   gap: 12px;
