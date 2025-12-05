@@ -7,6 +7,7 @@ import { FiSend, FiImage, FiSmile, FiX, FiClock } from 'react-icons/fi';
 import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
 import { isProfane } from '../../../utils/profanityList';
 import StickerPicker from './StickerPicker';
+import ReportModal from '../../community/ReportModal';
 import type { Sticker } from '../../../utils/stickerUtils';
 import {
 	getBanInfo,
@@ -15,16 +16,15 @@ import {
 	formatRemainingTime,
 	type BanInfo,
 } from '../../../utils/chatBanUtils';
-import UserDetailModal from '../UserDetailModal'; // Modal xem thông tin người dùng
-import { io, Socket } from 'socket.io-client'; // Import Socket.io
+import UserDetailModal from '../UserDetailModal';
+import { io, Socket } from 'socket.io-client';
 
-// Cấu hình URL cho API và Socket
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-// Lấy root URL cho socket (bỏ /api)
+
 const SOCKET_URL = API_URL.replace('/api', '') || 'http://localhost:3000';
 
 const TOKEN_STORAGE_KEY = 'storyverse_token';
-const MAX_GLOBAL_MESSAGES = 50; // Tăng giới hạn tin nhắn lưu trữ
+const MAX_GLOBAL_MESSAGES = 50;
 
 interface TopMember {
 	id: string;
@@ -35,7 +35,6 @@ const ChatLog: React.FC = () => {
 	const { currentUser } = useAuth();
 	const { showNotification } = useNotification();
 
-	// States quản lý tin nhắn và giao diện
 	const [messages, setMessages] = useState<ChatMessageData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [newMessage, setNewMessage] = useState('');
@@ -46,46 +45,41 @@ const ChatLog: React.FC = () => {
 	const [isWarningPopupOpen, setIsWarningPopupOpen] = useState(false);
 	const [isSending, setIsSending] = useState(false);
 
-	// States quản lý cấm chat
 	const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
 	const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
 
-	// States quản lý Top thành viên và Modal Profile
 	const [topMembers, setTopMembers] = useState<TopMember[]>([]);
 	const [selectedUserProfileId, setSelectedUserProfileId] = useState<string | null>(null);
 	const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
-	// Refs
+	const [showReportModal, setShowReportModal] = useState(false);
+	const [reportMessageId, setReportMessageId] = useState<number | null>(null);
+	const [reportReason, setReportReason] = useState('Spam');
+
 	const chatMessagesListRef = useRef<HTMLDivElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const messageInputRef = useRef<HTMLInputElement>(null);
 	const stickerPickerRef = useRef<HTMLDivElement>(null);
-	const socketRef = useRef<Socket | null>(null); // Ref giữ kết nối Socket
+	const socketRef = useRef<Socket | null>(null);
 
 	const systemKey = localStorage.getItem('user_level_system') || 'Ma Vương';
 	const renderKey = currentUser
 		? `${currentUser.id}-${currentUser.level}-${systemKey}`
 		: 'default';
 
-	// 1. Kết nối Socket.io
 	useEffect(() => {
-		// Khởi tạo socket
 		socketRef.current = io(SOCKET_URL);
 
-		// Join phòng Global
 		socketRef.current.emit('join_room', 'global');
 
-		// Lắng nghe tin nhắn mới
 		socketRef.current.on('receive_message', (newMsg: ChatMessageData) => {
 			setMessages((prevMessages) => {
-				// Tránh trùng lặp tin nhắn
 				if (prevMessages.some((m) => m.id === newMsg.id)) return prevMessages;
 
 				const updatedMessages = [...prevMessages, newMsg];
 				return updatedMessages.slice(-MAX_GLOBAL_MESSAGES);
 			});
 
-			// Auto scroll xuống dưới
 			if (chatMessagesListRef.current) {
 				setTimeout(() => {
 					chatMessagesListRef.current!.scrollTop =
@@ -94,7 +88,6 @@ const ChatLog: React.FC = () => {
 			}
 		});
 
-		// Lắng nghe sự kiện Like realtime
 		socketRef.current.on(
 			'update_like',
 			(data: { messageId: number; userId: string; isLiked: boolean }) => {
@@ -117,7 +110,6 @@ const ChatLog: React.FC = () => {
 			},
 		);
 
-		// Cleanup khi unmount
 		return () => {
 			if (socketRef.current) {
 				socketRef.current.emit('leave_room', 'global');
@@ -126,7 +118,6 @@ const ChatLog: React.FC = () => {
 		};
 	}, []);
 
-	// 2. Lấy danh sách Top Member (để hiển thị icon rank)
 	useEffect(() => {
 		const fetchTopMembers = async () => {
 			try {
@@ -142,7 +133,6 @@ const ChatLog: React.FC = () => {
 		fetchTopMembers();
 	}, []);
 
-	// 3. Lấy tin nhắn ban đầu
 	const fetchMessages = useCallback(async () => {
 		setIsLoading(true);
 		try {
@@ -162,7 +152,6 @@ const ChatLog: React.FC = () => {
 		fetchMessages();
 	}, [fetchMessages]);
 
-	// 4. Quản lý trạng thái Ban (Cấm chat)
 	useEffect(() => {
 		if (currentUser) {
 			const banInfo = getBanInfo(currentUser.id);
@@ -186,21 +175,18 @@ const ChatLog: React.FC = () => {
 		return () => clearInterval(interval);
 	}, [currentUser, currentBanInfo?.banExpiry]);
 
-	// Auto scroll khi tin nhắn thay đổi
 	useEffect(() => {
 		if (chatMessagesListRef.current) {
 			chatMessagesListRef.current.scrollTop = chatMessagesListRef.current.scrollHeight;
 		}
 	}, [messages, renderKey]);
 
-	// Focus input khi reply
 	useEffect(() => {
 		if (replyingTo && messageInputRef.current) {
 			messageInputRef.current.focus();
 		}
 	}, [replyingTo]);
 
-	// Click outside để đóng sticker picker
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
 			if (
@@ -219,7 +205,6 @@ const ChatLog: React.FC = () => {
 		};
 	}, [stickerPickerRef]);
 
-	// Xử lý chọn ảnh
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0];
@@ -238,7 +223,6 @@ const ChatLog: React.FC = () => {
 		}
 	};
 
-	// Gọi API gửi tin nhắn
 	const postMessageToApi = async (payload: {
 		message?: string;
 		imageUrl?: string;
@@ -265,8 +249,6 @@ const ChatLog: React.FC = () => {
 			const newMsgData = await response.json();
 			if (!response.ok) throw new Error(newMsgData.error || 'Failed to send message');
 
-			// Lưu ý: Không cần setMessages thủ công ở đây nữa vì Socket sẽ trả về tin nhắn
-			// Tuy nhiên, nếu muốn hiển thị ngay lập tức (optimistic) có thể giữ lại logic check ID
 			setMessages((prev) => {
 				if (prev.some((m) => m.id === newMsgData.id)) return prev;
 				return [...prev, newMsgData].slice(-MAX_GLOBAL_MESSAGES);
@@ -277,7 +259,6 @@ const ChatLog: React.FC = () => {
 		}
 	};
 
-	// Xử lý logic gửi tin nhắn (bao gồm check ban, profanity)
 	const handleSendMessage = async (sticker?: Sticker) => {
 		if (!currentUser) {
 			showNotification('Bạn cần đăng nhập để nói chuyện', 'warning');
@@ -310,7 +291,6 @@ const ChatLog: React.FC = () => {
 			if (fileInputRef.current) fileInputRef.current.value = '';
 		};
 
-		// Kiểm tra từ ngữ không phù hợp
 		if (messageContent && isProfane(messageContent)) {
 			setIsWarningPopupOpen(true);
 
@@ -348,7 +328,7 @@ const ChatLog: React.FC = () => {
 
 		try {
 			let imageUrl: string | undefined = undefined;
-			// Upload ảnh trước nếu có
+
 			if (selectedImage) {
 				const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 				const formData = new FormData();
@@ -400,13 +380,10 @@ const ChatLog: React.FC = () => {
 		if (fileInputRef.current) fileInputRef.current.value = '';
 	};
 
-	// Xử lý Like tin nhắn
 	const handleLikeMessage = useCallback(
 		async (messageId: number) => {
 			if (!currentUser) return;
 
-			// Optimistic update (cập nhật giao diện ngay lập tức)
-			// Socket sẽ đồng bộ lại sau để đảm bảo nhất quán
 			setMessages((prevMessages) =>
 				prevMessages.map((msg) => {
 					if (msg.id === messageId) {
@@ -431,7 +408,6 @@ const ChatLog: React.FC = () => {
 			} catch (error) {
 				console.error('Error liking message:', error);
 				showNotification('Lỗi khi thích tin nhắn.', 'error');
-				// Revert nếu lỗi (có thể bỏ qua nếu tin tưởng socket update lại)
 			}
 		},
 		[currentUser, showNotification],
@@ -445,6 +421,48 @@ const ChatLog: React.FC = () => {
 		},
 		[currentUser],
 	);
+
+	const handleReportClick = useCallback(
+		(messageId: number) => {
+			if (!currentUser) {
+				showNotification('Bạn cần đăng nhập để báo cáo', 'warning');
+				return;
+			}
+			setReportMessageId(messageId);
+			setReportReason('Spam');
+			setShowReportModal(true);
+		},
+		[currentUser, showNotification],
+	);
+
+	const handleSubmitReport = async () => {
+		if (!reportMessageId) return;
+		const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+		try {
+			const response = await fetch(`${API_URL}/reports`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					targetId: reportMessageId,
+					targetType: 'CHAT_MESSAGE',
+					reason: reportReason,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error('Gửi báo cáo thất bại');
+			}
+
+			showNotification('Báo cáo đã được gửi thành công!', 'success');
+			setShowReportModal(false);
+		} catch (error) {
+			console.error('Lỗi khi gửi báo cáo:', error);
+			showNotification('Có lỗi xảy ra khi gửi báo cáo.', 'error');
+		}
+	};
 
 	const cancelReply = () => {
 		setReplyingTo(null);
@@ -462,7 +480,6 @@ const ChatLog: React.FC = () => {
 		return index !== -1 ? index + 1 : undefined;
 	};
 
-	// Hàm mở modal khi click vào user
 	const handleUserClick = useCallback((userId: string) => {
 		setSelectedUserProfileId(userId);
 		setIsUserModalOpen(true);
@@ -491,9 +508,10 @@ const ChatLog: React.FC = () => {
 						<ChatMessage
 							key={msg.id}
 							msg={msg}
+							onReport={handleReportClick}
 							onLike={handleLikeMessage}
 							onReply={handleReplyMessage}
-							onUserClick={handleUserClick} // Truyền prop xử lý click user
+							onUserClick={handleUserClick}
 							currentUserId={currentUser?.id || null}
 							rank={rank}
 						/>
@@ -607,7 +625,7 @@ const ChatLog: React.FC = () => {
 				<div className="chat-login-prompt">Bạn phải đăng nhập để nói chuyện.</div>
 			)}
 
-			{/* Modal Xem thông tin người dùng */}
+			{}
 			<UserDetailModal
 				userId={selectedUserProfileId}
 				isOpen={isUserModalOpen}
@@ -617,6 +635,16 @@ const ChatLog: React.FC = () => {
 			<ProfanityWarningPopup
 				isOpen={isWarningPopupOpen}
 				onClose={() => setIsWarningPopupOpen(false)}
+			/>
+
+			{}
+			<ReportModal
+				isOpen={showReportModal}
+				targetType="chat_message"
+				reason={reportReason}
+				setReason={setReportReason}
+				onClose={() => setShowReportModal(false)}
+				onSubmit={handleSubmitReport}
 			/>
 		</div>
 	);

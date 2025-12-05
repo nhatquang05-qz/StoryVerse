@@ -3,7 +3,7 @@ import '../../assets/styles/ReportModal.css';
 
 interface ReportModalProps {
 	isOpen: boolean;
-	targetType: 'post' | 'comment' | undefined;
+	targetType: 'post' | 'comment' | 'chat_message' | undefined;
 	reason: string;
 	setReason: (val: string) => void;
 	onClose: () => void;
@@ -19,12 +19,18 @@ const ReportModal: React.FC<ReportModalProps> = ({
 	onSubmit,
 }) => {
 	if (!isOpen) return null;
+
+	const getTitle = () => {
+		if (targetType === 'post') return 'bài viết';
+		if (targetType === 'comment') return 'bình luận';
+		if (targetType === 'chat_message') return 'tin nhắn';
+		return '';
+	};
+
 	return (
 		<div className="modal-overlay" onClick={onClose}>
 			<div className="report-modal" onClick={(e) => e.stopPropagation()}>
-				<div className="report-title">
-					Báo cáo {targetType === 'post' ? 'bài viết' : 'bình luận'}
-				</div>
+				<div className="report-title">Báo cáo {getTitle()}</div>
 				<div className="report-options">
 					{['Spam', 'Nội dung phản cảm', 'Quấy rối', 'Thông tin sai lệch', 'Khác'].map(
 						(r) => (

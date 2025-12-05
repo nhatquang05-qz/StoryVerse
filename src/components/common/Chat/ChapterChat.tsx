@@ -6,6 +6,7 @@ import { FiSend, FiImage, FiSmile, FiX, FiClock } from 'react-icons/fi';
 import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
 import { isProfane } from '../../../utils/profanityList';
 import StickerPicker from './StickerPicker';
+import ReportModal from '../../community/ReportModal';
 import type { Sticker } from '../../../utils/stickerUtils';
 import {
 	getBanInfo,
@@ -25,7 +26,7 @@ interface ChapterChatProps {
 }
 
 const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
-	const { currentUser, getEquivalentLevelTitle } = useAuth();
+	const { currentUser } = useAuth();
 	const { showNotification } = useNotification();
 	const [messages, setMessages] = useState<ChatMessageData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -43,6 +44,10 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 
 	const [currentBanInfo, setCurrentBanInfo] = useState<BanInfo | null>(null);
 	const [remainingBanTime, setRemainingBanTime] = useState<string | null>(null);
+
+	const [showReportModal, setShowReportModal] = useState(false);
+	const [reportMessageId, setReportMessageId] = useState<number | null>(null);
+	const [reportReason, setReportReason] = useState('Spam');
 
 	const fetchMessages = useCallback(async () => {
 		setIsLoading(true);
@@ -332,6 +337,48 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 		[currentUser],
 	);
 
+	const handleReportClick = useCallback(
+		(messageId: number) => {
+			if (!currentUser) {
+				showNotification('Bạn cần đăng nhập để báo cáo', 'warning');
+				return;
+			}
+			setReportMessageId(messageId);
+			setReportReason('Spam');
+			setShowReportModal(true);
+		},
+		[currentUser, showNotification],
+	);
+
+	const handleSubmitReport = async () => {
+		if (!reportMessageId) return;
+		const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+		try {
+			const response = await fetch(`${API_URL}/reports`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify({
+					targetId: reportMessageId,
+					targetType: 'CHAT_MESSAGE',
+					reason: reportReason,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error('Gửi báo cáo thất bại');
+			}
+
+			showNotification('Báo cáo đã được gửi thành công!', 'success');
+			setShowReportModal(false);
+		} catch (error) {
+			console.error('Lỗi khi gửi báo cáo:', error);
+			showNotification('Có lỗi xảy ra khi gửi báo cáo.', 'error');
+		}
+	};
+
 	const cancelReply = () => {
 		setReplyingTo(null);
 	};
@@ -341,13 +388,6 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 			cancelImageSelection();
 		}
 		setShowStickerPicker(!showStickerPicker);
-	};
-
-	const getLevelTitleForDisplay = (userId: string, userLevel: number): string => {
-		if (currentUser && userId === currentUser.id) {
-			return getEquivalentLevelTitle(userLevel);
-		}
-		return `Cấp ${userLevel}`;
 	};
 
 	const isCurrentlyBanned = !!remainingBanTime;
@@ -377,9 +417,10 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 						<ChatMessage
 							key={msg.id}
 							msg={msg}
-							levelTitle={getLevelTitleForDisplay(msg.userId, msg.userLevel)}
+							onReport={handleReportClick}
 							onLike={handleLikeMessage}
 							onReply={handleReplyMessage}
+							onUserClick={() => {}}
 							currentUserId={currentUser?.id || null}
 						/>
 					))
@@ -495,6 +536,16 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 			<ProfanityWarningPopup
 				isOpen={isWarningPopupOpen}
 				onClose={() => setIsWarningPopupOpen(false)}
+			/>
+
+			{}
+			<ReportModal
+				isOpen={showReportModal}
+				targetType="chat_message"
+				reason={reportReason}
+				setReason={setReportReason}
+				onClose={() => setShowReportModal(false)}
+				onSubmit={handleSubmitReport}
 			/>
 		</div>
 	);

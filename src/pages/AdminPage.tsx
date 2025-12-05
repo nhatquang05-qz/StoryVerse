@@ -18,6 +18,7 @@ import PackManagement from '../components/admin/PackManagement';
 import FlashSaleManagement from '../components/admin/FlashSaleManagement';
 import OrderManagement from '../components/admin/OrderManagement';
 import ContactManagement from '../components/admin/ContactManagement';
+import ReportManagement from '../components/admin/ReportManagement';
 
 import '../assets/styles/AdminPage.css';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
@@ -36,7 +37,8 @@ export type AdminView =
 	| 'packs'
 	| 'flash-sales'
 	| 'orders'
-	| 'contact';
+	| 'contact'
+	| 'reports';
 
 const AdminPage: React.FC = () => {
 	const { currentUser } = useAuth();
@@ -70,7 +72,8 @@ const AdminPage: React.FC = () => {
 			activeView === 'packs' ||
 			activeView === 'flash-sales' ||
 			activeView === 'orders' ||
-			activeView === 'contact'
+			activeView === 'contact' ||
+			activeView === 'reports'
 		) {
 			setIsLoading(false);
 			return;
@@ -228,6 +231,8 @@ const AdminPage: React.FC = () => {
 				return <OrderManagement />;
 			case 'contact':
 				return <ContactManagement />;
+			case 'reports':
+				return <ReportManagement />;
 			case 'add':
 				return (
 					<AddComicForm

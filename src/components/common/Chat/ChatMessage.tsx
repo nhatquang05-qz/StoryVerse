@@ -2,7 +2,7 @@ import React from 'react';
 import '../../../assets/styles/ChatMessage.css';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getEquivalentLevelTitle, getTextColorForBackground } from '../../../utils/authUtils';
-import { FiHeart, FiMessageSquare } from 'react-icons/fi';
+import { FiHeart, FiMessageSquare, FiFlag } from 'react-icons/fi';
 import top1Icon from '../../../assets/images/top1.avif';
 import top2Icon from '../../../assets/images/top2.avif';
 import top3Icon from '../../../assets/images/top3.avif';
@@ -28,6 +28,7 @@ interface ChatMessageProps {
 	msg: ChatMessageData;
 	onLike: (messageId: number) => void;
 	onReply: (messageId: number, authorName: string) => void;
+	onReport?: (messageId: number) => void;
 	onUserClick: (userId: string) => void;
 	currentUserId: string | null;
 	rank?: number;
@@ -37,18 +38,19 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 	msg,
 	onLike,
 	onReply,
+	onReport,
 	onUserClick,
 	currentUserId,
 	rank,
 }) => {
 	const { getLevelColor } = useAuth();
 	const levelColor = msg.userLevel ? getLevelColor(msg.userLevel) : '#6c757d';
-
-	// [UPDATED] Sử dụng hàm từ utils
 	const levelTextColor = getTextColorForBackground(levelColor);
 
 	const likeCount = msg.likes?.length || 0;
 	const isLikedByCurrentUser = currentUserId ? msg.likes?.includes(currentUserId) : false;
+
+	const isOwnMessage = currentUserId === msg.userId;
 
 	const displayLevelTitle = getEquivalentLevelTitle(
 		msg.userLevel,
@@ -66,7 +68,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 				className="chat-avatar"
 				onClick={() => onUserClick(msg.userId)}
 				style={{ cursor: 'pointer' }}
-				title="Xem trang cá nhân"
 			>
 				<img src={getAvatarSrc(msg.avatarUrl)} alt={`${msg.userName}'s avatar`} />
 			</div>
@@ -77,7 +78,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 							className="user-name"
 							onClick={() => onUserClick(msg.userId)}
 							style={{ cursor: 'pointer' }}
-							title="Xem trang cá nhân"
 						>
 							{msg.userName}
 						</span>
@@ -93,7 +93,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 						{msg.userLevel && (
 							<span
 								className="user-level"
-								// [UPDATED] Áp dụng màu chữ tương phản
 								style={{ backgroundColor: levelColor, color: levelTextColor }}
 								title={`Hệ thống: ${msg.levelSystem || 'Bình Thường'}`}
 							>
@@ -103,7 +102,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 					</span>
 					<span className="timestamp">{msg.timestamp}</span>
 				</div>
-				{/* ... Phần còn lại giữ nguyên ... */}
+
 				{msg.replyTo && msg.replyToAuthor && (
 					<div className="reply-info">
 						Trả lời <span className="reply-to-author">@{msg.replyToAuthor}</span>
@@ -120,18 +119,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 						<img src={msg.stickerUrl} alt="Sticker" className="message-sticker" />
 					</div>
 				)}
+
 				<div className="message-actions">
 					<button
 						className={`action-button like-button ${isLikedByCurrentUser ? 'liked' : ''}`}
 						onClick={() => onLike(msg.id)}
 						disabled={!currentUserId}
-						title={
-							currentUserId
-								? isLikedByCurrentUser
-									? 'Bỏ thích'
-									: 'Thích'
-								: 'Đăng nhập để thích'
-						}
 					>
 						<FiHeart fill={isLikedByCurrentUser ? 'currentColor' : 'none'} />
 						{likeCount > 0 && <span className="like-count">{likeCount}</span>}
@@ -140,10 +133,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 						className="action-button reply-button"
 						onClick={() => onReply(msg.id, msg.userName)}
 						disabled={!currentUserId}
-						title={currentUserId ? 'Trả lời' : 'Đăng nhập để trả lời'}
 					>
 						<FiMessageSquare />
 					</button>
+
+					{}
+					{onReport && !isOwnMessage && (
+						<button
+							className="action-button report-button"
+							onClick={() => onReport(msg.id)}
+							disabled={!currentUserId}
+							title="Báo cáo vi phạm"
+							style={{ marginLeft: '8px' }}
+						>
+							<FiFlag />
+						</button>
+					)}
 				</div>
 			</div>
 		</div>

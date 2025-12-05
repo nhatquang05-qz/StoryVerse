@@ -9,6 +9,7 @@ import {
 	FiClipboard,
 	FiImage,
 	FiMail,
+	FiFlag,
 } from 'react-icons/fi';
 import { type AdminView } from '../../pages/AdminPage';
 
@@ -63,6 +64,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 				onClick={() => onNavigate('avatars')}
 			>
 				<FiImage /> Duyệt Avatar
+			</button>
+
+			<button
+				className={`sidebar-btn ${activeView === 'reports' ? 'active' : ''}`}
+				onClick={() => onNavigate('reports')}
+			>
+				<FiFlag /> Quản lý Báo cáo
 			</button>
 
 			<button

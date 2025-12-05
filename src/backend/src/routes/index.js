@@ -18,6 +18,7 @@ const notificationRoutes = require('./notificationRoutes');
 const flashSaleRoutes = require('./flashSaleRoutes');
 const minigameRoutes = require('./minigameRoutes');
 const contactRoutes = require('./contactRoutes');
+const reportRoutes = require('./reportRoutes');
 
 router.use('/minigame', minigameRoutes);
 router.use('/auth', authRoutes);
@@ -35,6 +36,7 @@ router.use('/orders', orderRoutes);
 router.use('/posts', postRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/flash-sales', flashSaleRoutes);
+router.use('/reports', reportRoutes);
 router.use('/contact', contactRoutes);
 
 module.exports = router;

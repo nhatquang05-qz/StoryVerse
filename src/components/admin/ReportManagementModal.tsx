@@ -22,6 +22,13 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 	if (!isOpen || !report) return null;
 
 	const isPost = report.targetType === 'POST';
+	const isChat = report.targetType === 'CHAT_MESSAGE';
+
+	const getTargetTitle = () => {
+		if (isPost) return 'Bài viết';
+		if (isChat) return 'Tin nhắn Chat';
+		return 'Bình luận';
+	};
 
 	return (
 		<div className="report-modal-overlay">
@@ -29,7 +36,7 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 				<div className="report-modal-header">
 					<h3 className="report-modal-title">
 						<FaExclamationTriangle />
-						Xử lý vi phạm {isPost ? 'Bài viết' : 'Bình luận'}
+						Xử lý vi phạm {getTargetTitle()}
 					</h3>
 					<button onClick={onClose} className="report-modal-close-btn">
 						<FaTimes />
@@ -37,6 +44,7 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 				</div>
 
 				<div className="report-modal-body">
+					{/* Giữ nguyên phần info grid */}
 					<div className="report-info-grid">
 						<div className="report-info-box">
 							<div className="report-label">Người báo cáo:</div>
@@ -52,7 +60,6 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 						</div>
 					</div>
 
-					{/* Nội dung vi phạm */}
 					<div className="report-content-section">
 						<h4 className="report-content-title">Nội dung bị báo cáo:</h4>
 						<div className="report-content-box">
@@ -84,16 +91,13 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 					</div>
 				</div>
 
-				{/* Footer / Actions */}
 				<div className="report-modal-footer">
 					<button onClick={onDismiss} className="report-btn report-btn-dismiss">
 						<FaCheck /> Bỏ qua
 					</button>
-
 					<button onClick={onDelete} className="report-btn report-btn-delete">
 						<FaTrash /> Xoá nội dung
 					</button>
-
 					<button onClick={onBan} className="report-btn report-btn-ban">
 						<FaBan /> Ban & Xoá
 					</button>
