@@ -310,7 +310,6 @@ const getUserCommunityStatsRaw = async (userId) => {
             'SELECT COUNT(id) as postCount FROM posts WHERE userId = ?', 
             [userId]
         );
-     
         const [likeRows] = await connection.execute(
             `SELECT COUNT(pl.id) as totalLikes 
              FROM post_likes pl
@@ -321,11 +320,11 @@ const getUserCommunityStatsRaw = async (userId) => {
 
         return {
             postCount: postRows[0].postCount || 0,
-            receivedLikes: likeRows[0].totalLikes || 0 
+            totalLikes: likeRows[0].totalLikes || 0 
         };
     } catch (error) {
         console.error("Error fetching community stats:", error);
-        return { postCount: 0, receivedLikes: 0 };
+        return { postCount: 0, totalLikes: 0 };
     }
 };
 

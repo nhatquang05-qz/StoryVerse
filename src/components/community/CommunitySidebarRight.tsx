@@ -28,18 +28,15 @@ const CommunitySidebarRight: React.FC = () => {
 	const [topUsers, setTopUsers] = useState<TopUser[]>([]);
 	const [comics, setComics] = useState<SuggestedComic[]>([]);
 
-	
 	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 	const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
 	useEffect(() => {
-		
 		fetch(`${API_URL}/community/top-contributors`)
 			.then((res) => res.json())
 			.then((data) => setTopUsers(Array.isArray(data) ? data : []))
 			.catch(console.error);
 
-		
 		fetch(`${API_URL}/community/suggested-comics`)
 			.then((res) => res.json())
 			.then((data) => setComics(Array.isArray(data) ? data : []))
@@ -56,7 +53,6 @@ const CommunitySidebarRight: React.FC = () => {
 		return 'rank-normal';
 	};
 
-	
 	const handleUserClick = (userId: number) => {
 		setSelectedUserId(String(userId));
 		setIsUserModalOpen(true);
