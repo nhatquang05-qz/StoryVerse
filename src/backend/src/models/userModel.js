@@ -303,6 +303,32 @@ const createNotificationRaw = async (userId, title, message, type = 'SYSTEM') =>
     );
 };
 
+const getUserCommunityStatsRaw = async (userId) => {
+    const connection = getConnection();
+    try {
+        const [postRows] = await connection.execute(
+            'SELECT COUNT(id) as postCount FROM posts WHERE userId = ?', 
+            [userId]
+        );
+     
+        const [likeRows] = await connection.execute(
+            `SELECT COUNT(pl.id) as totalLikes 
+             FROM post_likes pl
+             INNER JOIN posts p ON pl.postId = p.id
+             WHERE p.userId = ?`, 
+            [userId]
+        );
+
+        return {
+            postCount: postRows[0].postCount || 0,
+            receivedLikes: likeRows[0].totalLikes || 0 
+        };
+    } catch (error) {
+        console.error("Error fetching community stats:", error);
+        return { postCount: 0, receivedLikes: 0 };
+    }
+};
+
 module.exports = { 
     findUserByEmail, 
     findUserById, 
@@ -332,5 +358,6 @@ module.exports = {
     getPendingAvatarsRaw, 
     approveAvatarRaw,     
     rejectAvatarRaw,      
-    createNotificationRaw 
+    createNotificationRaw,
+    getUserCommunityStatsRaw 
 };

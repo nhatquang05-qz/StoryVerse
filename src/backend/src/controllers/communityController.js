@@ -1,10 +1,10 @@
 const { getConnection } = require('../db/connection');
 
-// Lấy Top thành viên tích cực (Dựa trên số bài viết + bình luận)
+
 const getTopContributors = async (req, res) => {
     try {
         const db = getConnection();
-        // Điểm = (Số bài đăng * 5) + (Số bình luận * 2)
+        
         const query = `
             SELECT 
                 u.id, u.fullName, u.avatarUrl, u.level, u.levelSystem,
@@ -22,11 +22,11 @@ const getTopContributors = async (req, res) => {
     }
 };
 
-// Lấy truyện đề cử ngẫu nhiên (hoặc theo lượt xem) cho Sidebar
+
 const getSuggestedComics = async (req, res) => {
     try {
         const db = getConnection();
-        // Lấy 3 truyện có lượt xem cao nhất hoặc mới nhất
+        
         const query = `
             SELECT id, title, coverImageUrl, author, viewCount 
             FROM comics 
@@ -42,7 +42,7 @@ const getSuggestedComics = async (req, res) => {
     }
 };
 
-// Lấy thống kê nhanh cho User đang login (Cột trái)
+
 const getUserCommunityStats = async (req, res) => {
     const userId = req.userId;
     try {
@@ -59,8 +59,20 @@ const getUserCommunityStats = async (req, res) => {
     }
 };
 
+const getMyStats = async (req, res) => {
+    try {
+        const userId = req.userId; 
+        const stats = await userModel.getUserCommunityStatsRaw(userId);
+        res.json(stats);
+    } catch (error) {
+        console.error('Get My Stats Error:', error);
+        res.status(500).json({ error: 'Lỗi lấy thống kê' });
+    }
+};
+
 module.exports = {
     getTopContributors,
     getSuggestedComics,
-    getUserCommunityStats
+    getUserCommunityStats,
+    getMyStats
 };

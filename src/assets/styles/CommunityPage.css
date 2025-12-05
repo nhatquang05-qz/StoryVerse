@@ -7,7 +7,7 @@
 	color: var(--clr-text);
 }
 
-/* Layout 3 cột cho Desktop */
+
 .community-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -19,13 +19,13 @@
 
 @media (min-width: 1024px) {
     .community-layout {
-        grid-template-columns: 280px 1fr 300px; /* Trái - Giữa - Phải */
+        grid-template-columns: 280px 1fr 300px; 
     }
 }
 
-/* Sidebar Styling */
+
 .community-sidebar {
-    display: none; /* Ẩn trên mobile */
+    display: none; 
     flex-direction: column;
     gap: 20px;
 }
@@ -37,7 +37,7 @@
 }
 
 .sidebar-card {
-    background: var(--bg-card); /* Giả định bạn có biến này hoặc dùng #fff */
+    background: var(--bg-card); 
     border-radius: 12px;
     padding: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -54,7 +54,7 @@
     display: inline-block;
 }
 
-/* User Mini Profile */
+
 .mini-profile {
     text-align: center;
 }
@@ -81,7 +81,7 @@
     display: inline-block;
 }
 
-/* Trending Tags */
+
 .tag-cloud {
     display: flex;
     flex-wrap: wrap;
@@ -101,7 +101,7 @@
     color: white;
 }
 
-/* Top Members */
+
 .top-member-item {
     display: flex;
     align-items: center;
@@ -131,7 +131,7 @@
     color: #888;
 }
 
-/* Filter Tabs (Mới) */
+
 .feed-tabs {
     display: flex;
     gap: 15px;

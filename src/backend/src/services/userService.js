@@ -258,6 +258,10 @@ const rejectAvatarService = async (userId) => {
     return { message: 'Đã từ chối ảnh đại diện.' };
 };
 
+const getCommunityStatsService = async (userId) => {
+    return await userModel.getUserCommunityStatsRaw(userId);
+};
+
 module.exports = { 
     getMeService, 
     updateProfileService, 
@@ -274,5 +278,6 @@ module.exports = {
     getPublicUserProfileService,    
     getPendingAvatarsService,
     approveAvatarService,
-    rejectAvatarService
+    rejectAvatarService,
+    getCommunityStatsService
 };

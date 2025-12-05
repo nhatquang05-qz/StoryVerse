@@ -3,7 +3,7 @@ const router = express.Router();
 const { 
     getMe, updateProfile, updateAvatar, getTopUsers, getUnlockedChapters, getWishlist, toggleWishlist,
     getAllUsers, updateUserById, toggleUserBan, deleteUserById, getTransactionHistory, 
-    updateLevelSystem, getPublicUserProfile, getPendingAvatars, approveAvatar, rejectAvatar 
+    updateLevelSystem, getPublicUserProfile, getPendingAvatars, approveAvatar, rejectAvatar, getCommunityStats 
 } = require('../controllers/userController');
 const { authenticateToken, authenticateAdmin } = require('../middleware/authMiddleware');
 
@@ -21,6 +21,7 @@ router.get('/unlocked-chapters', getUnlockedChapters);
 router.get('/wishlist', getWishlist);
 router.post('/wishlist/toggle', toggleWishlist);
 router.get('/history', getTransactionHistory);
+router.get('/:id/community-stats', getCommunityStats);
 
 // --- 3. ADMIN ROUTES ---
 router.get('/', authenticateAdmin, getAllUsers); 

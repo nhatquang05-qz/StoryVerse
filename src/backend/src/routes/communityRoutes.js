@@ -3,6 +3,7 @@ const router = express.Router();
 const communityController = require('../controllers/communityController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
+router.get('/my-stats', authenticateToken, communityController.getMyStats);
 router.get('/top-contributors', communityController.getTopContributors);
 router.get('/suggested-comics', communityController.getSuggestedComics);
 router.get('/my-stats', authenticateToken, communityController.getUserCommunityStats);

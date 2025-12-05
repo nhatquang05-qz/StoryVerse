@@ -81,7 +81,6 @@ const UserDetailModal: React.FC<UserDetailModalProps> = ({ userId, isOpen, onClo
 					<>
 						<div className="profile-header-section">
 							<div className="profile-avatar-large">
-								{/* [FIX] Sử dụng hàm getAvatarSrc */}
 								<img src={getAvatarSrc(profile.avatarUrl)} alt={profile.fullName} />
 							</div>
 							<h2 className="profile-fullname">{profile.fullName}</h2>

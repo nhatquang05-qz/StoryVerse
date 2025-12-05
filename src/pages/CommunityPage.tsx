@@ -11,14 +11,14 @@ import CommunitySidebarLeft from '../components/community/CommunitySidebarLeft';
 import CommunitySidebarRight from '../components/community/CommunitySidebarRight';
 import { FiClock, FiTrendingUp, FiInbox } from 'react-icons/fi';
 import type { Post } from '../types/community';
-import '../assets/styles/CommunityModern.css'; // Sử dụng file CSS mới
+import '../assets/styles/CommunityModern.css'; 
 
 const CommunityPage: React.FC = () => {
 	const { currentUser, token, openLoginRequest } = useAuth();
 	const { showNotification } = useNotification();
 	const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 	
-    // --- States (Giữ nguyên logic cũ) ---
+    
 	const [posts, setPosts] = useState<Post[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [newPostContent, setNewPostContent] = useState('');
@@ -39,7 +39,7 @@ const CommunityPage: React.FC = () => {
 	const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<{ id: number; type: 'post' | 'comment'; parentId?: number; } | null>(null);
 
-    // [MỚI] Filter State
+    
     const [feedFilter, setFeedFilter] = useState<'new' | 'hot'>('new');
 
 	const handleUserClick = (userId: string) => {
@@ -80,7 +80,7 @@ const CommunityPage: React.FC = () => {
 		}
 	};
 
-    // --- Upload Functions ---
+    
 	const uploadToCloudinary = async (file: File): Promise<string | null> => {
 		const formData = new FormData();
 		formData.append('image', file);
@@ -122,7 +122,7 @@ const CommunityPage: React.FC = () => {
 		}
 	};
 
-    // --- Post Actions ---
+    
 	const handleCreatePost = async () => {
 		if (!newPostContent.trim() && !newPostImage) return;
 		if (isUploadingPostImg) {
@@ -330,26 +330,26 @@ const CommunityPage: React.FC = () => {
 		}
 	};
 
-    // [MỚI] Sắp xếp posts dựa trên filter
+    
     const sortedPosts = [...posts].sort((a, b) => {
         if (feedFilter === 'hot') {
-            // Hot = Nhiều like + nhiều comment
+            
             const scoreA = (a.likeCount || 0) + (a.commentCount || 0);
             const scoreB = (b.likeCount || 0) + (b.commentCount || 0);
             return scoreB - scoreA;
         }
-        // New = Mới nhất
+        
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
 	return (
 		<div className="comm-layout">
-            {/* LEFT SIDEBAR */}
+            {}
             <CommunitySidebarLeft />
 
-            {/* MAIN FEED */}
+            {}
             <main className="comm-feed">
-                {/* Filter Bar */}
+                {}
                 <div className="comm-filter-bar">
                     <button 
                         className={`comm-filter-btn ${feedFilter === 'new' ? 'active' : ''}`}
@@ -438,10 +438,10 @@ const CommunityPage: React.FC = () => {
                 )}
             </main>
 
-            {/* RIGHT SIDEBAR */}
+            {}
             <CommunitySidebarRight />
 
-            {/* Modals */}
+            {}
             <ReportModal
                 isOpen={showReportModal}
                 targetType={reportTarget?.type}

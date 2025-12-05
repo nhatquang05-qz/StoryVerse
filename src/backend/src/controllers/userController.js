@@ -229,6 +229,17 @@ const rejectAvatar = async (req, res) => {
     }
 };
 
+const getCommunityStats = async (req, res) => {
+    try {
+        const { id } = req.params;        
+        const stats = await userService.getCommunityStatsService(id);
+        res.json(stats);
+    } catch (error) {
+        console.error("Get community stats error:", error);
+        res.status(500).json({ error: 'Failed to fetch community stats', details: error.message });
+    }
+};
+
 module.exports = { 
     getMe, 
     updateProfile, 
@@ -247,5 +258,6 @@ module.exports = {
     getPublicUserProfile,
     getPendingAvatars,
     approveAvatar,
-    rejectAvatar
+    rejectAvatar,
+    getCommunityStats
 };
