@@ -9,9 +9,7 @@ const Snowfall: React.FC = () => {
 	const snowflakeCount = useMemo(() => {
 		const highDensityPaths = ['/christmas-event'];
 
-		const isHighDensity = highDensityPaths.some((path) =>
-			location.pathname.startsWith(path),
-		);
+		const isHighDensity = highDensityPaths.some((path) => location.pathname.startsWith(path));
 
 		return isHighDensity ? 60 : 20;
 	}, [location.pathname]);

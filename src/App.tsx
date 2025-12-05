@@ -12,8 +12,8 @@ import { useCart } from './contexts/CartContext';
 import { useAuth } from './contexts/AuthContext';
 import './assets/styles/App.css';
 import ImageProtection from './components/Global/ImageProtection';
-import Snowfall from './components/minigame/Snowfall'; 
-import { useSnowfall } from './contexts/SnowfallContext'; 
+import Snowfall from './components/minigame/Snowfall';
+import { useSnowfall } from './contexts/SnowfallContext';
 
 const CommunityPage = lazy(() => import('./pages/CommunityPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -50,7 +50,7 @@ const ChristmasEventPage = lazy(() => import('./pages/ChristmasEventPage'));
 function App() {
 	const { animationData, clearAnimation } = useCart();
 	const location = useLocation();
-	const { isSnowfallEnabled } = useSnowfall(); 
+	const { isSnowfallEnabled } = useSnowfall();
 
 	const isReaderPage = location.pathname.startsWith('/read/');
 	const isAdminPage = location.pathname.startsWith('/admin');
@@ -105,7 +105,7 @@ function App() {
 		<div className="app-container">
 			<ImageProtection />
 			<ScrollToTop />
-			
+
 			{isSnowfallEnabled && <Snowfall />}
 
 			{!isAdminPage && <Header />}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductList from '../components/common/ProductList';
 import Hero from '../components/common/Hero/Hero';
@@ -12,6 +12,8 @@ import LoadingPage from '../components/common/Loading/LoadingScreen';
 import '../assets/styles/HomePage.css';
 import FlashSaleSection from '../components/common/FlashSaleSection';
 import minigameBanner from '../assets/images/minigameChristmas/banner_minigame.webp';
+import demonSlayerBanner from '../assets/images/banner/demon-slayer.webp';
+import doraemonBanner from '../assets/images/banner/doraemon.webp';
 
 const ITEMS_PER_SECTION_PAGE = 14;
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -125,6 +127,11 @@ const HomePage: React.FC = () => {
 	const [recommendedDigitalComics, setRecommendedDigitalComics] = useState<ComicSummary[]>([]);
 	const [trendingComics, setTrendingComics] = useState<ComicSummary[]>([]);
 
+	const [showLeftBanner, setShowLeftBanner] = useState(true);
+	const [showRightBanner, setShowRightBanner] = useState(true);
+	const leftBannerRef = useRef<HTMLDivElement>(null);
+	const rightBannerRef = useRef<HTMLDivElement>(null);
+
 	useEffect(() => {
 		const fetchAllComics = async () => {
 			setIsLoading(true);
@@ -164,6 +171,53 @@ const HomePage: React.FC = () => {
 		fetchAllComics();
 	}, []);
 
+	useEffect(() => {
+		const handleScroll = () => {
+			const footer = document.querySelector('footer');
+			if (!footer) return;
+
+			const footerRect = footer.getBoundingClientRect();
+			const viewportHeight = window.innerHeight;
+
+			const banner = leftBannerRef.current || rightBannerRef.current;
+			if (!banner) return;
+
+			const bannerRect = banner.getBoundingClientRect();
+			const bannerHeight = bannerRect.height;
+
+			const bannerBottomPosition = viewportHeight / 2 + bannerHeight / 2;
+
+			const footerTopPosition = footerRect.top;
+
+			const gap = 10;
+
+			let shiftAmount = 0;
+
+			if (bannerBottomPosition > footerTopPosition - gap) {
+				shiftAmount = bannerBottomPosition - (footerTopPosition - gap);
+			}
+
+			const transformValue = `translateY(calc(-50% - ${shiftAmount}px))`;
+
+			if (leftBannerRef.current) {
+				leftBannerRef.current.style.transform = transformValue;
+			}
+			if (rightBannerRef.current) {
+				rightBannerRef.current.style.transform = transformValue;
+			}
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		window.addEventListener('resize', handleScroll);
+
+		handleScroll();
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('resize', handleScroll);
+		};
+	}, [showLeftBanner, showRightBanner, isLoading]);
+
 	if (isLoading) {
 		return <LoadingPage />;
 	}
@@ -202,7 +256,7 @@ const HomePage: React.FC = () => {
 					onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
 				/>
 			</div>
-			{/* -------------------------- */}
+			{}
 
 			<FlashSaleSection />
 			<div style={{ marginTop: '3rem' }}>
@@ -237,6 +291,25 @@ const HomePage: React.FC = () => {
 				isLoading={false}
 				showTabs={false}
 			/>
+
+			{}
+			{showLeftBanner && (
+				<div className="side-banner left-banner" ref={leftBannerRef}>
+					<button className="close-banner-btn" onClick={() => setShowLeftBanner(false)}>
+						&times;
+					</button>
+					<img src={doraemonBanner} alt="Doraemon" />
+				</div>
+			)}
+
+			{showRightBanner && (
+				<div className="side-banner right-banner" ref={rightBannerRef}>
+					<button className="close-banner-btn" onClick={() => setShowRightBanner(false)}>
+						&times;
+					</button>
+					<img src={demonSlayerBanner} alt="Demon Slayer" />
+				</div>
+			)}
 		</React.Fragment>
 	);
 };

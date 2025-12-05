@@ -72,11 +72,7 @@ const applyCursorStyles = (packId: string) => {
 			`url('${selectedPack.basePath}/${fileName}')`,
 		);
 	});
-	root.style.setProperty(
-		'cursor',
-		`var(--cursor-path-default), default`,
-		'important',
-	);
+	root.style.setProperty('cursor', `var(--cursor-path-default), default`, 'important');
 };
 
 const SettingsPage: React.FC = () => {
@@ -84,14 +80,12 @@ const SettingsPage: React.FC = () => {
 	const { selectedFont, selectFont, fontOptions } = useFont();
 	const { isSnowfallEnabled, toggleSnowfall } = useSnowfall();
 
-	const [selectedCursorPackId, setSelectedCursorPackId] = useState<string>(
-		() => {
-			const storedId = localStorage.getItem(CURSOR_STORAGE_KEY);
-			return storedId && CURSOR_PACKS.find((p) => p.id === storedId)
-				? storedId
-				: CURSOR_PACKS[0].id;
-		},
-	);
+	const [selectedCursorPackId, setSelectedCursorPackId] = useState<string>(() => {
+		const storedId = localStorage.getItem(CURSOR_STORAGE_KEY);
+		return storedId && CURSOR_PACKS.find((p) => p.id === storedId)
+			? storedId
+			: CURSOR_PACKS[0].id;
+	});
 
 	useEffect(() => {
 		applyCursorStyles(selectedCursorPackId);
@@ -118,10 +112,7 @@ const SettingsPage: React.FC = () => {
 
 	const handleSnowfallToggle = () => {
 		toggleSnowfall();
-		showNotification(
-			`Đã ${!isSnowfallEnabled ? 'bật' : 'tắt'} hiệu ứng tuyết rơi`,
-			'success',
-		);
+		showNotification(`Đã ${!isSnowfallEnabled ? 'bật' : 'tắt'} hiệu ứng tuyết rơi`, 'success');
 	};
 
 	return (
@@ -136,9 +127,7 @@ const SettingsPage: React.FC = () => {
 
 				<div className="settings-card" style={{ marginBottom: '2rem' }}>
 					<h2>Hiệu Ứng Hình Ảnh</h2>
-					<p className="description">
-						Tùy chỉnh các hiệu ứng hình ảnh trên trang web.
-					</p>
+					<p className="description">Tùy chỉnh các hiệu ứng hình ảnh trên trang web.</p>
 					<div
 						className={`setting-toggle-option ${isSnowfallEnabled ? 'selected' : ''}`}
 						onClick={handleSnowfallToggle}
