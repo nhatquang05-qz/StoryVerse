@@ -3,7 +3,7 @@ import { FiArrowLeft, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../contexts/NotificationContext';
 import { useFont } from '../contexts/FontContext';
-import { useSnowfall } from '../contexts/SnowfallContext'; 
+import { useSnowfall } from '../contexts/SnowfallContext';
 import '../assets/styles/SettingPage.css';
 import mikaelaPreview from '../assets/cursors/Mikaela_Hykuya.png';
 import krulTepesPreview from '../assets/cursors/Krul_Tepes.png';
@@ -72,20 +72,26 @@ const applyCursorStyles = (packId: string) => {
 			`url('${selectedPack.basePath}/${fileName}')`,
 		);
 	});
-	root.style.setProperty('cursor', `var(--cursor-path-default), default`, 'important');
+	root.style.setProperty(
+		'cursor',
+		`var(--cursor-path-default), default`,
+		'important',
+	);
 };
 
 const SettingsPage: React.FC = () => {
 	const { showNotification } = useNotification();
 	const { selectedFont, selectFont, fontOptions } = useFont();
-	const { isSnowfallEnabled, toggleSnowfall } = useSnowfall(); 
+	const { isSnowfallEnabled, toggleSnowfall } = useSnowfall();
 
-	const [selectedCursorPackId, setSelectedCursorPackId] = useState<string>(() => {
-		const storedId = localStorage.getItem(CURSOR_STORAGE_KEY);
-		return storedId && CURSOR_PACKS.find((p) => p.id === storedId)
-			? storedId
-			: CURSOR_PACKS[0].id;
-	});
+	const [selectedCursorPackId, setSelectedCursorPackId] = useState<string>(
+		() => {
+			const storedId = localStorage.getItem(CURSOR_STORAGE_KEY);
+			return storedId && CURSOR_PACKS.find((p) => p.id === storedId)
+				? storedId
+				: CURSOR_PACKS[0].id;
+		},
+	);
 
 	useEffect(() => {
 		applyCursorStyles(selectedCursorPackId);
@@ -133,36 +139,13 @@ const SettingsPage: React.FC = () => {
 					<p className="description">
 						Tùy chỉnh các hiệu ứng hình ảnh trên trang web.
 					</p>
-					<div 
-						className={`font-option ${isSnowfallEnabled ? 'selected' : ''}`}
+					<div
+						className={`setting-toggle-option ${isSnowfallEnabled ? 'selected' : ''}`}
 						onClick={handleSnowfallToggle}
-						style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '8px', marginTop: '1rem' }}
 					>
 						<div className="font-option-name">Hiệu ứng tuyết rơi</div>
-						<div style={{ display: 'flex', alignItems: 'center' }}>
-							<div 
-								style={{
-									width: '40px',
-									height: '20px',
-									backgroundColor: isSnowfallEnabled ? '#4CAF50' : '#ccc',
-									borderRadius: '20px',
-									position: 'relative',
-									transition: 'background-color 0.3s'
-								}}
-							>
-								<div 
-									style={{
-										width: '16px',
-										height: '16px',
-										backgroundColor: 'white',
-										borderRadius: '50%',
-										position: 'absolute',
-										top: '2px',
-										left: isSnowfallEnabled ? '22px' : '2px',
-										transition: 'left 0.3s'
-									}}
-								/>
-							</div>
+						<div className="toggle-switch">
+							<div className="toggle-knob" />
 						</div>
 					</div>
 				</div>
