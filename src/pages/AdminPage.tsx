@@ -264,7 +264,7 @@ const AdminPage: React.FC = () => {
 				return (
 					<>
 						<div className="admin-header">
-							<h2 style={{ margin: 0 }}>Truyện In ({physicalComics.length})</h2>
+							<h2 style={{ margin: 0 }}>Truyện giấy ({physicalComics.length})</h2>
 							<button
 								className="mgmt-btn add"
 								onClick={() => handleShowAddForm('physical')}
@@ -286,7 +286,7 @@ const AdminPage: React.FC = () => {
 				return (
 					<>
 						<div className="admin-header">
-							<h2 style={{ margin: 0 }}>Truyện Online ({digitalComics.length})</h2>
+							<h2 style={{ margin: 0 }}>Truyện online ({digitalComics.length})</h2>
 							<button
 								className="mgmt-btn add"
 								onClick={() => handleShowAddForm('digital')}

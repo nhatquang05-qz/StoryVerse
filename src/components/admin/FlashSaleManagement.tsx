@@ -244,7 +244,7 @@ const FlashSaleManagement: React.FC = () => {
 						</div>
 
 						<div className="fs-form-group fs-relative">
-							<label className="fs-form-label">Thêm sản phẩm (Chỉ Truyện In)</label>
+							<label className="fs-form-label">Thêm sản phẩm (Chỉ Truyện giấy)</label>
 							<div className="fs-search-box">
 								<FaSearch className="fs-search-icon" />
 								<input

@@ -35,14 +35,14 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 				className={`sidebar-btn ${activeView === 'digital' ? 'active' : ''}`}
 				onClick={() => onNavigate('digital')}
 			>
-				<FiBookOpen /> Truyện Online
+				<FiBookOpen /> Truyện online
 			</button>
 
 			<button
 				className={`sidebar-btn ${activeView === 'physical' ? 'active' : ''}`}
 				onClick={() => onNavigate('physical')}
 			>
-				<FiArchive /> Truyện In
+				<FiArchive /> Truyện giấy
 			</button>
 
 			<button

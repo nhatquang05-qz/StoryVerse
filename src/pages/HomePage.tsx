@@ -82,13 +82,13 @@ const HomeSection: React.FC<HomeSectionProps> = ({
 							className={`tab-button ${activeTab === 'digital' ? 'active' : ''}`}
 							onClick={() => handleTabClick('digital')}
 						>
-							Truyện Online
+							Truyện online
 						</button>
 						<button
 							className={`tab-button ${activeTab === 'physical' ? 'active' : ''}`}
 							onClick={() => handleTabClick('physical')}
 						>
-							Truyện In
+							Truyện giấy
 						</button>
 					</div>
 				)}

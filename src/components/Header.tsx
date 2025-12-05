@@ -309,11 +309,11 @@ const Header: React.FC = () => {
 				</Link>
 
 				<nav className="nav-desktop">
-					<Link to="/physical-comics">Truyện In</Link>
-					<Link to="/digital-comics">Đọc Online</Link>
+					<Link to="/physical-comics">Truyện giấy</Link>
+					<Link to="/digital-comics">Đọc online</Link>
 
 					<div className="dropdown mega-dropdown">
-						<button className="dropdown-btn">Thể Loại</button>
+						<button className="dropdown-btn">Thể loại</button>
 						<div className="dropdown-content genre-list">
 							{allGenres.length > 0 ? (
 								allGenres.map((genre) => (
@@ -684,7 +684,7 @@ const Header: React.FC = () => {
 					</div>
 
 					<Link to="/physical-comics" onClick={toggleMenu}>
-						Truyện In
+						Truyện giấy
 					</Link>
 					<Link to="/digital-comics" onClick={toggleMenu}>
 						Đọc Online

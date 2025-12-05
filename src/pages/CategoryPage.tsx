@@ -212,7 +212,7 @@ const CategoryPage: React.FC = () => {
 							setCurrentPage(1);
 						}}
 					>
-						Truyện Online
+						Truyện online
 					</button>
 					<button
 						className={`search-tab-btn ${filters.mediaType === 'physical' ? 'active' : ''}`}
@@ -221,7 +221,7 @@ const CategoryPage: React.FC = () => {
 							setCurrentPage(1);
 						}}
 					>
-						Truyện In
+						Truyện giấy
 					</button>
 				</div>
 

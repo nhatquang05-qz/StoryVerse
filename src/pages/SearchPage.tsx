@@ -244,7 +244,7 @@ const SearchPage: React.FC = () => {
 							setCurrentPage(1);
 						}}
 					>
-						Truyện In
+						Truyện giấy
 					</button>
 					<button
 						className={`search-tab-btn ${filters.mediaType === 'digital' ? 'active' : ''}`}
@@ -253,7 +253,7 @@ const SearchPage: React.FC = () => {
 							setCurrentPage(1);
 						}}
 					>
-						Truyện Online
+						Truyện online
 					</button>
 				</div>
 
