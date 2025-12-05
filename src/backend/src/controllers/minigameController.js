@@ -37,3 +37,12 @@ exports.getInfo = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+exports.getHistory = async (req, res) => {
+    try {
+        const history = await service.getEventHistory(req.userId);
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};

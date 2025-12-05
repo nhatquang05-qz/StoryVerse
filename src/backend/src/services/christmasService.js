@@ -211,4 +211,32 @@ const getWishes = async () => {
     return rows;
 };
 
-module.exports = { spinWheel, addWish, getWishes, getUserGameInfo, updateMissionProgress };
+const getEventHistory = async (userId) => {
+    const db = getConnection();
+    const [rows] = await db.query(`
+        SELECT rewardType, rewardValue, createdAt 
+        FROM event_christmas_history 
+        WHERE userId = ? 
+        ORDER BY createdAt DESC 
+        LIMIT 50
+    `, [userId]);
+
+    return rows.map(row => {
+        let source = 'Hộp quà bí ẩn';
+        let value = row.rewardValue;
+
+        if (typeof value === 'string' && value.startsWith('Wish-')) {
+            source = 'Lời chúc Giáng sinh';
+            value = value.replace('Wish-', '') + ' Xu';
+        }
+
+        return {
+            id: row.id, 
+            source,
+            value,
+            createdAt: row.createdAt
+        };
+    });
+};
+
+module.exports = { spinWheel, addWish, getWishes, getUserGameInfo, updateMissionProgress, getEventHistory };
