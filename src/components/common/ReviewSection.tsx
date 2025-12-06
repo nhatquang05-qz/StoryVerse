@@ -121,8 +121,19 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle }) =>
 			}
 
 			setReviews((prevReviews) => {
-				const otherReviews = prevReviews.filter((r) => r.userId !== currentUser.id);
-				return [newReviewData, ...otherReviews];
+				const otherReviews = prevReviews.filter(
+					(r) => String(r.userId) !== String(currentUser.id),
+				);
+
+				const updatedReview: Review = {
+					...newReviewData,
+					userId: currentUser.id,
+					fullName: currentUser.fullName || currentUser.fullName || 'Bạn',
+					avatarUrl: currentUser.avatarUrl,
+					createdAt: new Date().toISOString(),
+				};
+
+				return [updatedReview, ...otherReviews];
 			});
 
 			setNewComment('');
