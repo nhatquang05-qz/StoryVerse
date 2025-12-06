@@ -46,6 +46,7 @@ const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const ChristmasEventPage = lazy(() => import('./pages/ChristmasEventPage'));
+const CopyrightPage = lazy(() => import('./pages/CopyrightPage'));
 
 function App() {
 	const { animationData, clearAnimation } = useCart();
@@ -65,6 +66,7 @@ function App() {
 	const isFAQPage = location.pathname === '/faq';
 	const isPCPage = location.pathname === '/physical-comics';
 	const isDCPage = location.pathname === '/digital-comics';
+	const isCopyrightPage = location.pathname === '/copyright';
 	const isSearchPage = location.pathname.startsWith('/search');
 
 	const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
@@ -128,7 +130,8 @@ function App() {
 						isFAQPage ||
 						isPCPage ||
 						isDCPage ||
-						isSearchPage
+						isSearchPage ||
+						isCopyrightPage
 							? '0'
 							: undefined,
 				}}
@@ -167,6 +170,7 @@ function App() {
 						<Route path="/admin/*" element={<AdminPage />} />
 						<Route path="/faq" element={<FAQPage />} />
 						<Route path="/christmas-event" element={<ChristmasEventPage />} />
+						<Route path="/copyright" element={<CopyrightPage />} />
 					</Routes>
 				</Suspense>
 			</main>
