@@ -9,7 +9,6 @@ import {
 	FiDollarSign,
 	FiGift,
 	FiSettings,
-	FiFilter,
 	FiBell,
 	FiMessageSquare,
 	FiInfo,
@@ -412,7 +411,7 @@ const Header: React.FC = () => {
 									{physicalSuggestions.length > 0 && (
 										<div className="suggestion-section">
 											<h5 className="suggestion-section-title">
-												Truyện Vật Lý
+												Truyện giấy
 											</h5>
 											{physicalSuggestions.map((comic) => (
 												<div
@@ -456,21 +455,6 @@ const Header: React.FC = () => {
 									)}
 								</div>
 							)}
-						</div>
-
-						<div className="advanced-search-btn-wrapper">
-							<Link
-								to="/search?advanced=true"
-								className="action-icon advanced-search-btn"
-								title="Lọc Nâng Cao"
-							>
-								<FiFilter
-									style={{
-										fontSize: '1.2rem',
-										color: 'var(--clr-text-secondary)',
-									}}
-								/>
-							</Link>
 						</div>
 					</div>
 
@@ -671,16 +655,6 @@ const Header: React.FC = () => {
 								<FiSearch />
 							</button>
 						</form>
-						<Link
-							to="/search?advanced=true"
-							className="action-icon advanced-search-btn"
-							title="Lọc Nâng Cao"
-							style={{ margin: '0 2rem 0 0', flexShrink: 0 }}
-						>
-							<FiFilter
-								style={{ fontSize: '1.2rem', color: 'var(--clr-text-secondary)' }}
-							/>
-						</Link>
 					</div>
 
 					<Link to="/physical-comics" onClick={toggleMenu}>

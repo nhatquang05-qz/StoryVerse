@@ -65,6 +65,7 @@ function App() {
 	const isFAQPage = location.pathname === '/faq';
 	const isPCPage = location.pathname === '/physical-comics';
 	const isDCPage = location.pathname === '/digital-comics';
+	const isSearchPage = location.pathname.startsWith('/search');
 
 	const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
@@ -126,7 +127,8 @@ function App() {
 						isCommunityPage ||
 						isFAQPage ||
 						isPCPage ||
-						isDCPage
+						isDCPage ||
+						isSearchPage
 							? '0'
 							: undefined,
 				}}
@@ -164,7 +166,7 @@ function App() {
 						<Route path="/terms-of-service" element={<TermsOfServicePage />} />
 						<Route path="/admin/*" element={<AdminPage />} />
 						<Route path="/faq" element={<FAQPage />} />
-						<Route path="/christmas-event" element={<ChristmasEventPage />} />.
+						<Route path="/christmas-event" element={<ChristmasEventPage />} />
 					</Routes>
 				</Suspense>
 			</main>

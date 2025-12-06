@@ -83,7 +83,7 @@ const ContactPage = () => {
 			<div className="contact-wrapper">
 				<div className="contact-header">
 					<h1 className="contact-title">Liên Hệ Với Chúng Tôi</h1>
-					<p className="contact-subtitle">
+					<p className="contact-subtitle-1">
 						Chúng tôi luôn sẵn sàng lắng nghe ý kiến đóng góp và giải đáp mọi thắc mắc
 						của bạn về StoryVerse.
 					</p>

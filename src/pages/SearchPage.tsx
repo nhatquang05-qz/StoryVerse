@@ -6,6 +6,7 @@ import LoadingPage from '../components/common/Loading/LoadingScreen';
 import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
 import Pagination from '../components/common/Pagination';
 import '../assets/styles/FilterSidebar.css';
+import '../assets/styles/SearchPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const ITEMS_PER_PAGE = 20;
@@ -221,22 +222,13 @@ const SearchPage: React.FC = () => {
 
 	return (
 		<div className="search-page-layout">
-			<div className="main-content">
-				<div className="category-header">
-					<h1>{query ? `Kết quả tìm kiếm: "${query}"` : 'Tất cả truyện'}</h1>
-					<p>Tìm thấy {currentComics.length} kết quả phù hợp</p>
+			<div className="category-header">
+				<div className="search-header-left">
+					<h1>{query ? `Kết quả: "${query}"` : 'Khám phá truyện'}</h1>
+					<span className="result-count">{currentComics.length} kết quả</span>
 				</div>
 
 				<div className="search-tabs">
-					<button
-						className={`search-tab-btn ${filters.mediaType === 'all' ? 'active' : ''}`}
-						onClick={() => {
-							setFilters({ ...filters, mediaType: 'all' });
-							setCurrentPage(1);
-						}}
-					>
-						Tất cả
-					</button>
 					<button
 						className={`search-tab-btn ${filters.mediaType === 'physical' ? 'active' : ''}`}
 						onClick={() => {
@@ -256,49 +248,55 @@ const SearchPage: React.FC = () => {
 						Truyện online
 					</button>
 				</div>
-
-				{currentItems.length > 0 ? (
-					<>
-						<p style={{ marginBottom: '15px', color: 'var(--clr-text-secondary)' }}>
-							Hiển thị {currentItems.length} trên tổng số {currentComics.length}{' '}
-							truyện
-						</p>
-						<ProductList comics={currentItems} />
-
-						{totalPages > 1 && (
-							<div
-								style={{
-									marginTop: '40px',
-									display: 'flex',
-									justifyContent: 'center',
-								}}
-							>
-								<Pagination
-									currentPage={currentPage}
-									totalPages={totalPages}
-									onPageChange={(page) => setCurrentPage(page)}
-								/>
-							</div>
-						)}
-					</>
-				) : (
-					<div className="empty-state">
-						<h2>Không tìm thấy kết quả nào</h2>
-						<p>Thử điều chỉnh bộ lọc hoặc chọn tab khác.</p>
-					</div>
-				)}
 			</div>
 
-			<FilterSidebar
-				filters={filters}
-				onFilterChange={(newFilters) => {
-					setFilters(newFilters);
-					setCurrentPage(1);
-				}}
-				showPriceFilter={filters.mediaType !== 'digital'}
-				sortState={sortState}
-				onSortChange={handleSortChange}
-			/>
+			<div className="search-container">
+				<div className="main-content">
+					{currentItems.length > 0 ? (
+						<>
+							<ProductList comics={currentItems} />
+							{totalPages > 1 && (
+								<div
+									style={{
+										marginTop: '20px',
+										display: 'flex',
+										justifyContent: 'center',
+									}}
+								>
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										onPageChange={(page) => setCurrentPage(page)}
+									/>
+								</div>
+							)}
+						</>
+					) : (
+						<div className="empty-state">
+							<img
+								src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png"
+								alt="Not found"
+								style={{ width: '80px', opacity: 0.6, marginBottom: '10px' }}
+							/>
+							<h2>Không tìm thấy kết quả nào</h2>
+							<p>Hãy thử từ khóa khác hoặc điều chỉnh bộ lọc.</p>
+						</div>
+					)}
+				</div>
+
+				<div className="sidebar-wrapper">
+					<FilterSidebar
+						filters={filters}
+						onFilterChange={(newFilters) => {
+							setFilters(newFilters);
+							setCurrentPage(1);
+						}}
+						showPriceFilter={filters.mediaType !== 'digital'}
+						sortState={sortState}
+						onSortChange={handleSortChange}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 };
