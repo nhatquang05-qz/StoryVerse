@@ -165,7 +165,7 @@ const OrderManagement: React.FC = () => {
 													onClick={() =>
 														handleStatusUpdate(order.id, 'CANCELLED')
 													}
-													className="btn-icon btn-cancel"
+													className="btn-icon o-btn-cancel"
 													title="Hủy đơn"
 												>
 													<FaTimes />

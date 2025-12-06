@@ -167,12 +167,12 @@
 	transform: scale(1.05);
 }
 
-.btn-cancel {
-	background-color: #fee2e2;
-	color: #dc2626;
+.o-btn-cancel {
+	background-color: #fee2e2 !important; 
+	color: #dc2626 !important;
 }
-.btn-cancel:hover {
-	background-color: #fecaca;
+.o-btn-cancel:hover {
+	background-color: #fecaca !important;
 }
 
 .modal-overlay {
