@@ -4,22 +4,26 @@ const uploadImageService = async (fileBuffer, originalname, size, folderPath) =>
     if (!fileBuffer) {
         throw { status: 400, error: 'No file uploaded or file buffer is missing.' };
     }
+              
+    let finalFolder = 'storyverse_uploads';
+    
+    if (folderPath && typeof folderPath === 'string' && folderPath.trim() !== '') {
+        finalFolder = folderPath.trim().replace(/^\/+|\/+$/g, ''); 
+    }
 
-    const finalFolder = folderPath && typeof folderPath === 'string' && folderPath.trim() !== ''
-        ? folderPath
-        : 'storyverse_uploads';
-        
     try {
         const options = {
             folder: finalFolder, 
-            resource_type: 'auto' 
+            resource_type: 'auto',
+            
+            
         };
 
-        console.log(`Uploading file: ${originalname}, size: ${size} bytes to folder: ${finalFolder}`);
+        console.log(`[Service] Uploading '${originalname}' (${size} bytes) to Cloudinary folder: '${finalFolder}'`);
 
         const result = await uploadModel.uploadFromBufferRaw(fileBuffer, options);
 
-        console.log("Cloudinary Upload Result:", result); 
+        console.log("[Service] Upload Success. Public ID:", result.public_id); 
 
         return {
             message: 'Upload successful',
@@ -29,7 +33,7 @@ const uploadImageService = async (fileBuffer, originalname, size, folderPath) =>
         };
 
     } catch (error) {
-        console.error('Cloudinary upload processing error in service:', error);
+        console.error('[Service] Error:', error);
         let errorMessage = 'Failed to upload image.';
         if (error instanceof Error) {
             errorMessage += ` Details: ${error.message}`;
