@@ -6,23 +6,23 @@
 }
 
 .chat-column {
-	flex: 3 1 700px;
-	min-width: 450px;
+	flex: 3 1 43.75rem;
+	min-width: 28.125rem;
 }
 
 .top-comics-column {
-	flex: 1 1 300px;
-	min-width: 280px;
-	top: calc(var(--header-height, 70px) + 2rem);
+	flex: 1 1 18.75rem;
+	min-width: 17.5rem;
+	top: calc(var(--header-height, 4.375rem) + 2rem);
 }
 
 .chat-column .chat-room-container {
 	max-width: 100%;
 	margin: 0;
-	height: 500px;
+	height: 31.25rem;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 64rem) {
 	.top-and-chat-section {
 		flex-direction: column;
 		align-items: stretch;
@@ -38,13 +38,13 @@
 		margin-bottom: 2rem;
 	}
 	.chat-column .chat-room-container {
-		height: 400px;
+		height: 25rem;
 	}
 }
 
 .skeleton-placeholder-sidebar,
 .skeleton-placeholder-chat {
-	height: 500px;
+	height: 31.25rem;
 	background-color: var(--clr-card-bg);
 	border-radius: var(--border-radius);
 	border: 1px solid var(--clr-border-light);
@@ -97,7 +97,7 @@
 	font-weight: 500;
 	color: var(--clr-text-secondary);
 	position: relative;
-	border-bottom: 3px solid transparent;
+	border-bottom: 0.1875rem solid transparent;
 	transition:
 		color 0.2s ease,
 		border-color 0.2s ease;
@@ -120,7 +120,7 @@
 	flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
 	.home-section-header {
 		flex-direction: column;
 		align-items: flex-start;
@@ -141,33 +141,33 @@
 	position: fixed;
 	top: 40%;
 	transform: translateY(-50%);
-	width: 180px;
+	width: 11.25rem;
 	z-index: 90;
 	transition: opacity 0.3s ease;
 }
 
 .side-banner.left-banner {
-	left: 25px;
+	left: 1.5625rem;
 }
 
 .side-banner.right-banner {
-	right: 25px;
+	right: 1.5625rem;
 }
 
 .side-banner img {
 	width: 100%;
 	height: auto;
-	border-radius: 8px;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+	border-radius: 0.5rem;
+	box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.15);
 	display: block;
 }
 
 .close-banner-btn {
 	position: absolute;
-	top: -10px;
-	right: -10px;
-	width: 24px;
-	height: 24px;
+	top: -0.625rem;
+	right: -0.625rem;
+	width: 1.5rem;
+	height: 1.5rem;
 	background-color: var(--clr-card-bg, #fff);
 	border: 1px solid var(--clr-border-light, #ddd);
 	border-radius: 50%;
@@ -175,10 +175,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 18px;
+	font-size: 1.125rem;
 	line-height: 1;
 	color: var(--clr-text-secondary, #666);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.1);
 	transition: all 0.2s ease;
 	z-index: 91;
 }
@@ -189,7 +189,7 @@
 	border-color: var(--clr-primary, #e74c3c);
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 87.5rem) {
 	.side-banner {
 		display: none;
 	}

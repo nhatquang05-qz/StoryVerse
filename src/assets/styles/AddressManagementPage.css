@@ -14,8 +14,8 @@
 
 .address-select {
 	width: 100%;
-	padding: 10px;
-	border-radius: 5px;
+	padding: 0.625rem;
+	border-radius: 0.3125rem;
 	border: 1px solid #ccc;
 }
 
@@ -43,7 +43,7 @@
 }
 
 .address-card.default {
-	border: 2px solid var(--clr-primary);
+	border: 0.125rem solid var(--clr-primary);
 }
 
 .address-card-header {
@@ -92,7 +92,7 @@
 	color: white;
 	padding: 0.5rem 1rem;
 	border: none;
-	border-radius: 5px;
+	border-radius: 0.3125rem;
 	display: flex;
 	align-items: center;
 }

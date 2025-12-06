@@ -9,17 +9,17 @@
 	justify-content: center;
 	align-items: center;
 	z-index: 1000;
-	backdrop-filter: blur(5px);
+	backdrop-filter: blur(0.3125rem);
 }
 
 .rules-modal-content {
 	background: #ffffff;
 	width: 90%;
-	max-width: 500px;
-	border-radius: 16px;
-	padding: 25px;
+	max-width: 31.25rem;
+	border-radius: 1rem;
+	padding: 1.5625rem;
 	position: relative;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.5);
 	border: 4px solid #d32f2f;
 	animation: popIn 0.3s ease-out;
 }
@@ -27,32 +27,32 @@
 .rules-header {
 	text-align: center;
 	color: #d32f2f;
-	font-size: 24px;
+	font-size: 1.5rem;
 	font-weight: 800;
-	font-family: 'CaptainComic';
-	margin-bottom: 20px;
+	font-family: 'CaptainComic', sans-serif;
+	margin-bottom: 1.25rem;
 	text-transform: uppercase;
 	border-bottom: 2px dashed #ddd;
-	padding-bottom: 10px;
+	padding-bottom: 0.625rem;
 }
 
 .rules-body {
 	max-height: 60vh;
 	overflow-y: auto;
 	color: #333;
-	font-size: 15px;
+	font-size: 0.9375rem;
 	line-height: 1.6;
-	padding-right: 5px;
+	padding-right: 0.3125rem;
 }
 
 .rules-section-title {
 	font-weight: bold;
-	font-size: 18px;
-	margin-top: 15px;
-	margin-bottom: 5px;
+	font-size: 1.125rem;
+	margin-top: 0.9375rem;
+	margin-bottom: 0.3125rem;
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 0.5rem;
 }
 
 .title-red {
@@ -64,29 +64,29 @@
 
 .rules-list {
 	list-style-type: none;
-	padding-left: 15px;
-	margin: 5px 0;
+	padding-left: 0.9375rem;
+	margin: 0.3125rem 0;
 }
 
 .rules-list li {
-	margin-bottom: 5px;
+	margin-bottom: 0.3125rem;
 	position: relative;
 }
 
 .rules-list li::before {
 	content: '🎁';
 	position: absolute;
-	left: -20px;
-	font-size: 12px;
+	left: -1.25rem;
+	font-size: 0.75rem;
 }
 
 .close-rules-btn {
 	position: absolute;
-	top: 10px;
-	right: 10px;
+	top: 0.625rem;
+	right: 0.625rem;
 	background: none;
 	border: none;
-	font-size: 24px;
+	font-size: 1.5rem;
 	color: #999;
 	cursor: pointer;
 	transition: color 0.2s;

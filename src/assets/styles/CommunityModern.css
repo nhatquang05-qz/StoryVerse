@@ -1,16 +1,16 @@
 .comm-layout {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 24px;
-	max-width: 1280px;
+	gap: 1.5rem;
+	max-width: 80rem;
 	margin: 0 auto;
-	padding: 20px 16px;
+	padding: 1.25rem 1rem;
 	align-items: flex-start;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 64rem) {
 	.comm-layout {
-		grid-template-columns: 260px 1fr 300px;
+		grid-template-columns: 16.25rem 1fr 18.75rem;
 	}
 }
 
@@ -18,9 +18,9 @@
 	background-color: var(--clr-card-bg);
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
-	padding: 20px;
-	margin-bottom: 20px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	padding: 1.25rem;
+	margin-bottom: 1.25rem;
+	box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.04);
 	transition:
 		box-shadow 0.3s ease,
 		border-color 0.3s ease;
@@ -60,16 +60,16 @@ html[data-theme='night'] .comm-card {
 .comm-sidebar-wrapper {
 	display: none;
 	flex-direction: column;
-	gap: 20px;
+	gap: 1.25rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 64rem) {
 	.comm-sidebar-wrapper {
 		display: flex;
 		position: sticky;
-		top: calc(var(--header-height) + 20px);
+		top: calc(var(--header-height) + 1.25rem);
 		height: fit-content;
-		max-height: calc(100vh - 100px);
+		max-height: calc(100vh - 6.25rem);
 		overflow-y: auto;
 		scrollbar-width: none;
 	}
@@ -82,12 +82,12 @@ html[data-theme='night'] .comm-card {
 	font-size: 1.1rem;
 	font-weight: 700;
 	color: var(--clr-text);
-	margin-bottom: 16px;
-	padding-bottom: 8px;
-	border-bottom: 2px solid var(--clr-border-light);
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 0.125rem solid var(--clr-border-light);
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 0.5rem;
 }
 
 .comm-widget-title svg {
@@ -103,16 +103,16 @@ html[data-theme='night'] .comm-card {
 
 .comm-avatar-container {
 	position: relative;
-	margin-bottom: 12px;
+	margin-bottom: 0.75rem;
 }
 
 .comm-avatar {
-	width: 80px;
-	height: 80px;
+	width: 5rem;
+	height: 5rem;
 	border-radius: 50%;
 	object-fit: cover;
-	border: 3px solid var(--clr-primary);
-	padding: 2px;
+	border: 0.1875rem solid var(--clr-primary);
+	padding: 0.125rem;
 	background-color: var(--clr-card-bg);
 }
 
@@ -120,18 +120,18 @@ html[data-theme='night'] .comm-card {
 	font-size: 1.2rem;
 	font-weight: 700;
 	color: var(--clr-text);
-	margin-bottom: 4px;
+	margin-bottom: 0.25rem;
 }
 
 @keyframes glowing-flame {
 	0% {
-		filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+		filter: drop-shadow(0 0 0.1875rem rgba(255, 223, 0, 0.7));
 	}
 	50% {
-		filter: drop-shadow(0 0 7px rgba(255, 191, 0, 1));
+		filter: drop-shadow(0 0 0.4375rem rgba(255, 191, 0, 1));
 	}
 	100% {
-		filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+		filter: drop-shadow(0 0 0.1875rem rgba(255, 223, 0, 0.7));
 	}
 }
 
@@ -139,17 +139,17 @@ html[data-theme='night'] .comm-card {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
-	padding: 6px 16px;
-	border-radius: 20px;
+	gap: 0.375rem;
+	padding: 0.375rem 1rem;
+	border-radius: 1.25rem;
 	font-size: 0.9rem;
 	font-weight: 700;
-	margin-bottom: 16px;
+	margin-bottom: 1rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-	border: 2px solid;
+	border: 0.125rem solid;
 	color: #fff !important;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0.125rem 0.3125rem rgba(0, 0, 0, 0.2);
 	white-space: nowrap;
 }
 
@@ -162,7 +162,7 @@ html[data-theme='night'] .comm-card {
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
-	padding-top: 16px;
+	padding-top: 1rem;
 	border-top: 1px solid var(--clr-border-light);
 }
 
@@ -185,14 +185,14 @@ html[data-theme='night'] .comm-card {
 .comm-stat-label {
 	font-size: 0.85rem;
 	color: var(--clr-text-secondary);
-	margin-top: 2px;
+	margin-top: 0.125rem;
 }
 
 .comm-top-user {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	padding: 10px 0;
+	gap: 0.75rem;
+	padding: 0.625rem 0;
 	border-bottom: 1px dashed var(--clr-border-light);
 }
 
@@ -201,8 +201,8 @@ html[data-theme='night'] .comm-card {
 }
 
 .comm-rank-num {
-	width: 24px;
-	height: 24px;
+	width: 1.5rem;
+	height: 1.5rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -215,7 +215,7 @@ html[data-theme='night'] .comm-card {
 
 .rank-gold {
 	background: linear-gradient(135deg, #ffd700, #ffa500);
-	box-shadow: 0 2px 5px rgba(255, 165, 0, 0.4);
+	box-shadow: 0 0.125rem 0.3125rem rgba(255, 165, 0, 0.4);
 }
 .rank-silver {
 	background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
@@ -251,12 +251,12 @@ html[data-theme='night'] .comm-card {
 .comm-tags-container {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px;
+	gap: 0.5rem;
 }
 
 .comm-tag {
-	padding: 6px 12px;
-	border-radius: 20px;
+	padding: 0.375rem 0.75rem;
+	border-radius: 1.25rem;
 	background-color: var(--clr-background);
 	color: var(--clr-text-secondary);
 	font-size: 0.85rem;
@@ -265,7 +265,7 @@ html[data-theme='night'] .comm-card {
 	transition: all 0.2s;
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 0.25rem;
 }
 
 html[data-theme='night'] .comm-tag {
@@ -282,9 +282,9 @@ html[data-theme='night'] .comm-tag {
 
 .comm-suggest-item {
 	display: flex;
-	gap: 12px;
-	margin-bottom: 12px;
-	padding: 8px;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+	padding: 0.5rem;
 	border-radius: var(--border-radius);
 	cursor: pointer;
 	transition: background-color 0.2s;
@@ -299,14 +299,14 @@ html[data-theme='night'] .comm-suggest-item:hover {
 }
 
 .comm-suggest-cover {
-	width: 50px;
-	height: 70px;
-	border-radius: 4px;
+	width: 3.125rem;
+	height: 4.375rem;
+	border-radius: 0.25rem;
 	object-fit: cover;
 }
 
 .comm-suggest-info h5 {
-	margin: 0 0 4px 0;
+	margin: 0 0 0.25rem 0;
 	font-size: 0.9rem;
 	color: var(--clr-text);
 	line-height: 1.3;
@@ -317,22 +317,22 @@ html[data-theme='night'] .comm-suggest-item:hover {
 	color: var(--clr-text-secondary);
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 0.125rem;
 }
 
 .comm-suggest-meta div {
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 0.25rem;
 }
 
 .comm-filter-bar {
 	display: flex;
-	gap: 12px;
-	margin-bottom: 20px;
+	gap: 0.75rem;
+	margin-bottom: 1.25rem;
 	background-color: var(--clr-card-bg);
-	padding: 6px;
-	border-radius: 12px;
+	padding: 0.375rem;
+	border-radius: 0.75rem;
 	border: 1px solid var(--clr-border-light);
 }
 
@@ -346,9 +346,9 @@ html[data-theme='night'] .comm-filter-bar {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
-	padding: 10px;
-	border-radius: 8px;
+	gap: 0.5rem;
+	padding: 0.625rem;
+	border-radius: 0.5rem;
 	border: none;
 	background: transparent;
 	color: var(--clr-text-secondary);
@@ -364,7 +364,7 @@ html[data-theme='night'] .comm-filter-btn {
 .comm-filter-btn.active {
 	background-color: var(--clr-primary);
 	color: var(--clr-button-text) !important;
-	box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
+	box-shadow: 0 0.125rem 0.5rem rgba(100, 108, 255, 0.3);
 }
 
 .comm-filter-btn:hover:not(.active) {
@@ -379,7 +379,7 @@ html[data-theme='night'] .comm-filter-btn:hover:not(.active) {
 
 .comm-empty-state {
 	text-align: center;
-	padding: 40px 20px;
+	padding: 2.5rem 1.25rem;
 	background-color: var(--clr-card-bg);
 	border-radius: var(--border-radius);
 	border: 1px dashed var(--clr-border-light);
@@ -393,7 +393,7 @@ html[data-theme='night'] .comm-empty-state {
 
 .comm-empty-icon {
 	font-size: 3rem;
-	margin-bottom: 16px;
+	margin-bottom: 1rem;
 	color: var(--clr-border-light);
 }
 
@@ -401,8 +401,8 @@ html[data-theme='night'] .comm-empty-state {
 	width: 100%;
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	padding: 12px;
+	gap: 0.75rem;
+	padding: 0.75rem;
 	background: transparent;
 	border: none;
 	color: var(--clr-text-secondary);

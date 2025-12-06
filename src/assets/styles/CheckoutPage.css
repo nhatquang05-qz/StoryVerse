@@ -1,7 +1,7 @@
 .checkout-container {
-	max-width: 1200px;
+	max-width: 75rem;
 	margin: 0 auto;
-	padding: 40px 20px;
+	padding: 2.5rem 1rem;
 	min-height: 80vh;
 	font-family: var(--font-family-base);
 	color: var(--clr-text);
@@ -10,7 +10,7 @@
 .checkout-title {
 	font-size: 2rem;
 	font-weight: 700;
-	margin-bottom: 30px;
+	margin-bottom: 1.875rem;
 	color: var(--clr-text);
 	text-align: center;
 }
@@ -18,16 +18,16 @@
 .checkout-grid {
 	display: grid;
 	grid-template-columns: 1.8fr 1.2fr;
-	gap: 40px;
+	gap: 2.5rem;
 	position: relative;
 }
 
 .checkout-card {
 	background: var(--clr-card-bg);
-	border-radius: 16px;
-	padding: 25px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-	margin-bottom: 25px;
+	border-radius: 1rem;
+	padding: 1.5625rem;
+	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+	margin-bottom: 1.5625rem;
 	border: 1px solid var(--clr-border-light);
 	transition:
 		background-color 0.3s ease,
@@ -37,20 +37,20 @@
 .checkout-card h3 {
 	font-size: 1.25rem;
 	font-weight: 600;
-	margin-bottom: 20px;
-	padding-bottom: 10px;
+	margin-bottom: 1.25rem;
+	padding-bottom: 0.625rem;
 	border-bottom: 2px solid var(--clr-border-light);
 	color: var(--clr-text);
 }
 
 /* Form Styles */
 .form-group {
-	margin-bottom: 20px;
+	margin-bottom: 1.25rem;
 }
 
 .form-label {
 	display: block;
-	margin-bottom: 8px;
+	margin-bottom: 0.5rem;
 	font-weight: 500;
 	color: var(--clr-text);
 }
@@ -58,8 +58,8 @@
 .form-input,
 .form-textarea {
 	width: 100%;
-	padding: 12px 15px;
-	border-radius: 8px;
+	padding: 0.75rem 0.9375rem;
+	border-radius: 0.5rem;
 	border: 1px solid var(--clr-border-light);
 	font-size: 1rem;
 	transition: all 0.3s ease;
@@ -70,14 +70,14 @@
 }
 
 .form-textarea {
-	min-height: 100px;
+	min-height: 6.25rem;
 	resize: vertical;
 }
 
 .form-input:focus,
 .form-textarea:focus {
 	border-color: var(--clr-primary);
-	box-shadow: 0 0 0 3px var(--clr-input-focus-shadow);
+	box-shadow: 0 0 0 0.1875rem var(--clr-input-focus-shadow);
 }
 
 .form-input::placeholder,
@@ -89,15 +89,15 @@
 .payment-methods {
 	display: flex;
 	flex-direction: column;
-	gap: 15px;
+	gap: 0.9375rem;
 }
 
 .payment-option {
 	display: flex;
 	align-items: center;
-	padding: 15px;
+	padding: 0.9375rem;
 	border: 2px solid var(--clr-border-light);
-	border-radius: 12px;
+	border-radius: 0.75rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	position: relative;
@@ -117,13 +117,13 @@
 .payment-radio {
 	accent-color: var(--clr-primary);
 	transform: scale(1.2);
-	margin-right: 15px;
+	margin-right: 0.9375rem;
 }
 
 .payment-info strong {
 	display: block;
 	font-size: 1rem;
-	margin-bottom: 4px;
+	margin-bottom: 0.25rem;
 	color: var(--clr-text);
 }
 
@@ -137,41 +137,41 @@
 	font-size: 0.7rem;
 	background: var(--clr-primary);
 	color: var(--clr-button-text);
-	padding: 2px 8px;
-	border-radius: 20px;
-	margin-left: 8px;
+	padding: 2px 0.5rem;
+	border-radius: 1.25rem;
+	margin-left: 0.5rem;
 	vertical-align: middle;
 	font-weight: 600;
 }
 
 .order-summary-container {
 	position: sticky;
-	top: calc(var(--header-height) + 20px);
+	top: calc(var(--header-height) + 1.25rem);
 }
 
 .summary-list {
-	max-height: 400px;
+	max-height: 25rem;
 	overflow-y: auto;
-	margin-bottom: 20px;
-	padding-right: 5px;
+	margin-bottom: 1.25rem;
+	padding-right: 0.3125rem;
 }
 
 .summary-list::-webkit-scrollbar {
-	width: 6px;
+	width: 0.375rem;
 }
 .summary-list::-webkit-scrollbar-track {
 	background: var(--clr-footer-bg);
 }
 .summary-list::-webkit-scrollbar-thumb {
 	background: var(--clr-text-secondary);
-	border-radius: 3px;
+	border-radius: 0.1875rem;
 }
 
 .summary-item {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
-	padding: 12px 0;
+	align-items: flex-start;
+	padding: 1rem 0;
 	border-bottom: 1px dashed var(--clr-border-light);
 }
 
@@ -179,30 +179,40 @@
 	border-bottom: none;
 }
 
-.item-name {
+.item-info-col {
 	flex: 1;
-	padding-right: 15px;
-	font-size: 0.95rem;
-	line-height: 1.4;
+	padding-right: 0.625rem;
+}
+
+.item-name {
+	font-weight: 600;
 	color: var(--clr-text);
+	margin-bottom: 0.25rem;
+	font-size: 0.95rem;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .item-quantity {
 	color: var(--clr-text-secondary);
 	font-size: 0.9rem;
-	margin-right: 5px;
+	margin-right: 0.3125rem;
 }
 
-.item-price {
-	font-weight: 600;
-	font-size: 0.95rem;
-	color: var(--clr-text);
+.item-total-col {
+	font-weight: 700;
+	color: var(--clr-primary);
+	white-space: nowrap;
+	font-size: 1rem;
 }
 
 .summary-divider {
 	border: none;
 	border-top: 2px solid var(--clr-border-light);
-	margin: 15px 0;
+	margin: 0.9375rem 0;
 }
 
 .total-row {
@@ -211,7 +221,7 @@
 	align-items: center;
 	font-size: 1.1rem;
 	font-weight: 700;
-	margin-bottom: 25px;
+	margin-bottom: 1.5625rem;
 	color: var(--clr-text);
 }
 
@@ -222,11 +232,11 @@
 
 .checkout-btn {
 	width: 100%;
-	padding: 16px;
+	padding: 1rem;
 	background: var(--clr-primary);
 	color: var(--clr-button-text);
 	border: none;
-	border-radius: 30px;
+	border-radius: 1.875rem;
 	font-size: 1.1rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -234,11 +244,13 @@
 		transform 0.2s,
 		box-shadow 0.2s,
 		background-color 0.25s;
-	box-shadow: 0 4px 15px var(--clr-input-focus-shadow);
+	box-shadow: 0 0.25rem 0.9375rem var(--clr-input-focus-shadow);
+	margin-top: 1.25rem;
+	letter-spacing: 0.5px;
 }
 
 .checkout-btn:hover:not(:disabled) {
-	transform: translateY(-2px);
+	transform: translateY(-0.125rem);
 	background: var(--clr-primary-dark);
 }
 
@@ -262,15 +274,15 @@
 .empty-cart-text {
 	font-size: 1.5rem;
 	color: var(--clr-text-secondary);
-	margin-bottom: 20px;
+	margin-bottom: 1.25rem;
 }
 
 .continue-shopping-btn {
-	padding: 12px 30px;
+	padding: 0.75rem 1.875rem;
 	background: var(--clr-primary);
 	color: var(--clr-button-text);
 	text-decoration: none;
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	font-weight: 600;
 	transition:
 		opacity 0.3s,
@@ -281,27 +293,17 @@
 	background: var(--clr-primary-dark);
 }
 
-@media (max-width: 992px) {
-	.checkout-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.order-summary-container {
-		position: static;
-	}
-}
-
 .summary-pricing {
-	margin-top: 20px;
-	padding-top: 15px;
+	margin-top: 1.25rem;
+	padding-top: 0.9375rem;
 	border-top: 1px solid #e0e0e0;
 }
 
 .pricing-row {
 	display: flex;
 	justify-content: space-between;
-	margin-bottom: 12px;
-	font-size: 15px;
+	margin-bottom: 0.75rem;
+	font-size: 0.9375rem;
 	color: #ffffff;
 }
 
@@ -314,8 +316,8 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: 15px;
-	padding-top: 15px;
+	margin-top: 0.9375rem;
+	padding-top: 0.9375rem;
 	border-top: 2px dashed #eee;
 	font-weight: 700;
 	font-size: 1.1rem;
@@ -327,49 +329,11 @@
 	font-size: 1.4rem;
 }
 
-.checkout-btn {
-	margin-top: 20px;
-	font-weight: 600;
-	letter-spacing: 0.5px;
-}
-
-.summary-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	padding: 1rem 0;
-	border-bottom: 1px dashed var(--clr-border-light);
-}
-
-.item-info-col {
-	flex: 1;
-	padding-right: 10px;
-}
-
-.item-name {
-	font-weight: 600;
-	color: var(--clr-text);
-	margin-bottom: 4px;
-	font-size: 0.95rem;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	line-clamp: 2;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-}
-
-.item-total-col {
-	font-weight: 700;
-	color: var(--clr-primary);
-	white-space: nowrap;
-	font-size: 1rem;
-}
-
 .checkout-mixed-price {
 	display: flex;
 	flex-direction: column;
 	font-size: 0.85rem;
-	gap: 2px;
+	gap: 0.125rem;
 }
 
 .mixed-row {
@@ -383,7 +347,7 @@
 .checkout-price-single {
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 0.5rem;
 	font-size: 0.9rem;
 	color: var(--clr-text-secondary);
 }
@@ -401,9 +365,19 @@
 .qty-badge {
 	background-color: var(--clr-bg);
 	border: 1px solid var(--clr-border-light);
-	padding: 0px 6px;
-	border-radius: 4px;
+	padding: 0px 0.375rem;
+	border-radius: 0.25rem;
 	font-size: 0.8rem;
 	font-weight: 600;
 	color: var(--clr-text);
+}
+
+@media (max-width: 62rem) {
+	.checkout-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.order-summary-container {
+		position: static;
+	}
 }

@@ -14,7 +14,7 @@
 	transition:
 		opacity 0.3s ease,
 		visibility 0.3s ease;
-	backdrop-filter: blur(8px);
+	backdrop-filter: blur(0.5rem);
 }
 
 .popup-overlay.show {
@@ -26,9 +26,9 @@
 	background-color: var(--clr-bg-dark);
 	color: var(--clr-text);
 	padding: 2.5rem 2rem;
-	border-radius: 12px;
+	border-radius: 0.75rem;
 	width: 90%;
-	max-width: 420px;
+	max-width: 26.25rem;
 	text-align: center;
 	position: relative;
 	transform: scale(0.9);
@@ -37,34 +37,34 @@
 		transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
 		opacity 0.3s ease;
 	border: 1px solid transparent;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+	box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.6);
 }
 
 .popup-content.login-success-popup {
 	border-color: var(--clr-success);
 	animation: success-pulse 2s infinite ease-in-out;
 	box-shadow:
-		0 10px 30px rgba(0, 0, 0, 0.6),
-		0 0 15px rgba(46, 204, 113, 0.4);
+		0 0.625rem 1.875rem rgba(0, 0, 0, 0.6),
+		0 0 0.9375rem rgba(46, 204, 113, 0.4);
 }
 
 @keyframes success-pulse {
 	0% {
 		box-shadow:
-			0 10px 30px rgba(0, 0, 0, 0.6),
-			0 0 15px rgba(46, 204, 113, 0.4);
+			0 0.625rem 1.875rem rgba(0, 0, 0, 0.6),
+			0 0 0.9375rem rgba(46, 204, 113, 0.4);
 		border-color: var(--clr-success);
 	}
 	50% {
 		box-shadow:
-			0 10px 30px rgba(0, 0, 0, 0.6),
-			0 0 30px rgba(46, 204, 113, 0.9);
+			0 0.625rem 1.875rem rgba(0, 0, 0, 0.6),
+			0 0 1.875rem rgba(46, 204, 113, 0.9);
 		border-color: #6cffae;
 	}
 	100% {
 		box-shadow:
-			0 10px 30px rgba(0, 0, 0, 0.6),
-			0 0 15px rgba(46, 204, 113, 0.4);
+			0 0.625rem 1.875rem rgba(0, 0, 0, 0.6),
+			0 0 0.9375rem rgba(46, 204, 113, 0.4);
 		border-color: var(--clr-success);
 	}
 }
@@ -76,8 +76,8 @@
 
 .popup-close-btn {
 	position: absolute;
-	top: 15px;
-	right: 15px;
+	top: 0.9375rem;
+	right: 0.9375rem;
 	background: transparent;
 	border: none;
 	font-size: 1.8rem;
@@ -130,7 +130,7 @@
 .popup-action-btn {
 	padding: 0.9rem 2.2rem;
 	border: none;
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	font-size: 1.1rem;
 	font-weight: 600;
 	cursor: pointer;
@@ -138,7 +138,7 @@
 		background-color 0.3s ease,
 		transform 0.1s ease;
 	width: 100%;
-	max-width: 200px;
+	max-width: 12.5rem;
 }
 
 .login-success-popup .popup-action-btn.primary-btn {
@@ -149,7 +149,7 @@
 
 .login-success-popup .popup-action-btn.primary-btn:hover {
 	background-color: #27ae60;
-	transform: translateY(-2px);
+	transform: translateY(-0.125rem);
 }
 
 .popup-action-btn.primary-btn:active {
@@ -173,11 +173,11 @@
 	.popup-action-btn {
 		padding: 0.8rem 1.8rem;
 		font-size: 1rem;
-		max-width: 180px;
+		max-width: 11.25rem;
 	}
 	.popup-close-btn {
 		font-size: 1.5rem;
-		top: 10px;
-		right: 10px;
+		top: 0.625rem;
+		right: 0.625rem;
 	}
 }

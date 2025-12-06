@@ -15,7 +15,7 @@
 }
 
 .header-container {
-	max-width: 1536px;
+	max-width: 96rem;
 	margin: 0 auto;
 	height: 100%;
 	display: flex;
@@ -56,14 +56,14 @@
 	width: 0;
 	height: 2px;
 	background-color: var(--clr-primary);
-	bottom: -4px;
+	bottom: -0.25rem;
 	left: 50%;
 	transform: translateX(-50%);
 	transition: width 0.3s ease;
 }
 
 .nav-desktop a:hover {
-	transform: translateY(-3px);
+	transform: translateY(-0.1875rem);
 	color: var(--clr-primary);
 }
 
@@ -94,7 +94,7 @@
 	width: 0;
 	height: 2px;
 	background-color: var(--clr-primary);
-	bottom: -4px;
+	bottom: -0.25rem;
 	left: 50%;
 	transform: translateX(-50%);
 	transition: width 0.3s ease;
@@ -102,7 +102,7 @@
 
 .dropdown-btn:hover {
 	color: var(--clr-primary);
-	transform: translateY(-3px);
+	transform: translateY(-0.1875rem);
 }
 
 .dropdown-btn:hover::after {
@@ -116,7 +116,7 @@
 .dropdown-content {
 	opacity: 0;
 	visibility: hidden;
-	transform: translateY(10px);
+	transform: translateY(0.625rem);
 	transition:
 		opacity 0.25s ease,
 		transform 0.25s ease,
@@ -127,8 +127,8 @@
 	left: auto;
 	padding-top: 1rem;
 	background-color: var(--clr-header-bg);
-	min-width: 200px;
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+	min-width: 12.5rem;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
 	z-index: 99999;
 	border-radius: var(--border-radius);
 	padding-bottom: 0.5rem;
@@ -143,7 +143,7 @@
 
 .dropdown-content a {
 	color: var(--clr-text);
-	padding: 12px 16px;
+	padding: 0.75rem 1rem;
 	display: block;
 	text-align: left;
 	text-decoration: none;
@@ -177,7 +177,7 @@
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	padding-left: 0.8rem;
-	height: 40px;
+	height: 2.5rem;
 	background-color: var(--clr-card-bg);
 	flex-grow: 1;
 }
@@ -187,7 +187,7 @@
 	border: none;
 	color: var(--clr-text);
 	outline: none;
-	width: 150px;
+	width: 9.375rem;
 	padding: 0.5rem 0;
 }
 .search-bar input::placeholder {
@@ -210,8 +210,8 @@
 
 .action-icon.advanced-search-btn {
 	margin-left: 0;
-	height: 40px;
-	width: 40px;
+	height: 2.5rem;
+	width: 2.5rem;
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	display: flex;
@@ -224,16 +224,16 @@
 
 .search-suggestions-dropdown {
 	position: absolute;
-	top: 45px;
+	top: 2.8125rem;
 	left: 0;
-	width: 300px;
+	width: 18.75rem;
 	background-color: var(--clr-header-bg);
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
 	z-index: 1001;
 	padding: 0.5rem 0;
-	max-height: 400px;
+	max-height: 25rem;
 	overflow-y: auto;
 }
 
@@ -249,11 +249,11 @@
 }
 
 .suggestion-item img {
-	width: 40px;
-	height: 60px;
+	width: 2.5rem;
+	height: 3.75rem;
 	object-fit: cover;
-	border-radius: 4px;
-	margin-right: 10px;
+	border-radius: 0.25rem;
+	margin-right: 0.625rem;
 }
 .suggestion-item div {
 	flex-grow: 1;
@@ -273,12 +273,13 @@
 .suggestion-view-all {
 	display: block;
 	text-align: center;
-	padding: 0.5rem 1rem;
+	padding: 0.7rem 1rem 0.5rem 1rem;
 	font-size: 0.9rem;
 	color: var(--clr-primary);
 	font-weight: 500;
 	border-top: 1px solid var(--clr-border-light);
 	margin-top: 0.5rem;
+	text-decoration: none;
 }
 .suggestion-view-all:hover {
 	color: var(--clr-primary-dark);
@@ -297,19 +298,19 @@
 	outline: none;
 	background: none;
 	padding: 0;
-	height: 40px;
-	width: 40px;
+	height: 2.5rem;
+	width: 2.5rem;
 }
 
 .cart-badge {
 	position: absolute;
-	top: -2px;
-	right: -5px;
+	top: -0.125rem;
+	right: -0.3125rem;
 	background-color: rgb(231, 84, 84);
 	color: white;
 	border-radius: 50%;
-	width: 15px;
-	height: 15px;
+	width: 0.9375rem;
+	height: 0.9375rem;
 	font-size: 0.7rem;
 	display: flex;
 	align-items: center;
@@ -322,13 +323,13 @@
 	gap: 0.3rem;
 	background-color: var(--clr-footer-bg);
 	padding: 0.3rem 0.8rem;
-	border-radius: 20px;
+	border-radius: 1.25rem;
 	font-weight: 600;
 	color: var(--clr-text);
 }
 .coin-icon {
-	width: 18px;
-	height: 18px;
+	width: 1.125rem;
+	height: 1.125rem;
 }
 .coin-amount {
 	font-size: 0.9rem;
@@ -344,43 +345,43 @@
 	font-family: var(--font-sans);
 	font-weight: 600;
 	font-size: 0.95rem;
-	border-radius: 30px;
+	border-radius: 1.875rem;
 	text-decoration: none;
 	transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 	border: 2px solid transparent;
 	white-space: nowrap;
-	box-shadow: 0 4px 15px rgba(100, 108, 255, 0.3);
+	box-shadow: 0 0.25rem 0.9375rem rgba(100, 108, 255, 0.3);
 }
 
 .login-btn:hover {
-	transform: translateY(-2px);
+	transform: translateY(-0.125rem);
 	background: linear-gradient(135deg, var(--clr-primary-dark) 0%, var(--clr-primary) 100%);
-	box-shadow: 0 6px 20px rgba(100, 108, 255, 0.5);
+	box-shadow: 0 0.375rem 1.25rem rgba(100, 108, 255, 0.5);
 	filter: brightness(1.1);
 }
 
 .login-btn:active {
-	transform: translateY(1px);
-	box-shadow: 0 2px 8px rgba(100, 108, 255, 0.2);
+	transform: translateY(0.0625rem);
+	box-shadow: 0 0.125rem 0.5rem rgba(100, 108, 255, 0.2);
 	filter: brightness(0.95);
 }
 
 html[data-theme='night'] .login-btn {
-	box-shadow: 0 0 15px rgba(116, 123, 255, 0.4);
+	box-shadow: 0 0 0.9375rem rgba(116, 123, 255, 0.4);
 	border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 html[data-theme='night'] .login-btn:hover {
-	box-shadow: 0 0 25px rgba(116, 123, 255, 0.6);
+	box-shadow: 0 0 1.5625rem rgba(116, 123, 255, 0.6);
 	border-color: rgba(255, 255, 255, 0.3);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
 	.login-btn {
 		padding: 0.5rem 1.2rem;
 		font-size: 0.9rem;
 		width: 100%;
-		margin-top: 10px;
+		margin-top: 0.625rem;
 	}
 }
 
@@ -437,7 +438,7 @@ html[data-theme='night'] .login-btn:hover {
 	border-radius: var(--border-radius);
 	margin: 0.5rem 2rem 1rem 2rem;
 	padding: 0;
-	height: 45px;
+	height: 2.8125rem;
 	align-items: center;
 	box-shadow: none;
 }
@@ -458,8 +459,8 @@ html[data-theme='night'] .login-btn:hover {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 40px;
-	height: 40px;
+	width: 2.5rem;
+	height: 2.5rem;
 }
 .daily-reward-icon {
 	font-size: 1.8rem;
@@ -480,17 +481,17 @@ html[data-theme='night'] .login-btn:hover {
 
 .daily-reward-tooltip {
 	visibility: hidden;
-	width: 200px;
+	width: 12.5rem;
 	background-color: var(--clr-warning-bg);
 	color: var(--clr-warning-text);
 	text-align: center;
-	border-radius: 6px;
-	padding: 5px 0;
+	border-radius: 0.375rem;
+	padding: 0.3125rem 0;
 	position: absolute;
 	z-index: 1002;
-	bottom: -35px;
+	bottom: -2.1875rem;
 	left: 50%;
-	margin-left: -100px;
+	margin-left: -6.25rem;
 	opacity: 0;
 	transition: opacity 0.3s;
 	font-size: 0.75rem;
@@ -542,7 +543,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 	font-weight: 600;
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 71.875rem) {
 	.nav-desktop,
 	.search-filter-group:not(.mobile-search-group),
 	.coin-balance-display:not(.mobile-coin-balance),
@@ -576,7 +577,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 		left: 0;
 		width: 100%;
 		padding: 1rem 0;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+		box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.05);
 		background-color: var(--clr-header-bg);
 		border-bottom: 1px solid var(--clr-border-light);
 	}
@@ -594,7 +595,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 	}
 }
 
-@media (max-width: 480px) {
+@media (max-width: 30rem) {
 	.logo {
 		font-size: 1.5rem;
 	}
@@ -614,7 +615,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 	font-family: inherit;
 	font-size: 1rem;
 	font-weight: 500;
-	padding: 12px 16px;
+	padding: 0.75rem 1rem;
 	margin: 0;
 	width: 100%;
 	text-align: left;
@@ -634,10 +635,10 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .dropdown.mega-dropdown .dropdown-content {
-	min-width: 900px;
-	max-width: 1000px;
+	min-width: 56.25rem;
+	max-width: 62.5rem;
 	left: 50%;
-	transform: translateX(-50%) translateY(10px);
+	transform: translateX(-50%) translateY(0.625rem);
 	border-color: var(--clr-border-light);
 	background-color: var(--clr-header-bg);
 	padding: 1rem;
@@ -653,9 +654,9 @@ html[data-theme='night'] .daily-reward-tooltip {
 
 .dropdown-content.genre-list a {
 	display: block;
-	padding: 8px 12px 6px 12px;
+	padding: 0.5rem 0.75rem 0.375rem 0.75rem;
 	color: var(--clr-text);
-	border-radius: 4px;
+	border-radius: 0.25rem;
 	break-inside: avoid-column;
 	border-bottom: 4px solid transparent;
 }
@@ -667,14 +668,14 @@ html[data-theme='night'] .daily-reward-tooltip {
 	border-bottom-color: var(--clr-primary);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 56.25rem) {
 	.dropdown.mega-dropdown .dropdown-content {
 		display: none;
 	}
 }
 
 .nav-mobile-genres-title {
-	padding: 0.5rem 2rem 0.5rem;
+	padding: 0.5rem 2rem 0.3125rem;
 	margin: 0;
 	font-size: 0.8rem;
 	font-weight: bold;
@@ -690,7 +691,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 .nav-mobile-genre-link {
 	padding: 0.5rem 0.5rem !important;
 	font-size: 0.95rem !important;
-	border-radius: 4px;
+	border-radius: 0.25rem;
 }
 .nav-mobile-genre-link:hover {
 	background-color: var(--clr-footer-bg);
@@ -724,21 +725,21 @@ html[data-theme='night'] .daily-reward-tooltip {
 .suggestion-item div .suggestion-author {
 	font-size: 0.75rem;
 	color: var(--clr-text-secondary);
-	margin-top: 2px;
+	margin-top: 0.125rem;
 }
 
 .search-suggestions-dropdown {
 	position: absolute;
-	top: 45px;
+	top: 2.8125rem;
 	left: 0;
-	width: 300px;
+	width: 18.75rem;
 	background-color: var(--clr-header-bg);
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
 	z-index: 1001;
 	padding: 0.5rem 0;
-	max-height: 400px;
+	max-height: 25rem;
 	overflow-y: auto;
 }
 
@@ -773,11 +774,11 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .suggestion-item img {
-	width: 40px;
-	height: 60px;
+	width: 2.5rem;
+	height: 3.75rem;
 	object-fit: cover;
-	border-radius: 4px;
-	margin-right: 10px;
+	border-radius: 0.25rem;
+	margin-right: 0.625rem;
 }
 .suggestion-item div {
 	flex-grow: 1;
@@ -805,14 +806,14 @@ html[data-theme='night'] .daily-reward-tooltip {
 	font-size: 0.85rem;
 	color: var(--clr-primary);
 	font-weight: 500;
-	margin: 2px 0 0 0;
+	margin: 0.125rem 0 0 0;
 	line-height: 1.1;
 }
 
 .suggestion-item div .suggestion-author {
 	font-size: 0.75rem;
 	color: var(--clr-text-secondary);
-	margin-top: 2px;
+	margin-top: 0.125rem;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -835,16 +836,16 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .user-avatar-icon {
-	width: 30px;
-	height: 30px;
+	width: 1.875rem;
+	height: 1.875rem;
 	border-radius: 50%;
 	object-fit: cover;
 	border: 1px solid var(--clr-border-light);
 }
 
 .action-icon.user-icon {
-	width: 32px;
-	height: 32px;
+	width: 2rem;
+	height: 2rem;
 	border-radius: 50%;
 	overflow: hidden;
 	display: flex;
@@ -855,8 +856,8 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .nav-mobile-action .user-avatar-icon.small {
-	width: 24px;
-	height: 24px;
+	width: 1.5rem;
+	height: 1.5rem;
 	margin-right: 0.5rem;
 }
 
@@ -881,13 +882,13 @@ html[data-theme='night'] .daily-reward-tooltip {
 
 .notification-badge {
 	position: absolute;
-	top: -2px;
-	right: -2px;
+	top: -0.125rem;
+	right: -0.125rem;
 	background-color: rgb(231, 84, 84);
 	color: white;
 	border-radius: 50%;
-	width: 17px;
-	height: 17px;
+	width: 1.0625rem;
+	height: 1.0625rem;
 	font-size: 0.7rem;
 	display: flex;
 	align-items: center;
@@ -897,11 +898,11 @@ html[data-theme='night'] .daily-reward-tooltip {
 .notification-dropdown {
 	position: absolute;
 	top: 100%;
-	right: -80px;
-	width: 380px;
+	right: -5rem;
+	width: 23.75rem;
 	background-color: var(--clr-header-bg);
-	border-radius: 12px;
-	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+	border-radius: 0.75rem;
+	box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.2);
 	border: 1px solid var(--clr-border);
 	z-index: 1000;
 	overflow: hidden;
@@ -911,7 +912,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 @keyframes slideDown {
 	from {
 		opacity: 0;
-		transform: translateY(-10px);
+		transform: translateY(-0.625rem);
 	}
 	to {
 		opacity: 1;
@@ -920,7 +921,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .notification-header {
-	padding: 16px;
+	padding: 1rem;
 	border-bottom: 1px solid var(--clr-border);
 	display: flex;
 	justify-content: space-between;
@@ -942,17 +943,17 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .notification-list {
-	max-height: 400px;
+	max-height: 25rem;
 	overflow-y: auto;
 }
 
 .notification-item {
 	display: flex;
-	padding: 12px 16px;
+	padding: 0.75rem 1rem;
 	border-bottom: 1px solid var(--clr-border);
 	cursor: pointer;
 	transition: background-color 0.2s;
-	gap: 12px;
+	gap: 0.75rem;
 }
 
 .notification-item:hover {
@@ -967,17 +968,17 @@ html[data-theme='night'] .daily-reward-tooltip {
 	content: '';
 	position: absolute;
 	left: 0;
-	top: 12px;
-	bottom: 12px;
-	width: 4px;
+	top: 0.75rem;
+	bottom: 0.75rem;
+	width: 0.25rem;
 	background-color: var(--clr-primary);
-	border-radius: 0 4px 4px 0;
+	border-radius: 0 0.25rem 0.25rem 0;
 }
 
 .notif-icon-wrapper {
 	flex-shrink: 0;
-	width: 40px;
-	height: 40px;
+	width: 2.5rem;
+	height: 2.5rem;
 	border-radius: 50%;
 	overflow: hidden;
 	display: flex;
@@ -998,7 +999,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 
 .notif-message {
 	font-size: 0.9rem;
-	margin: 0 0 4px 0;
+	margin: 0 0 0.25rem 0;
 	line-height: 1.4;
 	color: var(--clr-text-main);
 }
@@ -1014,7 +1015,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 }
 
 .notification-empty {
-	padding: 32px;
+	padding: 2rem;
 	text-align: center;
 	color: var(--clr-text-secondary);
 }

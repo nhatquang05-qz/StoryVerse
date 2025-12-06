@@ -13,17 +13,17 @@
 
 .report-modal {
 	background: var(--clr-card-bg);
-	padding: 20px;
-	border-radius: 8px;
+	padding: 1.25rem;
+	border-radius: 0.5rem;
 	width: 90%;
-	max-width: 400px;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+	max-width: 25rem;
+	box-shadow: 0 0.25rem 0.9375rem rgba(0, 0, 0, 0.2);
 }
 
 .report-title {
 	font-size: 1.2rem;
 	font-weight: bold;
-	margin-bottom: 15px;
+	margin-bottom: 0.9375rem;
 	color: var(--clr-text);
 }
 
@@ -34,16 +34,16 @@
 .modal-actions {
 	display: flex;
 	justify-content: flex-end;
-	gap: 10px;
-	margin-top: 20px;
+	gap: 0.625rem;
+	margin-top: 1.25rem;
 }
 
 .btn-cancel {
-	padding: 8px 16px;
-	border: 1px solid var(--clr-border-light);
+	padding: 0.5rem 1rem;
+	border: 0.0625rem solid var(--clr-border-light);
 	background: var(--clr-card-bg);
 	color: var(--clr-text);
-	border-radius: 4px;
+	border-radius: 0.25rem;
 	cursor: pointer;
 	transition: background-color 0.2s;
 }
@@ -53,11 +53,11 @@
 }
 
 .btn-confirm {
-	padding: 8px 16px;
+	padding: 0.5rem 1rem;
 	background: rgb(226, 71, 71);
 	color: white;
 	border: none;
-	border-radius: 4px;
+	border-radius: 0.25rem;
 	cursor: pointer;
 	transition: background-color 0.2s;
 }

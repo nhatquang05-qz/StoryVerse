@@ -15,7 +15,7 @@ import { EventHistoryModal } from '../components/minigame/EventHistoryModal';
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ChristmasEventPage: React.FC = () => {
-    const { currentUser, token, fetchUser } = useAuth();
+	const { currentUser, token, fetchUser } = useAuth();
 	const navigate = useNavigate();
 
 	const [showWheelModal, setShowWheelModal] = useState(false);

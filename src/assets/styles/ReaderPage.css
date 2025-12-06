@@ -19,8 +19,8 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-	height: 60px;
+	box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.3);
+	height: 3.75rem;
 	box-sizing: border-box;
 }
 
@@ -55,8 +55,8 @@
 
 .home-btn {
 	padding: 0.5rem;
-	width: 30px;
-	height: 30px;
+	width: 1.875rem;
+	height: 1.875rem;
 	justify-content: center;
 	font-size: 1.2rem;
 }
@@ -72,8 +72,8 @@
 .select-wrapper {
 	position: relative;
 	display: inline-block;
-	max-width: 250px;
-	min-width: 150px;
+	max-width: 15.625rem;
+	min-width: 9.375rem;
 }
 
 .chapter-select-dropdown {
@@ -104,7 +104,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 
 .select-arrow {
 	position: absolute;
-	right: 10px;
+	right: 0.625rem;
 	top: 50%;
 	transform: translateY(-50%);
 	color: var(--clr-text-secondary);
@@ -115,8 +115,8 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 .prev-chap-button,
 .next-chap-button {
 	padding: 0.5rem;
-	width: 40px;
-	height: 40px;
+	width: 2.5rem;
+	height: 2.5rem;
 	justify-content: center;
 	font-size: 1.2rem;
 }
@@ -138,9 +138,8 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 
 .chapter-images-container {
 	width: 100%;
-	max-width: 800px;
+	max-width: 50rem;
 	margin: 0 auto;
-	/* background-color: #FFF;  <--- DÒNG NÀY BỊ XOÁ ĐI */
 	transition: transform 0.2s ease-in-out;
 	transform-origin: center top;
 }
@@ -150,7 +149,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	height: auto;
 	display: block;
 	margin: 0 auto;
-	background-color: #fff; /* <--- CHUYỂN NỀN TRẮNG VÀO ĐÂY */
+	background-color: #fff;
 }
 
 .chapter-locked-overlay {
@@ -158,7 +157,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	min-height: calc(100vh - 120px);
+	min-height: calc(100vh - 7.5rem);
 	padding: 2rem;
 	text-align: center;
 	color: #fff;
@@ -184,7 +183,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	color: #333;
 	border: none;
 	padding: 0.8rem 1.5rem;
-	border-radius: 50px;
+	border-radius: 3.125rem;
 	font-size: 1rem;
 	font-weight: bold;
 	cursor: pointer;
@@ -194,7 +193,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 }
 .unlock-button:hover {
 	background-color: #e3b018;
-	transform: translateY(-2px);
+	transform: translateY(-0.125rem);
 }
 
 .reader-footer-bar {
@@ -210,7 +209,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	justify-content: center;
 	align-items: center;
 	gap: 1.5rem;
-	height: 60px;
+	height: 3.75rem;
 	box-sizing: border-box;
 }
 
@@ -244,7 +243,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	z-index: 1001;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
 	.reader-header-bar {
 		padding: 0.5rem;
 		justify-content: center;
@@ -260,7 +259,7 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	}
 	.select-wrapper {
 		flex-grow: 1;
-		max-width: 180px;
+		max-width: 11.25rem;
 	}
 	.chapter-select-dropdown {
 		font-size: 0.85rem;
@@ -286,12 +285,12 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 
 .zoom-controls {
 	position: fixed;
-	bottom: 80px;
-	left: 20px;
+	bottom: 5rem;
+	left: 1.25rem;
 	z-index: 1001;
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 0.625rem;
 }
 
 .zoom-btn {
@@ -299,8 +298,8 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	color: var(--clr-text);
 	border: 1px solid var(--clr-border-light);
 	border-radius: 50%;
-	width: 45px;
-	height: 45px;
+	width: 2.8125rem;
+	height: 2.8125rem;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -313,18 +312,18 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 }
 
 .zoom-btn img {
-	width: 40px;
-	height: 40px;
+	width: 2.5rem;
+	height: 2.5rem;
 	object-fit: contain;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
 	.zoom-controls {
-		bottom: 70px;
-		left: 10px;
+		bottom: 4.375rem;
+		left: 0.625rem;
 	}
 	.zoom-btn {
-		width: 40px;
-		height: 40px;
+		width: 2.5rem;
+		height: 2.5rem;
 	}
 }

@@ -1,5 +1,5 @@
 .review-section {
-	border-top: 1px solid var(--clr-border-light);
+	border-top: 0.0625rem solid var(--clr-border-light);
 	color: var(--clr-text);
 }
 
@@ -15,8 +15,9 @@
 	align-items: center;
 	margin-bottom: 2rem;
 	padding-bottom: 1.5rem;
-	border-bottom: 1px solid var(--clr-border-light);
+	border-bottom: 0.0625rem solid var(--clr-border-light);
 }
+
 .rating-summary p {
 	color: var(--clr-text-secondary);
 }
@@ -38,12 +39,13 @@
 .star-rating .star-icon[fill='none'] {
 	stroke: var(--clr-border-light);
 }
+
 html[data-theme='dark'] .star-rating .star-icon[fill='none'] {
 	stroke: var(--clr-text-secondary);
 }
 
 .review-item {
-	border: 1px solid var(--clr-border-light);
+	border: 0.0625rem solid var(--clr-border-light);
 	padding: 1.2rem;
 	border-radius: var(--border-radius);
 	margin-bottom: 1rem;
@@ -83,10 +85,10 @@ html[data-theme='dark'] .star-rating .star-icon[fill='none'] {
 .review-form-container textarea {
 	width: 100%;
 	padding: 1rem;
-	border: 1px solid var(--clr-border-light);
+	border: 0.0625rem solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	resize: vertical;
-	min-height: 100px;
+	min-height: 6.25rem;
 	margin-bottom: 1rem;
 	box-sizing: border-box;
 	background-color: var(--clr-card-bg);
@@ -103,6 +105,7 @@ html[data-theme='dark'] .star-rating .star-icon[fill='none'] {
 	cursor: pointer;
 	transition: background-color 0.3s ease;
 }
+
 .submit-review-btn:hover {
 	background-color: var(--clr-primary-dark);
 }
@@ -112,9 +115,11 @@ html[data-theme='dark'] .star-rating .star-icon[fill='none'] {
 	color: var(--clr-text) !important;
 	border-color: var(--clr-border-light) !important;
 }
+
 .review-form-container p {
 	color: var(--clr-text);
 }
+
 .review-form-container p a {
 	color: var(--clr-primary);
 	font-weight: bold;

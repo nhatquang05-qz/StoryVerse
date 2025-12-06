@@ -1,5 +1,5 @@
 .order-detail-container {
-	max-width: 1000px;
+	max-width: 62.5rem;
 	margin: 0 auto;
 	padding: 2rem 1rem;
 	font-family: var(--font-sans);
@@ -24,20 +24,20 @@
 }
 
 .btn-back:hover {
-	transform: translateX(-4px);
+	transform: translateX(-0.25rem);
 	color: var(--clr-primary-dark);
 }
 
 .btn-back svg {
-	margin-right: 8px;
+	margin-right: 0.5rem;
 }
 
 .order-detail-card {
 	background-color: var(--clr-card-bg);
-	border-radius: 16px;
+	border-radius: 1rem;
 	padding: 2rem;
 	border: 1px solid var(--clr-border-light);
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.05);
 }
 
 .od-header {
@@ -60,7 +60,7 @@
 
 .od-id {
 	color: var(--clr-text-secondary);
-	margin-top: 6px;
+	margin-top: 0.375rem;
 	font-size: 0.95rem;
 }
 
@@ -79,14 +79,14 @@
 }
 
 .status-badge {
-	padding: 6px 14px;
-	border-radius: 50px;
+	padding: 0.375rem 0.875rem;
+	border-radius: 3.125rem;
 	font-weight: 600;
 	font-size: 0.85rem;
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
-	margin-bottom: 8px;
+	gap: 0.375rem;
+	margin-bottom: 0.5rem;
 }
 
 .od-date {
@@ -95,12 +95,12 @@
 	font-size: 0.9rem;
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: 0.375rem;
 }
 
 .od-info-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
 	gap: 2rem;
 	margin-bottom: 2.5rem;
 }
@@ -111,24 +111,24 @@
 	color: var(--clr-text);
 	margin-bottom: 1rem;
 	font-size: 1.1rem;
-	padding-bottom: 8px;
+	padding-bottom: 0.5rem;
 	border-bottom: 2px solid var(--clr-border-light);
 }
 
 .info-section h4 svg {
-	margin-right: 10px;
+	margin-right: 0.625rem;
 	color: var(--clr-primary);
 }
 
 .info-box {
 	background-color: var(--clr-footer-bg);
 	padding: 1.25rem;
-	border-radius: 12px;
+	border-radius: 0.75rem;
 	border: 1px solid var(--clr-border-light);
 }
 
 .info-row {
-	margin-bottom: 8px;
+	margin-bottom: 0.5rem;
 	color: var(--clr-text);
 	line-height: 1.5;
 }
@@ -139,7 +139,7 @@
 
 .info-label {
 	color: var(--clr-text-secondary);
-	margin-right: 6px;
+	margin-right: 0.375rem;
 }
 
 .info-value {
@@ -147,7 +147,7 @@
 }
 
 .payment-status {
-	margin-left: 6px;
+	margin-left: 0.375rem;
 	font-weight: 700;
 }
 
@@ -167,13 +167,13 @@
 }
 
 .od-items-section h4 svg {
-	margin-right: 10px;
+	margin-right: 0.625rem;
 	color: var(--clr-primary);
 }
 
 .od-items-list {
 	border: 1px solid var(--clr-border-light);
-	border-radius: 12px;
+	border-radius: 0.75rem;
 	overflow: hidden;
 	margin-bottom: 2rem;
 	background-color: var(--clr-card-bg);
@@ -196,10 +196,10 @@
 }
 
 .item-image {
-	width: 70px;
-	height: 105px;
+	width: 4.375rem;
+	height: 6.5625rem;
 	object-fit: cover;
-	border-radius: 6px;
+	border-radius: 0.375rem;
 	border: 1px solid var(--clr-border-light);
 	margin-right: 1rem;
 	flex-shrink: 0;
@@ -210,7 +210,7 @@
 }
 
 .item-title {
-	margin: 0 0 6px 0;
+	margin: 0 0 0.375rem 0;
 	color: var(--clr-text);
 	font-size: 1rem;
 	font-weight: 600;
@@ -229,7 +229,7 @@
 }
 
 .empty-items {
-	padding: 2rem;
+	padding: 2rem 1rem;
 	text-align: center;
 	color: var(--clr-text-secondary);
 	font-style: italic;
@@ -244,13 +244,13 @@
 
 .total-summary {
 	width: 100%;
-	max-width: 350px;
+	max-width: 21.875rem;
 }
 
 .summary-row {
 	display: flex;
 	justify-content: space-between;
-	margin-bottom: 10px;
+	margin-bottom: 0.625rem;
 	color: var(--clr-text);
 }
 
@@ -285,7 +285,7 @@
 	padding: 0.6rem 1.5rem;
 	background-color: var(--clr-primary);
 	color: white;
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	text-decoration: none;
 	transition: background-color 0.2s;
 }
@@ -294,7 +294,7 @@
 	background-color: var(--clr-primary-dark);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
 	.od-header {
 		flex-direction: column;
 		align-items: flex-start;

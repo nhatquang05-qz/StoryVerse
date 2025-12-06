@@ -1,8 +1,8 @@
 .my-library-container {
 	background-color: var(--bg-card);
-	border-radius: 8px;
-	padding: 20px;
-	min-height: 600px;
+	border-radius: 0.5rem;
+	padding: 1.25rem;
+	min-height: 37.5rem;
 	color: var(--text-color);
 }
 
@@ -10,9 +10,9 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 20px;
+	margin-bottom: 1.25rem;
 	flex-wrap: wrap;
-	gap: 15px;
+	gap: 0.9375rem;
 }
 
 .library-page-title {
@@ -23,13 +23,13 @@
 
 .library-mini-search {
 	position: relative;
-	width: 250px;
+	width: 15.625rem;
 }
 
 .library-mini-search input {
 	width: 100%;
-	padding: 8px 12px 8px 35px;
-	border-radius: 20px;
+	padding: 0.5rem 0.75rem 0.5rem 2.1875rem;
+	border-radius: 1.25rem;
 	border: 1px solid var(--border-color, #ccc);
 	background: var(--bg-card);
 	color: var(--clr-text);
@@ -38,7 +38,7 @@
 
 .mini-search-icon {
 	position: absolute;
-	left: 12px;
+	left: 0.75rem;
 	top: 50%;
 	transform: translateY(-50%);
 	color: #888;
@@ -46,22 +46,22 @@
 
 .library-tabs-nav {
 	display: flex;
-	gap: 20px;
+	gap: 1.25rem;
 	border-bottom: 2px solid var(--border-color, #eee);
-	margin-bottom: 25px;
+	margin-bottom: 1.5625rem;
 }
 
 .lib-tab-item {
 	background: none;
 	border: none;
-	padding: 10px 5px;
+	padding: 0.625rem 0.3125rem;
 	font-size: 1rem;
 	font-weight: 600;
 	color: var(--text-secondary, #666);
 	cursor: pointer;
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 0.5rem;
 	position: relative;
 	transition: color 0.3s;
 }
@@ -86,13 +86,13 @@
 
 .library-grid-view {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-	gap: 20px;
+	grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+	gap: 1.25rem;
 }
 
 .lib-item-card {
 	display: block;
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	overflow: hidden;
 	background: var(--clr-background, #f9f9f9);
 	transition:
@@ -104,8 +104,8 @@
 }
 
 .lib-item-card:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	transform: translateY(-0.25rem);
+	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
 }
 
 .lib-item-img {
@@ -122,21 +122,21 @@
 
 .lib-badge-count {
 	position: absolute;
-	bottom: 5px;
-	right: 5px;
+	bottom: 0.3125rem;
+	right: 0.3125rem;
 	background: rgba(0, 0, 0, 0.7);
 	color: #fff;
-	padding: 2px 6px;
-	border-radius: 4px;
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.25rem;
 	font-size: 0.75rem;
 }
 
 .status-badge {
 	position: absolute;
-	top: 5px;
-	left: 5px;
-	padding: 2px 6px;
-	border-radius: 4px;
+	top: 0.3125rem;
+	left: 0.3125rem;
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.25rem;
 	font-size: 0.7rem;
 	font-weight: bold;
 	color: #fff;
@@ -151,12 +151,12 @@
 }
 
 .lib-item-info {
-	padding: 10px;
+	padding: 0.625rem;
 }
 
 .lib-item-info h4 {
 	font-size: 0.95rem;
-	margin: 0 0 5px 0;
+	margin: 0 0 0.3125rem 0;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	line-clamp: 2;
@@ -173,13 +173,13 @@
 
 .btn-remove-wish {
 	position: absolute;
-	top: 5px;
-	right: 5px;
+	top: 0.3125rem;
+	right: 0.3125rem;
 	background: rgba(255, 255, 255, 0.9);
 	border: none;
 	border-radius: 50%;
-	width: 28px;
-	height: 28px;
+	width: 1.75rem;
+	height: 1.75rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -194,16 +194,15 @@
 	color: #fff;
 }
 
-/* Empty State */
 .library-empty-state {
 	text-align: center;
-	padding: 40px 0;
+	padding: 2.5rem 0;
 	color: var(--text-secondary, #888);
 }
 
 .lib-link-action {
 	display: inline-block;
-	margin-top: 10px;
+	margin-top: 0.625rem;
 	color: var(--primary-color, #ff4d4f);
 	font-weight: 600;
 	text-decoration: underline;

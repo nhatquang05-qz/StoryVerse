@@ -1,11 +1,11 @@
 .product-list {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(11.25rem, 1fr));
 	gap: 2rem;
 }
 
 .product-list-carousel-wrapper {
-	min-height: 850px;
+	min-height: 53.125rem;
 	overflow: hidden;
 	padding: 0;
 }
@@ -23,7 +23,7 @@
 	flex-shrink: 0;
 
 	display: grid;
-	grid-template-columns: repeat(6, minmax(180px, 1fr));
+	grid-template-columns: repeat(6, minmax(11.25rem, 1fr));
 	grid-template-rows: repeat(2, 1fr);
 	gap: 1.5rem;
 
@@ -37,30 +37,30 @@
 
 @media (max-width: 1400px) {
 	.product-list-page {
-		grid-template-columns: repeat(5, minmax(180px, 1fr));
-		min-height: 1150px;
+		grid-template-columns: repeat(5, minmax(11.25rem, 1fr));
+		min-height: 71.875rem;
 		grid-template-rows: repeat(2, 1fr);
 	}
 }
 @media (max-width: 1100px) {
 	.product-list-page {
-		grid-template-columns: repeat(4, minmax(180px, 1fr));
+		grid-template-columns: repeat(4, minmax(11.25rem, 1fr));
 	}
 }
 @media (max-width: 900px) {
 	.product-list {
-		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 	}
 	.product-list-page {
-		grid-template-columns: repeat(3, minmax(160px, 1fr));
+		grid-template-columns: repeat(3, minmax(10rem, 1fr));
 	}
 }
 @media (max-width: 768px) {
 	.product-list {
-		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 	}
 	.product-list-page {
-		grid-template-columns: repeat(2, minmax(160px, 1fr));
+		grid-template-columns: repeat(2, minmax(10rem, 1fr));
 	}
 }
 @media (max-width: 600px) {

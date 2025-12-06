@@ -1,7 +1,7 @@
 .top-members-section {
 	background-color: var(--clr-card-bg);
 	border-radius: var(--border-radius);
-	border: 1px solid var(--clr-border-light);
+	border: 0.0625rem solid var(--clr-border-light);
 	padding: 1.5rem;
 	color: var(--clr-text);
 	margin-bottom: 2rem;
@@ -13,7 +13,7 @@
 	margin: 0 0 1.5rem 0;
 	color: var(--clr-primary);
 	padding-bottom: 0.75rem;
-	border-bottom: 1px solid var(--clr-border-light);
+	border-bottom: 0.0625rem solid var(--clr-border-light);
 }
 
 .top-members-list {
@@ -30,7 +30,7 @@
 	align-items: center;
 	gap: 1rem;
 	padding-bottom: 1.2rem;
-	border-bottom: 1px solid var(--clr-border-light);
+	border-bottom: 0.0625rem solid var(--clr-border-light);
 }
 
 .top-member-item:last-child {
@@ -42,17 +42,17 @@
 	font-size: 1.1rem;
 	font-weight: bold;
 	color: var(--clr-text-secondary);
-	width: 35px;
+	width: 2.1875rem;
 	text-align: center;
 	flex-shrink: 0;
 }
 
 .member-avatar {
-	width: 35px;
-	height: 35px;
+	width: 2.1875rem;
+	height: 2.1875rem;
 	border-radius: 50%;
 	object-fit: cover;
-	border: 1px solid var(--clr-border-light);
+	border: 0.0625rem solid var(--clr-border-light);
 	flex-shrink: 0;
 }
 
@@ -84,19 +84,19 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 4px 12px;
-	margin-left: 8px;
+	padding: 0.25rem 0.75rem;
+	margin-left: 0.5rem;
 	font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 	font-size: 0.75rem;
 	font-weight: 800;
 	line-height: 1;
 	color: #fff;
 	text-transform: uppercase;
-	letter-spacing: 1px;
+	letter-spacing: 0.0625rem;
 	white-space: nowrap;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-	border-radius: 20px;
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	text-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.3);
+	border-radius: 1.25rem;
+	border: 0.0625rem solid rgba(255, 255, 255, 0.2);
 	position: relative;
 	overflow: hidden;
 	transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -106,7 +106,7 @@
 }
 
 .member-level-badge:hover {
-	transform: translateY(-2px) scale(1.05);
+	transform: translateY(-0.125rem) scale(1.05);
 }
 
 .member-level-badge::after {
@@ -138,31 +138,32 @@
 }
 
 .member-score {
-	padding: 2px 8px;
-	border-radius: 4px;
+	padding: 0.125rem 0.5rem;
+	border-radius: 0.25rem;
 	font-size: 0.7rem;
 	font-weight: bold;
 	color: var(--clr-text);
-	border: 1px solid var(--clr-border-light);
+	border: 0.0625rem solid var(--clr-border-light);
 	background-color: var(--clr-card-bg);
 	line-height: 1;
 	white-space: nowrap;
 }
+
 @keyframes glowing-flame {
 	0% {
-		filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+		filter: drop-shadow(0 0 0.1875rem rgba(255, 223, 0, 0.7));
 	}
 	50% {
-		filter: drop-shadow(0 0 7px rgba(255, 191, 0, 1));
+		filter: drop-shadow(0 0 0.4375rem rgba(255, 191, 0, 1));
 	}
 	100% {
-		filter: drop-shadow(0 0 3px rgba(255, 223, 0, 0.7));
+		filter: drop-shadow(0 0 0.1875rem rgba(255, 223, 0, 0.7));
 	}
 }
 
 .rank-image {
-	width: 25px;
-	height: 25px;
+	width: 1.5625rem;
+	height: 1.5625rem;
 	vertical-align: middle;
 	animation: glowing-flame 2s infinite ease-in-out;
 }

@@ -1,14 +1,14 @@
 .gift-box-trigger {
 	position: fixed;
-	bottom: 30px;
-	right: 30px;
-	width: 100px;
-	height: 100px;
+	bottom: 1.875rem;
+	right: 1.875rem;
+	width: 6.25rem;
+	height: 6.25rem;
 	background: radial-gradient(circle, #ff4757, #ff6b81);
 	border-radius: 50%;
 	border: 4px solid #fff;
 	z-index: 99999;
-	box-shadow: 0 0 25px rgba(255, 71, 87, 0.8);
+	box-shadow: 0 0 1.5625rem rgba(255, 71, 87, 0.8);
 	animation: bounceTrigger 2s infinite;
 	display: flex;
 	flex-direction: column;
@@ -16,13 +16,13 @@
 	justify-content: center;
 	color: white;
 	font-weight: bold;
-	font-size: 10px;
+	font-size: 0.625rem;
 }
 
 .gift-box-trigger img {
-	width: 50px;
-	height: 50px;
-	margin-bottom: 5px;
+	width: 3.125rem;
+	height: 3.125rem;
+	margin-bottom: 0.3125rem;
 }
 
 @keyframes bounceTrigger {
@@ -31,7 +31,7 @@
 		transform: translateY(0);
 	}
 	50% {
-		transform: translateY(-10px);
+		transform: translateY(-0.625rem);
 	}
 }
 
@@ -42,7 +42,7 @@
 	width: 100vw;
 	height: 100vh;
 	background: rgba(0, 0, 0, 0.9);
-	backdrop-filter: blur(10px);
+	backdrop-filter: blur(0.625rem);
 	z-index: 100000;
 	display: flex;
 	justify-content: center;
@@ -53,7 +53,7 @@
 .gift-modal-content {
 	position: relative;
 	width: 100%;
-	max-width: 400px;
+	max-width: 25rem;
 	text-align: center;
 	display: flex;
 	flex-direction: column;
@@ -63,26 +63,26 @@
 .gift-title {
 	color: #ffd700;
 	font-size: 2rem;
-	margin-bottom: 40px;
-	text-shadow: 0 0 15px #ff4757;
-	font-family: 'CaptainComic';
+	margin-bottom: 2.5rem;
+	text-shadow: 0 0 0.9375rem #ff4757;
+	font-family: 'CaptainComic', sans-serif;
 	font-weight: 900;
 }
 
 .gift-container {
 	position: relative;
-	width: 200px;
-	height: 200px;
+	width: 12.5rem;
+	height: 12.5rem;
 	display: flex;
 	justify-content: center;
 	align-items: flex-end;
-	margin-bottom: 30px;
+	margin-bottom: 1.875rem;
 }
 
 .gift-box {
 	position: relative;
-	width: 150px;
-	height: 120px;
+	width: 9.375rem;
+	height: 7.5rem;
 	z-index: 10;
 	transition: transform 0.5s;
 }
@@ -91,26 +91,26 @@
 	width: 100%;
 	height: 100%;
 	background: #e74c3c;
-	border-radius: 0 0 10px 10px;
+	border-radius: 0 0 0.625rem 0.625rem;
 	position: relative;
-	box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+	box-shadow: inset 0 0 1.25rem rgba(0, 0, 0, 0.3);
 }
 
 .gift-lid {
 	width: 110%;
-	height: 30px;
+	height: 1.875rem;
 	background: #c0392b;
 	position: absolute;
-	top: -30px;
+	top: -1.875rem;
 	left: -5%;
-	border-radius: 5px 5px 0 0;
-	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	border-radius: 0.3125rem 0.3125rem 0 0;
+	box-shadow: 0 0.3125rem 0.625rem rgba(0, 0, 0, 0.2);
 	transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .gift-ribbon-v {
 	position: absolute;
-	width: 20px;
+	width: 1.25rem;
 	height: 100%;
 	background: #f1c40f;
 	left: 50%;
@@ -120,7 +120,7 @@
 .gift-ribbon-h {
 	position: absolute;
 	width: 100%;
-	height: 20px;
+	height: 1.25rem;
 	background: #f1c40f;
 	top: 50%;
 	transform: translateY(-50%);
@@ -130,10 +130,10 @@
 	animation: shakeBox 0.5s infinite;
 }
 .gift-box.opened .gift-lid {
-	transform: translateY(-60px) rotate(-20deg);
+	transform: translateY(-3.75rem) rotate(-20deg);
 }
 .gift-box.opened {
-	transform: translateY(20px);
+	transform: translateY(1.25rem);
 }
 
 @keyframes shakeBox {
@@ -141,13 +141,13 @@
 		transform: translate(0, 0) rotate(0deg);
 	}
 	25% {
-		transform: translate(-5px, 5px) rotate(-5deg);
+		transform: translate(-0.3125rem, 0.3125rem) rotate(-5deg);
 	}
 	50% {
 		transform: translate(0, 0) rotate(0deg);
 	}
 	75% {
-		transform: translate(5px, 5px) rotate(5deg);
+		transform: translate(0.3125rem, 0.3125rem) rotate(5deg);
 	}
 	100% {
 		transform: translate(0, 0) rotate(0deg);
@@ -156,7 +156,7 @@
 
 .prize-reveal {
 	position: absolute;
-	bottom: 50px;
+	bottom: 3.125rem;
 	left: 50%;
 	transform: translateX(-50%) scale(0);
 	z-index: 99999;
@@ -167,20 +167,20 @@
 
 .prize-icon img,
 .prize-icon span {
-	width: 80px;
-	height: 80px;
-	font-size: 80px;
-	filter: drop-shadow(0 0 20px gold);
+	width: 5rem;
+	height: 5rem;
+	font-size: 5rem;
+	filter: drop-shadow(0 0 1.25rem gold);
 }
 .prize-label {
 	background: #fff;
 	color: #c0392b;
-	padding: 5px 15px;
-	border-radius: 20px;
+	padding: 0.3125rem 0.9375rem;
+	border-radius: 1.25rem;
 	font-weight: bold;
-	margin-top: 10px;
+	margin-top: 0.625rem;
 	white-space: nowrap;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
 }
 
 @keyframes popPrize {
@@ -189,7 +189,7 @@
 		opacity: 0;
 	}
 	100% {
-		transform: translateX(-50%) translateY(-120px) scale(1.5);
+		transform: translateX(-50%) translateY(-7.5rem) scale(1.5);
 		opacity: 1;
 	}
 }
@@ -198,12 +198,12 @@
 	background: linear-gradient(45deg, #27ae60, #2ecc71);
 	color: white;
 	border: none;
-	padding: 15px 50px;
-	font-size: 20px;
+	padding: 0.9375rem 3.125rem;
+	font-size: 1.25rem;
 	font-weight: bold;
-	border-radius: 50px;
+	border-radius: 3.125rem;
 	cursor: pointer;
-	box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+	box-shadow: 0 0.3125rem 0.9375rem rgba(46, 204, 113, 0.4);
 	transition: 0.2s;
 }
 .open-gift-btn:hover {
@@ -219,23 +219,23 @@
 
 .spin-info {
 	color: #fff;
-	margin-bottom: 15px;
-	font-size: 16px;
+	margin-bottom: 0.9375rem;
+	font-size: 1rem;
 }
 .spin-info strong {
 	color: #ffd700;
 }
 .reward-message-box {
-	margin-top: 20px;
+	margin-top: 1.25rem;
 	color: #ffd700;
-	font-size: 20px;
+	font-size: 1.25rem;
 	font-weight: bold;
-	text-shadow: 0 0 5px black;
+	text-shadow: 0 0 0.3125rem black;
 }
 .glow-effect {
 	position: absolute;
-	width: 300px;
-	height: 300px;
+	width: 18.75rem;
+	height: 18.75rem;
 	background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
 	top: 50%;
 	left: 50%;
@@ -256,18 +256,18 @@
 }
 .event-close-modal-btn {
 	position: absolute;
-	top: -30px;
-	right: -200px;
+	top: -1.875rem;
+	right: -12.5rem;
 	background: white;
 	color: #333;
-	width: 40px;
-	height: 40px;
+	width: 2.5rem;
+	height: 2.5rem;
 	border-radius: 50%;
 	border: none;
 	font-weight: bold;
-	font-size: 20px;
+	font-size: 1.25rem;
 	cursor: pointer;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.5);
 }
 @keyframes fadeIn {
 	from {
@@ -287,33 +287,33 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 10px;
+	gap: 0.625rem;
 	background: #fff;
 	border: 2px dashed #f59e0b;
-	padding: 10px 15px;
-	border-radius: 8px;
-	margin: 10px auto;
-	max-width: 300px;
+	padding: 0.625rem 0.9375rem;
+	border-radius: 0.5rem;
+	margin: 0.625rem auto;
+	max-width: 18.75rem;
 }
 
 .voucher-code-text {
 	font-size: 1.2rem;
 	font-weight: bold;
 	color: #b45309;
-	letter-spacing: 1px;
+	letter-spacing: 0.0625rem;
 }
 
 .btn-copy-voucher {
 	background: #f59e0b;
 	color: white;
 	border: none;
-	padding: 5px 10px;
-	border-radius: 4px;
+	padding: 0.3125rem 0.625rem;
+	border-radius: 0.25rem;
 	cursor: pointer;
 	font-size: 0.8rem;
 	display: flex;
 	align-items: center;
-	gap: 5px;
+	gap: 0.3125rem;
 	transition: background 0.2s;
 }
 
@@ -324,11 +324,11 @@
 .voucher-note {
 	font-size: 0.85rem;
 	color: #fbbf24;
-	margin-top: 5px;
+	margin-top: 0.3125rem;
 }
 
 .voucher-icon {
 	display: flex;
 	justify-content: center;
-	margin-bottom: 10px;
+	margin-bottom: 0.625rem;
 }

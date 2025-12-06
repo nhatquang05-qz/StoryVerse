@@ -112,9 +112,7 @@ const PrivacyPolicyPage: React.FC = () => {
 						<FaUserShield className="sv-legal-warning-icon" />
 						<div className="sv-legal-report-text">
 							<h3>Yêu cầu về quyền riêng tư?</h3>
-							<p>
-								Nếu bạn muốn thực hiện quyền của mình hoặc có câu hỏi về bảo mật.
-							</p>
+							<p>Nếu bạn muốn thực hiện quyền của mình hoặc có câu hỏi về bảo mật.</p>
 						</div>
 					</div>
 					<Link to="/contact" className="sv-legal-report-btn">

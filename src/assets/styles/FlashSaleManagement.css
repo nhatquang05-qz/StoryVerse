@@ -39,7 +39,6 @@
 	margin-right: 0.5rem;
 }
 
-/* Form Panel */
 .fs-form-panel {
 	background-color: #f3f4f6;
 	padding: 1.5rem;
@@ -87,10 +86,9 @@
 
 .fs-form-input:focus {
 	border-color: #3b82f6;
-	box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+	box-shadow: 0 0 0 0.125rem rgba(59, 130, 246, 0.2);
 }
 
-/* Search Box */
 .fs-relative {
 	position: relative;
 }
@@ -125,7 +123,7 @@
 	border: 1px solid #d1d5db;
 	margin-top: 0.25rem;
 	border-radius: 0.25rem;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1);
 	max-height: 10rem;
 	overflow-y: auto;
 }
@@ -142,7 +140,6 @@
 	background-color: #f9fafb;
 }
 
-/* Selected Items */
 .fs-selected-items {
 	margin-top: 1.5rem;
 	background: white;
@@ -187,7 +184,7 @@
 .fs-label-sm {
 	font-size: 0.75rem;
 	color: #6b7280;
-	margin-bottom: 2px;
+	margin-bottom: 0.125rem;
 }
 
 .fs-flex-gap {
@@ -234,7 +231,6 @@
 	background-color: #059669;
 }
 
-/* Sale List Grid */
 .fs-list-grid {
 	display: flex;
 	flex-direction: column;
@@ -250,7 +246,7 @@
 }
 
 .fs-sale-card:hover {
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.05);
 }
 
 .fs-sale-header {
@@ -282,7 +278,7 @@
 .fs-status-badge {
 	font-size: 0.75rem;
 	padding: 0.125rem 0.5rem;
-	border-radius: 999px;
+	border-radius: 999rem;
 	width: fit-content;
 	margin-top: 0.5rem;
 	font-weight: 600;
@@ -321,7 +317,6 @@
 	color: #dc2626;
 }
 
-/* Details Expansion */
 .fs-sale-details {
 	border-top: 1px solid #e5e7eb;
 	padding: 1rem;
@@ -363,7 +358,6 @@
 	font-weight: 600;
 }
 
-/* Progress Bar in Admin */
 .fs-progress-container {
 	display: flex;
 	align-items: center;
@@ -372,22 +366,22 @@
 
 .fs-progress-bar {
 	flex-grow: 1;
-	height: 8px;
+	height: 0.5rem;
 	background-color: #e5e7eb;
-	border-radius: 4px;
+	border-radius: 0.25rem;
 	overflow: hidden;
 }
 
 .fs-progress-fill {
 	height: 100%;
 	background-color: #2563eb;
-	border-radius: 4px;
+	border-radius: 0.25rem;
 }
 
 .fs-progress-text {
 	font-size: 0.8rem;
 	color: #6b7280;
 	white-space: nowrap;
-	min-width: 60px;
+	min-width: 3.75rem;
 	text-align: right;
 }

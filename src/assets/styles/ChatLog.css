@@ -1,48 +1,48 @@
 .chat-room-container {
 	background-color: var(--clr-card-bg);
 	border: 1px solid var(--clr-border-light);
-	border-radius: 4px;
-	padding: 10px 15px;
-	max-width: 600px;
-	margin: 20px auto;
+	border-radius: 0.25rem;
+	padding: 0.625rem 0.9375rem;
+	max-width: 37.5rem;
+	margin: 1.25rem auto;
 	display: flex;
 	flex-direction: column;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 1px 0.1875rem rgba(0, 0, 0, 0.1);
 	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 	color: var(--clr-text);
 }
 
 html[data-theme='night'] .chat-room-container {
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 1px 0.1875rem rgba(0, 0, 0, 0.3);
 }
 
 .chat-room-header {
 	font-size: 1.1em;
 	font-weight: bold;
 	color: var(--clr-primary);
-	padding-bottom: 8px;
-	margin-bottom: 10px;
+	padding-bottom: 0.5rem;
+	margin-bottom: 0.625rem;
 	border-bottom: 1px solid var(--clr-border-light);
 }
 
 .chat-messages-list {
 	flex-grow: 1;
-	max-height: 500px;
+	max-height: 31.25rem;
 	overflow-y: auto;
-	padding-right: 5px;
-	margin-bottom: 10px;
+	padding-right: 0.3125rem;
+	margin-bottom: 0.625rem;
 }
 
 .chat-messages-list::-webkit-scrollbar {
-	width: 6px;
+	width: 0.375rem;
 }
 .chat-messages-list::-webkit-scrollbar-track {
 	background: var(--clr-footer-bg);
-	border-radius: 10px;
+	border-radius: 0.625rem;
 }
 .chat-messages-list::-webkit-scrollbar-thumb {
 	background-color: #ccc;
-	border-radius: 10px;
+	border-radius: 0.625rem;
 }
 .chat-messages-list::-webkit-scrollbar-thumb:hover {
 	background-color: #aaa;
@@ -61,15 +61,15 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 .no-messages {
 	text-align: center;
 	color: var(--clr-text-secondary);
-	padding: 20px;
+	padding: 1.25rem;
 }
 
 .chat-input-form {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 0.625rem;
 	margin-top: auto;
-	padding-top: 10px;
+	padding-top: 0.625rem;
 	border-top: 1px solid var(--clr-border-light);
 	position: relative;
 	flex-wrap: wrap;
@@ -77,15 +77,15 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 
 .chat-input-form input[type='text'] {
 	flex-grow: 1;
-	padding: 8px 12px;
+	padding: 0.5rem 0.75rem;
 	border: 1px solid var(--clr-border-light);
-	border-radius: 15px;
+	border-radius: 0.9375rem;
 	background-color: var(--clr-background);
 	color: var(--clr-text);
 	font-size: 0.9em;
 	outline: none;
 	transition: border-color 0.2s;
-	height: 40px;
+	height: 2.5rem;
 	box-sizing: border-box;
 }
 .chat-input-form input[type='text']::placeholder {
@@ -94,7 +94,7 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 
 .chat-input-form input[type='text']:focus {
 	border-color: var(--clr-primary);
-	box-shadow: 0 0 0 2px var(--clr-input-focus-shadow);
+	box-shadow: 0 0 0 0.125rem var(--clr-input-focus-shadow);
 }
 
 .send-btn {
@@ -103,8 +103,8 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 	color: white;
 	border: none;
 	border-radius: 50%;
-	width: 40px;
-	height: 40px;
+	width: 2.5rem;
+	height: 2.5rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -117,8 +117,8 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 
 .send-btn svg,
 .send-btn img {
-	width: 20px;
-	height: 20px;
+	width: 1.25rem;
+	height: 1.25rem;
 }
 
 .send-btn:hover {
@@ -135,11 +135,11 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 .chat-login-prompt {
 	text-align: center;
 	color: var(--clr-text-secondary);
-	padding: 10px;
+	padding: 0.625rem;
 	font-size: 0.9em;
 	border: 1px dashed var(--clr-border-light);
-	border-radius: 4px;
-	margin-top: 10px;
+	border-radius: 0.25rem;
+	margin-top: 0.625rem;
 }
 
 .image-upload-btn {
@@ -148,7 +148,7 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 	color: var(--clr-text-secondary);
 	font-size: 1.3rem;
 	cursor: pointer;
-	padding: 8px;
+	padding: 0.5rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -171,20 +171,20 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 5px;
-	margin-bottom: 5px;
+	gap: 0.3125rem;
+	margin-bottom: 0.3125rem;
 }
 
 .replying-to-indicator {
 	background-color: var(--clr-footer-bg);
 	border: 1px solid var(--clr-border-light);
-	border-radius: 4px;
-	padding: 4px 8px;
+	border-radius: 0.25rem;
+	padding: 0.25rem 0.5rem;
 	font-size: 0.8em;
 	color: var(--clr-text-secondary);
 	display: inline-flex;
 	align-items: center;
-	gap: 5px;
+	gap: 0.3125rem;
 	align-self: flex-start;
 }
 
@@ -194,7 +194,7 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 	color: var(--clr-text-secondary);
 	cursor: pointer;
 	padding: 0;
-	margin-left: 5px;
+	margin-left: 0.3125rem;
 	font-size: 1em;
 	line-height: 1;
 }
@@ -205,9 +205,9 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 .image-preview-container {
 	background-color: var(--clr-footer-bg);
 	border: 1px solid var(--clr-border-light);
-	border-radius: 4px;
-	padding: 5px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	border-radius: 0.25rem;
+	padding: 0.3125rem;
+	box-shadow: 0 1px 0.1875rem rgba(0, 0, 0, 0.1);
 	display: inline-flex;
 	align-items: center;
 	position: relative;
@@ -215,10 +215,10 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 }
 
 .image-preview {
-	max-height: 50px;
-	max-width: 80px;
+	max-height: 3.125rem;
+	max-width: 5rem;
 	object-fit: contain;
-	border-radius: 2px;
+	border-radius: 0.125rem;
 }
 
 .cancel-image-btn {
@@ -226,14 +226,14 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 	color: white;
 	border: none;
 	border-radius: 50%;
-	width: 18px;
-	height: 18px;
-	font-size: 12px;
+	width: 1.125rem;
+	height: 1.125rem;
+	font-size: 0.75rem;
 	line-height: 1;
 	cursor: pointer;
 	position: absolute;
-	top: -6px;
-	right: -6px;
+	top: -0.375rem;
+	right: -0.375rem;
 	padding: 0;
 	display: flex;
 	align-items: center;

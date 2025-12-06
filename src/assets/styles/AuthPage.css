@@ -1,7 +1,7 @@
 :root {
 	--glass-bg: rgba(20, 20, 20, 0.5);
 	--glass-border: rgba(255, 255, 255, 0.1);
-	--glass-blur: 20px;
+	--glass-blur: 1.25rem;
 	--primary-color: #646cff;
 	--primary-gradient: linear-gradient(135deg, #646cff 0%, #3a7bd5 100%);
 	--anim-duration: 0.6s;
@@ -25,7 +25,7 @@
 	position: absolute;
 	inset: 0;
 	background: rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(5px);
+	backdrop-filter: blur(0.3125rem);
 	z-index: 0;
 }
 
@@ -36,15 +36,15 @@
 	backdrop-filter: blur(var(--glass-blur));
 	-webkit-backdrop-filter: blur(var(--glass-blur));
 	padding: 3rem;
-	border-radius: 24px;
+	border-radius: 1.5rem;
 	border: 1px solid var(--glass-border);
-	box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+	box-shadow: 0 0.5rem 2rem 0 rgba(0, 0, 0, 0.37);
 	width: 100%;
-	max-width: 480px;
+	max-width: 30rem;
 	text-align: center;
 	color: #ffffff;
 	opacity: 0;
-	transform: translateY(40px) scale(0.95);
+	transform: translateY(2.5rem) scale(0.95);
 	animation: containerEntry var(--anim-duration) var(--anim-ease) forwards;
 }
 
@@ -89,13 +89,13 @@
 	color: #e0e0e0;
 	font-size: 0.9rem;
 	font-weight: 500;
-	padding-left: 4px;
+	padding-left: 0.25rem;
 }
 
 .form-group input {
 	width: 100%;
 	padding: 1rem;
-	border-radius: 12px;
+	border-radius: 0.75rem;
 	border: 2px solid rgba(255, 255, 255, 0.1);
 	background: rgba(0, 0, 0, 0.2);
 	color: white;
@@ -112,8 +112,8 @@
 .form-group input:focus {
 	border-color: var(--primary-color);
 	background: rgba(0, 0, 0, 0.4);
-	box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
-	transform: translateY(-2px);
+	box-shadow: 0 0 0.9375rem rgba(0, 210, 255, 0.2);
+	transform: translateY(-0.125rem);
 }
 
 .form-group input:disabled {
@@ -162,7 +162,7 @@
 	box-sizing: border-box;
 	padding: 1rem;
 	border: none;
-	border-radius: 12px;
+	border-radius: 0.75rem;
 	background: var(--primary-gradient);
 	color: white;
 	font-size: 1.1rem;
@@ -171,18 +171,18 @@
 	transition: all 0.3s ease;
 	text-transform: uppercase;
 	letter-spacing: 1px;
-	box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+	box-shadow: 0 0.25rem 0.9375rem rgba(0, 210, 255, 0.3);
 	position: relative;
 	overflow: hidden;
 }
 
 .auth-button:hover:not(:disabled) {
-	transform: translateY(-3px);
-	box-shadow: 0 8px 25px rgba(0, 210, 255, 0.5);
+	transform: translateY(-0.1875rem);
+	box-shadow: 0 0.5rem 1.5625rem rgba(0, 210, 255, 0.5);
 }
 
 .auth-button:active:not(:disabled) {
-	transform: translateY(-1px);
+	transform: translateY(-0.0625rem);
 }
 
 .auth-button:disabled {
@@ -217,7 +217,7 @@
 	color: white;
 	text-decoration: none;
 	font-weight: 700;
-	margin-left: 5px;
+	margin-left: 0.3125rem;
 	position: relative;
 }
 .auth-switch a::after {
@@ -225,7 +225,7 @@
 	position: absolute;
 	width: 0;
 	height: 2px;
-	bottom: -2px;
+	bottom: -0.125rem;
 	left: 0;
 	background-color: #646cff;
 	transition: width 0.3s ease;
@@ -239,7 +239,7 @@
 	color: #ff4d4d;
 	border: 1px solid rgba(255, 77, 77, 0.3);
 	padding: 0.8rem;
-	border-radius: 8px;
+	border-radius: 0.5rem;
 	margin-bottom: 1rem;
 	font-size: 0.9rem;
 	display: flex;
@@ -251,7 +251,7 @@
 @keyframes containerEntry {
 	0% {
 		opacity: 0;
-		transform: translateY(40px) scale(0.95);
+		transform: translateY(2.5rem) scale(0.95);
 	}
 	100% {
 		opacity: 1;
@@ -262,7 +262,7 @@
 @keyframes contentFadeIn {
 	0% {
 		opacity: 0;
-		transform: translateY(20px);
+		transform: translateY(1.25rem);
 	}
 	100% {
 		opacity: 1;
@@ -293,7 +293,7 @@
 .social-login-group {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 0.75rem;
 	width: 100%;
 	margin-top: 1rem;
 	align-items: center;
@@ -311,28 +311,28 @@
 }
 
 .facebook-btn {
-	width: 225px;
-	height: 40px;
+	width: 14.0625rem;
+	height: 2.5rem;
 	background-color: #1877f2;
 	color: white;
 	border: 1px solid transparent;
-	border-radius: 20px;
-	font-size: 14px;
+	border-radius: 1.25rem;
+	font-size: 0.875rem;
 	font-weight: 500;
 	font-family: 'Roboto', sans-serif;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 10px;
+	gap: 0.625rem;
 	transition: all 0.2s ease-in-out;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.3);
 }
 
 .facebook-btn:hover {
 	background-color: #166fe5;
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+	transform: translateY(-0.0625rem);
+	box-shadow: 0 0.25rem 0.75rem rgba(24, 119, 242, 0.3);
 }
 
 .facebook-btn:active {

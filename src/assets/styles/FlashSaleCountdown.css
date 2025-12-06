@@ -1,7 +1,7 @@
 .fs-countdown {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 0.625rem;
 }
 
 .fs-timer-label {
@@ -15,7 +15,7 @@
 .fs-timer-digits {
 	display: flex;
 	align-items: center;
-	gap: 2px;
+	gap: 0.125rem;
 }
 
 .fs-timer-box {
@@ -24,16 +24,16 @@
 
 	font-size: 1.1rem;
 	font-weight: 700;
-	border-radius: 4px;
-	width: 24px;
-	height: 25px;
+	border-radius: 0.25rem;
+	width: 1.5rem;
+	height: 1.5625rem;
 	position: relative;
 	overflow: hidden;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-	margin: 0 1px;
+	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
+	margin: 0 0.0625rem;
 	border: 1px solid var(--clr-border-light, transparent);
 }
 
@@ -84,6 +84,6 @@
 	font-size: 1.2rem;
 	font-weight: 800;
 	color: var(--clr-text);
-	margin: 0 4px;
-	padding-bottom: 4px;
+	margin: 0 0.25rem;
+	padding-bottom: 0.25rem;
 }

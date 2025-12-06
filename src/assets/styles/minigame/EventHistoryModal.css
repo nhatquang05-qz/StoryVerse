@@ -1,11 +1,11 @@
 .history-modal-content {
 	background: #ffffff;
 	width: 95%;
-	max-width: 600px;
-	border-radius: 16px;
-	padding: 25px;
+	max-width: 37.5rem;
+	border-radius: 1rem;
+	padding: 1.5625rem;
 	position: relative;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.5);
 	border: 4px solid #2e7d32;
 	animation: popIn 0.3s ease-out;
 }
@@ -13,12 +13,12 @@
 .history-header {
 	text-align: center;
 	color: #2e7d32;
-	font-size: 24px;
+	font-size: 1.5rem;
 	font-weight: 800;
-	margin-bottom: 20px;
+	margin-bottom: 1.25rem;
 	border-bottom: 2px dashed #ddd;
-	padding-bottom: 10px;
-	font-family: 'CaptainComic';
+	padding-bottom: 0.625rem;
+	font-family: 'CaptainComic', sans-serif;
 }
 
 .history-list-container {
@@ -29,13 +29,13 @@
 .history-table {
 	width: 100%;
 	border-collapse: collapse;
-	font-size: 14px;
+	font-size: 0.875rem;
 }
 
 .history-table th {
 	background-color: #f5f5f5;
 	color: #555;
-	padding: 12px;
+	padding: 0.75rem;
 	text-align: left;
 	font-weight: bold;
 	position: sticky;
@@ -43,7 +43,7 @@
 }
 
 .history-table td {
-	padding: 12px;
+	padding: 0.75rem;
 	border-bottom: 1px solid #eee;
 	color: #333;
 }
@@ -52,18 +52,18 @@
 	color: #2e7d32;
 	font-weight: 600;
 	background: #e8f5e9;
-	padding: 4px 8px;
-	border-radius: 4px;
-	font-size: 12px;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
 }
 
 .source-box {
 	color: #c62828;
 	font-weight: 600;
 	background: #ffebee;
-	padding: 4px 8px;
-	border-radius: 4px;
-	font-size: 12px;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
 }
 
 .value-coin {
@@ -74,6 +74,6 @@
 .empty-history {
 	text-align: center;
 	color: #999;
-	padding: 30px 0;
+	padding: 1.875rem 0;
 	font-style: italic;
 }
