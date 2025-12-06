@@ -10,12 +10,12 @@ import FlyingWishes from '../components/minigame/FlyingWishes';
 import WishingTree from '../components/minigame/WishingTree';
 import MysteryGiftModal from '../components/minigame/MysteryGiftModal';
 import EventRulesModal from '../components/minigame/EventRulesModal';
-import EventHistoryModal from '../components/minigame/EventHistoryModal';
+import { EventHistoryModal } from '../components/minigame/EventHistoryModal';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ChristmasEventPage: React.FC = () => {
-	const { currentUser, token, fetchUser } = useAuth();
+    const { currentUser, token, fetchUser } = useAuth();
 	const navigate = useNavigate();
 
 	const [showWheelModal, setShowWheelModal] = useState(false);

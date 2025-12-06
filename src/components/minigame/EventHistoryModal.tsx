@@ -18,7 +18,7 @@ interface Props {
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
-const EventHistoryModal: React.FC<Props> = ({ isOpen, onClose }) => {
+export const EventHistoryModal: React.FC<Props> = ({ isOpen, onClose }) => {
 	const { token } = useAuth();
 	const [history, setHistory] = useState<HistoryItem[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -119,5 +119,3 @@ const EventHistoryModal: React.FC<Props> = ({ isOpen, onClose }) => {
 		</div>
 	);
 };
-
-export default EventHistoryModal;
