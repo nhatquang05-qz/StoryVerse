@@ -82,7 +82,11 @@ const ContactManagement: React.FC = () => {
 			if (res.ok) {
 				showNotification('Đã gửi phản hồi thành công!', 'success');
 				setMessages((prev) =>
-					prev.map((m) => (m.id === selectedMsg.id ? { ...m, status: 'replied' } : m)),
+					prev.map((m) =>
+						m.id === selectedMsg.id
+							? { ...m, status: 'replied', admin_response: replyText }
+							: m,
+					),
 				);
 				handleCloseModal();
 			} else {
@@ -174,13 +178,54 @@ const ContactManagement: React.FC = () => {
 							</div>
 
 							{selectedMsg.status === 'replied' && (
-								<div className="replied-notice">
-									<FaCheckCircle /> Tin nhắn này đã được trả lời trước đó.
+								<div
+									className="replied-container"
+									style={{
+										marginTop: '1rem',
+										padding: '1rem',
+										backgroundColor: '#eff6ff',
+										borderRadius: '8px',
+										border: '1px solid #bfdbfe',
+									}}
+								>
+									<div
+										className="replied-notice"
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											color: '#1e40af',
+											fontWeight: 600,
+											marginBottom: '0.5rem',
+										}}
+									>
+										<FaCheckCircle /> Phản hồi của Admin:
+									</div>
+									<div
+										className="admin-response-text"
+										style={{
+											whiteSpace: 'pre-wrap',
+											color: '#334155',
+											fontSize: '0.95rem',
+											lineHeight: '1.5',
+											backgroundColor: '#fff',
+											padding: '0.75rem',
+											borderRadius: '6px',
+											border: '1px solid #e2e8f0',
+										}}
+									>
+										{selectedMsg.admin_response ||
+											'(Nội dung phản hồi không khả dụng)'}
+									</div>
 								</div>
 							)}
 
-							<div className="form-group">
-								<label className="form-label">Nội dung trả lời</label>
+							<div className="form-group" style={{ marginTop: '1.5rem' }}>
+								<label className="form-label">
+									{selectedMsg.status === 'replied'
+										? 'Gửi phản hồi khác (Ghi đè)'
+										: 'Nội dung trả lời'}
+								</label>
 								<textarea
 									className="form-textarea"
 									value={replyText}
