@@ -1,17 +1,21 @@
 const uploadModel = require('../models/uploadModel'); 
 
-const uploadImageService = async (fileBuffer, originalname, size) => {
+const uploadImageService = async (fileBuffer, originalname, size, folderPath) => {
     if (!fileBuffer) {
         throw { status: 400, error: 'No file uploaded or file buffer is missing.' };
     }
 
+    const finalFolder = folderPath && typeof folderPath === 'string' && folderPath.trim() !== ''
+        ? folderPath
+        : 'storyverse_uploads';
+        
     try {
         const options = {
-            folder: 'storyverse_uploads', 
+            folder: finalFolder, 
             resource_type: 'auto' 
         };
 
-        console.log(`Uploading file: ${originalname}, size: ${size} bytes`);
+        console.log(`Uploading file: ${originalname}, size: ${size} bytes to folder: ${finalFolder}`);
 
         const result = await uploadModel.uploadFromBufferRaw(fileBuffer, options);
 
