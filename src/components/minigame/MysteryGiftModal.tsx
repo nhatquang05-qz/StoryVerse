@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../../assets/styles/minigame/MysteryGift.css';
 import { IMAGES } from './minigameConstants';
+import { FaCopy, FaTicketAlt } from 'react-icons/fa';
 
 interface Props {
 	isOpen: boolean;
@@ -35,6 +36,11 @@ const MysteryGiftModal: React.FC<Props> = ({
 		}
 	}, [isSpinning, rewardMessage]);
 
+	const handleCopyCode = (code: string) => {
+		navigator.clipboard.writeText(code);
+		alert('Đã sao chép mã voucher!');
+	};
+
 	if (!isOpen) return null;
 
 	return (
@@ -62,10 +68,41 @@ const MysteryGiftModal: React.FC<Props> = ({
 						<div className="prize-reveal">
 							<div className="prize-icon">
 								{finalReward?.type === 'coin' && (
-									<img src={IMAGES.coin} alt="Coin" />
+									<img src={IMAGES.coin} alt="Coin" className="bounce-in" />
+								)}
+								{finalReward?.type === 'voucher' && (
+									<div className="voucher-icon bounce-in">
+										<FaTicketAlt size={50} color="#f59e0b" />
+									</div>
 								)}
 							</div>
-							<div className="prize-label">{finalReward?.label}</div>
+
+							{finalReward?.type === 'voucher' ? (
+								<div className="voucher-win-container">
+									<div className="prize-label" style={{ marginBottom: '10px' }}>
+										Chúc mừng! Bạn nhận được Voucher
+									</div>
+									<div className="voucher-ticket-box">
+										<span className="voucher-code-text">
+											{finalReward.value}
+										</span>
+										<button
+											className="btn-copy-voucher"
+											onClick={() => handleCopyCode(finalReward.value)}
+											title="Sao chép mã"
+										>
+											<FaCopy /> Sao chép
+										</button>
+									</div>
+									<p className="voucher-note">
+										(Áp dụng cho đơn hàng từ 0đ. Hạn dùng: 7 ngày)
+									</p>
+								</div>
+							) : (
+								<div className="prize-label">
+									{finalReward?.label || rewardMessage}
+								</div>
+							)}
 						</div>
 					)}
 				</div>
@@ -98,10 +135,6 @@ const MysteryGiftModal: React.FC<Props> = ({
 						</button>
 					)}
 				</div>
-
-				{showResult && rewardMessage && (
-					<div className="reward-message-box">{rewardMessage}</div>
-				)}
 			</div>
 		</div>
 	);

@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { FiPlus, FiEdit, FiTrash2, FiCheck, FiX, FiGift, FiPackage } from 'react-icons/fi';
+import {
+	FiPlus,
+	FiEdit,
+	FiTrash2,
+	FiCheck,
+	FiX,
+	FiGift,
+	FiPackage,
+	FiChevronDown,
+	FiChevronRight,
+	FiFolder,
+} from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import '../../assets/styles/PackManagement.css';
@@ -23,6 +34,7 @@ const PackManagement: React.FC = () => {
 
 	const [vouchers, setVouchers] = useState<any[]>([]);
 	const [isEditingVoucher, setIsEditingVoucher] = useState<any>(null);
+	const [showEventVouchers, setShowEventVouchers] = useState(false);
 	const [voucherFormData, setVoucherFormData] = useState({
 		code: '',
 		discountType: 'PERCENT',
@@ -66,6 +78,9 @@ const PackManagement: React.FC = () => {
 			console.error(error);
 		}
 	};
+
+	const adminVouchers = vouchers.filter((v) => !v.code.startsWith('GIFT'));
+	const minigameVouchers = vouchers.filter((v) => v.code.startsWith('GIFT'));
 
 	const handlePackSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -210,6 +225,97 @@ const PackManagement: React.FC = () => {
 			isActive: true,
 		});
 	};
+
+	const renderVoucherTable = (list: any[], isMinigame = false) => (
+		<div className="admin-table-container">
+			<table className="admin-user-table">
+				<thead>
+					<tr>
+						<th>Code</th>
+						<th>Loại</th>
+						<th>Giá trị</th>
+						<th>Điều kiện</th>
+						<th>Hạn dùng</th>
+						<th>Lượt dùng</th>
+						<th>Trạng thái</th>
+						<th>Hành động</th>
+					</tr>
+				</thead>
+				<tbody>
+					{list.length === 0 ? (
+						<tr>
+							<td colSpan={8} className="table-empty-message">
+								Không có dữ liệu
+							</td>
+						</tr>
+					) : (
+						list.map((voucher) => (
+							<tr key={voucher.id}>
+								<td style={{ fontWeight: 'bold', color: '#3b82f6' }}>
+									{voucher.code}
+									{isMinigame && <span className="badge-minigame">Event</span>}
+								</td>
+								<td>
+									{voucher.discountType === 'PERCENT' ? 'Phần trăm' : 'Cố định'}
+								</td>
+								<td style={{ color: '#eab308', fontWeight: 'bold' }}>
+									{voucher.discountType === 'PERCENT'
+										? `${voucher.discountValue}%`
+										: `${Number(voucher.discountValue).toLocaleString('vi-VN')}đ`}
+								</td>
+								<td style={{ fontSize: '0.85rem' }}>
+									Min: {Number(voucher.minOrderValue).toLocaleString('vi-VN')}đ
+									{voucher.maxDiscountAmount > 0 && (
+										<>
+											<br />
+											{`Max giảm: ${Number(voucher.maxDiscountAmount).toLocaleString('vi-VN')}đ`}
+										</>
+									)}
+								</td>
+								<td style={{ fontSize: '0.85rem' }}>
+									{voucher.startDate
+										? new Date(voucher.startDate).toLocaleDateString('vi-VN')
+										: '...'}{' '}
+									-
+									{voucher.endDate
+										? new Date(voucher.endDate).toLocaleDateString('vi-VN')
+										: '∞'}
+								</td>
+								<td>
+									{voucher.usedCount} / {voucher.usageLimit || '∞'}
+								</td>
+								<td>
+									{voucher.isActive ? (
+										<span className="status-tag active">
+											<FiCheck />
+										</span>
+									) : (
+										<span className="status-tag banned">
+											<FiX />
+										</span>
+									)}
+								</td>
+								<td className="action-buttons">
+									<button
+										className="mgmt-btn edit"
+										onClick={() => openEditVoucher(voucher)}
+									>
+										<FiEdit />
+									</button>
+									<button
+										className="mgmt-btn delete"
+										onClick={() => handleDeleteVoucher(voucher.id)}
+									>
+										<FiTrash2 />
+									</button>
+								</td>
+							</tr>
+						))
+					)}
+				</tbody>
+			</table>
+		</div>
+	);
 
 	return (
 		<div className="admin-content-container">
@@ -555,95 +661,44 @@ const PackManagement: React.FC = () => {
 							</form>
 						</div>
 					) : (
-						<div className="admin-table-container">
-							<table className="admin-user-table">
-								<thead>
-									<tr>
-										<th>Code</th>
-										<th>Loại</th>
-										<th>Giá trị</th>
-										<th>Điều kiện</th>
-										<th>Hạn dùng</th>
-										<th>Lượt dùng</th>
-										<th>Trạng thái</th>
-										<th>Hành động</th>
-									</tr>
-								</thead>
-								<tbody>
-									{vouchers.map((voucher) => (
-										<tr key={voucher.id}>
-											<td style={{ fontWeight: 'bold', color: '#3b82f6' }}>
-												{voucher.code}
-											</td>
-											<td>
-												{voucher.discountType === 'PERCENT'
-													? 'Phần trăm'
-													: 'Cố định'}
-											</td>
-											<td style={{ color: '#eab308', fontWeight: 'bold' }}>
-												{voucher.discountType === 'PERCENT'
-													? `${voucher.discountValue}%`
-													: `${Number(voucher.discountValue).toLocaleString('vi-VN')}đ`}
-											</td>
-											<td style={{ fontSize: '0.85rem' }}>
-												Min:{' '}
-												{Number(voucher.minOrderValue).toLocaleString(
-													'vi-VN',
-												)}
-												đ
-												{voucher.maxDiscountAmount > 0 && (
-													<>
-														<br />
-														{`Max giảm: ${Number(voucher.maxDiscountAmount).toLocaleString('vi-VN')}đ`}
-													</>
-												)}
-											</td>
-											<td style={{ fontSize: '0.85rem' }}>
-												{voucher.startDate
-													? new Date(
-															voucher.startDate,
-														).toLocaleDateString('vi-VN')
-													: '...'}{' '}
-												-
-												{voucher.endDate
-													? new Date(voucher.endDate).toLocaleDateString(
-															'vi-VN',
-														)
-													: '∞'}
-											</td>
-											<td>
-												{voucher.usedCount} / {voucher.usageLimit || '∞'}
-											</td>
-											<td>
-												{voucher.isActive ? (
-													<span className="status-tag active">
-														<FiCheck />
-													</span>
-												) : (
-													<span className="status-tag banned">
-														<FiX />
-													</span>
-												)}
-											</td>
-											<td className="action-buttons">
-												<button
-													className="mgmt-btn edit"
-													onClick={() => openEditVoucher(voucher)}
-												>
-													<FiEdit />
-												</button>
-												<button
-													className="mgmt-btn delete"
-													onClick={() => handleDeleteVoucher(voucher.id)}
-												>
-													<FiTrash2 />
-												</button>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
+						<>
+							<h3 style={{ margin: '1rem 0 0.5rem', fontSize: '1.1rem' }}>
+								Voucher của bạn
+							</h3>
+							{renderVoucherTable(adminVouchers)}
+
+							<div className="voucher-folder-container">
+								<div
+									className="voucher-folder-header"
+									onClick={() => setShowEventVouchers(!showEventVouchers)}
+								>
+									<div className="voucher-folder-content">
+										<FiFolder
+											size={20}
+											color="#f59e0b"
+											style={{ fill: '#fcd34d' }}
+										/>
+										<span className="voucher-folder-title">
+											ChristmasEvent2025 Vouchers
+										</span>
+										<span className="voucher-folder-count">
+											{minigameVouchers.length} mã
+										</span>
+									</div>
+									{showEventVouchers ? (
+										<FiChevronDown size={20} color="#64748b" />
+									) : (
+										<FiChevronRight size={20} color="#64748b" />
+									)}
+								</div>
+
+								{showEventVouchers && (
+									<div className="voucher-folder-body">
+										{renderVoucherTable(minigameVouchers, true)}
+									</div>
+								)}
+							</div>
+						</>
 					)}
 				</div>
 			)}

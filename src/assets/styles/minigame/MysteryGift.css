@@ -277,3 +277,58 @@
 		opacity: 1;
 	}
 }
+
+.voucher-win-container {
+	text-align: center;
+	animation: fadeIn 0.5s ease-in-out;
+}
+
+.voucher-ticket-box {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	background: #fff;
+	border: 2px dashed #f59e0b;
+	padding: 10px 15px;
+	border-radius: 8px;
+	margin: 10px auto;
+	max-width: 300px;
+}
+
+.voucher-code-text {
+	font-size: 1.2rem;
+	font-weight: bold;
+	color: #b45309;
+	letter-spacing: 1px;
+}
+
+.btn-copy-voucher {
+	background: #f59e0b;
+	color: white;
+	border: none;
+	padding: 5px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.8rem;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	transition: background 0.2s;
+}
+
+.btn-copy-voucher:hover {
+	background: #d97706;
+}
+
+.voucher-note {
+	font-size: 0.85rem;
+	color: #fbbf24;
+	margin-top: 5px;
+}
+
+.voucher-icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 10px;
+}

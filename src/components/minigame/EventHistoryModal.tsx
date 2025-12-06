@@ -4,8 +4,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import '../../assets/styles/minigame/EventHistoryModal.css';
 
 interface HistoryItem {
+	id: number;
 	source: string;
 	value: string;
+	type?: string;
 	createdAt: string;
 }
 
@@ -60,9 +62,9 @@ const EventHistoryModal: React.FC<Props> = ({ isOpen, onClose }) => {
 						<table className="history-table">
 							<thead>
 								<tr>
-									<th style={{ width: '35%' }}>Thời gian</th>
-									<th style={{ width: '40%' }}>Nguồn</th>
-									<th style={{ width: '25%' }}>Quà</th>
+									<th style={{ width: '30%' }}>Thời gian</th>
+									<th style={{ width: '35%' }}>Nguồn</th>
+									<th style={{ width: '35%' }}>Phần quà</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -80,7 +82,33 @@ const EventHistoryModal: React.FC<Props> = ({ isOpen, onClose }) => {
 												{item.source}
 											</span>
 										</td>
-										<td className="value-coin">{item.value}</td>
+										<td>
+											{item.type === 'voucher' ? (
+												<span
+													style={{
+														color: '#d97706',
+														fontWeight: 'bold',
+														backgroundColor: '#fffbeb',
+														padding: '2px 6px',
+														borderRadius: '4px',
+														border: '1px solid #fcd34d',
+													}}
+												>
+													{item.value}
+												</span>
+											) : item.type === 'luck' ? (
+												<span
+													style={{
+														color: '#64748b',
+														fontStyle: 'italic',
+													}}
+												>
+													{item.value}
+												</span>
+											) : (
+												<span className="value-coin">{item.value}</span>
+											)}
+										</td>
 									</tr>
 								))}
 							</tbody>

@@ -1,12 +1,13 @@
 const { getConnection } = require('../db/connection');
 
-const PRIZE_TIERS = [
-    { min: 1, max: 10, rate: 80 },
-    { min: 11, max: 20, rate: 15 },
-    { min: 21, max: 100, rate: 3 },
-    { min: 101, max: 1000, rate: 1.5 },
-    { min: 2412, max: 2412, rate: 0.49 },
-    { min: 24120, max: 24120, rate: 0.01 }
+const PRIZE_STRUCTURE = [
+    { type: 'coin', min: 1, max: 10, rate: 70 },       
+    { type: 'coin', min: 11, max: 20, rate: 22 },      
+    { type: 'coin', min: 21, max: 100, rate: 3.5 },    
+    { type: 'voucher', rate: 2.5 },                    
+    { type: 'coin', min: 101, max: 1000, rate: 1.5 },  
+    { type: 'coin', min: 2412, max: 2412, rate: 0.49 },
+    { type: 'coin', min: 24120, max: 24120, rate: 0.01 }
 ];
 
 const WISH_RATES = [
@@ -24,22 +25,7 @@ const getRandomItem = (items) => {
         currentRate += item.rate;
         if (random <= currentRate) return item;
     }
-    return items[0];
-};
-
-const getMysteryGiftPrize = () => {
-    const random = Math.random() * 100;
-    let currentRate = 0;
-    for (let tier of PRIZE_TIERS) {
-        currentRate += tier.rate;
-        if (random <= currentRate) {
-            const value = Math.floor(Math.random() * (tier.max - tier.min + 1)) + tier.min;
-            return { type: 'coin', value, label: `${value.toLocaleString()} Xu` };
-        }
-    }
-    const tier = PRIZE_TIERS[0];
-    const value = Math.floor(Math.random() * (tier.max - tier.min + 1)) + tier.min;
-    return { type: 'coin', value, label: `${value.toLocaleString()} Xu` };
+    return items[0]; 
 };
 
 const ensureEventStatus = async (connection, userId) => {
@@ -48,6 +34,7 @@ const ensureEventStatus = async (connection, userId) => {
 
 const spinWheel = async (userId) => {
     const db = getConnection();
+    
     
     const [users] = await db.query('SELECT coinBalance FROM users WHERE id = ?', [userId]);
     if (users.length === 0) throw new Error('User not found');
@@ -59,37 +46,67 @@ const spinWheel = async (userId) => {
     const userSpins = eventStatus[0].spins || 0;
     let useFreeSpin = false;
 
+    
     if (userSpins > 0) {
         useFreeSpin = true;
     } else if (userCoin < 20) {
         throw new Error('Bạn không đủ xu và lượt quay!');
     }
 
-    const prize = getMysteryGiftPrize();
-
+    
     if (useFreeSpin) {
         await db.query('UPDATE user_event_status SET spins = spins - 1 WHERE userId = ?', [userId]);
     } else {
         await db.query('UPDATE users SET coinBalance = coinBalance - 20 WHERE id = ?', [userId]);
     }
 
+    
+    const selectedTier = getRandomItem(PRIZE_STRUCTURE);
+    let prize = {
+        type: selectedTier.type,
+        value: 0,
+        label: ''
+    };
+
+    
     if (prize.type === 'coin') {
-        await db.query('UPDATE users SET coinBalance = coinBalance + ? WHERE id = ?', [prize.value, userId]);
+        
+        const coinValue = Math.floor(Math.random() * (selectedTier.max - selectedTier.min + 1)) + selectedTier.min;
+        prize.value = coinValue;
+        prize.label = `${coinValue.toLocaleString()} Xu`;
+        
+        
+        await db.query('UPDATE users SET coinBalance = coinBalance + ? WHERE id = ?', [coinValue, userId]);
+    } else if (prize.type === 'voucher') {
+        
+        prize.value = 'processing';
+        prize.label = 'Đang tạo voucher...';
     }
 
-    await db.query(
+    
+    const [historyResult] = await db.query(
         'INSERT INTO event_christmas_history (userId, rewardType, rewardValue) VALUES (?, ?, ?)',
         [userId, prize.type, prize.label]
     );
 
+    
     const [updatedUser] = await db.query('SELECT coinBalance FROM users WHERE id = ?', [userId]);
     const [updatedStatus] = await db.query('SELECT spins FROM user_event_status WHERE userId = ?', [userId]);
 
     return { 
-        result: prize, 
+        result: prize,
         newBalance: updatedUser[0].coinBalance,
-        remainingSpins: updatedStatus[0].spins 
+        remainingSpins: updatedStatus[0].spins,
+        historyId: historyResult.insertId 
     };
+};
+
+const updateHistoryReward = async (historyId, newRewardValue) => {
+    const db = getConnection();
+    await db.query(
+        'UPDATE event_christmas_history SET rewardValue = ? WHERE id = ?',
+        [newRewardValue, historyId]
+    );
 };
 
 const addWish = async (userId, content) => {
@@ -134,7 +151,7 @@ const getUserGameInfo = async (userId) => {
     `, [userId]);
 
     const hasWishedToday = statusRows[0].hasWishedToday === 1;    
-    const todayStr = new Date().toISOString().slice(0, 10);
+    
     const [missions] = await db.query(
         'SELECT missionType, progress, target, isClaimed FROM user_missions WHERE userId = ? AND updatedAt = CURDATE()',
         [userId]
@@ -146,7 +163,6 @@ const getUserGameInfo = async (userId) => {
         READ_CHAPTER: missions.find(m => m.missionType === 'READ_CHAPTER') || { progress: 0, target: 3, isClaimed: 0 }
     };
 
-    
     let todayWishReward = 0;
     if (hasWishedToday) {
         const [history] = await db.query(`
@@ -181,7 +197,6 @@ const updateMissionProgress = async (userId, type) => {
 
     await ensureEventStatus(db, userId);
 
-    
     await db.query(`
         INSERT INTO user_missions (userId, missionType, progress, target, isClaimed, updatedAt)
         VALUES (?, ?, 1, ?, 0, CURDATE())
@@ -215,7 +230,7 @@ const getWishes = async () => {
 const getEventHistory = async (userId) => {
     const db = getConnection();
     const [rows] = await db.query(`
-        SELECT rewardType, rewardValue, createdAt 
+        SELECT id, rewardType, rewardValue, createdAt 
         FROM event_christmas_history 
         WHERE userId = ? 
         ORDER BY createdAt DESC 
@@ -229,15 +244,26 @@ const getEventHistory = async (userId) => {
         if (typeof value === 'string' && value.startsWith('Wish-')) {
             source = 'Lời chúc Giáng sinh';
             value = value.replace('Wish-', '') + ' Xu';
+        } else if (row.rewardType === 'voucher') {
+            source = 'Trúng thưởng Voucher';
         }
 
         return {
             id: row.id, 
             source,
             value,
+            type: row.rewardType,
             createdAt: row.createdAt
         };
     });
 };
 
-module.exports = { spinWheel, addWish, getWishes, getUserGameInfo, updateMissionProgress, getEventHistory };
+module.exports = { 
+    spinWheel, 
+    addWish, 
+    getWishes, 
+    getUserGameInfo, 
+    updateMissionProgress, 
+    getEventHistory,
+    updateHistoryReward
+};
