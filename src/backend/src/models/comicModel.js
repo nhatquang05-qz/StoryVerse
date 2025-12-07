@@ -520,7 +520,8 @@ const getDigitalComicsRankingRaw = async (startDate, endDate) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
         `SELECT 
-            c.id, c.title, c.coverImageUrl, c.isDigital,
+            c.id, c.title, c.coverImageUrl, c.isDigital, c.author,
+            (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             SUM(s.daily_view_count) AS totalViews
         FROM daily_comic_stats s
         JOIN comics c ON s.comic_id = c.id
@@ -532,13 +533,12 @@ const getDigitalComicsRankingRaw = async (startDate, endDate) => {
     );
     return rows;
 };
-
 const getPhysicalComicsRankingRaw = async (startDate, endDate) => {
-    const connection = getConnection();
-    
+    const connection = getConnection();    
     const [rows] = await connection.execute(
         `SELECT 
-            c.id, c.title, c.coverImageUrl, c.isDigital,
+            c.id, c.title, c.coverImageUrl, c.isDigital, c.author,
+            (SELECT AVG(rating) FROM reviews WHERE comicId = c.id) AS averageRating,
             SUM(oi.quantity) AS totalPurchases
         FROM order_items oi
         JOIN orders o ON oi.orderId = o.id

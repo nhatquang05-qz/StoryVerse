@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Award, DollarSign, BookOpen, Users } from 'lucide-react';
-import axios from 'axios'; 
+import {
+	TrendingUp,
+	DollarSign,
+	BookOpen,
+	Users,
+	Crown,
+	ChevronDown,
+	ChevronUp,
+} from 'lucide-react';
+import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import {
 	getEquivalentLevelTitle as getLevelTitleUtil,
@@ -9,17 +17,14 @@ import {
 } from '../utils/authUtils';
 import UserDetailModal from '../components/common/UserDetailModal';
 import { FiLoader } from 'react-icons/fi';
-
-
+import StarRating from '../components/common/StarRating';
 import top1ComicBadge from '../assets/images/top1comic.avif';
 import top2ComicBadge from '../assets/images/top2comic.avif';
 import top3ComicBadge from '../assets/images/top3comic.avif';
-import top1MemberBadge from '../assets/images/top1.avif'; 
-import top2MemberBadge from '../assets/images/top2.avif'; 
-import top3MemberBadge from '../assets/images/top3.avif'; 
+import top1MemberBadge from '../assets/images/top1.avif';
+import top2MemberBadge from '../assets/images/top2.avif';
+import top3MemberBadge from '../assets/images/top3.avif';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
-
-
 import '../assets/styles/RankingPage.css';
 import '../assets/styles/TopMembersSection.css';
 
@@ -28,17 +33,19 @@ type RankingType = 'digital' | 'physical' | 'member';
 
 type RankItem = {
 	id: number | string;
-	title?: string; 
-    username?: string; 
-    fullName?: string; 
-	coverImageUrl?: string; 
-    avatarUrl?: string; 
-	totalViews?: number; 
-	totalPurchases?: number; 
-    totalPoints?: number;
+	title?: string;
+	username?: string;
+	fullName?: string;
+	coverImageUrl?: string;
+	avatarUrl?: string;
+	totalViews?: number;
+	totalPurchases?: number;
+	totalPoints?: number;
 	rank: number;
-    level?: number; 
-    levelSystem?: string; 
+	level?: number;
+	levelSystem?: string;
+	author?: string;
+	averageRating?: number;
 };
 
 const rankingBadges = {
@@ -46,63 +53,70 @@ const rankingBadges = {
 	member: { 1: top1MemberBadge, 2: top2MemberBadge, 3: top3MemberBadge },
 };
 
-const INITIAL_DISPLAY_LIMIT = 10; 
+const INITIAL_GRID_ITEMS = 10;
+
+const MAX_GRID_ITEMS = 100;
 
 const getAvatarSrc = (url: string | null | undefined) => {
-    if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
-    return url;
+	if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
+	return url;
 };
 
 const useRankingData = (initialType: RankingType) => {
 	const [data, setData] = useState<RankItem[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [timeframe, setTimeframe] = useState<Timeframe>('day');
 
-	const fetchData = useCallback(
-		async (period: Timeframe, type: RankingType) => {
-			setLoading(true);
-			setError(null);
-			setData([]);
+	const [timeframe, setTimeframe] = useState<Timeframe>('week');
 
-			try {
-				let endpoint = type === 'member' ? 'members' : type; 
-				let url = `/api/rankings/${endpoint}`;
-				if (type !== 'member') {
-					url += `?period=${period}`;
+	const fetchData = useCallback(async (period: Timeframe, type: RankingType) => {
+		setLoading(true);
+		setError(null);
+		setData([]);
+
+		try {
+			let endpoint = type === 'member' ? 'members' : type;
+			let url = `/api/rankings/${endpoint}`;
+			if (type !== 'member') {
+				url += `?period=${period}`;
+			}
+
+			const response = await axios.get(url);
+
+			const rankedData = response.data.map((item: any, index: number) => {
+				let authorDisplay = 'Đang cập nhật';
+				if (item.author && typeof item.author === 'string' && isNaN(Number(item.author))) {
+					authorDisplay = item.author;
 				}
 
-				const response = await axios.get(url);
-
-				const rankedData = response.data.map((item: any, index: number) => ({
+				return {
 					...item,
 					rank: index + 1,
-					coverImageUrl: item.coverImageUrl || '/default-image.webp', 
-					avatarUrl: item.avatarUrl || 'defaultAvatar.webp', 
-                    fullName: item.fullName || item.username || 'Người dùng ẩn danh',
-                    level: parseInt(item.level) || 1, 
-                    levelSystem: item.levelSystem || 'default', 
-                    
+					coverImageUrl: item.coverImageUrl || '/default-image.webp',
+					avatarUrl: item.avatarUrl || 'defaultAvatar.webp',
+					fullName: item.fullName || item.username || 'Người dùng ẩn danh',
+					level: parseInt(item.level) || 1,
+					levelSystem: item.levelSystem || 'default',
 					totalViews: parseInt(item.totalViews) || 0,
 					totalPurchases: parseInt(item.totalPurchases) || 0,
-                    
-					totalPoints: parseFloat(item.totalPoints) || 0, 
-				}));
+					totalPoints: parseFloat(item.totalPoints) || 0,
+					author: authorDisplay,
+					averageRating: parseFloat(item.averageRating) || 0,
+				};
+			});
 
-				setData(rankedData);
-			} catch (err: any) {
-				console.error(`Error fetching ${type} rankings:`, err);
-				setError(err.response?.data?.error || `Lỗi khi tải dữ liệu ${type}.`);
-			} finally {
-				setLoading(false);
-			}
-		},
-		[],
-	);
+			setData(rankedData);
+		} catch (err: any) {
+			console.error(`Error fetching ${type} rankings:`, err);
+			setError(err.response?.data?.error || `Lỗi khi tải dữ liệu ${type}.`);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
 	useEffect(() => {
 		if (initialType === 'member') {
-			fetchData('day', initialType); 
+			fetchData('day', initialType);
 		} else {
 			fetchData(timeframe, initialType);
 		}
@@ -114,232 +128,369 @@ const useRankingData = (initialType: RankingType) => {
 const RankingItem: React.FC<{
 	item: RankItem;
 	type: RankingType;
-    onMemberClick?: (userId: number | string) => void;
-    getLevelColor: (level: number) => string;
-}> = ({ item, type, onMemberClick, getLevelColor }) => {
+	onMemberClick?: (userId: number | string) => void;
+	getLevelColor: (level: number) => string;
+	variant?: 'podium' | 'list';
+}> = ({ item, type, onMemberClick, getLevelColor, variant = 'list' }) => {
 	const rank = item.rank;
-	const isTop3 = rank <= 3;
 	const isMember = type === 'member';
-    
-    if (isMember) {
-        const level = item.level || 1;
-        const levelColor = getLevelColor(level);
-        const textColor = getTextColorForBackground(levelColor);
-        const levelTitle = getLevelTitleUtil(level, item.levelSystem || 'default');
-        
-        const score = Math.floor(item.totalPoints || 0).toLocaleString('vi-VN'); 
 
-        let rankElement;
-        if (rank === 1) rankElement = <img src={rankingBadges.member[1]} alt="Top 1" className="rank-image rank-1-image" />;
-        else if (rank === 2) rankElement = <img src={rankingBadges.member[2]} alt="Top 2" className="rank-image rank-2-image" />;
-        else if (rank === 3) rankElement = <img src={rankingBadges.member[3]} alt="Top 3" className="rank-image rank-3-image" />;
-        else rankElement = <span className="rank-number">{String(rank).padStart(2, '0')}</span>;
-        
-        const displayName = item.fullName || 'Người dùng ẩn danh';
-        const memberAvatarSrc = getAvatarSrc(item.avatarUrl); 
+	const displayName = item.fullName || 'Người dùng ẩn danh';
+	const memberAvatarSrc = getAvatarSrc(item.avatarUrl);
+	const coverOrAvatarUrl = item.coverImageUrl;
+	const title = item.title || 'Truyện chưa có tên';
+	const level = item.level || 1;
+	const levelColor = getLevelColor(level);
+	const textColor = getTextColorForBackground(levelColor);
+	const levelTitle = getLevelTitleUtil(level, item.levelSystem || 'default');
+	const score = Math.floor(item.totalPoints || 0).toLocaleString('vi-VN');
 
-        return (
-            <li 
-                key={item.id} 
-                className={`top-member-item rank-${rank}`}
-                onClick={() => onMemberClick && onMemberClick(item.id)}
-                style={{ cursor: 'pointer' }}
-            >
-                <span className="member-rank">{rankElement}</span>
-                <img
-                    src={memberAvatarSrc}
-                    alt={displayName}
-                    className="member-avatar"
-                    onError={(e) => { 
-                        const target = e.target as HTMLImageElement;
-                        target.src = defaultAvatarImg;
-                    }}
-                />
-                <div className="member-info">
-                    <span className="member-name">{displayName}</span>
-                    <div className="member-stats">
-                        <span
-                            className="member-level-badge"
-                            style={{ backgroundColor: levelColor, color: textColor }}
-                        >
-                            {levelTitle}
-                        </span>
-                        {}
-                        <span className="member-score">{score}</span>
-                    </div>
-                </div>
-            </li>
-        );
+	let metricValue, linkPrefix;
+	linkPrefix = type === 'digital' ? 'comic' : 'product';
 
-    } else { 
-        
-        let infoText, metricValue, linkPrefix;
-        linkPrefix = type === 'digital' ? 'comic' : 'product';
-        const coverOrAvatarUrl = item.coverImageUrl;
-        const title = item.title || 'Truyện chưa có tên';
+	if (type === 'digital') {
+		metricValue = (item.totalViews || 0).toLocaleString('vi-VN');
+	} else {
+		metricValue = (item.totalPurchases || 0).toLocaleString('vi-VN');
+	}
 
-        if (type === 'digital') {
-            infoText = 'Lượt Đọc:';
-            metricValue = (item.totalViews || 0).toLocaleString();
-        } else { 
-            infoText = 'Lượt Mua:';
-            metricValue = (item.totalPurchases || 0).toLocaleString();
-        }
+	if (variant === 'podium') {
+		return (
+			<div className={`podium-card rank-${rank} ${isMember ? 'member-card' : ''}`}>
+				<div className="podium-rank-badge">
+					{rank === 1 && (
+						<Crown size={32} fill="#FFD700" color="#FFD700" className="crown-icon" />
+					)}
+					<span className="rank-num">#{rank}</span>
+				</div>
 
-        const badge = rankingBadges.comic[rank as keyof typeof rankingBadges.comic];
+				<div
+					className="podium-image-container"
+					onClick={isMember && onMemberClick ? () => onMemberClick(item.id) : undefined}
+				>
+					<img
+						src={isMember ? memberAvatarSrc : coverOrAvatarUrl}
+						alt={isMember ? displayName : title}
+						className={isMember ? 'podium-avatar' : 'podium-cover'}
+						onError={(e) => {
+							(e.target as HTMLImageElement).src = isMember
+								? defaultAvatarImg
+								: '/default-image.webp';
+						}}
+					/>
+					<img
+						src={
+							isMember
+								? rankingBadges.member[rank as 1 | 2 | 3]
+								: rankingBadges.comic[rank as 1 | 2 | 3]
+						}
+						alt={`Top ${rank}`}
+						className="podium-badge-overlay"
+					/>
+				</div>
 
-        return (
-            <Link to={`/${linkPrefix}/${item.id}`} className={`ranking-item ${isTop3 ? `rank-${rank}` : ''}`}>
-                <div className="item-rank-indicator">
-                    {isTop3 ? <img src={badge} alt={`Top ${rank}`} className="rank-badge" /> : <span className="rank-number">{rank}</span>}
-                </div>
-                <div className={`item-cover-or-avatar cover`}>
-                    <img 
-                        src={coverOrAvatarUrl} 
-                        alt={title} 
-                        onError={(e) => { 
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/default-image.webp';
-                        }}
-                    />
-                </div>
-                <div className="item-details">
-                    <h3 className="item-title">{title}</h3>
-                    <p className="item-metric">
-                        <TrendingUp size={16} className="metric-icon" />
-                        {infoText} <span className={`metric-value ${isTop3 ? 'text-highlight-primary' : ''}`}>{metricValue}</span>
-                    </p>
-                </div>
-                <div className="item-action">
-                    <Award size={20} className="action-icon" />
-                </div>
-            </Link>
-        );
-    }
+				<div className="podium-info">
+					{isMember ? (
+						<>
+							<h3
+								className="podium-title"
+								onClick={() => onMemberClick && onMemberClick(item.id)}
+							>
+								{displayName}
+							</h3>
+							<div
+								className="podium-level"
+								style={{ backgroundColor: levelColor, color: textColor }}
+							>
+								{levelTitle}
+							</div>
+							<div className="podium-metric">{score} Points</div>
+						</>
+					) : (
+						<Link to={`/${linkPrefix}/${item.id}`} className="podium-link-wrapper">
+							<h3 className="podium-title">{title}</h3>
+							<p className="podium-author">{item.author}</p>
+							<div className="podium-stats">
+								<div className="podium-rating">
+									<StarRating
+										rating={item.averageRating || 0}
+										size={12}
+										maxStars={1}
+									/>
+									<span>{(item.averageRating || 0).toFixed(1)}</span>
+								</div>
+								<div className="podium-metric">
+									<TrendingUp size={14} />
+									{metricValue}
+								</div>
+							</div>
+						</Link>
+					)}
+				</div>
+			</div>
+		);
+	}
+
+	if (isMember) {
+		return (
+			<li
+				key={item.id}
+				className={`compact-rank-item rank-other`}
+				onClick={() => onMemberClick && onMemberClick(item.id)}
+			>
+				<div className="compact-rank-num">#{rank}</div>
+				<img
+					src={memberAvatarSrc}
+					alt={displayName}
+					className="compact-avatar"
+					onError={(e) => {
+						(e.target as HTMLImageElement).src = defaultAvatarImg;
+					}}
+				/>
+				<div className="compact-info">
+					<span className="compact-title">{displayName}</span>
+					<div className="compact-meta">
+						<span
+							className="mini-badge"
+							style={{ backgroundColor: levelColor, color: textColor }}
+						>
+							{levelTitle}
+						</span>
+						<span className="compact-score">{score} Point</span>
+					</div>
+				</div>
+			</li>
+		);
+	} else {
+		return (
+			<Link to={`/${linkPrefix}/${item.id}`} className={`compact-rank-item rank-other`}>
+				<div className="compact-rank-num">#{rank}</div>
+				<div className="compact-cover">
+					<img
+						src={coverOrAvatarUrl}
+						alt={title}
+						onError={(e) => {
+							(e.target as HTMLImageElement).src = '/default-image.webp';
+						}}
+					/>
+				</div>
+				<div className="compact-info">
+					<h3 className="compact-title">{title}</h3>
+					<p className="compact-author">{item.author}</p>
+					<div className="compact-stats">
+						<span className="compact-rating">
+							<StarRating rating={item.averageRating || 0} size={12} maxStars={1} />{' '}
+							{(item.averageRating || 0).toFixed(1)}
+						</span>
+						<span className="compact-metric">
+							<TrendingUp size={12} /> {metricValue}
+						</span>
+					</div>
+				</div>
+			</Link>
+		);
+	}
 };
 
-const RankingSection: React.FC<{ 
-    title: string; 
-    icon: React.FC<any>; 
-    type: RankingType;
-    onMemberClick?: (userId: number | string) => void;
-    getLevelColor: (level: number) => string;
+const RankingSection: React.FC<{
+	title: string;
+	icon: React.FC<any>;
+	type: RankingType;
+	onMemberClick?: (userId: number | string) => void;
+	getLevelColor: (level: number) => string;
 }> = ({ title, icon: Icon, type, onMemberClick, getLevelColor }) => {
-    
-    const { data, loading, error, timeframe, setTimeframe } = useRankingData(type);
-    const [showAll, setShowAll] = useState(false); 
-    
-    const isComicType = type === 'digital' || type === 'physical';
-    const displayedData = showAll ? data : data.slice(0, INITIAL_DISPLAY_LIMIT);
-    const hasMoreItems = data.length > INITIAL_DISPLAY_LIMIT && !showAll;
+	const { data, loading, error, timeframe, setTimeframe } = useRankingData(type);
+
+	const [visibleGridCount, setVisibleGridCount] = useState(INITIAL_GRID_ITEMS);
+
+	const isComicType = type === 'digital' || type === 'physical';
+
+	const top3Data = data.slice(0, 3);
+
+	const restData = data.slice(3, 3 + visibleGridCount);
+
+	const podiumSorted = [
+		top3Data.find((d) => d.rank === 2),
+		top3Data.find((d) => d.rank === 1),
+		top3Data.find((d) => d.rank === 3),
+	].filter(Boolean) as RankItem[];
+
+	const isExpandedLimit =
+		3 + visibleGridCount >= data.length || visibleGridCount >= MAX_GRID_ITEMS;
+
+	const showLoadMoreButton =
+		data.length > 3 + INITIAL_GRID_ITEMS || visibleGridCount > INITIAL_GRID_ITEMS;
+
+	const handleLoadMore = () => {
+		if (isExpandedLimit) {
+			setVisibleGridCount(INITIAL_GRID_ITEMS);
+
+			const section = document.getElementById(`section-${type}`);
+			if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		} else {
+			setVisibleGridCount((prev) => prev + 10);
+		}
+	};
 
 	return (
-		<section className="ranking-section">
+		<section className="ranking-section" id={`section-${type}`}>
 			<div className="section-header">
-				<Icon size={32} className="header-icon" />
+				<Icon size={28} className="header-icon" />
 				<h2 className="section-title">{title}</h2>
 			</div>
 
-            {isComicType && (
-                <div className="timeframe-tabs">
-                    {(['day', 'week', 'month'] as Timeframe[]).map((tf) => (
-                        <button
-                            key={tf}
-                            className={`tab-button ${timeframe === tf ? 'active' : ''}`}
-                            onClick={() => { setTimeframe(tf); setShowAll(false); }}
-                        >
-                            {tf === 'day' && 'Hôm Nay'}
-                            {tf === 'week' && 'Tuần Này'}
-                            {tf === 'month' && 'Tháng Này'}
-                        </button>
-                    ))}
-                </div>
-            )}
-            
-            <div className={type === 'member' ? 'top-members-list' : 'ranking-list'}>
-                {loading && (
-                    <div className="loading-spinner">
-                        <FiLoader size={32} className="animate-spin" />
-                        <p>Đang tải bảng xếp hạng...</p>
-                    </div>
-                )}
-                {error && <p className="error-message">Lỗi: {error}</p>}
-                
-                {!loading && !error && displayedData.length > 0 && (
-                     type === 'member' 
-                        ? <ol className="top-members-list-ol">
-                            {displayedData.map((item) => (
-                                <RankingItem 
-                                    key={item.id} item={item} type={type} 
-                                    onMemberClick={onMemberClick} getLevelColor={getLevelColor}
-                                />
-                            ))}
-                        </ol>
-                        : displayedData.map((item) => (
-                            <RankingItem key={item.id} item={item} type={type} 
-                                onMemberClick={onMemberClick} getLevelColor={getLevelColor} 
-                            />
-                        ))
-                )}
-                
-                {!loading && !error && data.length === 0 && (
-                    <p className="no-data-message">Hiện chưa có dữ liệu xếp hạng.</p>
-                )}
-			</div>
-            
-            {hasMoreItems && (
-                <div className="text-center mt-6" style={{ marginTop: '20px', textAlign: 'center' }}>
-                    <button onClick={() => setShowAll(true)} className="cta-button show-all-button">
-                        Xem Tất Cả ({data.length} mục)
-                    </button>
-                </div>
-            )}
+			{isComicType && (
+				<div className="timeframe-tabs">
+					{(['day', 'week', 'month'] as Timeframe[]).map((tf) => (
+						<button
+							key={tf}
+							className={`tab-button ${timeframe === tf ? 'active' : ''}`}
+							onClick={() => {
+								setTimeframe(tf);
+								setVisibleGridCount(INITIAL_GRID_ITEMS);
+							}}
+						>
+							{tf === 'day' && 'Hôm Nay'}
+							{tf === 'week' && 'Tuần Này'}
+							{tf === 'month' && 'Tháng Này'}
+						</button>
+					))}
+				</div>
+			)}
+
+			{loading && (
+				<div className="loading-spinner">
+					<FiLoader size={32} className="animate-spin" />
+					<p>Đang tải...</p>
+				</div>
+			)}
+			{error && <p className="error-message">{error}</p>}
+			{!loading && !error && data.length === 0 && (
+				<p className="no-data-message">Chưa có dữ liệu xếp hạng.</p>
+			)}
+
+			{!loading && !error && data.length > 0 && (
+				<div className="ranking-content-wrapper">
+					{}
+					<div className="ranking-podium">
+						{podiumSorted.map((item) => (
+							<RankingItem
+								key={item.id}
+								item={item}
+								type={type}
+								variant="podium"
+								onMemberClick={onMemberClick}
+								getLevelColor={getLevelColor}
+							/>
+						))}
+					</div>
+
+					{}
+					{restData.length > 0 && (
+						<div className="ranking-grid">
+							{restData.map((item) => (
+								<RankingItem
+									key={item.id}
+									item={item}
+									type={type}
+									variant="list"
+									onMemberClick={onMemberClick}
+									getLevelColor={getLevelColor}
+								/>
+							))}
+						</div>
+					)}
+				</div>
+			)}
+
+			{}
+			{showLoadMoreButton && !loading && !error && (
+				<div className="show-all-container">
+					<button onClick={handleLoadMore} className="show-all-button">
+						{isExpandedLimit ? (
+							<>
+								Thu Gọn <ChevronUp size={16} style={{ marginLeft: 5 }} />
+							</>
+						) : (
+							<>
+								Xem Thêm (+10) <ChevronDown size={16} style={{ marginLeft: 5 }} />
+							</>
+						)}
+					</button>
+				</div>
+			)}
 		</section>
 	);
 };
 
 const RankingPage: React.FC = () => {
-    const { getLevelColor, loading: authLoading } = useAuth(); 
-    const [selectedUserProfileId, setSelectedUserProfileId] = useState<number | string | null>(null);
+	const { getLevelColor, loading: authLoading } = useAuth();
+	const [selectedUserProfileId, setSelectedUserProfileId] = useState<number | string | null>(
+		null,
+	);
 	const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
-    const handleUserClick = (userId: number | string) => {
-        setSelectedUserProfileId(userId);
-        setIsUserModalOpen(true);
-    };
+	const handleUserClick = (userId: number | string) => {
+		setSelectedUserProfileId(userId);
+		setIsUserModalOpen(true);
+	};
 
-    if (authLoading) return <div className="loading-spinner"><FiLoader size={32} className="animate-spin" /></div>;
+	if (authLoading)
+		return (
+			<div className="loading-spinner">
+				<FiLoader size={32} className="animate-spin" />
+			</div>
+		);
 
 	return (
 		<div className="ranking-page-wrapper">
 			<header className="ranking-hero">
-                <div className="hero-content">
-                    <h1 className="main-title">BẢNG XẾP HẠNG</h1>
-                    <p className="subtitle">Vinh danh những Truyện và Thành viên xuất sắc nhất vũ trụ StoryVerse</p>
-                </div>
+				<div className="hero-content">
+					<h1 className="main-title">BẢNG XẾP HẠNG</h1>
+					<p className="subtitle">
+						Vinh danh những cực phẩm và cá nhân xuất sắc nhất StoryVerse
+					</p>
+				</div>
 			</header>
 
-            <div className="ranking-container">
-                <RankingSection title="Truyện Online Hot Nhất" icon={BookOpen} type="digital" getLevelColor={getLevelColor} />
-                <hr className="ranking-divider" />
-                <RankingSection title="Truyện Giấy Bán Chạy" icon={DollarSign} type="physical" getLevelColor={getLevelColor} />
-                <hr className="ranking-divider" />
-                <RankingSection title="Thành Viên Tích Cực" icon={Users} type="member" onMemberClick={handleUserClick} getLevelColor={getLevelColor} />
-            </div>
+			<div className="ranking-container">
+				{}
+				<RankingSection
+					title="Top Thành Viên"
+					icon={Users}
+					type="member"
+					onMemberClick={handleUserClick}
+					getLevelColor={getLevelColor}
+				/>
+				<div className="ranking-spacer"></div>
+				<RankingSection
+					title="Truyện Online Hot"
+					icon={BookOpen}
+					type="digital"
+					getLevelColor={getLevelColor}
+				/>
+				<div className="ranking-spacer"></div>
+				<RankingSection
+					title="Truyện Giấy Bán Chạy"
+					icon={DollarSign}
+					type="physical"
+					getLevelColor={getLevelColor}
+				/>
+			</div>
 
-            <div className="ranking-footer">
-                <p>Cập nhật xếp hạng theo thời gian thực (Real-time). Dữ liệu tính toán dựa trên Lượt Đọc, Lượt Mua và Hoạt Động cộng đồng.</p>
-            </div>
-            
-            {isUserModalOpen && (
-                <UserDetailModal
-                    userId={selectedUserProfileId ? String(selectedUserProfileId) : null}
-                    isOpen={isUserModalOpen}
-                    onClose={() => setIsUserModalOpen(false)}
-                />
-            )}
+			<div className="ranking-footer">
+				<p>Bảng xếp hạng được cập nhật tự động theo thời gian thực.</p>
+			</div>
+
+			{isUserModalOpen && (
+				<UserDetailModal
+					userId={selectedUserProfileId ? String(selectedUserProfileId) : null}
+					isOpen={isUserModalOpen}
+					onClose={() => setIsUserModalOpen(false)}
+				/>
+			)}
 		</div>
 	);
 };
 
-export default RankingPage;     
+export default RankingPage;

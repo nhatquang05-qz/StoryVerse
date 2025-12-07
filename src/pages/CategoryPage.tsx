@@ -138,8 +138,8 @@ const CategoryPage: React.FC = () => {
 
 		const parseDate = (dateStr: any) => {
 			if (!dateStr) return 0;
-			if (dateStr instanceof Date) return dateStr.getTime();	
-            if (typeof dateStr === 'object') return 0;
+			if (dateStr instanceof Date) return dateStr.getTime();
+			if (typeof dateStr === 'object') return 0;
 
 			const s = String(dateStr);
 			if (s.match(/^\d{1,2}\/\d{1,2}\/\d{4}/)) {

@@ -69,6 +69,7 @@ function App() {
 	const isDCPage = location.pathname === '/digital-comics';
 	const isCopyrightPage = location.pathname === '/copyright';
 	const isSearchPage = location.pathname.startsWith('/search');
+	const isRankingPage = location.pathname.startsWith('/ranking');
 
 	const { isLevelUpPopupOpen, levelUpInfo, closeLevelUpPopup } = useAuth();
 
@@ -132,7 +133,8 @@ function App() {
 						isPCPage ||
 						isDCPage ||
 						isSearchPage ||
-						isCopyrightPage
+						isCopyrightPage ||
+						isRankingPage
 							? '0'
 							: undefined,
 				}}

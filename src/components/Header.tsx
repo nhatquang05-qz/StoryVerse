@@ -340,6 +340,7 @@ const Header: React.FC = () => {
 
 					<Link to="/community">Cộng đồng</Link>
 					<Link to="/about-us">Giới thiệu</Link>
+					<Link to="/ranking">Bảng xếp hạng</Link>
 				</nav>
 
 				<div className="header-actions">

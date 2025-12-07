@@ -1,15 +1,16 @@
 .copyright-page {
-	background-color: var(--clr-bg-dark, #0f172a);
-	color: var(--clr-text, #e2e8f0);
+	background-color: var(--clr-background);
+	color: var(--clr-text);
 	min-height: 100vh;
 	padding-top: 2rem;
 	padding-bottom: 2rem;
-	font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	font-family: var(--font-family-base);
 }
 
 .copyright-container {
 	max-width: 68.75rem;
 	margin: 0 auto;
+	padding: 0 1.25rem;
 }
 
 .copyright-header {
@@ -19,8 +20,9 @@
 
 .copyright-header .icon-wrapper {
 	font-size: 3rem;
-	color: var(--clr-primary-light, #ad7ffb);
+	color: var(--clr-primary);
 	margin-bottom: 1rem;
+	filter: drop-shadow(0 0 10px rgba(100, 108, 255, 0.4));
 }
 
 .copyright-header h1 {
@@ -29,12 +31,12 @@
 	text-transform: uppercase;
 	letter-spacing: 0.0625rem;
 	margin-bottom: 0.5rem;
-	color: #fff;
+	color: var(--clr-text);
 }
 
 .copyright-header .subtitle {
 	font-size: 1rem;
-	color: #94a3b8;
+	color: var(--clr-text-secondary);
 	max-width: 37.5rem;
 	margin: 0 auto;
 }
@@ -42,32 +44,34 @@
 .header-divider {
 	width: 3.75rem;
 	height: 0.25rem;
-	background-color: var(--clr-primary-light, #ad7ffb);
+	background-color: var(--clr-primary);
 	margin: 1.25rem auto 0;
 	border-radius: 2px;
+	box-shadow: 0 0 10px rgba(100, 108, 255, 0.4);
 }
 
 .copyright-grid {
 	display: grid;
-
 	grid-template-columns: 1fr 1fr;
 	gap: 1.875rem;
 	margin-bottom: 3.125rem;
 }
 
 .policy-card {
-	background-color: rgba(255, 255, 255, 0.03);
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	background-color: var(--clr-card-bg);
+	border: 1px solid var(--clr-border-light);
 	padding: 1.875rem;
 	border-radius: 12px;
 	transition:
 		transform 0.3s ease,
-		border-color 0.3s ease;
+		border-color 0.3s ease,
+		box-shadow 0.3s ease;
 }
 
 .policy-card:hover {
 	transform: translateY(-0.3125rem);
-	border-color: var(--clr-primary-light, #ad7ffb);
+	border-color: var(--clr-primary);
+	box-shadow: 0 5px 15px rgba(100, 108, 255, 0.15);
 }
 
 .card-header {
@@ -75,13 +79,13 @@
 	align-items: center;
 	gap: 0.9375rem;
 	margin-bottom: 0.9375rem;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	border-bottom: 1px solid var(--clr-border-light);
 	padding-bottom: 0.9375rem;
 }
 
 .card-icon {
 	font-size: 1.5rem;
-	color: var(--clr-primary-light, #ad7ffb);
+	color: var(--clr-primary);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -90,21 +94,21 @@
 .policy-card h3 {
 	font-size: 1.2rem;
 	font-weight: 600;
-	color: #fff;
+	color: var(--clr-text);
 	margin: 0;
 }
 
 .policy-card p {
 	font-size: 0.95rem;
 	line-height: 1.7;
-	color: #cbd5e1;
+	color: var(--clr-text-secondary);
 	text-align: justify;
 	margin: 0;
 }
 
 .report-section {
-	background-color: rgba(239, 68, 68, 0.1);
-	border: 1px solid rgba(239, 68, 68, 0.3);
+	background-color: var(--clr-error-bg);
+	border: 1px solid var(--clr-error-border);
 	border-radius: 12px;
 	padding: 1.5625rem 2.5rem;
 	display: flex;
@@ -121,42 +125,47 @@
 
 .warning-icon {
 	font-size: 2rem;
-	color: #ef4444;
+	color: var(--clr-error-text);
 }
 
 .report-text h3 {
 	margin-top: 0 !important;
 	font-size: 1.2rem;
-	color: #fff;
+	color: var(--clr-text);
 	margin-bottom: 0.25rem;
 }
 
 .report-text p {
-	color: #cbd5e1;
+	color: var(--clr-text-secondary);
 	font-size: 0.95rem;
 	margin: 0;
 }
 
 .report-btn {
-	background-color: #ef4444;
+	background-color: rgb(190, 54, 54);
 	color: #fff;
 	padding: 0.625rem 1.5625rem;
 	border-radius: 6px;
 	font-weight: 600;
 	text-decoration: none;
-	transition: background-color 0.3s ease;
+	transition:
+		background-color 0.3s ease,
+		transform 0.2s ease;
 	white-space: nowrap;
+	border: none;
+	cursor: pointer;
 }
 
 .report-btn:hover {
-	background-color: #dc2626;
+	filter: brightness(0.9);
+	transform: translateY(-1px);
 }
 
 .copyright-footer {
 	text-align: center;
 	font-size: 0.85rem;
-	color: #64748b;
-	border-top: 1px solid rgba(255, 255, 255, 0.05);
+	color: var(--clr-text-secondary);
+	border-top: 1px solid var(--clr-border-light);
 	padding-top: 1.25rem;
 }
 
