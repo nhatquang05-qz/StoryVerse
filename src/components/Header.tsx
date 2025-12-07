@@ -326,9 +326,7 @@ const Header: React.FC = () => {
 					</Link>
 
 					<div className="dropdown mega-dropdown">
-						<button
-							className={`dropdown-btn ${isActive('/genres') ? 'active' : ''}`}
-						>
+						<button className={`dropdown-btn ${isActive('/genres') ? 'active' : ''}`}>
 							Thể loại
 						</button>
 						<div className="dropdown-content genre-list">
