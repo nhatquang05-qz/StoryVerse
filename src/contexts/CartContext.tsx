@@ -56,7 +56,7 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const API_URL = import.meta.env.VITE_API_BASE_URL|| 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const { currentUser, token } = useAuth();
@@ -123,15 +123,14 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		}
 	}, [subtotal]);
 
-	
 	const validateCurrentVoucher = async (code: string) => {
 		try {
-            const headers: any = { 'Content-Type': 'application/json' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+			const headers: any = { 'Content-Type': 'application/json' };
+			if (token) headers['Authorization'] = `Bearer ${token}`;
 
 			const res = await fetch(`${API_URL}/vouchers/validate`, {
 				method: 'POST',
-				headers: headers, 
+				headers: headers,
 				body: JSON.stringify({ code, totalAmount: subtotal }),
 			});
 			const data = await res.json();
@@ -139,7 +138,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				setAppliedVoucher(data.data);
 			} else {
 				setAppliedVoucher(null);
-                
+
 				showNotification(data.message || 'Voucher không còn hợp lệ', 'warning');
 			}
 		} catch (error) {
@@ -249,20 +248,18 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		setAppliedVoucher(null);
 	};
 
-    
 	const applyVoucher = async (code: string): Promise<{ success: boolean; message: string }> => {
 		if (subtotal === 0) return { success: false, message: 'Giỏ hàng trống' };
 
-        
-        if (!token) return { success: false, message: 'Vui lòng đăng nhập để sử dụng voucher' };
+		if (!token) return { success: false, message: 'Vui lòng đăng nhập để sử dụng voucher' };
 
 		try {
 			const res = await fetch(`${API_URL}/vouchers/validate`, {
 				method: 'POST',
-				headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                },
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
 				body: JSON.stringify({ code, totalAmount: subtotal }),
 			});
 			const data = await res.json();
@@ -272,7 +269,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				return { success: true, message: 'Áp dụng mã thành công!' };
 			} else {
 				setAppliedVoucher(null);
-                
+
 				return { success: false, message: data.message || 'Mã không hợp lệ' };
 			}
 		} catch (error) {

@@ -8,29 +8,32 @@ import { WishlistProvider } from './contexts/WishListContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { FontProvider } from './contexts/FontContext';
 import { SnowfallProvider } from './contexts/SnowfallContext';
+import { ToastProvider } from './contexts/ToastContext';
 import './index.css';
 import App from './App.tsx';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById('root')!).render(
-	<StrictMode>
-		<BrowserRouter>
-			<GoogleOAuthProvider clientId={googleClientId}>
-				<NotificationProvider>
-					<AuthProvider>
-						<CartProvider>
-							<WishlistProvider>
-								<FontProvider>
-									<SnowfallProvider>
-										<App />
-									</SnowfallProvider>
-								</FontProvider>
-							</WishlistProvider>
-						</CartProvider>
-					</AuthProvider>
-				</NotificationProvider>
-			</GoogleOAuthProvider>
-		</BrowserRouter>
-	</StrictMode>,
+	<ToastProvider>
+		<StrictMode>
+			<BrowserRouter>
+				<GoogleOAuthProvider clientId={googleClientId}>
+					<NotificationProvider>
+						<AuthProvider>
+							<CartProvider>
+								<WishlistProvider>
+									<FontProvider>
+										<SnowfallProvider>
+											<App />
+										</SnowfallProvider>
+									</FontProvider>
+								</WishlistProvider>
+							</CartProvider>
+						</AuthProvider>
+					</NotificationProvider>
+				</GoogleOAuthProvider>
+			</BrowserRouter>
+		</StrictMode>		
+	</ToastProvider>
 );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useWishlist } from '../contexts/WishListContext';
 import ProductList from '../components/common/ProductList';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiSearch, FiArrowRight, FiTrash2 } from 'react-icons/fi';
+import { FiHeart, FiSearch, FiArrowRight } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import '../assets/styles/WishlistPage.css';
