@@ -56,7 +56,7 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL|| 'http://localhost:3000/api';
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const { currentUser, token } = useAuth();
@@ -123,7 +123,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		}
 	}, [subtotal]);
 
-	// --- [SỬA ĐOẠN NÀY] Thêm Header Authorization ---
+	
 	const validateCurrentVoucher = async (code: string) => {
 		try {
             const headers: any = { 'Content-Type': 'application/json' };
@@ -131,7 +131,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 			const res = await fetch(`${API_URL}/vouchers/validate`, {
 				method: 'POST',
-				headers: headers, // Gửi kèm token
+				headers: headers, 
 				body: JSON.stringify({ code, totalAmount: subtotal }),
 			});
 			const data = await res.json();
@@ -139,7 +139,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				setAppliedVoucher(data.data);
 			} else {
 				setAppliedVoucher(null);
-                // Dòng này sẽ kích hoạt thông báo đỏ trên màn hình (thông qua NotificationContext)
+                
 				showNotification(data.message || 'Voucher không còn hợp lệ', 'warning');
 			}
 		} catch (error) {
@@ -249,11 +249,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		setAppliedVoucher(null);
 	};
 
-    // --- [SỬA QUAN TRỌNG NHẤT] Hàm applyVoucher ---
+    
 	const applyVoucher = async (code: string): Promise<{ success: boolean; message: string }> => {
 		if (subtotal === 0) return { success: false, message: 'Giỏ hàng trống' };
 
-        // Nếu chưa có token thì báo lỗi ngay để UI hiển thị
+        
         if (!token) return { success: false, message: 'Vui lòng đăng nhập để sử dụng voucher' };
 
 		try {
@@ -261,7 +261,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				method: 'POST',
 				headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // <--- QUAN TRỌNG: Gửi token để check lịch sử
+                    'Authorization': `Bearer ${token}` 
                 },
 				body: JSON.stringify({ code, totalAmount: subtotal }),
 			});
@@ -272,7 +272,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				return { success: true, message: 'Áp dụng mã thành công!' };
 			} else {
 				setAppliedVoucher(null);
-                // TRẢ VỀ MESSAGE TỪ SERVER (ví dụ: "Bạn đã sử dụng mã này rồi") ĐỂ CARTPAGE HIỂN THỊ
+                
 				return { success: false, message: data.message || 'Mã không hợp lệ' };
 			}
 		} catch (error) {

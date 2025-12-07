@@ -53,13 +53,18 @@ const validateVoucher = async (req, res) => {
         const authHeader = req.headers['authorization'];
         const token = authHeader && authHeader.split(' ')[1];
 
+        
         if (token) {
             try {
-                const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+                
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
                 userId = decoded.id; 
-            } catch (err) {              
+            } catch (err) {
+                
+                console.log("Validate Voucher: Không lấy được UserID từ token.", err.message);
             }
         }
+        
 
         const voucher = await voucherModel.getVoucherByCode(code);
 
@@ -83,6 +88,7 @@ const validateVoucher = async (req, res) => {
             return res.status(400).json({ valid: false, message: 'Mã giảm giá đã hết lượt sử dụng' });
         }
 
+        
         if (userId) {
             const hasUsed = await voucherModel.checkUserUsage(userId, voucher.id);
             if (hasUsed) {
@@ -123,4 +129,5 @@ const validateVoucher = async (req, res) => {
         res.status(500).json({ message: 'Lỗi kiểm tra voucher' });
     }
 };
+
 module.exports = { getAdminVouchers, createVoucher, updateVoucher, deleteVoucher, validateVoucher };

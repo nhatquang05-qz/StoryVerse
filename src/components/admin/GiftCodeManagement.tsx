@@ -25,7 +25,7 @@ const GiftCodeManagement: React.FC = () => {
     const { token } = useAuth();
     const { showNotification } = useNotification();
 
-    // Form states
+    
     const [formData, setFormData] = useState({
         code: '',
         coinReward: 0,
@@ -136,7 +136,7 @@ const GiftCodeManagement: React.FC = () => {
 
     return (
         <div className="tab-content">
-            {/* Action Bar giống PackManagement */}
+            {}
             <div className="action-bar">
                 <button 
                     className="mgmt-btn create-btn" 
@@ -146,7 +146,7 @@ const GiftCodeManagement: React.FC = () => {
                 </button>
             </div>
 
-            {/* Table Container */}
+            {}
             <div className="admin-table-container">
                 <table className="admin-user-table">
                     <thead>
@@ -207,7 +207,7 @@ const GiftCodeManagement: React.FC = () => {
                 </table>
             </div>
 
-            {/* Modal Form - Tái sử dụng style của edit-form-wrapper */}
+            {}
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="edit-form-wrapper" style={{maxWidth: '600px', margin: '5% auto', maxHeight: '90vh', overflowY: 'auto'}}>

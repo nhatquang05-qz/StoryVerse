@@ -74,9 +74,14 @@ const deleteVoucher = async (id) => {
     await connection.execute('DELETE FROM vouchers WHERE id = ?', [id]);
 };
 
+
 const incrementVoucherUsage = async (code, userId) => {
     const connection = getConnection();
+    
+    
     await connection.execute('UPDATE vouchers SET usedCount = usedCount + 1 WHERE code = ?', [code]);    
+    
+    
     if (userId) {
         const [voucher] = await connection.execute('SELECT id FROM vouchers WHERE code = ?', [code]);
         if (voucher.length > 0) {
@@ -87,6 +92,7 @@ const incrementVoucherUsage = async (code, userId) => {
         }
     }
 };
+
 
 const checkUserUsage = async (userId, voucherId) => {
     const connection = getConnection();

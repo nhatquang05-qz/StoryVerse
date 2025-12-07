@@ -346,7 +346,7 @@ const PackManagement: React.FC = () => {
                 </button>
             </div>
 
-            {/* Tab: Gói Nạp */}
+            {}
             {activeTab === 'packs' && (
                 <div className="tab-content">
                     {!isEditing && (
