@@ -1,4 +1,5 @@
 const voucherModel = require('../models/voucherModel');
+const jwt = require('jsonwebtoken');
 
 const getAdminVouchers = async (req, res) => {
     try {
@@ -47,7 +48,18 @@ const deleteVoucher = async (req, res) => {
 const validateVoucher = async (req, res) => {
     try {
         const { code, totalAmount } = req.body;
-        const userId = req.userId; 
+        
+        let userId = null;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+                userId = decoded.id; 
+            } catch (err) {              
+            }
+        }
 
         const voucher = await voucherModel.getVoucherByCode(code);
 
@@ -111,5 +123,4 @@ const validateVoucher = async (req, res) => {
         res.status(500).json({ message: 'Lỗi kiểm tra voucher' });
     }
 };
-
 module.exports = { getAdminVouchers, createVoucher, updateVoucher, deleteVoucher, validateVoucher };
