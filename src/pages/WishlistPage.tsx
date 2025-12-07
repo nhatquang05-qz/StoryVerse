@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useWishlist } from '../contexts/WishListContext';
 import ProductList from '../components/common/ProductList';
 import { Link } from 'react-router-dom';
-import { FiHeart, FiSearch, FiArrowRight } from 'react-icons/fi';
+import { FiHeart, FiSearch, FiArrowRight, FiTrash2 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import '../assets/styles/WishlistPage.css';
@@ -22,16 +22,16 @@ const WishlistPage: React.FC = () => {
 
 	if (!currentUser) {
 		return (
-			<div className="wishlist-page-container">
-				<div className="wishlist-empty-state login-required">
-					<div className="icon-wrapper">
-						<FiHeart className="wishlist-empty-icon" />
+			<div className="wl-container">
+				<div className="wl-empty-card">
+					<div className="wl-icon-box">
+						<FiHeart />
 					</div>
-					<h2 className="wlh2">Bạn cần đăng nhập</h2>
-					<p className="wlp">
-						Vui lòng đăng nhập để đồng bộ và xem danh sách truyện yêu thích của bạn.
+					<h2 className="wl-empty-title">Đăng nhập để xem Wishlist</h2>
+					<p className="wl-empty-desc">
+						Vui lòng đăng nhập để đồng bộ và quản lý danh sách truyện yêu thích của bạn.
 					</p>
-					<Link to="/login" className="action-btn primary-btn">
+					<Link to="/login" className="wl-btn wl-btn-primary">
 						Đăng nhập ngay <FiArrowRight />
 					</Link>
 				</div>
@@ -40,49 +40,55 @@ const WishlistPage: React.FC = () => {
 	}
 
 	return (
-		<div className="wishlist-page-container">
-			<div className="wishlist-header">
-				<div className="header-left">
-					<h1 className="page-title">Danh Sách Yêu Thích</h1>
-					<span className="item-count">{wishlistCount} truyện</span>
+		<div className="wl-container">
+			{}
+			<div className="wl-header">
+				<div className="wl-title-group">
+					<h1 className="wl-page-title">Danh Sách Yêu Thích</h1>
+					<span className="wl-count-badge">{wishlistCount} truyện</span>
 				</div>
 
 				{wishlistCount > 0 && (
-					<div className="header-right search-box">
-						<FiSearch className="search-icon" />
-						<input
-							type="text"
-							placeholder="Tìm trong danh sách..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-						/>
+					<div className="wl-actions">
+						<div className="wl-search-box">
+							<FiSearch className="wl-search-icon" />
+							<input
+								type="text"
+								placeholder="Tìm kiếm..."
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+						</div>
 					</div>
 				)}
 			</div>
 
-			<div className="wishlist-content">
+			{}
+			<div className="wl-body">
 				{wishlistCount > 0 ? (
 					<>
 						{filteredItems.length > 0 ? (
-							<ProductList comics={filteredItems as any[]} />
+							<div className="wl-grid">
+								<ProductList comics={filteredItems as any[]} />
+							</div>
 						) : (
-							<div className="no-result-state">
-								<p>Không tìm thấy truyện nào khớp với "{searchTerm}"</p>
+							<div className="wl-no-result">
+								<FiSearch size={40} />
+								<p>Không tìm thấy truyện nào khớp với từ khóa "{searchTerm}"</p>
 							</div>
 						)}
 					</>
 				) : (
-					<div className="wishlist-empty-state">
-						<div className="icon-wrapper empty">
-							<FiHeart className="wishlist-empty-icon" />
+					<div className="wl-empty-card">
+						<div className="wl-icon-box empty">
+							<FiHeart />
 						</div>
-						<h2>Danh sách trống</h2>
-						<p>
-							Bạn chưa lưu bộ truyện nào. Hãy khám phá và thả tim cho những bộ truyện
-							bạn thích nhé!
+						<h2 className="wl-empty-title">Danh sách đang trống</h2>
+						<p className="wl-empty-desc">
+							Bạn chưa lưu bộ truyện nào vào danh sách yêu thích.
 						</p>
-						<Link to="/" className="action-btn outline-btn">
-							Khám phá truyện mới
+						<Link to="/" className="wl-btn wl-btn-outline">
+							Khám phá ngay
 						</Link>
 					</div>
 				)}
