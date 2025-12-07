@@ -328,6 +328,25 @@ const getUserCommunityStatsRaw = async (userId) => {
     }
 };
 
+const getTopUsersByPointsRaw = async (limit) => {
+    const connection = getConnection();
+    const query = `
+        SELECT 
+            id, 
+            fullName, 
+            avatarUrl, 
+            level,            
+            levelSystem,      
+            exp AS totalPoints 
+        FROM users
+        ORDER BY exp DESC
+        LIMIT ?
+    `;
+
+    const [rows] = await connection.query(query, [Number(limit) || 20]);
+    return rows;
+};
+
 module.exports = { 
     findUserByEmail, 
     findUserById, 
@@ -358,5 +377,6 @@ module.exports = {
     approveAvatarRaw,     
     rejectAvatarRaw,      
     createNotificationRaw,
-    getUserCommunityStatsRaw 
+    getUserCommunityStatsRaw,
+    getTopUsersByPointsRaw 
 };

@@ -516,6 +516,42 @@ const getReviewByIdRaw = async (reviewId) => {
     return rows.length > 0 ? rows[0] : null;
 };
 
+const getDigitalComicsRankingRaw = async (startDate, endDate) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+        `SELECT 
+            c.id, c.title, c.coverImageUrl, c.isDigital,
+            SUM(s.daily_view_count) AS totalViews
+        FROM daily_comic_stats s
+        JOIN comics c ON s.comic_id = c.id
+        WHERE c.isDigital = 1 AND s.view_date >= ? AND s.view_date < ?
+        GROUP BY c.id
+        ORDER BY totalViews DESC
+        LIMIT 20`, 
+        [startDate, endDate]
+    );
+    return rows;
+};
+
+const getPhysicalComicsRankingRaw = async (startDate, endDate) => {
+    const connection = getConnection();
+    // Dùng orders để tính Total Purchases trong kỳ (Day, Week, Month)
+    const [rows] = await connection.execute(
+        `SELECT 
+            c.id, c.title, c.coverImageUrl, c.isDigital,
+            SUM(oi.quantity) AS totalPurchases
+        FROM order_items oi
+        JOIN orders o ON oi.orderId = o.id
+        JOIN comics c ON oi.comicId = c.id
+        WHERE c.isDigital = 0 AND o.status IN ('COMPLETED', 'DELIVERED') AND o.createdAt >= ? AND o.createdAt < ?
+        GROUP BY c.id
+        ORDER BY totalPurchases DESC
+        LIMIT 20`,
+        [startDate, endDate]
+    );
+    return rows;
+};
+
 module.exports = {
     getAllGenresRaw,
     createComicRaw, updateComicRaw, deleteComicRaw,
@@ -529,5 +565,5 @@ module.exports = {
     searchComicsRaw, getSearchComicsCountRaw,
     getComicsByGenreRaw, getComicsByGenreCountRaw,
     getReviewsRaw, findExistingReview, updateReviewRaw, insertReviewRaw, getReviewByIdRaw,
-    incrementSoldCount,
+    incrementSoldCount, getDigitalComicsRankingRaw, getPhysicalComicsRankingRaw
 };
