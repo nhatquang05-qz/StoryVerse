@@ -456,3 +456,14 @@ CREATE TABLE IF NOT EXISTS `user_giftcode_usage` (
   FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`giftcodeId`) REFERENCES `giftcodes` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `user_voucher_usage` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `voucherId` int NOT NULL,
+  `usedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_voucher` (`userId`, `voucherId`),
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`voucherId`) REFERENCES `vouchers` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

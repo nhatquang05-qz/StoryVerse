@@ -74,9 +74,27 @@ const deleteVoucher = async (id) => {
     await connection.execute('DELETE FROM vouchers WHERE id = ?', [id]);
 };
 
-const incrementVoucherUsage = async (code) => {
+const incrementVoucherUsage = async (code, userId) => {
     const connection = getConnection();
-    await connection.execute('UPDATE vouchers SET usedCount = usedCount + 1 WHERE code = ?', [code]);
+    await connection.execute('UPDATE vouchers SET usedCount = usedCount + 1 WHERE code = ?', [code]);    
+    if (userId) {
+        const [voucher] = await connection.execute('SELECT id FROM vouchers WHERE code = ?', [code]);
+        if (voucher.length > 0) {
+            await connection.execute(
+                'INSERT IGNORE INTO user_voucher_usage (userId, voucherId) VALUES (?, ?)',
+                [userId, voucher[0].id]
+            );
+        }
+    }
+};
+
+const checkUserUsage = async (userId, voucherId) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+        'SELECT id FROM user_voucher_usage WHERE userId = ? AND voucherId = ?',
+        [userId, voucherId]
+    );
+    return rows.length > 0; 
 };
 
 module.exports = { 
@@ -85,5 +103,6 @@ module.exports = {
     createVoucher, 
     updateVoucher, 
     deleteVoucher, 
-    incrementVoucherUsage 
+    incrementVoucherUsage,
+    checkUserUsage 
 };

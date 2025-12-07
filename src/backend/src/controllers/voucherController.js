@@ -47,6 +47,8 @@ const deleteVoucher = async (req, res) => {
 const validateVoucher = async (req, res) => {
     try {
         const { code, totalAmount } = req.body;
+        const userId = req.userId; 
+
         const voucher = await voucherModel.getVoucherByCode(code);
 
         if (!voucher) {
@@ -67,6 +69,13 @@ const validateVoucher = async (req, res) => {
 
         if (voucher.usageLimit !== null && voucher.usedCount >= voucher.usageLimit) {
             return res.status(400).json({ valid: false, message: 'Mã giảm giá đã hết lượt sử dụng' });
+        }
+
+        if (userId) {
+            const hasUsed = await voucherModel.checkUserUsage(userId, voucher.id);
+            if (hasUsed) {
+                return res.status(400).json({ valid: false, message: 'Bạn đã sử dụng mã giảm giá này rồi' });
+            }
         }
 
         if (totalAmount < voucher.minOrderValue) {

@@ -17,13 +17,33 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Giỏ hàng trống' });
         }
 
+        if (voucherCode) {
+            const voucher = await voucherModel.getVoucherByCode(voucherCode);
+            if (voucher) {
+                const hasUsed = await voucherModel.checkUserUsage(userId, voucher.id);
+                if (hasUsed) {
+                    return res.status(400).json({ message: 'Bạn đã sử dụng mã giảm giá này rồi.' });
+                }
+                
+                if (voucher.usageLimit !== null && voucher.usedCount >= voucher.usageLimit) {
+                    return res.status(400).json({ message: 'Mã giảm giá đã hết lượt sử dụng.' });
+                }
+                const now = new Date();
+                if (voucher.endDate && new Date(voucher.endDate) < now) {
+                    return res.status(400).json({ message: 'Mã giảm giá đã hết hạn.' });
+                }
+            } else {
+                 return res.status(404).json({ message: 'Mã giảm giá không tồn tại.' });
+            }
+        }
+
         const orderId = await orderModel.createOrderRaw(
             userId, fullName, phone, address, totalAmount, paymentMethod, items
         );
 
         if (voucherCode) {
             try {
-                await voucherModel.incrementVoucherUsage(voucherCode);
+                await voucherModel.incrementVoucherUsage(voucherCode, userId); 
             } catch (vErr) {
                 console.error("Lỗi voucher:", vErr);
             }
