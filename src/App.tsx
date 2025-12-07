@@ -47,6 +47,7 @@ const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const ChristmasEventPage = lazy(() => import('./pages/ChristmasEventPage'));
 const CopyrightPage = lazy(() => import('./pages/CopyrightPage'));
+const RankingPage = lazy(() => import('./pages/RankingPage'));
 
 function App() {
 	const { animationData, clearAnimation } = useCart();
@@ -171,6 +172,7 @@ function App() {
 						<Route path="/faq" element={<FAQPage />} />
 						<Route path="/christmas-event" element={<ChristmasEventPage />} />
 						<Route path="/copyright" element={<CopyrightPage />} />
+						<Route path="/ranking" element={<RankingPage />} />
 					</Routes>
 				</Suspense>
 			</main>

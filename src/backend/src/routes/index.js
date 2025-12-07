@@ -20,7 +20,9 @@ const minigameRoutes = require('./minigameRoutes');
 const contactRoutes = require('./contactRoutes');
 const reportRoutes = require('./reportRoutes');
 const communityRoutes = require('./communityRoutes');
+const rankingRoutes = require('./rankingRoutes');
 
+router.use('/ranking', rankingRoutes);
 router.use('/minigame', minigameRoutes);
 router.use('/auth', authRoutes);
 router.use('/comics', comicRoutes);
