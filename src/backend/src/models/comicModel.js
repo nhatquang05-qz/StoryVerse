@@ -535,7 +535,7 @@ const getDigitalComicsRankingRaw = async (startDate, endDate) => {
 
 const getPhysicalComicsRankingRaw = async (startDate, endDate) => {
     const connection = getConnection();
-    // Dùng orders để tính Total Purchases trong kỳ (Day, Week, Month)
+    
     const [rows] = await connection.execute(
         `SELECT 
             c.id, c.title, c.coverImageUrl, c.isDigital,

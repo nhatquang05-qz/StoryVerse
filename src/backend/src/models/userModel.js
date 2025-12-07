@@ -329,17 +329,17 @@ const getUserCommunityStatsRaw = async (userId) => {
 };
 
 const getTopUsersByPointsRaw = async (limit) => {
-    const connection = getConnection();
+    const connection = getConnection();    
     const query = `
         SELECT 
-            id, 
+            id,             
             fullName, 
             avatarUrl, 
             level,            
             levelSystem,      
-            exp AS totalPoints 
+            (CAST(level AS UNSIGNED) * 100 + CAST(exp AS DECIMAL(10,2))) AS totalPoints 
         FROM users
-        ORDER BY exp DESC
+        ORDER BY totalPoints DESC
         LIMIT ?
     `;
 

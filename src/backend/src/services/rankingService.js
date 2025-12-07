@@ -73,14 +73,15 @@ const getPhysicalComicsRankingService = async (period) => {
 
 const getMemberRankingService = async () => {
     try {
-        
         const rows = await userModel.getTopUsersByPointsRaw(20); 
 
         return rows.map((user, index) => ({
             id: user.id,
-            username: user.username,
-            avatar: user.avatarUrl, 
-            totalPoints: parseInt(user.totalPoints) || 0, 
+            fullName: user.fullName,       
+            avatarUrl: user.avatarUrl,     
+            level: user.level,             
+            levelSystem: user.levelSystem, 
+            totalPoints: parseFloat(user.totalPoints) || 0, 
             rank: index + 1
         }));
     } catch (error) {
