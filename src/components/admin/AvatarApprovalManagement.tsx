@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiCheck, FiX } from 'react-icons/fi';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
+import ConfirmModal from '../popups/ConfirmModal';
 import '../../assets/styles/AvatarApprovalManagement.css';
 import defaultAvatarImg from '../../assets/images/defaultAvatar.webp';
 
@@ -22,8 +23,20 @@ const getAvatarSrc = (url: string | null | undefined) => {
 const AvatarApprovalManagement: React.FC = () => {
 	const [pendingUsers, setPendingUsers] = useState<PendingAvatarUser[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const token = localStorage.getItem('storyverse_token');
+
+	const [confirmModal, setConfirmModal] = useState<{
+		isOpen: boolean;
+		action: 'approve' | 'reject' | null;
+		userId: number | null;
+		userName: string;
+	}>({
+		isOpen: false,
+		action: null,
+		userId: null,
+		userName: '',
+	});
 
 	useEffect(() => {
 		fetchPendingAvatars();
@@ -40,62 +53,70 @@ const AvatarApprovalManagement: React.FC = () => {
 			}
 		} catch (error) {
 			console.error(error);
-			showNotification('Lỗi tải danh sách avatar', 'error');
+			showToast('Lỗi tải danh sách avatar', 'error');
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const handleApprove = async (userId: number) => {
-		if (!window.confirm('Duyệt ảnh này?')) return;
-		try {
-			const res = await fetch(`${API_URL}/users/admin/avatars/${userId}/approve`, {
-				method: 'POST',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (res.ok) {
-				showNotification('Đã duyệt avatar thành công', 'success');
-				setPendingUsers((prev) => prev.filter((u) => u.id !== userId));
-			} else {
-				showNotification('Lỗi khi duyệt', 'error');
-			}
-		} catch (error) {
-			showNotification('Lỗi kết nối', 'error');
-		}
+	const openConfirmModal = (action: 'approve' | 'reject', user: PendingAvatarUser) => {
+		setConfirmModal({
+			isOpen: true,
+			action,
+			userId: user.id,
+			userName: user.fullName,
+		});
 	};
 
-	const handleReject = async (userId: number) => {
-		if (!window.confirm('Từ chối ảnh này?')) return;
+	const handleConfirmAction = async () => {
+		const { action, userId } = confirmModal;
+		if (!userId || !action) return;
+
 		try {
-			const res = await fetch(`${API_URL}/users/admin/avatars/${userId}/reject`, {
+			const endpoint =
+				action === 'approve'
+					? `${API_URL}/users/admin/avatars/${userId}/approve`
+					: `${API_URL}/users/admin/avatars/${userId}/reject`;
+
+			const res = await fetch(endpoint, {
 				method: 'POST',
 				headers: { Authorization: `Bearer ${token}` },
 			});
+
 			if (res.ok) {
-				showNotification('Đã từ chối avatar', 'info');
+				showToast(
+					action === 'approve' ? 'Đã duyệt avatar thành công' : 'Đã từ chối avatar',
+					action === 'approve' ? 'success' : 'info',
+				);
 				setPendingUsers((prev) => prev.filter((u) => u.id !== userId));
 			} else {
-				showNotification('Lỗi khi từ chối', 'error');
+				showToast('Có lỗi xảy ra khi xử lý yêu cầu', 'error');
 			}
 		} catch (error) {
-			showNotification('Lỗi kết nối', 'error');
+			showToast('Lỗi kết nối server', 'error');
+		} finally {
+			setConfirmModal({ ...confirmModal, isOpen: false });
 		}
 	};
 
 	if (isLoading)
-		return <div style={{ padding: '20px', textAlign: 'center' }}>Đang tải danh sách...</div>;
+		return (
+			<div className="avatar-mgmt-loading">
+				<span>Đang tải danh sách chờ duyệt...</span>
+			</div>
+		);
 
 	return (
-		<div className="avatar-approval-container">
-			<h2 className="avatar-approval-title">
-				Xét Duyệt Ảnh Đại Diện ({pendingUsers.length})
-			</h2>
+		<div className="avatar-mgmt-container">
+			<h2 className="avatar-mgmt-title">Xét Duyệt Ảnh Đại Diện ({pendingUsers.length})</h2>
 
 			{pendingUsers.length === 0 ? (
-				<p className="avatar-empty-state">Không có yêu cầu nào đang chờ.</p>
+				<div className="avatar-mgmt-empty-state">
+					<p>Hiện không có yêu cầu thay đổi ảnh đại diện nào.</p>
+				</div>
 			) : (
-				<div className="avatar-table-container">
-					<table className="avatar-table">
+				<div className="avatar-mgmt-table-container">
+					<table className="avatar-mgmt-table">
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -110,50 +131,52 @@ const AvatarApprovalManagement: React.FC = () => {
 								<tr key={user.id}>
 									<td>#{user.id}</td>
 									<td>
-										<div className="avatar-user-info">
+										<div className="avatar-mgmt-user-info">
 											<strong>{user.fullName}</strong>
 											<span>{user.email}</span>
 										</div>
 									</td>
 									<td>
-										<div className="avatar-cell">
+										<div className="avatar-mgmt-cell">
 											<img
 												src={getAvatarSrc(user.avatarUrl)}
 												alt="Current"
-												className="current-avatar-img"
+												className="avatar-mgmt-img"
 											/>
-											<div className="avatar-label current">Hiện tại</div>
+											<div className="avatar-mgmt-label current">
+												Hiện tại
+											</div>
 										</div>
 									</td>
 									<td>
-										<div className="avatar-cell">
+										<div className="avatar-mgmt-cell">
 											<img
 												src={user.pendingAvatarUrl}
 												alt="Pending"
-												className="pending-avatar-img"
+												className="avatar-mgmt-img pending"
 												onClick={() =>
 													window.open(user.pendingAvatarUrl, '_blank')
 												}
 												title="Nhấn để xem ảnh gốc"
 											/>
-											<div className="avatar-label new">Mới</div>
+											<div className="avatar-mgmt-label new">Mới</div>
 										</div>
 									</td>
 									<td>
-										<div className="avatar-actions">
+										<div className="avatar-mgmt-actions">
 											<button
-												className="btn-avatar-action btn-approve"
-												onClick={() => handleApprove(user.id)}
-												title="Chấp thuận"
+												className="avatar-mgmt-btn avatar-mgmt-btn-approve"
+												onClick={() => openConfirmModal('approve', user)}
+												title="Chấp thuận ảnh này"
 											>
 												<FiCheck /> Duyệt
 											</button>
 											<button
-												className="btn-avatar-action btn-reject"
-												onClick={() => handleReject(user.id)}
-												title="Từ chối"
+												className="avatar-mgmt-btn avatar-mgmt-btn-reject"
+												onClick={() => openConfirmModal('reject', user)}
+												title="Từ chối ảnh này"
 											>
-												<FiX /> Huỷ
+												<FiX /> Từ chối
 											</button>
 										</div>
 									</td>
@@ -163,6 +186,25 @@ const AvatarApprovalManagement: React.FC = () => {
 					</table>
 				</div>
 			)}
+
+			<ConfirmModal
+				isOpen={confirmModal.isOpen}
+				title={
+					confirmModal.action === 'approve'
+						? 'Xác nhận duyệt ảnh'
+						: 'Xác nhận từ chối ảnh'
+				}
+				message={
+					confirmModal.action === 'approve'
+						? `Bạn có chắc chắn muốn duyệt ảnh đại diện mới cho người dùng "${confirmModal.userName}"?`
+						: `Bạn có chắc chắn muốn từ chối ảnh đại diện này của người dùng "${confirmModal.userName}"?`
+				}
+				confirmText={confirmModal.action === 'approve' ? 'Duyệt ngay' : 'Từ chối'}
+				cancelText="Hủy bỏ"
+				onConfirm={handleConfirmAction}
+				onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+				isDestructive={false}
+			/>
 		</div>
 	);
 };

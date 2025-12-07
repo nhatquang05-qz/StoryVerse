@@ -149,7 +149,6 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 			const uploadedMap: Record<string, string> = {};
 			let completed = 0;
 
-			
 			for (const img of imagesToUpload) {
 				if (!img.file) continue;
 
@@ -177,19 +176,14 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 				setUploadProgress(totalUploads > 0 ? (completed / totalUploads) * 100 : 100);
 			}
 
-			
 			const finalUrls = images
 				.map((img) => {
 					if (img.type === 'url') return img.src;
-					
-					
+
 					return uploadedMap[img.id];
 				})
-				.filter((url): url is string => !!url && url.length > 0); 
+				.filter((url): url is string => !!url && url.length > 0);
 
-			
-
-			
 			const updateRes = await fetch(
 				`${API_BASE_URL}/comics/${comicId}/chapters/${chapterId}`,
 				{

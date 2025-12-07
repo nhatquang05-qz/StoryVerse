@@ -31,5 +31,6 @@ router.put('/:id', authenticateAdmin, updateComic);
 router.delete('/:id', authenticateAdmin, deleteComic);
 router.post('/:comicId/chapters', authenticateAdmin, addChapter);
 router.delete('/:comicId/chapters/:chapterId', authenticateAdmin, deleteChapter);
+router.put('/:comicId/chapters/:chapterId', authenticateAdmin, updateChapter);
 
 module.exports = router;

@@ -1,18 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import ReportManagementModal from './ReportManagementModal';
+import ConfirmModal from '../popups/ConfirmModal';
 import { FaExclamationTriangle, FaCommentDots, FaRegNewspaper, FaComments } from 'react-icons/fa';
-import '../../assets/styles/ReportManagementModal.css';
+import '../../assets/styles/ReportManagement.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ReportManagement: React.FC = () => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [reports, setReports] = useState({ posts: [], comments: [], chatMessages: [] });
 	const [isLoading, setIsLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState<'posts' | 'comments' | 'chat'>('chat');
+
 	const [selectedReport, setSelectedReport] = useState<any>(null);
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+	const [confirmModal, setConfirmModal] = useState<{
+		isOpen: boolean;
+		action: 'delete' | 'ban' | 'dismiss' | null;
+		title: string;
+		message: string;
+	}>({
+		isOpen: false,
+		action: null,
+		title: '',
+		message: '',
+	});
 
 	const fetchReports = async () => {
 		setIsLoading(true);
@@ -27,7 +41,7 @@ const ReportManagement: React.FC = () => {
 			}
 		} catch (error) {
 			console.error(error);
-			showNotification('Lỗi tải danh sách báo cáo', 'error');
+			showToast('Lỗi tải danh sách báo cáo', 'error');
 		} finally {
 			setIsLoading(false);
 		}
@@ -37,8 +51,38 @@ const ReportManagement: React.FC = () => {
 		fetchReports();
 	}, []);
 
-	const handleAction = async (action: 'delete' | 'ban' | 'dismiss') => {
-		if (!selectedReport) return;
+	const triggerConfirmAction = (action: 'delete' | 'ban' | 'dismiss') => {
+		let title = '';
+		let message = '';
+
+		switch (action) {
+			case 'delete':
+				title = 'Xác nhận xóa nội dung';
+				message =
+					'Bạn có chắc chắn muốn XÓA nội dung bị báo cáo này không? Hành động này không thể hoàn tác.';
+				break;
+			case 'ban':
+				title = 'Xác nhận khóa tài khoản';
+				message = `Bạn có chắc chắn muốn KHÓA tài khoản của người vi phạm (${selectedReport?.reportedName || 'người dùng'})?`;
+				break;
+			case 'dismiss':
+				title = 'Xác nhận bỏ qua';
+				message = 'Bạn có chắc chắn muốn bỏ qua báo cáo này (đánh dấu là không vi phạm)?';
+				break;
+		}
+
+		setConfirmModal({
+			isOpen: true,
+			action,
+			title,
+			message,
+		});
+	};
+
+	const handleExecuteAction = async () => {
+		const { action } = confirmModal;
+		if (!selectedReport || !action) return;
+
 		const token = localStorage.getItem('storyverse_token');
 		let url = `${API_BASE_URL}/reports/${selectedReport.id}`;
 
@@ -53,14 +97,16 @@ const ReportManagement: React.FC = () => {
 			});
 
 			if (res.ok) {
-				showNotification('Xử lý thành công!', 'success');
-				setIsModalOpen(false);
+				showToast('Xử lý báo cáo thành công!', 'success');
+				setIsDetailModalOpen(false);
 				fetchReports();
 			} else {
-				showNotification('Xử lý thất bại', 'error');
+				showToast('Xử lý thất bại. Vui lòng thử lại.', 'error');
 			}
 		} catch (error) {
-			showNotification('Lỗi kết nối', 'error');
+			showToast('Lỗi kết nối server', 'error');
+		} finally {
+			setConfirmModal({ ...confirmModal, isOpen: false });
 		}
 	};
 
@@ -73,100 +119,107 @@ const ReportManagement: React.FC = () => {
 	const list = getActiveList();
 
 	return (
-		<div className="admin-content-container">
-			<h2 className="admin-page-title">Quản Lý Báo Cáo Vi Phạm</h2>
+		<div className="reportmgmt-container">
+			<h2 className="reportmgmt-title">Quản Lý Báo Cáo Vi Phạm</h2>
 
-			{}
-			<div
-				className="report-tabs"
-				style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}
-			>
+			<div className="reportmgmt-tabs">
 				<button
-					className={`mgmt-btn ${activeTab === 'chat' ? 'add' : 'cancel'}`}
+					className={`reportmgmt-tab-btn ${activeTab === 'chat' ? 'active' : ''}`}
 					onClick={() => setActiveTab('chat')}
 				>
 					<FaComments /> Chat ({reports.chatMessages?.length || 0})
 				</button>
 				<button
-					className={`mgmt-btn ${activeTab === 'posts' ? 'add' : 'cancel'}`}
+					className={`reportmgmt-tab-btn ${activeTab === 'posts' ? 'active' : ''}`}
 					onClick={() => setActiveTab('posts')}
 				>
 					<FaRegNewspaper /> Bài viết ({reports.posts?.length || 0})
 				</button>
 				<button
-					className={`mgmt-btn ${activeTab === 'comments' ? 'add' : 'cancel'}`}
+					className={`reportmgmt-tab-btn ${activeTab === 'comments' ? 'active' : ''}`}
 					onClick={() => setActiveTab('comments')}
 				>
 					<FaCommentDots /> Bình luận ({reports.comments?.length || 0})
 				</button>
 			</div>
 
-			{}
 			{isLoading ? (
-				<div>Đang tải...</div>
+				<div className="reportmgmt-loading">Đang tải dữ liệu...</div>
 			) : list.length === 0 ? (
-				<div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
-					Không có báo cáo nào đang chờ xử lý.
+				<div className="reportmgmt-empty">
+					Không có báo cáo nào đang chờ xử lý trong mục này.
 				</div>
 			) : (
-				<div className="report-list-grid" style={{ display: 'grid', gap: '1rem' }}>
+				<div className="reportmgmt-list-grid">
 					{list.map((item: any) => (
-						<div
-							key={item.id}
-							className="report-card"
-							style={{
-								background: '#fff',
-								padding: '1rem',
-								borderRadius: '8px',
-								border: '1px solid #ddd',
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-							}}
-						>
+						<div key={item.id} className="reportmgmt-card">
 							<div>
-								<div style={{ fontWeight: 'bold', color: '#d32f2f' }}>
+								<div className="reportmgmt-card-header">
 									<FaExclamationTriangle /> {item.reason}
 								</div>
-								<div style={{ fontSize: '0.9rem', color: '#555' }}>
-									Người báo cáo: <strong>{item.reporterName}</strong>
+								<div className="reportmgmt-card-body">
+									<div className="reportmgmt-info-row">
+										<span className="reportmgmt-label">Người báo cáo:</span>
+										<span>{item.reporterName}</span>
+									</div>
+									<div
+										className="reportmgmt-info-row"
+										style={{ flexDirection: 'column', gap: '4px' }}
+									>
+										<span className="reportmgmt-label">Nội dung bị báo:</span>
+										<div className="reportmgmt-content-preview">
+											"
+											{item.targetContent
+												? item.targetContent.substring(0, 80) +
+													(item.targetContent.length > 80 ? '...' : '')
+												: '(Hình ảnh/Sticker)'}
+											"
+										</div>
+									</div>
 								</div>
-								<div style={{ fontSize: '0.9rem', marginTop: '4px' }}>
-									Nội dung bị báo:{' '}
-									<span style={{ fontStyle: 'italic' }}>
-										"
-										{item.targetContent
-											? item.targetContent.substring(0, 50)
-											: '(Hình ảnh/Sticker)'}
-										..."
-									</span>
-								</div>
-								<small style={{ color: '#888' }}>
-									{new Date(item.createdAt).toLocaleString('vi-VN')}
-								</small>
 							</div>
-							<button
-								className="mgmt-btn edit"
-								onClick={() => {
-									setSelectedReport(item);
-									setIsModalOpen(true);
-								}}
-							>
-								Xem & Xử lý
-							</button>
+
+							<div className="reportmgmt-card-footer">
+								<span className="reportmgmt-date">
+									{new Date(item.createdAt).toLocaleString('vi-VN')}
+								</span>
+								<button
+									className="reportmgmt-btn-action"
+									onClick={() => {
+										setSelectedReport(item);
+										setIsDetailModalOpen(true);
+									}}
+								>
+									Xem & Xử lý
+								</button>
+							</div>
 						</div>
 					))}
 				</div>
 			)}
 
 			{}
-			<ReportManagementModal
-				isOpen={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
-				report={selectedReport}
-				onDelete={() => handleAction('delete')}
-				onBan={() => handleAction('ban')}
-				onDismiss={() => handleAction('dismiss')}
+			{isDetailModalOpen && (
+				<ReportManagementModal
+					isOpen={isDetailModalOpen}
+					onClose={() => setIsDetailModalOpen(false)}
+					report={selectedReport}
+					onDelete={() => triggerConfirmAction('delete')}
+					onBan={() => triggerConfirmAction('ban')}
+					onDismiss={() => triggerConfirmAction('dismiss')}
+				/>
+			)}
+
+			{}
+			<ConfirmModal
+				isOpen={confirmModal.isOpen}
+				title={confirmModal.title}
+				message={confirmModal.message}
+				confirmText="Xác nhận"
+				cancelText="Hủy"
+				onConfirm={handleExecuteAction}
+				onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+				isDestructive={confirmModal.action === 'ban' || confirmModal.action === 'delete'}
 			/>
 		</div>
 	);

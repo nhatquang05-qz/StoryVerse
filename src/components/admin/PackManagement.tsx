@@ -13,15 +13,16 @@ import {
 	FiCode,
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNotification } from '../../contexts/NotificationContext';
-import '../../assets/styles/PackManagement.css';
+import { useToast } from '../../contexts/ToastContext';
+import ConfirmModal from '../popups/ConfirmModal';
 import GiftCodeManagement from './GiftCodeManagement';
+import '../../assets/styles/PackManagement.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const PackManagement: React.FC = () => {
 	const { token } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const [activeTab, setActiveTab] = useState<'packs' | 'vouchers' | 'giftcode'>('packs');
 
@@ -33,6 +34,8 @@ const PackManagement: React.FC = () => {
 		bonus: 0,
 		isActive: true,
 	});
+	const [isDeletePackModalOpen, setIsDeletePackModalOpen] = useState(false);
+	const [packToDelete, setPackToDelete] = useState<any>(null);
 
 	const [vouchers, setVouchers] = useState<any[]>([]);
 	const [isEditingVoucher, setIsEditingVoucher] = useState<any>(null);
@@ -48,6 +51,8 @@ const PackManagement: React.FC = () => {
 		usageLimit: 0,
 		isActive: true,
 	});
+	const [isDeleteVoucherModalOpen, setIsDeleteVoucherModalOpen] = useState(false);
+	const [voucherToDelete, setVoucherToDelete] = useState<any>(null);
 
 	useEffect(() => {
 		if (activeTab === 'packs') {
@@ -63,9 +68,10 @@ const PackManagement: React.FC = () => {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			const data = await res.json();
-			setPacks(data);
+			setPacks(Array.isArray(data) ? data : []);
 		} catch (error) {
 			console.error(error);
+			showToast('Lỗi tải danh sách gói nạp', 'error');
 		}
 	};
 
@@ -75,9 +81,10 @@ const PackManagement: React.FC = () => {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 			const data = await res.json();
-			setVouchers(data);
+			setVouchers(Array.isArray(data) ? data : []);
 		} catch (error) {
 			console.error(error);
+			showToast('Lỗi tải danh sách voucher', 'error');
 		}
 	};
 
@@ -102,16 +109,56 @@ const PackManagement: React.FC = () => {
 			});
 
 			if (res.ok) {
-				showNotification(
-					isEditing.id ? 'Cập nhật thành công' : 'Thêm mới thành công',
-					'success',
-				);
+				showToast(isEditing.id ? 'Cập nhật thành công' : 'Thêm mới thành công', 'success');
 				setIsEditing(null);
 				fetchPacks();
+			} else {
+				showToast('Lỗi khi lưu gói nạp', 'error');
 			}
 		} catch (error) {
-			showNotification('Có lỗi xảy ra', 'error');
+			showToast('Có lỗi xảy ra', 'error');
 		}
+	};
+
+	const handleDeletePackClick = (pack: any) => {
+		setPackToDelete(pack);
+		setIsDeletePackModalOpen(true);
+	};
+
+	const handleConfirmDeletePack = async () => {
+		if (!packToDelete) return;
+		try {
+			const res = await fetch(`${API_BASE_URL}/packs/${packToDelete.id}`, {
+				method: 'DELETE',
+				headers: { Authorization: `Bearer ${token}` },
+			});
+			if (res.ok) {
+				showToast('Đã xóa gói nạp', 'success');
+				fetchPacks();
+			} else {
+				showToast('Lỗi xóa gói nạp', 'error');
+			}
+		} catch (error) {
+			showToast('Lỗi kết nối khi xóa', 'error');
+		} finally {
+			setIsDeletePackModalOpen(false);
+			setPackToDelete(null);
+		}
+	};
+
+	const openEditPack = (pack: any) => {
+		setIsEditing(pack);
+		setPackFormData({
+			coins: pack.coins,
+			price: pack.price,
+			bonus: pack.bonus,
+			isActive: pack.isActive === 1 || pack.isActive === true,
+		});
+	};
+
+	const openAddPack = () => {
+		setIsEditing({});
+		setPackFormData({ coins: 0, price: 0, bonus: 0, isActive: true });
 	};
 
 	const handleVoucherSubmit = async (e: React.FormEvent) => {
@@ -138,7 +185,7 @@ const PackManagement: React.FC = () => {
 			});
 
 			if (res.ok) {
-				showNotification(
+				showToast(
 					isEditingVoucher.id ? 'Cập nhật voucher thành công' : 'Thêm voucher thành công',
 					'success',
 				);
@@ -146,54 +193,37 @@ const PackManagement: React.FC = () => {
 				fetchVouchers();
 			} else {
 				const err = await res.json();
-				showNotification(err.message || 'Lỗi lưu voucher', 'error');
+				showToast(err.message || 'Lỗi lưu voucher', 'error');
 			}
 		} catch (error) {
-			showNotification('Có lỗi xảy ra', 'error');
+			showToast('Có lỗi xảy ra', 'error');
 		}
 	};
 
-	const handleDeletePack = async (id: number) => {
-		if (!confirm('Bạn chắc chắn muốn xóa gói này?')) return;
+	const handleDeleteVoucherClick = (voucher: any) => {
+		setVoucherToDelete(voucher);
+		setIsDeleteVoucherModalOpen(true);
+	};
+
+	const handleConfirmDeleteVoucher = async () => {
+		if (!voucherToDelete) return;
 		try {
-			await fetch(`${API_BASE_URL}/packs/${id}`, {
+			const res = await fetch(`${API_BASE_URL}/vouchers/${voucherToDelete.id}`, {
 				method: 'DELETE',
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			showNotification('Đã xóa', 'success');
-			fetchPacks();
+			if (res.ok) {
+				showToast('Đã xóa voucher', 'success');
+				fetchVouchers();
+			} else {
+				showToast('Lỗi xóa voucher', 'error');
+			}
 		} catch (error) {
-			showNotification('Lỗi xóa', 'error');
+			showToast('Lỗi kết nối khi xóa', 'error');
+		} finally {
+			setIsDeleteVoucherModalOpen(false);
+			setVoucherToDelete(null);
 		}
-	};
-
-	const handleDeleteVoucher = async (id: number) => {
-		if (!confirm('Bạn chắc chắn muốn xóa voucher này?')) return;
-		try {
-			await fetch(`${API_BASE_URL}/vouchers/${id}`, {
-				method: 'DELETE',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			showNotification('Đã xóa voucher', 'success');
-			fetchVouchers();
-		} catch (error) {
-			showNotification('Lỗi xóa', 'error');
-		}
-	};
-
-	const openEditPack = (pack: any) => {
-		setIsEditing(pack);
-		setPackFormData({
-			coins: pack.coins,
-			price: pack.price,
-			bonus: pack.bonus,
-			isActive: pack.isActive === 1,
-		});
-	};
-
-	const openAddPack = () => {
-		setIsEditing({});
-		setPackFormData({ coins: 0, price: 0, bonus: 0, isActive: true });
 	};
 
 	const openEditVoucher = (voucher: any) => {
@@ -209,7 +239,7 @@ const PackManagement: React.FC = () => {
 				: '',
 			endDate: voucher.endDate ? new Date(voucher.endDate).toISOString().slice(0, 16) : '',
 			usageLimit: voucher.usageLimit,
-			isActive: voucher.isActive === 1,
+			isActive: voucher.isActive === 1 || voucher.isActive === true,
 		});
 	};
 
@@ -229,8 +259,8 @@ const PackManagement: React.FC = () => {
 	};
 
 	const renderVoucherTable = (list: any[], isMinigame = false) => (
-		<div className="admin-table-container">
-			<table className="admin-user-table">
+		<div className="packmgmt-table-container">
+			<table className="packmgmt-table">
 				<thead>
 					<tr>
 						<th>Code</th>
@@ -246,7 +276,7 @@ const PackManagement: React.FC = () => {
 				<tbody>
 					{list.length === 0 ? (
 						<tr>
-							<td colSpan={8} className="table-empty-message">
+							<td colSpan={8} className="packmgmt-empty-message">
 								Không có dữ liệu
 							</td>
 						</tr>
@@ -255,7 +285,9 @@ const PackManagement: React.FC = () => {
 							<tr key={voucher.id}>
 								<td style={{ fontWeight: 'bold', color: '#3b82f6' }}>
 									{voucher.code}
-									{isMinigame && <span className="badge-minigame">Event</span>}
+									{isMinigame && (
+										<span className="packmgmt-badge-event">Event</span>
+									)}
 								</td>
 								<td>
 									{voucher.discountType === 'PERCENT' ? 'Phần trăm' : 'Cố định'}
@@ -277,8 +309,8 @@ const PackManagement: React.FC = () => {
 								<td style={{ fontSize: '0.85rem' }}>
 									{voucher.startDate
 										? new Date(voucher.startDate).toLocaleDateString('vi-VN')
-										: '...'}{' '}
-									-
+										: '...'}
+									{' - '}
 									{voucher.endDate
 										? new Date(voucher.endDate).toLocaleDateString('vi-VN')
 										: '∞'}
@@ -288,25 +320,25 @@ const PackManagement: React.FC = () => {
 								</td>
 								<td>
 									{voucher.isActive ? (
-										<span className="status-tag active">
-											<FiCheck />
+										<span className="packmgmt-status active">
+											<FiCheck /> Hiện
 										</span>
 									) : (
-										<span className="status-tag banned">
-											<FiX />
+										<span className="packmgmt-status inactive">
+											<FiX /> Ẩn
 										</span>
 									)}
 								</td>
-								<td className="action-buttons">
+								<td className="packmgmt-actions-cell">
 									<button
-										className="mgmt-btn edit"
+										className="packmgmt-btn packmgmt-btn-edit"
 										onClick={() => openEditVoucher(voucher)}
 									>
 										<FiEdit />
 									</button>
 									<button
-										className="mgmt-btn delete"
-										onClick={() => handleDeleteVoucher(voucher.id)}
+										className="packmgmt-btn packmgmt-btn-delete"
+										onClick={() => handleDeleteVoucherClick(voucher)}
 									>
 										<FiTrash2 />
 									</button>
@@ -320,54 +352,56 @@ const PackManagement: React.FC = () => {
 	);
 
 	return (
-		<div className="admin-content-container">
-			<div className="pack-mgmt-header">
+		<div className="packmgmt-container">
+			<div className="packmgmt-header">
 				<h2>Quản lý Gói Nạp & Ưu đãi</h2>
 			</div>
 
-			<div className="admin-tabs">
+			<div className="packmgmt-tabs">
 				<button
-					className={`tab-btn ${activeTab === 'packs' ? 'active' : ''}`}
+					className={`packmgmt-tab-btn ${activeTab === 'packs' ? 'active' : ''}`}
 					onClick={() => setActiveTab('packs')}
 				>
 					<FiPackage /> Gói Nạp Xu
 				</button>
 				<button
-					className={`tab-btn ${activeTab === 'vouchers' ? 'active' : ''}`}
+					className={`packmgmt-tab-btn ${activeTab === 'vouchers' ? 'active' : ''}`}
 					onClick={() => setActiveTab('vouchers')}
 				>
 					<FiGift /> Mã Giảm Giá
 				</button>
 				<button
-					className={`tab-btn ${activeTab === 'giftcode' ? 'active' : ''}`}
+					className={`packmgmt-tab-btn ${activeTab === 'giftcode' ? 'active' : ''}`}
 					onClick={() => setActiveTab('giftcode')}
 				>
 					<FiCode /> Giftcode (Quà tặng)
 				</button>
 			</div>
 
-			{}
 			{activeTab === 'packs' && (
 				<div className="tab-content">
 					{!isEditing && (
-						<div className="action-bar">
-							<button className="mgmt-btn create-btn" onClick={openAddPack}>
+						<div className="packmgmt-action-bar">
+							<button
+								className="packmgmt-btn packmgmt-btn-create"
+								onClick={openAddPack}
+							>
 								<FiPlus /> Thêm Gói Mới
 							</button>
 						</div>
 					)}
 
 					{isEditing ? (
-						<div className="edit-form-wrapper">
-							<h3 className="form-title">
+						<div className="packmgmt-form-wrapper">
+							<h3 className="packmgmt-form-title">
 								{isEditing.id ? 'Sửa Gói Nạp' : 'Thêm Gói Nạp'}
 							</h3>
-							<form onSubmit={handlePackSubmit} className="pack-form">
-								<div className="form-group">
-									<label className="form-label">Số Xu nhận được:</label>
+							<form onSubmit={handlePackSubmit} className="packmgmt-form">
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Số Xu nhận được:</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={packFormData.coins}
 										onChange={(e) =>
 											setPackFormData({
@@ -379,11 +413,11 @@ const PackManagement: React.FC = () => {
 										placeholder="VD: 1000"
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Giá tiền (VNĐ):</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Giá tiền (VNĐ):</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={packFormData.price}
 										onChange={(e) =>
 											setPackFormData({
@@ -395,11 +429,13 @@ const PackManagement: React.FC = () => {
 										placeholder="VD: 20000"
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Xu thưởng thêm (Bonus):</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">
+										Xu thưởng thêm (Bonus):
+									</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={packFormData.bonus}
 										onChange={(e) =>
 											setPackFormData({
@@ -410,10 +446,10 @@ const PackManagement: React.FC = () => {
 										placeholder="VD: 100"
 									/>
 								</div>
-								<label className="checkbox-group">
+								<label className="packmgmt-checkbox-group">
 									<input
 										type="checkbox"
-										className="checkbox-input"
+										className="packmgmt-checkbox-input"
 										checked={packFormData.isActive}
 										onChange={(e) =>
 											setPackFormData({
@@ -422,15 +458,18 @@ const PackManagement: React.FC = () => {
 											})
 										}
 									/>
-									<span className="checkbox-label">Đang hoạt động</span>
+									<span className="packmgmt-label">Đang hoạt động</span>
 								</label>
-								<div className="form-actions">
-									<button type="submit" className="btn-action save-btn">
+								<div className="packmgmt-form-actions">
+									<button
+										type="submit"
+										className="packmgmt-btn packmgmt-btn-save"
+									>
 										Lưu
 									</button>
 									<button
 										type="button"
-										className="btn-action cancel-btn"
+										className="packmgmt-btn packmgmt-btn-cancel"
 										onClick={() => setIsEditing(null)}
 									>
 										Hủy
@@ -439,8 +478,8 @@ const PackManagement: React.FC = () => {
 							</form>
 						</div>
 					) : (
-						<div className="admin-table-container">
-							<table className="admin-user-table">
+						<div className="packmgmt-table-container">
+							<table className="packmgmt-table">
 								<thead>
 									<tr>
 										<th>ID</th>
@@ -466,25 +505,25 @@ const PackManagement: React.FC = () => {
 											</td>
 											<td>
 												{pack.isActive ? (
-													<span className="status-tag active">
+													<span className="packmgmt-status active">
 														<FiCheck /> Hiện
 													</span>
 												) : (
-													<span className="status-tag banned">
+													<span className="packmgmt-status inactive">
 														<FiX /> Ẩn
 													</span>
 												)}
 											</td>
-											<td className="action-buttons">
+											<td className="packmgmt-actions-cell">
 												<button
-													className="mgmt-btn edit"
+													className="packmgmt-btn packmgmt-btn-edit"
 													onClick={() => openEditPack(pack)}
 												>
 													<FiEdit />
 												</button>
 												<button
-													className="mgmt-btn delete"
-													onClick={() => handleDeletePack(pack.id)}
+													className="packmgmt-btn packmgmt-btn-delete"
+													onClick={() => handleDeletePackClick(pack)}
 												>
 													<FiTrash2 />
 												</button>
@@ -501,27 +540,30 @@ const PackManagement: React.FC = () => {
 			{activeTab === 'vouchers' && (
 				<div className="tab-content">
 					{!isEditingVoucher && (
-						<div className="action-bar">
-							<button className="mgmt-btn create-btn" onClick={openAddVoucher}>
+						<div className="packmgmt-action-bar">
+							<button
+								className="packmgmt-btn packmgmt-btn-create"
+								onClick={openAddVoucher}
+							>
 								<FiPlus /> Tạo Voucher Mới
 							</button>
 						</div>
 					)}
 
 					{isEditingVoucher ? (
-						<div className="edit-form-wrapper wide-form">
-							<h3 className="form-title">
+						<div className="packmgmt-form-wrapper wide-form">
+							<h3 className="packmgmt-form-title">
 								{isEditingVoucher.id ? 'Sửa Voucher' : 'Tạo Voucher Mới'}
 							</h3>
 							<form
 								onSubmit={handleVoucherSubmit}
-								className="pack-form voucher-form-grid"
+								className="packmgmt-form packmgmt-voucher-grid"
 							>
-								<div className="form-group full-width">
-									<label className="form-label">Mã Voucher:</label>
+								<div className="packmgmt-form-group full-width">
+									<label className="packmgmt-label">Mã Voucher:</label>
 									<input
 										type="text"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.code}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -533,10 +575,10 @@ const PackManagement: React.FC = () => {
 										placeholder="VD: SALE50, TET2025"
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Loại giảm giá:</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Loại giảm giá:</label>
 									<select
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.discountType}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -549,11 +591,11 @@ const PackManagement: React.FC = () => {
 										<option value="FIXED">Số tiền cố định</option>
 									</select>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Giá trị giảm:</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Giá trị giảm:</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.discountValue}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -564,11 +606,11 @@ const PackManagement: React.FC = () => {
 										required
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Đơn tối thiểu:</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Đơn tối thiểu:</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.minOrderValue}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -578,11 +620,13 @@ const PackManagement: React.FC = () => {
 										}
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Giảm tối đa (Nếu là %):</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">
+										Giảm tối đa (Nếu là %):
+									</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.maxDiscountAmount}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -593,11 +637,11 @@ const PackManagement: React.FC = () => {
 										placeholder="0 = Không giới hạn"
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Ngày bắt đầu:</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Ngày bắt đầu:</label>
 									<input
 										type="datetime-local"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.startDate}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -607,11 +651,11 @@ const PackManagement: React.FC = () => {
 										}
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Ngày kết thúc:</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">Ngày kết thúc:</label>
 									<input
 										type="datetime-local"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.endDate}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -621,11 +665,13 @@ const PackManagement: React.FC = () => {
 										}
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">Giới hạn sử dụng (Tổng):</label>
+								<div className="packmgmt-form-group">
+									<label className="packmgmt-label">
+										Giới hạn sử dụng (Tổng):
+									</label>
 									<input
 										type="number"
-										className="form-input"
+										className="packmgmt-input"
 										value={voucherFormData.usageLimit}
 										onChange={(e) =>
 											setVoucherFormData({
@@ -636,11 +682,11 @@ const PackManagement: React.FC = () => {
 									/>
 								</div>
 
-								<div className="form-group full-width">
-									<label className="checkbox-group">
+								<div className="packmgmt-form-group full-width">
+									<label className="packmgmt-checkbox-group">
 										<input
 											type="checkbox"
-											className="checkbox-input"
+											className="packmgmt-checkbox-input"
 											checked={voucherFormData.isActive}
 											onChange={(e) =>
 												setVoucherFormData({
@@ -649,19 +695,22 @@ const PackManagement: React.FC = () => {
 												})
 											}
 										/>
-										<span className="checkbox-label">
+										<span className="packmgmt-label">
 											Kích hoạt voucher này
 										</span>
 									</label>
 								</div>
 
-								<div className="form-actions full-width">
-									<button type="submit" className="btn-action save-btn">
+								<div className="packmgmt-form-actions full-width">
+									<button
+										type="submit"
+										className="packmgmt-btn packmgmt-btn-save"
+									>
 										Lưu Voucher
 									</button>
 									<button
 										type="button"
-										className="btn-action cancel-btn"
+										className="packmgmt-btn packmgmt-btn-cancel"
 										onClick={() => setIsEditingVoucher(null)}
 									>
 										Hủy
@@ -671,26 +720,32 @@ const PackManagement: React.FC = () => {
 						</div>
 					) : (
 						<>
-							<h3 style={{ margin: '1rem 0 0.5rem', fontSize: '1.1rem' }}>
+							<h3
+								style={{
+									margin: '1rem 0 0.5rem',
+									fontSize: '1.1rem',
+									color: '#2d3748',
+								}}
+							>
 								Voucher của bạn
 							</h3>
 							{renderVoucherTable(adminVouchers)}
 
-							<div className="voucher-folder-container">
+							<div className="packmgmt-folder-container">
 								<div
-									className="voucher-folder-header"
+									className="packmgmt-folder-header"
 									onClick={() => setShowEventVouchers(!showEventVouchers)}
 								>
-									<div className="voucher-folder-content">
+									<div className="packmgmt-folder-left">
 										<FiFolder
 											size={20}
 											color="#f59e0b"
 											style={{ fill: '#fcd34d' }}
 										/>
-										<span className="voucher-folder-title">
+										<span className="packmgmt-folder-title">
 											ChristmasEvent2025 Vouchers
 										</span>
-										<span className="voucher-folder-count">
+										<span className="packmgmt-folder-count">
 											{minigameVouchers.length} mã
 										</span>
 									</div>
@@ -702,7 +757,7 @@ const PackManagement: React.FC = () => {
 								</div>
 
 								{showEventVouchers && (
-									<div className="voucher-folder-body">
+									<div className="packmgmt-folder-body">
 										{renderVoucherTable(minigameVouchers, true)}
 									</div>
 								)}
@@ -717,6 +772,28 @@ const PackManagement: React.FC = () => {
 					<GiftCodeManagement />
 				</div>
 			)}
+
+			<ConfirmModal
+				isOpen={isDeletePackModalOpen}
+				title="Xác nhận xóa gói nạp"
+				message={`Bạn có chắc chắn muốn xóa gói nạp "${packToDelete?.coins} Xu" này không?`}
+				confirmText="Xóa gói"
+				cancelText="Hủy"
+				onConfirm={handleConfirmDeletePack}
+				onClose={() => setIsDeletePackModalOpen(false)}
+				isDestructive={true}
+			/>
+
+			<ConfirmModal
+				isOpen={isDeleteVoucherModalOpen}
+				title="Xác nhận xóa Voucher"
+				message={`Bạn có chắc chắn muốn xóa voucher "${voucherToDelete?.code}"? Hành động này không thể hoàn tác.`}
+				confirmText="Xóa Voucher"
+				cancelText="Hủy"
+				onConfirm={handleConfirmDeleteVoucher}
+				onClose={() => setIsDeleteVoucherModalOpen(false)}
+				isDestructive={true}
+			/>
 		</div>
 	);
 };

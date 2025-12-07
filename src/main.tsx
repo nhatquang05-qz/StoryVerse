@@ -34,6 +34,6 @@ createRoot(document.getElementById('root')!).render(
 					</NotificationProvider>
 				</GoogleOAuthProvider>
 			</BrowserRouter>
-		</StrictMode>		
-	</ToastProvider>
+		</StrictMode>
+	</ToastProvider>,
 );

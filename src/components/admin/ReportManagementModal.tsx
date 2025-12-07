@@ -31,59 +31,62 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 	};
 
 	return (
-		<div className="report-modal-overlay">
-			<div className="report-modal-container">
-				<div className="report-modal-header">
-					<h3 className="report-modal-title">
+		<div className="reportmodal-overlay">
+			<div className="reportmodal-container">
+				<div className="reportmodal-header">
+					<h3 className="reportmodal-title">
 						<FaExclamationTriangle />
 						Xử lý vi phạm {getTargetTitle()}
 					</h3>
-					<button onClick={onClose} className="report-modal-close-btn">
+					<button onClick={onClose} className="reportmodal-close-btn">
 						<FaTimes />
 					</button>
 				</div>
 
-				<div className="report-modal-body">
-					{/* Giữ nguyên phần info grid */}
-					<div className="report-info-grid">
-						<div className="report-info-box">
-							<div className="report-label">Người báo cáo:</div>
-							<div className="report-value">{report.reporterName || 'Ẩn danh'}</div>
-							<div className="report-reason">Lý do: {report.reason}</div>
+				<div className="reportmodal-body">
+					<div className="reportmodal-info-grid">
+						<div className="reportmodal-info-box">
+							<div className="reportmodal-label">Người báo cáo</div>
+							<div className="reportmodal-value">
+								{report.reporterName || 'Ẩn danh'}
+							</div>
+							<div className="reportmodal-reason">Lý do: {report.reason}</div>
 						</div>
-						<div className="report-info-box">
-							<div className="report-label">Người bị báo cáo:</div>
-							<div className="report-value">
+						<div className="reportmodal-info-box">
+							<div className="reportmodal-label">Người bị báo cáo</div>
+							<div className="reportmodal-value">
 								{report.reportedUserName || 'Không xác định'}
 							</div>
-							<div className="report-id">ID: {report.reportedUserId}</div>
+							<div className="reportmodal-id">ID: {report.reportedUserId}</div>
 						</div>
 					</div>
 
-					<div className="report-content-section">
-						<h4 className="report-content-title">Nội dung bị báo cáo:</h4>
-						<div className="report-content-box">
+					<div className="reportmodal-content-section">
+						<h4 className="reportmodal-content-title">Nội dung bị báo cáo:</h4>
+						<div className="reportmodal-content-box">
 							{report.targetContent ? (
-								<p className="report-text">{report.targetContent}</p>
+								<p className="reportmodal-text">{report.targetContent}</p>
 							) : (
-								<p className="report-text-empty">(Không có nội dung văn bản)</p>
+								<p className="reportmodal-text-empty">
+									(Không có nội dung văn bản)
+								</p>
 							)}
 
 							{report.targetImage && (
-								<div className="report-image-container">
+								<div className="reportmodal-image-container">
 									<img
 										src={report.targetImage}
 										alt="Violated content"
-										className="report-image"
+										className="reportmodal-image"
 									/>
 								</div>
 							)}
 							{report.targetSticker && (
-								<div className="report-sticker-container">
+								<div className="reportmodal-sticker-container">
 									<img
 										src={report.targetSticker}
 										alt="Sticker"
-										className="report-sticker"
+										className="reportmodal-sticker"
 									/>
 								</div>
 							)}
@@ -91,14 +94,26 @@ const ReportManagementModal: React.FC<ReportModalProps> = ({
 					</div>
 				</div>
 
-				<div className="report-modal-footer">
-					<button onClick={onDismiss} className="report-btn report-btn-dismiss">
+				<div className="reportmodal-footer">
+					<button
+						onClick={onDismiss}
+						className="reportmodal-btn reportmodal-btn-dismiss"
+						title="Đánh dấu không vi phạm"
+					>
 						<FaCheck /> Bỏ qua
 					</button>
-					<button onClick={onDelete} className="report-btn report-btn-delete">
+					<button
+						onClick={onDelete}
+						className="reportmodal-btn reportmodal-btn-delete"
+						title="Xóa nội dung này"
+					>
 						<FaTrash /> Xoá nội dung
 					</button>
-					<button onClick={onBan} className="report-btn report-btn-ban">
+					<button
+						onClick={onBan}
+						className="reportmodal-btn reportmodal-btn-ban"
+						title="Xóa nội dung và Khóa tài khoản người dùng"
+					>
 						<FaBan /> Ban & Xoá
 					</button>
 				</div>

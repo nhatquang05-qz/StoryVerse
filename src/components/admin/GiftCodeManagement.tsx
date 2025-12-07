@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FiEdit, FiTrash2, FiPlus, FiCopy, FiCheck, FiX } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNotification } from '../../contexts/NotificationContext';
-import '../../assets/styles/PackManagement.css';
+import { useToast } from '../../contexts/ToastContext';
+import ConfirmModal from '../popups/ConfirmModal';
+import '../../assets/styles/GiftCodeManagement.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -23,7 +24,10 @@ const GiftCodeManagement: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [editingCode, setEditingCode] = useState<GiftCode | null>(null);
 	const { token } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
+
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [codeToDelete, setCodeToDelete] = useState<GiftCode | null>(null);
 
 	const [formData, setFormData] = useState({
 		code: '',
@@ -48,20 +52,34 @@ const GiftCodeManagement: React.FC = () => {
 			if (Array.isArray(data)) setGiftCodes(data);
 		} catch (err) {
 			console.error(err);
+			showToast('Lỗi tải danh sách giftcode', 'error');
 		}
 	};
 
-	const handleDelete = async (id: number) => {
-		if (!window.confirm('Bạn có chắc chắn muốn xóa mã này?')) return;
+	const handleDeleteClick = (code: GiftCode) => {
+		setCodeToDelete(code);
+		setIsDeleteModalOpen(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!codeToDelete) return;
 		try {
-			await fetch(`${API_URL}/giftcode/${id}`, {
+			const res = await fetch(`${API_URL}/giftcode/${codeToDelete.id}`, {
 				method: 'DELETE',
 				headers: { Authorization: `Bearer ${token}` },
 			});
-			showNotification('Đã xóa giftcode', 'success');
-			fetchGiftCodes();
+
+			if (res.ok) {
+				showToast('Đã xóa giftcode', 'success');
+				fetchGiftCodes();
+			} else {
+				showToast('Lỗi khi xóa', 'error');
+			}
 		} catch (err) {
-			showNotification('Lỗi khi xóa', 'error');
+			showToast('Lỗi khi xóa', 'error');
+		} finally {
+			setIsDeleteModalOpen(false);
+			setCodeToDelete(null);
 		}
 	};
 
@@ -85,19 +103,17 @@ const GiftCodeManagement: React.FC = () => {
 				body: JSON.stringify(payload),
 			});
 			if (res.ok) {
-				showNotification(
-					editingCode ? 'Cập nhật thành công' : 'Tạo mã thành công',
-					'success',
-				);
+				showToast(editingCode ? 'Cập nhật thành công' : 'Tạo mã thành công', 'success');
 				setIsModalOpen(false);
 				setEditingCode(null);
 				resetForm();
 				fetchGiftCodes();
 			} else {
-				showNotification('Có lỗi xảy ra (Có thể trùng mã)', 'error');
+				showToast('Có lỗi xảy ra (Có thể trùng mã)', 'error');
 			}
 		} catch (err) {
 			console.error(err);
+			showToast('Lỗi kết nối server', 'error');
 		}
 	};
 
@@ -137,11 +153,10 @@ const GiftCodeManagement: React.FC = () => {
 	};
 
 	return (
-		<div className="tab-content">
-			{}
-			<div className="action-bar">
+		<div className="giftmgmt-container">
+			<div className="giftmgmt-action-bar">
 				<button
-					className="mgmt-btn create-btn"
+					className="giftmgmt-btn giftmgmt-btn-create"
 					onClick={() => {
 						setEditingCode(null);
 						resetForm();
@@ -152,9 +167,8 @@ const GiftCodeManagement: React.FC = () => {
 				</button>
 			</div>
 
-			{}
-			<div className="admin-table-container">
-				<table className="admin-user-table">
+			<div className="giftmgmt-table-container">
+				<table className="giftmgmt-table">
 					<thead>
 						<tr>
 							<th>Mã Code</th>
@@ -169,30 +183,22 @@ const GiftCodeManagement: React.FC = () => {
 					<tbody>
 						{giftCodes.length === 0 ? (
 							<tr>
-								<td colSpan={7} className="table-empty-message">
+								<td colSpan={7} className="giftmgmt-empty-message">
 									Chưa có giftcode nào
 								</td>
 							</tr>
 						) : (
 							giftCodes.map((gc) => (
 								<tr key={gc.id}>
-									<td
-										style={{
-											fontWeight: 'bold',
-											color: '#3b82f6',
-											fontFamily: 'monospace',
-										}}
-									>
-										{gc.code}
-									</td>
+									<td className="giftmgmt-code-cell">{gc.code}</td>
 									<td>
 										{gc.coinReward > 0 && (
-											<div style={{ color: '#eab308' }}>
+											<div className="giftmgmt-reward-coin">
 												+{gc.coinReward} Xu
 											</div>
 										)}
 										{gc.expReward > 0 && (
-											<div style={{ color: '#10b981' }}>
+											<div className="giftmgmt-reward-exp">
 												+{gc.expReward} EXP
 											</div>
 										)}
@@ -211,25 +217,25 @@ const GiftCodeManagement: React.FC = () => {
 									</td>
 									<td>
 										{gc.isActive ? (
-											<span className="status-tag active">
+											<span className="giftmgmt-status active">
 												<FiCheck /> Hoạt động
 											</span>
 										) : (
-											<span className="status-tag banned">
+											<span className="giftmgmt-status banned">
 												<FiX /> Khóa
 											</span>
 										)}
 									</td>
-									<td className="action-buttons">
+									<td className="giftmgmt-actions-cell">
 										<button
-											className="mgmt-btn edit"
+											className="giftmgmt-btn giftmgmt-btn-edit"
 											onClick={() => openEdit(gc)}
 										>
 											<FiEdit />
 										</button>
 										<button
-											className="mgmt-btn delete"
-											onClick={() => handleDelete(gc.id)}
+											className="giftmgmt-btn giftmgmt-btn-delete"
+											onClick={() => handleDeleteClick(gc)}
 										>
 											<FiTrash2 />
 										</button>
@@ -241,28 +247,19 @@ const GiftCodeManagement: React.FC = () => {
 				</table>
 			</div>
 
-			{}
 			{isModalOpen && (
-				<div className="modal-overlay">
-					<div
-						className="edit-form-wrapper"
-						style={{
-							maxWidth: '600px',
-							margin: '5% auto',
-							maxHeight: '90vh',
-							overflowY: 'auto',
-						}}
-					>
-						<h3 className="form-title">
+				<div className="giftmgmt-modal-overlay">
+					<div className="giftmgmt-form-wrapper">
+						<h3 className="giftmgmt-form-title">
 							{editingCode ? 'Sửa Giftcode' : 'Thêm Giftcode'}
 						</h3>
-						<form onSubmit={handleSubmit} className="pack-form">
-							<div className="form-group">
-								<label className="form-label">Mã Code:</label>
+						<form onSubmit={handleSubmit} className="giftmgmt-form">
+							<div className="giftmgmt-form-group">
+								<label className="giftmgmt-label">Mã Code:</label>
 								<div style={{ display: 'flex', gap: '10px' }}>
 									<input
 										type="text"
-										className="form-input"
+										className="giftmgmt-input"
 										placeholder="VD: TET2025"
 										value={formData.code}
 										onChange={(e) =>
@@ -277,15 +274,7 @@ const GiftCodeManagement: React.FC = () => {
 									<button
 										type="button"
 										onClick={generateRandomCode}
-										className="btn-action"
-										style={{
-											background: '#6366f1',
-											color: 'white',
-											border: 'none',
-											borderRadius: '6px',
-											padding: '0 15px',
-											cursor: 'pointer',
-										}}
+										className="giftmgmt-btn-random"
 										title="Tạo mã ngẫu nhiên"
 									>
 										<FiCopy /> Random
@@ -293,12 +282,12 @@ const GiftCodeManagement: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="form-row" style={{ display: 'flex', gap: '15px' }}>
-								<div className="form-group" style={{ flex: 1 }}>
-									<label className="form-label">Thưởng Xu:</label>
+							<div className="giftmgmt-form-row">
+								<div className="giftmgmt-form-group" style={{ flex: 1 }}>
+									<label className="giftmgmt-label">Thưởng Xu:</label>
 									<input
 										type="number"
-										className="form-input"
+										className="giftmgmt-input"
 										value={formData.coinReward}
 										onChange={(e) =>
 											setFormData({
@@ -308,11 +297,11 @@ const GiftCodeManagement: React.FC = () => {
 										}
 									/>
 								</div>
-								<div className="form-group" style={{ flex: 1 }}>
-									<label className="form-label">Thưởng EXP:</label>
+								<div className="giftmgmt-form-group" style={{ flex: 1 }}>
+									<label className="giftmgmt-label">Thưởng EXP:</label>
 									<input
 										type="number"
-										className="form-input"
+										className="giftmgmt-input"
 										value={formData.expReward}
 										onChange={(e) =>
 											setFormData({
@@ -324,30 +313,28 @@ const GiftCodeManagement: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="form-group">
-								<label className="form-label">Voucher ID (Tùy chọn):</label>
+							<div className="giftmgmt-form-group">
+								<label className="giftmgmt-label">Voucher ID (Tùy chọn):</label>
 								<input
 									type="number"
-									className="form-input"
+									className="giftmgmt-input"
 									placeholder="Nhập ID Voucher nếu có"
 									value={formData.voucherId}
 									onChange={(e) =>
 										setFormData({ ...formData, voucherId: e.target.value })
 									}
 								/>
-								<small
-									style={{ color: '#888', display: 'block', marginTop: '5px' }}
-								>
+								<small style={{ color: '#718096', fontSize: '0.85rem' }}>
 									* Mỗi user chỉ nhận voucher này 1 lần duy nhất.
 								</small>
 							</div>
 
-							<div className="form-row" style={{ display: 'flex', gap: '15px' }}>
-								<div className="form-group" style={{ flex: 1 }}>
-									<label className="form-label">Giới hạn lượt dùng:</label>
+							<div className="giftmgmt-form-row">
+								<div className="giftmgmt-form-group" style={{ flex: 1 }}>
+									<label className="giftmgmt-label">Giới hạn lượt dùng:</label>
 									<input
 										type="number"
-										className="form-input"
+										className="giftmgmt-input"
 										value={formData.usageLimit}
 										onChange={(e) =>
 											setFormData({
@@ -357,11 +344,11 @@ const GiftCodeManagement: React.FC = () => {
 										}
 									/>
 								</div>
-								<div className="form-group" style={{ flex: 1 }}>
-									<label className="form-label">Ngày hết hạn:</label>
+								<div className="giftmgmt-form-group" style={{ flex: 1 }}>
+									<label className="giftmgmt-label">Ngày hết hạn:</label>
 									<input
 										type="datetime-local"
-										className="form-input"
+										className="giftmgmt-input"
 										value={formData.expiryDate}
 										onChange={(e) =>
 											setFormData({ ...formData, expiryDate: e.target.value })
@@ -370,11 +357,11 @@ const GiftCodeManagement: React.FC = () => {
 								</div>
 							</div>
 
-							<div className="form-group">
-								<label className="checkbox-group">
+							<div className="giftmgmt-form-group">
+								<label className="giftmgmt-checkbox-group">
 									<input
 										type="checkbox"
-										className="checkbox-input"
+										className="giftmgmt-checkbox"
 										checked={formData.isActive === 1}
 										onChange={(e) =>
 											setFormData({
@@ -383,18 +370,18 @@ const GiftCodeManagement: React.FC = () => {
 											})
 										}
 									/>
-									<span className="checkbox-label">Đang hoạt động</span>
+									<span className="giftmgmt-label">Đang hoạt động</span>
 								</label>
 							</div>
 
-							<div className="form-actions">
-								<button type="submit" className="btn-action save-btn">
+							<div className="giftmgmt-form-actions">
+								<button type="submit" className="giftmgmt-btn giftmgmt-btn-save">
 									Lưu
 								</button>
 								<button
 									type="button"
 									onClick={() => setIsModalOpen(false)}
-									className="btn-action cancel-btn"
+									className="giftmgmt-btn giftmgmt-btn-cancel"
 								>
 									Hủy
 								</button>
@@ -403,6 +390,17 @@ const GiftCodeManagement: React.FC = () => {
 					</div>
 				</div>
 			)}
+
+			<ConfirmModal
+				isOpen={isDeleteModalOpen}
+				title="Xác nhận xóa Giftcode"
+				message={`Bạn có chắc chắn muốn xóa mã "${codeToDelete?.code}"? Người dùng sẽ không thể sử dụng mã này nữa.`}
+				confirmText="Xóa vĩnh viễn"
+				cancelText="Hủy"
+				onConfirm={handleConfirmDelete}
+				onClose={() => setIsDeleteModalOpen(false)}
+				isDestructive={true}
+			/>
 		</div>
 	);
 };

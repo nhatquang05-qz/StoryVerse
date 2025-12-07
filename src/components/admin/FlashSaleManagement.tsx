@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaPlus, FaTrash, FaSearch, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { useToast } from '../../contexts/ToastContext';
+import ConfirmModal from '../popups/ConfirmModal';
 import '../../assets/styles/FlashSaleManagement.css';
 
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -32,6 +34,7 @@ interface FlashSale {
 }
 
 const FlashSaleManagement: React.FC = () => {
+	const { showToast } = useToast();
 	const [sales, setSales] = useState<FlashSale[]>([]);
 	const [isCreating, setIsCreating] = useState(false);
 	const [name, setName] = useState('');
@@ -45,6 +48,9 @@ const FlashSaleManagement: React.FC = () => {
 
 	const [expandedSaleId, setExpandedSaleId] = useState<number | null>(null);
 	const [loadingDetails, setLoadingDetails] = useState(false);
+
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [saleToDelete, setSaleToDelete] = useState<number | null>(null);
 
 	const token = localStorage.getItem('storyverse_token');
 	const config = {
@@ -76,6 +82,7 @@ const FlashSaleManagement: React.FC = () => {
 			setSales(res.data);
 		} catch (err) {
 			console.error(err);
+			showToast('Lỗi tải danh sách Flash Sale', 'error');
 		}
 	};
 
@@ -105,6 +112,7 @@ const FlashSaleManagement: React.FC = () => {
 			setExpandedSaleId(saleId);
 		} catch (err) {
 			console.error('Lỗi lấy chi tiết sale:', err);
+			showToast('Lỗi tải chi tiết đợt sale', 'error');
 		} finally {
 			setLoadingDetails(false);
 		}
@@ -139,19 +147,25 @@ const FlashSaleManagement: React.FC = () => {
 		const newEnd = new Date(endTime).getTime();
 
 		if (newEnd <= newStart) {
-			alert('Thời gian kết thúc phải sau thời gian bắt đầu.');
+			showToast('Thời gian kết thúc phải sau thời gian bắt đầu.', 'warning');
 			return;
 		}
 
 		const hasConflict = sales.some((s) => {
 			const existingEnd = new Date(s.endTime).getTime();
-			return newStart < existingEnd;
+			return newStart < existingEnd && s.status !== 'ENDED';
 		});
 
 		if (hasConflict) {
-			alert(
-				'LỖI: Thời gian bắt đầu bị trùng lặp với đợt Sale đang diễn ra hoặc sắp tới. Vui lòng chọn thời gian khác.',
+			showToast(
+				'LỖI: Thời gian trùng lặp với đợt Sale đang diễn ra hoặc sắp tới.',
+				'warning',
 			);
+			return;
+		}
+
+		if (selectedItems.length === 0) {
+			showToast('Vui lòng thêm ít nhất một sản phẩm.', 'warning');
 			return;
 		}
 
@@ -173,16 +187,29 @@ const FlashSaleManagement: React.FC = () => {
 			setStartTime('');
 			setEndTime('');
 			setSelectedItems([]);
+			showToast('Tạo Flash Sale thành công!', 'success');
 		} catch (err) {
-			alert('Lỗi khi tạo Flash Sale.');
+			showToast('Lỗi khi tạo Flash Sale.', 'error');
 		}
 	};
 
-	const handleDelete = async (id: number, e: React.MouseEvent) => {
+	const handleDeleteClick = (id: number, e: React.MouseEvent) => {
 		e.stopPropagation();
-		if (confirm('Bạn có chắc muốn xóa đợt sale này?')) {
-			await axios.delete(`${API_BASE_URL}/flash-sales/${id}`, config);
+		setSaleToDelete(id);
+		setIsDeleteModalOpen(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!saleToDelete) return;
+		try {
+			await axios.delete(`${API_BASE_URL}/flash-sales/${saleToDelete}`, config);
+			showToast('Đã xóa đợt Flash Sale.', 'success');
 			fetchSales();
+		} catch (err) {
+			showToast('Lỗi khi xóa Flash Sale.', 'error');
+		} finally {
+			setIsDeleteModalOpen(false);
+			setSaleToDelete(null);
 		}
 	};
 
@@ -197,71 +224,73 @@ const FlashSaleManagement: React.FC = () => {
 	};
 
 	return (
-		<div className="fs-mgmt-container">
-			<div className="fs-mgmt-header">
+		<div className="fsmgmt-container">
+			<div className="fsmgmt-header">
 				<h2>Quản lý Flash Sale</h2>
-				<button onClick={() => setIsCreating(!isCreating)} className="fs-btn-create">
-					<FaPlus className="fs-icon-mr" /> Tạo đợt Sale mới
+				<button onClick={() => setIsCreating(!isCreating)} className="fsmgmt-btn-create">
+					<FaPlus className="fsmgmt-icon-mr" /> Tạo đợt Sale mới
 				</button>
 			</div>
 
 			{isCreating && (
-				<div className="fs-form-panel">
-					<h3 className="fs-section-title">Thiết lập Flash Sale</h3>
+				<div className="fsmgmt-form-panel">
+					<h3 className="fsmgmt-section-title">Thiết lập Flash Sale</h3>
 					<form onSubmit={handleSubmit}>
-						<div className="fs-form-group">
-							<label className="fs-form-label">Tên chương trình</label>
+						<div className="fsmgmt-form-group">
+							<label className="fsmgmt-form-label">Tên chương trình</label>
 							<input
 								type="text"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								required
-								className="fs-form-input"
+								className="fsmgmt-form-input"
 								placeholder="VD: Sale 12.12"
 							/>
 						</div>
-						<div className="fs-form-row">
+						<div className="fsmgmt-form-row">
 							<div>
-								<label className="fs-form-label">Thời gian bắt đầu</label>
+								<label className="fsmgmt-form-label">Thời gian bắt đầu</label>
 								<input
 									type="datetime-local"
 									value={startTime}
 									onChange={(e) => setStartTime(e.target.value)}
 									required
-									className="fs-form-input"
+									className="fsmgmt-form-input"
 								/>
 							</div>
 							<div>
-								<label className="fs-form-label">Thời gian kết thúc</label>
+								<label className="fsmgmt-form-label">Thời gian kết thúc</label>
 								<input
 									type="datetime-local"
 									value={endTime}
 									onChange={(e) => setEndTime(e.target.value)}
 									required
-									className="fs-form-input"
+									className="fsmgmt-form-input"
 								/>
 							</div>
 						</div>
 
-						<div className="fs-form-group fs-relative">
-							<label className="fs-form-label">Thêm sản phẩm (Chỉ Truyện giấy)</label>
-							<div className="fs-search-box">
-								<FaSearch className="fs-search-icon" />
+						<div className="fsmgmt-form-group fsmgmt-relative">
+							<label className="fsmgmt-form-label">
+								Thêm sản phẩm (Chỉ Truyện giấy)
+							</label>
+							<div className="fsmgmt-search-box">
+								<FaSearch className="fsmgmt-search-icon" />
 								<input
 									type="text"
 									placeholder="Tìm tên truyện..."
-									className="fs-search-input"
+									className="fsmgmt-search-input"
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
 								/>
 							</div>
 							{searchTerm && searchResult.length > 0 && (
-								<div className="fs-search-dropdown">
+								<div className="fsmgmt-search-dropdown">
 									{searchResult.map((comic) => (
 										<div
 											key={comic.id}
 											onClick={() => handleAddItem(comic)}
-											className="fs-search-item"
+											className="fsmgmt-search-item"
 										>
 											<span>{comic.title}</span>
 											<span>{formatPrice(comic.price)} đ</span>
@@ -272,26 +301,28 @@ const FlashSaleManagement: React.FC = () => {
 						</div>
 
 						{selectedItems.length > 0 && (
-							<div className="fs-selected-items">
-								<h4 className="fs-subtitle">Sản phẩm tham gia:</h4>
-								<div className="fs-items-list">
+							<div className="fsmgmt-selected-items">
+								<h4 className="fsmgmt-subtitle">Sản phẩm tham gia:</h4>
+								<div className="fsmgmt-items-list">
 									{selectedItems.map((item, index) => {
 										const comic = allComics.find((c) => c.id === item.comicId);
 										return (
-											<div key={index} className="fs-item-row">
-												<div className="fs-item-info">{comic?.title}</div>
-												<div className="fs-item-input-group">
-													<span className="fs-label-sm">
+											<div key={index} className="fsmgmt-item-row">
+												<div className="fsmgmt-item-info">
+													{comic?.title}
+												</div>
+												<div className="fsmgmt-item-input-group">
+													<span className="fsmgmt-label-sm">
 														Giá gốc: {formatPrice(comic?.price)} đ
 													</span>
-													<div className="fs-flex-gap">
-														<span className="fs-label-sm">
+													<div className="fsmgmt-flex-gap">
+														<span className="fsmgmt-label-sm">
 															Giá Sale:
 														</span>
 														<input
 															type="number"
 															value={item.salePrice}
-															className="fs-input-sm"
+															className="fsmgmt-input-sm"
 															onChange={(e) =>
 																updateItem(
 																	index,
@@ -302,12 +333,14 @@ const FlashSaleManagement: React.FC = () => {
 														/>
 													</div>
 												</div>
-												<div className="fs-item-input-group">
-													<span className="fs-label-sm">Giới hạn</span>
+												<div className="fsmgmt-item-input-group">
+													<span className="fsmgmt-label-sm">
+														Giới hạn
+													</span>
 													<input
 														type="number"
 														value={item.quantityLimit}
-														className="fs-input-sm"
+														className="fsmgmt-input-sm"
 														onChange={(e) =>
 															updateItem(
 																index,
@@ -320,7 +353,7 @@ const FlashSaleManagement: React.FC = () => {
 												<button
 													type="button"
 													onClick={() => removeItem(index)}
-													className="fs-btn-remove"
+													className="fsmgmt-btn-remove"
 												>
 													<FaTrash />
 												</button>
@@ -331,14 +364,14 @@ const FlashSaleManagement: React.FC = () => {
 							</div>
 						)}
 
-						<button type="submit" className="fs-btn-submit">
+						<button type="submit" className="fsmgmt-btn-submit">
 							Lưu Flash Sale
 						</button>
 					</form>
 				</div>
 			)}
 
-			<div className="fs-list-grid">
+			<div className="fsmgmt-list-grid">
 				{sales.map((sale) => {
 					let statusLabel = 'Đang diễn ra';
 					let statusClass = 'active';
@@ -359,26 +392,26 @@ const FlashSaleManagement: React.FC = () => {
 					return (
 						<div
 							key={sale.id}
-							className={`fs-sale-card ${expandedSaleId === sale.id ? 'expanded' : ''}`}
+							className={`fsmgmt-sale-card ${expandedSaleId === sale.id ? 'expanded' : ''}`}
 						>
 							<div
-								className="fs-sale-header"
+								className="fsmgmt-sale-header"
 								onClick={() => fetchSaleDetails(sale.id)}
 							>
-								<div className="fs-sale-info-main">
-									<h3 className="fs-sale-name">{sale.name}</h3>
-									<p className="fs-sale-time">
+								<div className="fsmgmt-sale-info-main">
+									<h3 className="fsmgmt-sale-name">{sale.name}</h3>
+									<p className="fsmgmt-sale-time">
 										{new Date(sale.startTime).toLocaleString()} -{' '}
 										{new Date(sale.endTime).toLocaleString()}
 									</p>
-									<p className={`fs-status-badge ${statusClass}`}>
+									<p className={`fsmgmt-status-badge ${statusClass}`}>
 										{statusLabel}
 									</p>
 								</div>
-								<div className="fs-sale-actions">
+								<div className="fsmgmt-sale-actions">
 									<button
-										onClick={(e) => handleDelete(sale.id, e)}
-										className="fs-btn-icon-delete"
+										onClick={(e) => handleDeleteClick(sale.id, e)}
+										className="fsmgmt-btn-icon-delete"
 									>
 										<FaTrash />
 									</button>
@@ -391,13 +424,13 @@ const FlashSaleManagement: React.FC = () => {
 							</div>
 
 							{expandedSaleId === sale.id && (
-								<div className="fs-sale-details">
+								<div className="fsmgmt-sale-details">
 									{loadingDetails && !sale.items ? (
-										<p className="fs-loading-text">
+										<p className="fsmgmt-loading-text">
 											Đang tải thông tin sản phẩm...
 										</p>
 									) : (
-										<table className="fs-details-table">
+										<table className="fsmgmt-details-table">
 											<thead>
 												<tr>
 													<th>Tên truyện</th>
@@ -411,20 +444,20 @@ const FlashSaleManagement: React.FC = () => {
 													<tr key={idx}>
 														<td>{item.title}</td>
 														<td>{formatPrice(item.originalPrice)}đ</td>
-														<td className="fs-text-red">
+														<td className="fsmgmt-text-red">
 															{formatPrice(item.salePrice)}đ
 														</td>
 														<td width="40%">
-															<div className="fs-progress-container">
-																<div className="fs-progress-bar">
+															<div className="fsmgmt-progress-container">
+																<div className="fsmgmt-progress-bar">
 																	<div
-																		className="fs-progress-fill"
+																		className="fsmgmt-progress-fill"
 																		style={{
 																			width: `${calculateProgress(item.soldQuantity, item.quantityLimit)}%`,
 																		}}
 																	></div>
 																</div>
-																<span className="fs-progress-text">
+																<span className="fsmgmt-progress-text">
 																	{item.soldQuantity || 0} /{' '}
 																	{item.quantityLimit}
 																</span>
@@ -441,6 +474,17 @@ const FlashSaleManagement: React.FC = () => {
 					);
 				})}
 			</div>
+
+			<ConfirmModal
+				isOpen={isDeleteModalOpen}
+				title="Xác nhận xóa Flash Sale"
+				message="Bạn có chắc chắn muốn xóa đợt Flash Sale này không? Hành động này không thể hoàn tác."
+				confirmText="Xóa ngay"
+				cancelText="Hủy"
+				onConfirm={handleConfirmDelete}
+				onClose={() => setIsDeleteModalOpen(false)}
+				isDestructive={true}
+			/>
 		</div>
 	);
 };

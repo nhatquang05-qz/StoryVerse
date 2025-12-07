@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEye, FaTimes, FaCheckDouble } from 'react-icons/fa';
+import { useToast } from '../../contexts/ToastContext';
+import ConfirmModal from '../popups/ConfirmModal';
 import '../../assets/styles/OrderManagement.css';
 
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -14,6 +16,22 @@ const OrderManagement: React.FC = () => {
 	const [selectedOrder, setSelectedOrder] = useState<any>(null);
 	const [orderItems, setOrderItems] = useState<any[]>([]);
 	const [showModal, setShowModal] = useState(false);
+
+	const { showToast } = useToast();
+
+	const [confirmModal, setConfirmModal] = useState<{
+		isOpen: boolean;
+		orderId: number | null;
+		newStatus: string | null;
+		title: string;
+		message: string;
+	}>({
+		isOpen: false,
+		orderId: null,
+		newStatus: null,
+		title: '',
+		message: '',
+	});
 
 	const token = localStorage.getItem('storyverse_token');
 	const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -33,19 +51,36 @@ const OrderManagement: React.FC = () => {
 			setTotalPages(res.data.pagination.totalPages);
 		} catch (error) {
 			console.error(error);
+			showToast('Lỗi tải danh sách đơn hàng', 'error');
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleStatusUpdate = async (orderId: number, newStatus: string) => {
-		let confirmMsg = `Bạn có chắc muốn chuyển đơn hàng #${orderId} sang trạng thái ${newStatus}?`;
+	const handleStatusUpdateClick = (orderId: number, newStatus: string) => {
+		let title = 'Xác nhận cập nhật';
+		let message = `Bạn có chắc muốn chuyển đơn hàng #${orderId} sang trạng thái ${newStatus}?`;
 
 		if (newStatus === 'COMPLETED') {
-			confirmMsg = `Xác nhận ĐÃ NHẬN TIỀN và HOÀN TẤT đơn hàng #${orderId}?`;
+			title = 'Xác nhận Hoàn tất';
+			message = `Xác nhận ĐÃ NHẬN TIỀN và HOÀN TẤT đơn hàng #${orderId}? Hành động này không thể hoàn tác.`;
+		} else if (newStatus === 'CANCELLED') {
+			title = 'Xác nhận Hủy đơn';
+			message = `Bạn có chắc muốn HỦY đơn hàng #${orderId} không?`;
 		}
 
-		if (!confirm(confirmMsg)) return;
+		setConfirmModal({
+			isOpen: true,
+			orderId,
+			newStatus,
+			title,
+			message,
+		});
+	};
+
+	const handleConfirmUpdate = async () => {
+		const { orderId, newStatus } = confirmModal;
+		if (!orderId || !newStatus) return;
 
 		try {
 			await axios.put(
@@ -53,10 +88,16 @@ const OrderManagement: React.FC = () => {
 				{ status: newStatus },
 				config,
 			);
-			alert('Cập nhật thành công!');
+			showToast('Cập nhật trạng thái thành công!', 'success');
 			fetchOrders();
+
+			if (selectedOrder && selectedOrder.id === orderId) {
+				setShowModal(false);
+			}
 		} catch (error) {
-			alert('Lỗi cập nhật trạng thái');
+			showToast('Lỗi cập nhật trạng thái', 'error');
+		} finally {
+			setConfirmModal({ ...confirmModal, isOpen: false });
 		}
 	};
 
@@ -68,30 +109,33 @@ const OrderManagement: React.FC = () => {
 			setShowModal(true);
 		} catch (error) {
 			console.error(error);
+			showToast('Lỗi tải chi tiết đơn hàng', 'error');
 		}
 	};
 
 	const getStatusBadge = (status: string) => {
 		switch (status) {
 			case 'COMPLETED':
-				return <span className="badge badge-success">Hoàn thành</span>;
+				return <span className="ordermgmt-badge ordermgmt-badge--success">Hoàn thành</span>;
 			case 'PAID':
-				return <span className="badge badge-info">Đã thanh toán</span>;
+				return <span className="ordermgmt-badge ordermgmt-badge--info">Đã thanh toán</span>;
 			case 'PENDING':
-				return <span className="badge badge-warning">Chờ thanh toán</span>;
+				return (
+					<span className="ordermgmt-badge ordermgmt-badge--warning">Chờ thanh toán</span>
+				);
 			case 'CANCELLED':
-				return <span className="badge badge-danger">Đã hủy</span>;
+				return <span className="ordermgmt-badge ordermgmt-badge--danger">Đã hủy</span>;
 			default:
-				return <span className="badge badge-secondary">{status}</span>;
+				return <span className="ordermgmt-badge ordermgmt-badge--secondary">{status}</span>;
 		}
 	};
 
 	return (
-		<div className="order-mgmt-container">
-			<h2 className="mgmt-title">Quản lý Đơn hàng</h2>
+		<div className="ordermgmt-container">
+			<h2 className="ordermgmt-title">Quản lý Đơn hàng</h2>
 
-			<div className="order-table-wrapper">
-				<table className="order-table">
+			<div className="ordermgmt-table-wrapper">
+				<table className="ordermgmt-table">
 					<thead>
 						<tr>
 							<th>Mã giao dịch</th>
@@ -110,25 +154,31 @@ const OrderManagement: React.FC = () => {
 									<span
 										className={
 											order.transactionCode
-												? 'trans-code'
-												: 'trans-code-placeholder'
+												? 'ordermgmt-trans-code'
+												: 'ordermgmt-trans-placeholder'
 										}
 									>
 										{order.transactionCode || '---'}
 									</span>
 								</td>
 								<td>
-									<div className="customer-info">
-										<span className="cust-name">{order.fullName}</span>
-										<span className="cust-phone">{order.phone}</span>
+									<div className="ordermgmt-customer-info">
+										<span className="ordermgmt-cust-name">
+											{order.fullName}
+										</span>
+										<span className="ordermgmt-cust-phone">{order.phone}</span>
 									</div>
 								</td>
-								<td className="total-amount">
+								<td className="ordermgmt-total-amount">
 									{Number(order.totalAmount).toLocaleString()}đ
 								</td>
 								<td>
 									<span
-										className={`pay-badge ${order.paymentMethod === 'COD' ? 'pay-badge-cod' : 'pay-badge-online'}`}
+										className={`ordermgmt-pay-badge ${
+											order.paymentMethod === 'COD'
+												? 'ordermgmt-pay-badge--cod'
+												: 'ordermgmt-pay-badge--online'
+										}`}
 									>
 										{order.paymentMethod}
 									</span>
@@ -136,10 +186,10 @@ const OrderManagement: React.FC = () => {
 								<td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
 								<td>{getStatusBadge(order.status)}</td>
 								<td>
-									<div className="action-buttons">
+									<div className="ordermgmt-action-buttons">
 										<button
 											onClick={() => viewDetails(order)}
-											className="btn-icon btn-view"
+											className="ordermgmt-btn-icon ordermgmt-btn-view"
 											title="Xem chi tiết"
 										>
 											<FaEye />
@@ -150,9 +200,12 @@ const OrderManagement: React.FC = () => {
 											order.status !== 'CANCELLED' && (
 												<button
 													onClick={() =>
-														handleStatusUpdate(order.id, 'COMPLETED')
+														handleStatusUpdateClick(
+															order.id,
+															'COMPLETED',
+														)
 													}
-													className="btn-icon btn-complete"
+													className="ordermgmt-btn-icon ordermgmt-btn-complete"
 													title="Xác nhận đã nhận tiền & Hoàn tất"
 												>
 													<FaCheckDouble />
@@ -163,9 +216,12 @@ const OrderManagement: React.FC = () => {
 											order.status !== 'COMPLETED' && (
 												<button
 													onClick={() =>
-														handleStatusUpdate(order.id, 'CANCELLED')
+														handleStatusUpdateClick(
+															order.id,
+															'CANCELLED',
+														)
 													}
-													className="btn-icon o-btn-cancel"
+													className="ordermgmt-btn-icon ordermgmt-btn-cancel"
 													title="Hủy đơn"
 												>
 													<FaTimes />
@@ -179,7 +235,7 @@ const OrderManagement: React.FC = () => {
 				</table>
 			</div>
 
-			<div className="pagination-controls">
+			<div className="ordermgmt-pagination">
 				<button disabled={page <= 1} onClick={() => setPage(page - 1)}>
 					Trước
 				</button>
@@ -192,19 +248,22 @@ const OrderManagement: React.FC = () => {
 			</div>
 
 			{showModal && selectedOrder && (
-				<div className="modal-overlay">
-					<div className="modal-content">
-						<div className="modal-header">
+				<div className="ordermgmt-modal-overlay">
+					<div className="ordermgmt-modal-content">
+						<div className="ordermgmt-modal-header">
 							<h3>
 								Chi tiết đơn:{' '}
 								{selectedOrder.transactionCode || `#${selectedOrder.id}`}
 							</h3>
-							<button onClick={() => setShowModal(false)} className="close-modal">
+							<button
+								onClick={() => setShowModal(false)}
+								className="ordermgmt-close-modal"
+							>
 								×
 							</button>
 						</div>
-						<div className="modal-body">
-							<div className="order-info-grid">
+						<div className="ordermgmt-modal-body">
+							<div className="ordermgmt-info-grid">
 								<p>
 									<strong>Mã giao dịch:</strong>{' '}
 									{selectedOrder.transactionCode || 'Chưa có'}
@@ -229,53 +288,68 @@ const OrderManagement: React.FC = () => {
 								</p>
 							</div>
 
-							<h4 className="mt-4 mb-2">Sản phẩm</h4>
-							<ul className="item-list">
+							<h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>Sản phẩm</h4>
+							<ul className="ordermgmt-item-list">
 								{orderItems.map((item: any, idx) => (
-									<li key={idx} className="order-item-row">
+									<li key={idx} className="ordermgmt-item-row">
 										<img
 											src={item.coverImageUrl}
 											alt=""
-											className="item-thumb"
+											className="ordermgmt-item-thumb"
 										/>
-										<div className="item-details">
-											<span className="item-title">{item.title}</span>
-											<span className="item-qty">
+										<div className="ordermgmt-item-details">
+											<span className="ordermgmt-item-title">
+												{item.title}
+											</span>
+											<span className="ordermgmt-item-qty">
 												Số lượng: {item.quantity}
 											</span>
-											<span className="item-price">
+											<span className="ordermgmt-item-price">
 												{Number(item.price).toLocaleString()}đ
 											</span>
 										</div>
 									</li>
 								))}
 							</ul>
-							<div className="modal-total">
+							<div className="ordermgmt-modal-total">
 								Tổng cộng:{' '}
 								<span>{Number(selectedOrder.totalAmount).toLocaleString()}đ</span>
 							</div>
 						</div>
-						<div className="modal-footer">
+						<div className="ordermgmt-modal-footer">
 							{selectedOrder.paymentMethod === 'COD' &&
 								selectedOrder.status !== 'COMPLETED' &&
 								selectedOrder.status !== 'CANCELLED' && (
 									<button
 										onClick={() => {
-											handleStatusUpdate(selectedOrder.id, 'COMPLETED');
-											setShowModal(false);
+											handleStatusUpdateClick(selectedOrder.id, 'COMPLETED');
 										}}
-										className="btn-modal-action"
+										className="ordermgmt-btn-action"
 									>
 										Xác nhận Hoàn tất
 									</button>
 								)}
-							<button onClick={() => setShowModal(false)} className="btn-close">
+							<button
+								onClick={() => setShowModal(false)}
+								className="ordermgmt-btn-close"
+							>
 								Đóng
 							</button>
 						</div>
 					</div>
 				</div>
 			)}
+
+			<ConfirmModal
+				isOpen={confirmModal.isOpen}
+				title={confirmModal.title}
+				message={confirmModal.message}
+				confirmText="Xác nhận"
+				cancelText="Quay lại"
+				onConfirm={handleConfirmUpdate}
+				onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+				isDestructive={confirmModal.newStatus === 'CANCELLED'}
+			/>
 		</div>
 	);
 };
