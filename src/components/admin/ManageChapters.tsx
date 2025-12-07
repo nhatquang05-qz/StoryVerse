@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import { type ComicSummary, type ComicDetail, type ChapterSummary } from '../../types/comicTypes';
 import { FiArrowLeft, FiEdit, FiTrash2, FiLoader } from 'react-icons/fi';
 import AddChapterForm from './AddChapterForm';
 import EditChapterForm from './EditChapterForm';
+import ConfirmModal from '../popups/ConfirmModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -13,13 +14,16 @@ interface ManageChaptersProps {
 }
 
 const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [comicDetails, setComicDetails] = useState<ComicDetail | null>(null);
 	const [isLoadingDetails, setIsLoadingDetails] = useState(true);
 
 	const [editingChapter, setEditingChapter] = useState<ChapterSummary | null>(null);
 	const [editingContentUrls, setEditingContentUrls] = useState<string[]>([]);
 	const [isLoadingChapter, setIsLoadingChapter] = useState(false);
+
+	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [chapterToDelete, setChapterToDelete] = useState<ChapterSummary | null>(null);
 
 	const fetchComicDetails = async () => {
 		setIsLoadingDetails(true);
@@ -29,7 +33,7 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
 			const data: ComicDetail = await response.json();
 			setComicDetails(data);
 		} catch (error: any) {
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		} finally {
 			setIsLoadingDetails(false);
 		}
@@ -63,25 +67,24 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
 			}
 		} catch (error: any) {
 			console.error(error);
-			showNotification(`Lỗi khi tải ảnh: ${error.message}`, 'error');
+			showToast(`Lỗi khi tải ảnh: ${error.message}`, 'error');
 		} finally {
 			setIsLoadingChapter(false);
 		}
 	};
 
-	const handleDeleteChapter = async (chapter: ChapterSummary) => {
-		if (
-			!window.confirm(
-				`Bạn có chắc chắn muốn XÓA vĩnh viễn "Chương ${chapter.chapterNumber}" không?`,
-			)
-		) {
-			return;
-		}
+	const handleDeleteClick = (chapter: ChapterSummary) => {
+		setChapterToDelete(chapter);
+		setDeleteModalOpen(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!chapterToDelete) return;
 
 		const token = localStorage.getItem('storyverse_token');
 		try {
 			const response = await fetch(
-				`${API_BASE_URL}/comics/${comic.id}/chapters/${chapter.id}`,
+				`${API_BASE_URL}/comics/${comic.id}/chapters/${chapterToDelete.id}`,
 				{
 					method: 'DELETE',
 					headers: { Authorization: `Bearer ${token}` },
@@ -89,10 +92,12 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
 			);
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Xóa chương thất bại');
-			showNotification('Xóa chương thành công!', 'success');
+			showToast('Xóa chương thành công!', 'success');
 			fetchComicDetails();
 		} catch (error: any) {
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
+		} finally {
+			setChapterToDelete(null);
 		}
 	};
 
@@ -164,7 +169,7 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
 										</button>
 										<button
 											className="mgmt-btn delete"
-											onClick={() => handleDeleteChapter(chap)}
+											onClick={() => handleDeleteClick(chap)}
 											disabled={isLoadingChapter}
 										>
 											<FiTrash2 /> Xóa
@@ -175,6 +180,20 @@ const ManageChapters: React.FC<ManageChaptersProps> = ({ comic, onCancel }) => {
 					</ul>
 				)}
 			</div>
+
+			<ConfirmModal
+				isOpen={deleteModalOpen}
+				title="Xác nhận xóa chương"
+				message={`Bạn có chắc chắn muốn xóa "Chương ${chapterToDelete?.chapterNumber}"? Hành động này không thể hoàn tác.`}
+				confirmText="Xóa vĩnh viễn"
+				cancelText="Hủy"
+				onConfirm={handleConfirmDelete}
+				onClose={() => {
+					setDeleteModalOpen(false);
+					setChapterToDelete(null);
+				}}
+				isDestructive={true}
+			/>
 		</div>
 	);
 };

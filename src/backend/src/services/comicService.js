@@ -416,6 +416,56 @@ const postReviewService = async (comicId, userId, rating, comment) => {
     }
 };
 
+const updateChapterService = async (comicId, chapterId, data) => {
+    const connection = await getConnection();
+    try {
+        const [existing] = await connection.execute(
+            'SELECT id FROM chapters WHERE id = ? AND comicId = ?', 
+            [chapterId, comicId]
+        );
+
+        if (existing.length === 0) {
+            throw { status: 404, error: 'Chapter not found' };
+        }
+
+        let query = 'UPDATE chapters SET ';
+        const params = [];
+        const updates = [];
+
+        if (data.chapterNumber !== undefined) {
+            updates.push('chapterNumber = ?');
+            params.push(data.chapterNumber);
+        }
+        if (data.title !== undefined) {
+            updates.push('title = ?');
+            params.push(data.title);
+        }
+        if (data.contentUrls !== undefined) {
+            updates.push('contentUrls = ?');
+            params.push(JSON.stringify(data.contentUrls)); 
+        }
+        if (data.price !== undefined) {
+            updates.push('price = ?');
+            params.push(data.price);
+        }
+
+        if (updates.length === 0) {
+            return { status: 200, message: 'No changes made' };
+        }
+
+        query += updates.join(', ') + ' WHERE id = ?';
+        params.push(chapterId);
+
+        await connection.execute(query, params);
+
+        return { status: 200, message: 'Chapter updated successfully' };
+    } catch (error) {
+        throw error;
+    } finally {
+        connection.release();
+    }
+};
+
 module.exports = {
     addComicService,
     updateComicService,
@@ -431,5 +481,6 @@ module.exports = {
     getAllGenresService,
     getReviewsService,
     postReviewService,
-    unlockChapterService
+    unlockChapterService,
+    updateChapterService
 };

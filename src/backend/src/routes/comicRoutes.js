@@ -5,7 +5,7 @@ const {
     addComic, updateComic, deleteComic, getAllComics, getComicById,
     addChapter, deleteChapter, getChapterContent, getTopComics,
     searchComics, getComicsByGenre, getAllGenres, getReviews,
-    postReview, unlockChapter
+    postReview, unlockChapter, updateChapter
 } = require('../controllers/comicController');
 const { authenticateToken, authenticateAdmin } = require('../middleware/authMiddleware');
 

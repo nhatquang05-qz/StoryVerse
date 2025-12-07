@@ -1,7 +1,7 @@
 const comicService = require('../services/comicService');
 const Notification = require('../models/notificationModel'); 
 const { getConnection } = require('../db/connection'); 
-const christmasService = require('../services/christmasService'); // Import service minigame
+const christmasService = require('../services/christmasService'); 
 
 const addComic = async (req, res) => {
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
@@ -260,6 +260,25 @@ const postReview = async (req, res) => {
     }
 };
 
+const updateChapter = async (req, res) => {
+    const { comicId, chapterId } = req.params;
+    const { chapterNumber, title, contentUrls, price } = req.body;
+
+    try {
+        const result = await comicService.updateChapterService(comicId, chapterId, { 
+            chapterNumber, 
+            title, 
+            contentUrls, 
+            price 
+        });
+        res.status(result.status).json({ message: result.message });
+    } catch (error) {
+        const status = error.status || 500;
+        console.error('Error updating chapter:', error);
+        res.status(status).json({ error: error.error || 'Failed to update chapter' });
+    }
+};
+
 module.exports = {
     addComic,
     updateComic,
@@ -275,5 +294,6 @@ module.exports = {
     getAllGenres,
     getReviews,
     postReview,
-    unlockChapter
+    unlockChapter,
+    updateChapter
 };

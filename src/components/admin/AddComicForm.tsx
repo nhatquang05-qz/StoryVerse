@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import { type Genre } from '../../types/comicTypes';
 import { FiArrowLeft } from 'react-icons/fi';
 import GenreSelector from './GenreSelector';
@@ -19,7 +19,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({
 	onSuccess,
 	initialIsDigital,
 }) => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const [title, setTitle] = useState('');
 	const [author, setAuthor] = useState('');
@@ -43,7 +43,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({
 		if (!coverImageFile) return;
 
 		if (!title.trim()) {
-			showNotification('Vui lòng nhập Tiêu đề truyện trước khi upload ảnh bìa!', 'warning');
+			showToast('Vui lòng nhập Tiêu đề truyện trước khi upload ảnh bìa!', 'warning');
 			return;
 		}
 
@@ -66,10 +66,10 @@ const AddComicForm: React.FC<AddComicFormProps> = ({
 			if (!response.ok) throw new Error(data.error || 'Upload failed');
 
 			setCoverImageUrl(data.imageUrl);
-			showNotification('Upload ảnh bìa thành công!', 'success');
+			showToast('Upload ảnh bìa thành công!', 'success');
 		} catch (error: any) {
 			console.error('Upload cover error:', error);
-			showNotification(`Lỗi upload ảnh bìa: ${error.message}`, 'error');
+			showToast(`Lỗi upload ảnh bìa: ${error.message}`, 'error');
 			setCoverImageUrl('');
 		} finally {
 			setIsUploadingCover(false);
@@ -86,7 +86,7 @@ const AddComicForm: React.FC<AddComicFormProps> = ({
 		e.preventDefault();
 
 		if (!title || !coverImageUrl) {
-			showNotification('Vui lòng nhập tiêu đề và upload ảnh bìa.', 'warning');
+			showToast('Vui lòng nhập tiêu đề và upload ảnh bìa.', 'warning');
 			return;
 		}
 
@@ -115,11 +115,11 @@ const AddComicForm: React.FC<AddComicFormProps> = ({
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Failed to add comic');
 
-			showNotification(`Thêm truyện "${title}" thành công!`, 'success');
+			showToast(`Thêm truyện "${title}" thành công!`, 'success');
 			onSuccess();
 		} catch (error: any) {
 			console.error('Submit comic error:', error);
-			showNotification(`Lỗi thêm truyện: ${error.message}`, 'error');
+			showToast(`Lỗi thêm truyện: ${error.message}`, 'error');
 		} finally {
 			setIsSubmitting(false);
 		}

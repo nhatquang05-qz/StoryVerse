@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import { type ComicSummary, type ComicDetail, type Genre } from '../../types/comicTypes';
 import { FiArrowLeft, FiSave, FiTrash2, FiUpload, FiX, FiDownload } from 'react-icons/fi';
 import GenreSelector from './GenreSelector';
+import ConfirmModal from '../popups/ConfirmModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -14,7 +15,7 @@ interface EditComicFormProps {
 }
 
 const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCancel, onSuccess }) => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const [formData, setFormData] = useState<ComicDetail | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -24,6 +25,8 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 
 	const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
 	const [previewCoverUrl, setPreviewCoverUrl] = useState<string>('');
+
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
 	useEffect(() => {
 		const fetchComicDetails = async () => {
@@ -36,14 +39,14 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 				setSelectedGenres(data.genres?.map((g) => g.id) || []);
 				setPreviewCoverUrl(data.coverImageUrl);
 			} catch (error: any) {
-				showNotification(`Lỗi tải chi tiết truyện: ${error.message}`, 'error');
+				showToast(`Lỗi tải chi tiết truyện: ${error.message}`, 'error');
 				onCancel();
 			} finally {
 				setIsLoading(false);
 			}
 		};
 		fetchComicDetails();
-	}, [comic.id, showNotification, onCancel]);
+	}, [comic.id, showToast, onCancel]);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -83,7 +86,6 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 			document.body.removeChild(a);
 		} catch (error) {
 			console.error('Download failed:', error);
-
 			window.open(previewCoverUrl, '_blank');
 		}
 	};
@@ -138,19 +140,21 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Cập nhật thất bại');
 
-			showNotification('Cập nhật truyện thành công!', 'success');
+			showToast('Cập nhật truyện thành công!', 'success');
 			onSuccess();
 		} catch (error: any) {
 			console.error('Update error:', error);
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
-	const handleDeleteComic = async () => {
-		if (!window.confirm(`Bạn có chắc chắn muốn XÓA vĩnh viễn truyện "${comic.title}"?`)) return;
+	const handleDeleteClick = () => {
+		setIsDeleteModalOpen(true);
+	};
 
+	const handleConfirmDelete = async () => {
 		setIsDeleting(true);
 		const token = localStorage.getItem('storyverse_token');
 
@@ -162,10 +166,10 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Xóa thất bại');
 
-			showNotification('Xóa truyện thành công!', 'success');
+			showToast('Xóa truyện thành công!', 'success');
 			onSuccess();
 		} catch (error: any) {
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		} finally {
 			setIsDeleting(false);
 		}
@@ -246,7 +250,6 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 									<FiUpload /> {coverImageFile ? 'Đổi ảnh khác' : 'Chọn ảnh mới'}
 								</label>
 
-								{}
 								<button
 									type="button"
 									className="mgmt-btn"
@@ -375,7 +378,7 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 					<button
 						type="button"
 						className="mgmt-btn delete"
-						onClick={handleDeleteComic}
+						onClick={handleDeleteClick}
 						disabled={isSubmitting || isDeleting}
 					>
 						{isDeleting ? (
@@ -388,6 +391,17 @@ const EditComicForm: React.FC<EditComicFormProps> = ({ comic, allGenres, onCance
 					</button>
 				</div>
 			</form>
+
+			<ConfirmModal
+				isOpen={isDeleteModalOpen}
+				title="Xác nhận xóa truyện"
+				message={`Bạn có chắc chắn muốn XÓA vĩnh viễn truyện "${comic.title}"? Hành động này không thể hoàn tác.`}
+				confirmText="Xóa vĩnh viễn"
+				cancelText="Hủy"
+				onConfirm={handleConfirmDelete}
+				onClose={() => setIsDeleteModalOpen(false)}
+				isDestructive={true}
+			/>
 		</div>
 	);
 };

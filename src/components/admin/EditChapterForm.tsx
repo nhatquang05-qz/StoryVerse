@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import {
 	FiSave,
 	FiTrash2,
@@ -38,7 +38,7 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 	onCancel,
 	onSuccess,
 }) => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [images, setImages] = useState<ChapterImage[]>([]);
 	const [isSaving, setIsSaving] = useState(false);
 	const [uploadProgress, setUploadProgress] = useState(0);
@@ -133,6 +133,11 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 	};
 
 	const handleSave = async () => {
+		if (images.length === 0) {
+			showToast('Vui lòng thêm ít nhất một ảnh cho chương!', 'warning');
+			return;
+		}
+
 		setIsSaving(true);
 		setUploadProgress(0);
 		const token = localStorage.getItem('storyverse_token');
@@ -144,6 +149,7 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 			const uploadedMap: Record<string, string> = {};
 			let completed = 0;
 
+			
 			for (const img of imagesToUpload) {
 				if (!img.file) continue;
 
@@ -159,19 +165,31 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 					body: formData,
 				});
 
-				if (!res.ok) throw new Error('Lỗi upload ảnh');
+				if (!res.ok) throw new Error('Lỗi upload ảnh lên Cloudinary');
 				const data = await res.json();
+
+				if (!data.imageUrl) {
+					throw new Error('Server không trả về URL ảnh sau khi upload');
+				}
 
 				uploadedMap[img.id] = data.imageUrl;
 				completed++;
-				setUploadProgress((completed / totalUploads) * 100);
+				setUploadProgress(totalUploads > 0 ? (completed / totalUploads) * 100 : 100);
 			}
 
-			const finalUrls = images.map((img) => {
-				if (img.type === 'url') return img.src;
-				return uploadedMap[img.id];
-			});
+			
+			const finalUrls = images
+				.map((img) => {
+					if (img.type === 'url') return img.src;
+					
+					
+					return uploadedMap[img.id];
+				})
+				.filter((url): url is string => !!url && url.length > 0); 
 
+			
+
+			
 			const updateRes = await fetch(
 				`${API_BASE_URL}/comics/${comicId}/chapters/${chapterId}`,
 				{
@@ -184,13 +202,16 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 				},
 			);
 
-			if (!updateRes.ok) throw new Error('Lỗi cập nhật nội dung chương');
+			if (!updateRes.ok) {
+				const errData = await updateRes.json();
+				throw new Error(errData.error || 'Lỗi cập nhật nội dung chương');
+			}
 
-			showNotification('Đã cập nhật nội dung chương thành công!', 'success');
+			showToast('Đã cập nhật nội dung chương thành công!', 'success');
 			onSuccess();
 		} catch (error: any) {
 			console.error('Save chapter error:', error);
-			showNotification(`Lỗi: ${error.message}`, 'error');
+			showToast(`Lỗi: ${error.message}`, 'error');
 		} finally {
 			setIsSaving(false);
 		}
@@ -213,7 +234,7 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 				<button
 					className="mgmt-btn add"
 					onClick={handleSave}
-					disabled={isSaving || images.length === 0}
+					disabled={isSaving}
 					style={{ padding: '10px 20px' }}
 				>
 					{isSaving ? (
@@ -302,7 +323,6 @@ const EditChapterForm: React.FC<EditChapterFormProps> = ({
 								#{index + 1}
 							</div>
 
-							{}
 							<button
 								type="button"
 								onClick={() => handleDownloadImage(img.src, index)}
