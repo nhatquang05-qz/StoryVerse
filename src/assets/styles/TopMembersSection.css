@@ -8,12 +8,10 @@
 }
 
 .top-members-title {
-	font-size: 1.3rem;
-	font-weight: 700;
-	margin: 0 0 1.5rem 0;
-	color: var(--clr-primary);
-	padding-bottom: 0.75rem;
-	border-bottom: 0.0625rem solid var(--clr-border-light);
+	font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    color: var(--clr-text);
 }
 
 .top-members-list {

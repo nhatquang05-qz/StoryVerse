@@ -293,6 +293,10 @@ const Header: React.FC = () => {
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, [searchBarRef]);
 
+	const isActive = (path: string) => {
+		return location.pathname.startsWith(path);
+	};
+
 	const safeSuggestions = Array.isArray(suggestions) ? suggestions : [];
 	const showSuggestionsDropdown =
 		(safeSuggestions.length > 0 || isLoadingSearch) && isSearchFocused;
@@ -308,11 +312,25 @@ const Header: React.FC = () => {
 				</Link>
 
 				<nav className="nav-desktop">
-					<Link to="/physical-comics">Truyện giấy</Link>
-					<Link to="/digital-comics">Đọc online</Link>
+					<Link
+						to="/physical-comics"
+						className={isActive('/physical-comics') ? 'active' : ''}
+					>
+						Truyện giấy
+					</Link>
+					<Link
+						to="/digital-comics"
+						className={isActive('/digital-comics') ? 'active' : ''}
+					>
+						Đọc online
+					</Link>
 
 					<div className="dropdown mega-dropdown">
-						<button className="dropdown-btn">Thể loại</button>
+						<button
+							className={`dropdown-btn ${isActive('/genres') ? 'active' : ''}`}
+						>
+							Thể loại
+						</button>
 						<div className="dropdown-content genre-list">
 							{allGenres.length > 0 ? (
 								allGenres.map((genre) => (
@@ -338,9 +356,15 @@ const Header: React.FC = () => {
 						</div>
 					</div>
 
-					<Link to="/community">Cộng đồng</Link>
-					<Link to="/about-us">Giới thiệu</Link>
-					<Link to="/ranking">Bảng xếp hạng</Link>
+					<Link to="/community" className={isActive('/community') ? 'active' : ''}>
+						Cộng đồng
+					</Link>
+					<Link to="/about-us" className={isActive('/about-us') ? 'active' : ''}>
+						Giới thiệu
+					</Link>
+					<Link to="/ranking" className={isActive('/ranking') ? 'active' : ''}>
+						Bảng xếp hạng
+					</Link>
 				</nav>
 
 				<div className="header-actions">
