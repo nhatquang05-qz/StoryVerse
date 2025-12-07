@@ -629,9 +629,11 @@ const Header: React.FC = () => {
 								<div className="dropdown-content user-dropdown">
 									<Link to="/profile">Tài Khoản Của Tôi</Link>
 									<Link to="/recharge">Nạp Xu</Link>
+									<Link to="/giftcode">Nhập Giftcode</Link>
 									<Link to="/my-library">Thư Viện Số</Link>
 									<Link to="/orders">Lịch Sử Mua Hàng</Link>
 									<Link to="/settings">Cài Đặt</Link>
+									<Link to="/giftcode">Nhập Giftcode</Link>
 									<button onClick={handleLogout} className="logout-btn">
 										Đăng Xuất
 									</button>
@@ -767,6 +769,7 @@ const Header: React.FC = () => {
 							<Link to="/recharge" onClick={toggleMenu} className="nav-mobile-action">
 								<FiDollarSign /> <span>Nạp Xu</span>
 							</Link>
+
 							<Link
 								to="/my-library"
 								onClick={toggleMenu}

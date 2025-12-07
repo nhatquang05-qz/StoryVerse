@@ -1,0 +1,119 @@
+.gcp-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - var(--header-height)); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('LINK_BACKGROUND_CUA_BAN_O_DAY');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+}
+
+.gcp-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+.gcp-card {
+    position: relative;
+    z-index: 2;
+    background: var(--clr-card-bg);
+    border: 1px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.gcp-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--clr-text);
+    text-transform: uppercase;
+}
+
+.gcp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.gcp-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1.1rem;
+    background-color: var(--clr-background);
+    border: 2px solid var(--clr-border-light);
+    border-radius: var(--border-radius);
+    color: var(--clr-text);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.gcp-input:focus {
+    border-color: var(--clr-primary);
+    box-shadow: 0 0 0 4px var(--clr-input-focus-shadow);
+}
+
+.gcp-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: var(--clr-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.25s, transform 0.1s;
+}
+
+.gcp-btn:hover {
+    background-color: var(--clr-primary-dark);
+}
+
+.gcp-btn:active {
+    transform: scale(0.98);
+}
+
+.gcp-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: var(--clr-text-secondary);
+}
+
+.gcp-alert {
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.gcp-alert-success {
+    background-color: var(--clr-success-bg);
+    color: var(--clr-success-text);
+    border: 1px solid var(--clr-success-text);
+}
+
+.gcp-alert-error {
+    background-color: var(--clr-error-bg);
+    color: var(--clr-error-text);
+    border: 1px solid var(--clr-error-border);
+}
+
+html[data-theme='night'] .gcp-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+}

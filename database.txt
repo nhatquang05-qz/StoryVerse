@@ -431,3 +431,28 @@ DROP COLUMN `spins`,
 DROP COLUMN `lastWishDate`;
 
 ALTER TABLE `reports` MODIFY COLUMN `targetType` ENUM('POST', 'COMMENT', 'CHAT_MESSAGE') NOT NULL;
+
+CREATE TABLE IF NOT EXISTS `giftcodes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL UNIQUE,
+  `coinReward` int DEFAULT 0,
+  `expReward` int DEFAULT 0,
+  `voucherId` int DEFAULT NULL,
+  `usageLimit` int DEFAULT 1,
+  `usedCount` int DEFAULT 0,
+  `expiryDate` datetime DEFAULT NULL,
+  `isActive` tinyint(1) DEFAULT 1,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `user_giftcode_usage` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `giftcodeId` int NOT NULL,
+  `claimedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_code` (`userId`, `giftcodeId`),
+  FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`giftcodeId`) REFERENCES `giftcodes` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
