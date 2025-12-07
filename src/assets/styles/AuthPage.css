@@ -40,7 +40,7 @@
 	border: 1px solid var(--glass-border);
 	box-shadow: 0 0.5rem 2rem 0 rgba(0, 0, 0, 0.37);
 	width: 100%;
-	max-width: 30rem;
+	max-width: 35rem;
 	text-align: center;
 	color: #ffffff;
 	opacity: 0;

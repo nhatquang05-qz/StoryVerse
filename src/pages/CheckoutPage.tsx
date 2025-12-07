@@ -130,7 +130,7 @@ const CheckoutPage: React.FC = () => {
 
 	return (
 		<div className="checkout-container">
-			<h2 className="checkout-title">Thanh Toán</h2>
+			<h1 className="checkout-title">Thanh Toán</h1>
 
 			<div className="checkout-grid">
 				<div className="checkout-left">

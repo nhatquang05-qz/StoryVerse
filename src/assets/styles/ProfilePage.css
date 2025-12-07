@@ -7,6 +7,7 @@
 	min-height: calc(100vh - var(--header-height) - 9.375rem);
 	align-items: start;
 	color: var(--clr-text);
+	width: 100%;
 }
 
 .profile-content {
