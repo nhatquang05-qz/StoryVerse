@@ -633,7 +633,6 @@ const Header: React.FC = () => {
 									<Link to="/my-library">Thư Viện Số</Link>
 									<Link to="/orders">Lịch Sử Mua Hàng</Link>
 									<Link to="/settings">Cài Đặt</Link>
-									<Link to="/giftcode">Nhập Giftcode</Link>
 									<button onClick={handleLogout} className="logout-btn">
 										Đăng Xuất
 									</button>
