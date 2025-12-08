@@ -211,7 +211,6 @@
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	font-size: 1rem;
-	cursor: pointer;
 }
 
 .system-selector-form .cancel-btn {
@@ -329,7 +328,6 @@
 	align-items: center;
 	justify-content: space-between;
 	padding: 1rem;
-	cursor: pointer;
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	margin-top: 1rem;

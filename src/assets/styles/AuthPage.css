@@ -40,7 +40,7 @@
 	border: 1px solid var(--glass-border);
 	box-shadow: 0 0.5rem 2rem 0 rgba(0, 0, 0, 0.37);
 	width: 100%;
-	max-width: 35rem;
+	max-width: 32rem;
 	text-align: center;
 	color: #ffffff;
 	opacity: 0;
@@ -167,7 +167,6 @@
 	color: white;
 	font-size: 1.1rem;
 	font-weight: 700;
-	cursor: pointer;
 	transition: all 0.3s ease;
 	text-transform: uppercase;
 	letter-spacing: 1px;
@@ -320,7 +319,6 @@
 	font-size: 0.875rem;
 	font-weight: 500;
 	font-family: 'Roboto', sans-serif;
-	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;

@@ -30,7 +30,6 @@
 	border: 1px solid var(--clr-border-light);
 	padding: 0.5rem 1rem;
 	border-radius: var(--border-radius);
-	cursor: pointer;
 	font-size: 0.9rem;
 	font-weight: 500;
 	display: flex;
@@ -85,7 +84,6 @@
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	font-size: 0.9rem;
-	cursor: pointer;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
@@ -186,7 +184,6 @@ html[data-theme='dark'] .chapter-select-dropdown option:disabled {
 	border-radius: 3.125rem;
 	font-size: 1rem;
 	font-weight: bold;
-	cursor: pointer;
 	transition:
 		background-color 0.3s ease,
 		transform 0.2s ease;

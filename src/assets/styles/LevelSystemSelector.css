@@ -92,7 +92,6 @@
 	border: 1px solid var(--clr-border-light);
 	border-radius: var(--border-radius);
 	font-size: 1rem;
-	cursor: pointer;
 }
 
 .select-arrow {

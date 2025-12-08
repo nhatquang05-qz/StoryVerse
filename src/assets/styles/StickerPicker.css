@@ -22,7 +22,6 @@
 	border: none;
 	font-size: 1.5rem;
 	color: var(--clr-text-secondary);
-	cursor: pointer;
 	padding: 0.2rem;
 	line-height: 1;
 	z-index: 22;
@@ -45,7 +44,7 @@
 	padding: 0.5rem 0.75rem;
 	background: none;
 	border: none;
-	cursor: pointer;
+	
 	color: var(--clr-text-secondary);
 	font-weight: 500;
 	white-space: nowrap;
@@ -79,7 +78,7 @@
 	height: auto;
 	max-height: 3.125rem;
 	object-fit: contain;
-	cursor: pointer;
+	
 	border-radius: 0.25rem;
 	transition:
 		transform 0.1s ease,

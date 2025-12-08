@@ -171,7 +171,6 @@
 	font-size: 0.9rem;
 	transition: all 0.3s ease;
 	border: 2px solid var(--clr-border-light);
-	cursor: pointer;
 }
 
 .rp-tab-btn:hover {
@@ -245,7 +244,6 @@
 	border-radius: 8px;
 	overflow: visible;
 	margin-bottom: 15px;
-	cursor: pointer;
 }
 
 .rp-podium-cover {
@@ -622,7 +620,6 @@
 	padding: 8px 30px;
 	border-radius: 20px;
 	font-weight: 600;
-	cursor: pointer;
 	transition: all 0.3s ease;
 	display: inline-flex;
 	align-items: center;

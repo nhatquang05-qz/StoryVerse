@@ -234,7 +234,6 @@ const HomePage: React.FC = () => {
 					margin: '20px auto 0',
 					padding: '0 15px',
 					boxSizing: 'border-box',
-					cursor: 'pointer',
 					userSelect: 'none',
 					WebkitUserSelect: 'none',
 				}}

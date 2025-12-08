@@ -58,7 +58,6 @@
 	font-size: 1rem;
 	font-weight: 600;
 	color: var(--text-secondary, #666);
-	cursor: pointer;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -183,7 +182,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	cursor: pointer;
 	color: #ff4d4f;
 	z-index: 2;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);

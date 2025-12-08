@@ -137,6 +137,9 @@
 	border-radius: var(--border-radius);
 	padding-bottom: 0.5rem;
 	border: 1px solid var(--clr-border-light);
+	padding-left: 1.25rem;
+	padding-right: 1.25rem;
+	padding-bottom: 1.2rem;
 }
 
 .dropdown:hover .dropdown-content {
@@ -610,6 +613,7 @@ html[data-theme='night'] .daily-reward-tooltip {
 .user-dropdown a,
 .user-dropdown .logout-btn {
 	color: var(--clr-text);
+	border-radius: 10px;
 	text-decoration: none;
 }
 
