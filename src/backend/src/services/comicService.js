@@ -406,7 +406,7 @@ const getReviewsService = async (comicId) => {
     }
 };
 
-const postReviewService = async (comicId, userId, rating, comment) => {
+const postReviewService = async (comicId, userId, rating, comment, images = [], video = null) => {
     if (!rating || !comment) {
         throw { status: 400, error: 'Rating and comment are required' };
     }
@@ -417,12 +417,20 @@ const postReviewService = async (comicId, userId, rating, comment) => {
         let reviewId;
         if (existing) {
             reviewId = existing.id;
-            await comicModel.updateReviewRaw(reviewId, rating, comment);
+            await comicModel.updateReviewRaw(reviewId, rating, comment, images, video);
         } else {
-            reviewId = await comicModel.insertReviewRaw(comicId, userId, rating, comment);
+            reviewId = await comicModel.insertReviewRaw(comicId, userId, rating, comment, images, video);
         }
 
         const newReview = await comicModel.getReviewByIdRaw(reviewId);
+
+        if (newReview && typeof newReview.images === 'string') {
+            try {
+                newReview.images = JSON.parse(newReview.images);
+            } catch (e) {
+                newReview.images = [];
+            }
+        }
 
         return { review: newReview, status: 201 };
 

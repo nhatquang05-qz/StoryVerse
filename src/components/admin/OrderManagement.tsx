@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaEye, FaTimes, FaCheckDouble } from 'react-icons/fa';
+import { FaEye, FaTimes, FaCheckDouble, FaTruck } from 'react-icons/fa';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../popups/ConfirmModal';
 import '../../assets/styles/OrderManagement.css';
@@ -67,6 +67,9 @@ const OrderManagement: React.FC = () => {
 		} else if (newStatus === 'CANCELLED') {
 			title = 'Xác nhận Hủy đơn';
 			message = `Bạn có chắc muốn HỦY đơn hàng #${orderId} không?`;
+		} else if (newStatus === 'DELIVERED') {
+			title = 'Xác nhận Hàng đã tới';
+			message = `Xác nhận đơn hàng #${orderId} ĐÃ TỚI NƠI (Shipper đã giao)? Khách hàng sẽ thấy nút "Đã nhận hàng".`;
 		}
 
 		setConfirmModal({
@@ -122,6 +125,14 @@ const OrderManagement: React.FC = () => {
 			case 'PENDING':
 				return (
 					<span className="ordermgmt-badge ordermgmt-badge--warning">Chờ thanh toán</span>
+				);
+			case 'SHIPPING':
+				return (
+					<span className="ordermgmt-badge ordermgmt-badge--info">Đang giao</span>
+				);
+			case 'DELIVERED':
+				return (
+					<span className="ordermgmt-badge" style={{backgroundColor: '#d9f7be', color: '#389e0d'}}>Đã tới nơi</span>
 				);
 			case 'CANCELLED':
 				return <span className="ordermgmt-badge ordermgmt-badge--danger">Đã hủy</span>;
@@ -195,6 +206,20 @@ const OrderManagement: React.FC = () => {
 											<FaEye />
 										</button>
 
+										{/* SHIPPING -> DELIVERED */}
+										{order.status === 'SHIPPING' && (
+											<button
+												onClick={() =>
+													handleStatusUpdateClick(order.id, 'DELIVERED')
+												}
+												className="ordermgmt-btn-icon"
+												style={{color: '#1890ff'}}
+												title="Xác nhận hàng đã tới nơi (Chờ khách nhận)"
+											>
+												<FaTruck />
+											</button>
+										)}
+
 										{order.paymentMethod === 'COD' &&
 											order.status !== 'COMPLETED' &&
 											order.status !== 'CANCELLED' && (
@@ -213,7 +238,8 @@ const OrderManagement: React.FC = () => {
 											)}
 
 										{order.status !== 'CANCELLED' &&
-											order.status !== 'COMPLETED' && (
+											order.status !== 'COMPLETED' && 
+											order.status !== 'DELIVERED' && (
 												<button
 													onClick={() =>
 														handleStatusUpdateClick(
@@ -317,18 +343,6 @@ const OrderManagement: React.FC = () => {
 							</div>
 						</div>
 						<div className="ordermgmt-modal-footer">
-							{selectedOrder.paymentMethod === 'COD' &&
-								selectedOrder.status !== 'COMPLETED' &&
-								selectedOrder.status !== 'CANCELLED' && (
-									<button
-										onClick={() => {
-											handleStatusUpdateClick(selectedOrder.id, 'COMPLETED');
-										}}
-										className="ordermgmt-btn-action"
-									>
-										Xác nhận Hoàn tất
-									</button>
-								)}
 							<button
 								onClick={() => setShowModal(false)}
 								className="ordermgmt-btn-close"

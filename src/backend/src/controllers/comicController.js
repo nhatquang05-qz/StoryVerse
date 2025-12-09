@@ -1,7 +1,8 @@
 const comicService = require('../services/comicService');
 const Notification = require('../models/notificationModel'); 
 const { getConnection } = require('../db/connection'); 
-const christmasService = require('../services/christmasService'); 
+const christmasService = require('../services/christmasService');
+const uploadService = require('../services/uploadService'); 
 
 const addComic = async (req, res) => {
     const { title, author, description, coverImageUrl, status, isDigital, price, genres } = req.body;
@@ -155,14 +156,11 @@ const unlockChapter = async (req, res) => {
     try {
         const result = await comicService.unlockChapterService(userId, chapterId);
         
-        // --- [MINIGAME] CẬP NHẬT NHIỆM VỤ ĐỌC 3 CHƯƠNG ---
         try {
             await christmasService.updateMissionProgress(userId, 'READ_CHAPTER');
         } catch (e) {
             console.error("Lỗi cập nhật nhiệm vụ Đọc Minigame:", e.message);
-            // Không throw lỗi để flow chính vẫn chạy
         }
-        // -------------------------------------------------
 
         res.json({
             level: result.level,
@@ -249,7 +247,45 @@ const postReview = async (req, res) => {
         const { userId } = req;
         const { rating, comment } = req.body;
 
-        const result = await comicService.postReviewService(comicId, userId, rating, comment);
+        const imageUrls = [];
+        let videoUrl = null;
+
+        
+        if (req.files && req.files['images']) {
+            for (const file of req.files['images']) {
+                
+                
+                const result = await uploadService.uploadImageService(
+                    file.buffer, 
+                    file.originalname, 
+                    file.size, 
+                    'storyverse_reviews'
+                );
+                imageUrls.push(result.imageUrl);
+            }
+        }
+
+        
+        if (req.files && req.files['video'] && req.files['video'][0]) {
+            const file = req.files['video'][0];
+            const result = await uploadService.uploadImageService(
+                file.buffer, 
+                file.originalname, 
+                file.size, 
+                'storyverse_reviews'
+            );
+            videoUrl = result.imageUrl;
+        }
+
+        
+        const result = await comicService.postReviewService(
+            comicId, 
+            userId, 
+            rating, 
+            comment,
+            imageUrls,
+            videoUrl
+        );
 
         res.status(result.status).json(result.review);
 

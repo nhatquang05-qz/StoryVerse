@@ -1,11 +1,8 @@
 const GiftCode = require('../models/giftcodeModel');
 const { getConnection } = require('../db/connection');
 
-// ... (Giữ nguyên hàm redeemGiftCode cũ, nhớ đảm bảo phần update coinBalance khớp database) ...
 const redeemGiftCode = async (req, res) => {
-    // ... Copy nội dung hàm redeemGiftCode từ lần trước vào đây ...
-    // Lưu ý nhỏ: Trong model tôi đã sửa update user coin -> coinBalance (nếu db bạn là coinBalance). 
-    // Nếu db là 'coin', hãy sửa lại model.
+
     const { code } = req.body;
     const userId = req.userId;
     if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -15,7 +12,6 @@ const redeemGiftCode = async (req, res) => {
         const giftCode = await GiftCode.findByCode(code);
         if (!giftCode || !giftCode.isActive) return res.status(404).json({ success: false, message: 'Mã không tồn tại hoặc đã bị khóa.' });
         
-        // ... Các logic check hạn, check usageLimit giữ nguyên ...
         if (giftCode.expiryDate && new Date(giftCode.expiryDate) < new Date()) {
              return res.status(400).json({ success: false, message: 'Mã quà tặng đã hết hạn.' });
         }
@@ -34,7 +30,6 @@ const redeemGiftCode = async (req, res) => {
             await GiftCode.incrementUsedCount(giftCode.id, connection);
             await GiftCode.updateUserRewards(userId, giftCode.coinReward, giftCode.expReward, connection);
             
-            // Logic thêm voucher đã được update trong Model để check trùng
             if (giftCode.voucherId) {
                 await GiftCode.addVoucherToUser(userId, giftCode.voucherId, connection);
             }
@@ -52,7 +47,6 @@ const redeemGiftCode = async (req, res) => {
     }
 };
 
-// --- API CHO ADMIN ---
 
 const getAllGiftCodes = async (req, res) => {
     try {

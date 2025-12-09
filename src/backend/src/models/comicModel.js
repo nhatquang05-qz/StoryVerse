@@ -1,5 +1,6 @@
 const { getConnection } = require('../db/connection');
 
+
 const FS_CONDITION = `
     FROM flash_sale_items fsi 
     JOIN flash_sales fs ON fsi.flashSaleId = fs.id 
@@ -87,6 +88,7 @@ const updateComicRaw = async (id, comicData) => {
 
 const deleteComicRaw = async (id) => {
     const connection = getConnection();
+    
     
     await connection.execute('DELETE FROM user_wishlist WHERE comicId = ?', [id]);
     await connection.execute(
@@ -477,14 +479,17 @@ const getComicsByGenreCountRaw = async (genre) => {
 const getReviewsRaw = async (comicId) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
-        `SELECT r.id, r.userId, r.rating, r.comment, r.createdAt, u.fullName, u.avatarUrl
+        `SELECT r.id, r.userId, r.rating, r.comment, r.images, r.video, r.createdAt, u.fullName, u.avatarUrl
          FROM reviews r
          JOIN users u ON r.userId = u.id
          WHERE r.comicId = ?
          ORDER BY r.createdAt DESC`,
         [comicId]
     );
-    return rows;
+    return rows.map(row => ({
+        ...row,
+        images: typeof row.images === 'string' ? JSON.parse(row.images) : (row.images || [])
+    }));
 };
 
 const findExistingReview = async (comicId, userId) => {
@@ -493,17 +498,38 @@ const findExistingReview = async (comicId, userId) => {
     return rows.length > 0 ? rows[0] : null;
 };
 
-const updateReviewRaw = async (id, rating, comment) => {
+const updateReviewRaw = async (id, rating, comment, images, video) => {
     const connection = getConnection();
-    await connection.execute('UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW() WHERE id = ?', [rating, comment, id]);
+ 
+    let sql = 'UPDATE reviews SET rating = ?, comment = ?, updatedAt = NOW()';
+    const params = [rating, comment];
+
+    if (images && images.length > 0) {
+        sql += ', images = ?';
+        params.push(JSON.stringify(images));
+    }
+    if (video) {
+        sql += ', video = ?';
+        params.push(video);
+    }
+
+    sql += ' WHERE id = ?';
+    params.push(id);
+
+    await connection.execute(sql, params);
 };
 
-const insertReviewRaw = async (comicId, userId, rating, comment) => {
+const insertReviewRaw = async (comicId, userId, rating, comment, images, video) => {
     const connection = getConnection();
-    const [result] = await connection.execute('INSERT INTO reviews (comicId, userId, rating, comment) VALUES (?, ?, ?, ?)', [comicId, userId, rating, comment]);
+    const imagesJson = JSON.stringify(images || []);
+    const videoUrl = video || null;
+
+    const [result] = await connection.execute(
+        'INSERT INTO reviews (comicId, userId, rating, comment, images, video) VALUES (?, ?, ?, ?, ?, ?)', 
+        [comicId, userId, rating, comment, imagesJson, videoUrl]
+    );
     return result.insertId;
 };
-
 const getReviewByIdRaw = async (reviewId) => {
     const connection = getConnection();
     const [rows] = await connection.execute(
