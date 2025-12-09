@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext'; 
 import { type ComicSummary, type Genre } from '../types/comicTypes';
 import { FiPlus, FiHome, FiLogOut } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +25,7 @@ import ReportManagement from '../components/admin/ReportManagement';
 import '../assets/styles/AdminPage.css';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 export type AdminView =
 	| 'dashboard'
@@ -46,7 +46,7 @@ export type AdminView =
 
 const AdminPage: React.FC = () => {
 	const { currentUser } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast(); 
 	const navigate = useNavigate();
 
 	const [activeView, setActiveView] = useState<AdminView>('dashboard');
@@ -105,7 +105,7 @@ const AdminPage: React.FC = () => {
 			setAllGenres(genresData);
 		} catch (err: any) {
 			setError(err.message);
-			showNotification(err.message, 'error');
+			showToast(err.message, 'error'); 
 		} finally {
 			setIsLoading(false);
 		}
@@ -166,10 +166,10 @@ const AdminPage: React.FC = () => {
 			});
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Xóa thất bại');
-			showNotification('Đã xóa truyện', 'success');
+			showToast('Đã xóa truyện', 'success'); 
 			setComics((prev) => prev.filter((c) => c.id !== comic.id));
 		} catch (error: any) {
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error'); 
 		}
 	};
 	const handleFormSuccess = () => {
@@ -229,7 +229,7 @@ const AdminPage: React.FC = () => {
 				return <UserManagement />;
 			case 'avatars':
 				return <AvatarApprovalManagement />;
-
+			
 			case 'packs':
 				return <PackManagement />;
 			case 'vouchers':
@@ -238,7 +238,7 @@ const AdminPage: React.FC = () => {
 				return <GiftCodeManagement />;
 			case 'flash-sales':
 				return <FlashSaleManagement />;
-
+			
 			case 'orders':
 				return <OrderManagement />;
 			case 'contact':

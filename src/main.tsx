@@ -19,8 +19,8 @@ createRoot(document.getElementById('root')!).render(
 		<StrictMode>
 			<BrowserRouter>
 				<GoogleOAuthProvider clientId={googleClientId}>
-					<NotificationProvider>
-						<AuthProvider>
+					<AuthProvider>
+						<NotificationProvider>
 							<CartProvider>
 								<WishlistProvider>
 									<FontProvider>
@@ -30,8 +30,8 @@ createRoot(document.getElementById('root')!).render(
 									</FontProvider>
 								</WishlistProvider>
 							</CartProvider>
-						</AuthProvider>
-					</NotificationProvider>
+						</NotificationProvider>
+					</AuthProvider>
 				</GoogleOAuthProvider>
 			</BrowserRouter>
 		</StrictMode>

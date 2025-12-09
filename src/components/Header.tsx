@@ -17,24 +17,13 @@ import {
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { useNotification, type Notification } from '../contexts/NotificationContext'; 
 import { type ComicSummary, type Genre } from '../types/comicTypes';
 import ThemeToggleButton from './common/ThemeToggleButton';
 import DailyRewardModal from './common/DailyRewardModal';
 import coinIcon from '../assets/images/coin.avif';
 import '../assets/styles/Header.css';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
-
-interface Notification {
-	id: number;
-	type: 'SYSTEM' | 'ORDER' | 'COMIC' | 'COMMUNITY' | 'RECHARGE';
-	title: string;
-	message: string;
-	isRead: number;
-	createdAt: string;
-	imageUrl?: string;
-	referenceId?: number;
-	referenceType?: string;
-}
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const MAX_SUGGESTIONS_TOTAL = 10;
@@ -66,18 +55,22 @@ const Header: React.FC = () => {
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [isLoadingSearch, setIsLoadingSearch] = useState(false);
 	const [allGenres, setAllGenres] = useState<Genre[]>([]);
-	const { cartCount, setCartIconRect } = useCart();
-	const { currentUser, logout, token } = useAuth();
+	
+    const { cartCount, setCartIconRect } = useCart();
+	const { currentUser, logout } = useAuth();
 	const { showToast } = useToast();
+	
+    
+    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
+
 	const cartIconRef = useRef<HTMLAnchorElement>(null);
 	const navigate = useNavigate();
 	const searchBarRef = useRef<HTMLDivElement>(null);
 	const searchTimeoutRef = useRef<number | null>(null);
 	const location = useLocation();
 	const isReaderPage = location.pathname.startsWith('/read/');
-	const [notifications, setNotifications] = useState<Notification[]>([]);
-	const [unreadCount, setUnreadCount] = useState(0);
-	const [isNotifOpen, setIsNotifOpen] = useState(false);
+	
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
 	const notifRef = useRef<HTMLDivElement>(null);
 
 	const getAvatarSrc = (url: string | null | undefined) => {
@@ -97,55 +90,12 @@ const Header: React.FC = () => {
 		}
 	};
 
-	const fetchNotifications = async () => {
-		if (!currentUser || !token) return;
-		try {
-			const res = await fetch(`${API_URL}/notifications?limit=20`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			if (res.ok) {
-				const data = await res.json();
-				setNotifications(data.notifications);
-				setUnreadCount(data.unreadCount);
-			}
-		} catch (err) {
-			console.error('Lỗi lấy thông báo', err);
-		}
-	};
-
-	useEffect(() => {
-		if (currentUser) {
-			fetchNotifications();
-			const interval = setInterval(fetchNotifications, 60000);
-			return () => clearInterval(interval);
-		}
-	}, [currentUser, token]);
-
-	const handleMarkAllRead = async () => {
-		if (!currentUser || !token) return;
-		try {
-			await fetch(`${API_URL}/notifications/read-all`, {
-				method: 'PUT',
-				headers: { Authorization: `Bearer ${token}` },
-			});
-			setNotifications((prev) => prev.map((n) => ({ ...n, isRead: 1 })));
-			setUnreadCount(0);
-		} catch (err) {
-			console.error(err);
-		}
-	};
+    
 
 	const handleNotificationClick = async (notif: Notification) => {
-		if (notif.isRead === 0 && token) {
-			fetch(`${API_URL}/notifications/${notif.id}/read`, {
-				method: 'PUT',
-				headers: { Authorization: `Bearer ${token}` },
-			}).catch((err) => console.error(err));
-
-			setNotifications((prev) =>
-				prev.map((n) => (n.id === notif.id ? { ...n, isRead: 1 } : n)),
-			);
-			setUnreadCount((prev) => Math.max(0, prev - 1));
+		if (notif.isRead === 0) {
+            
+            await markAsRead(notif.id);
 		}
 
 		setIsNotifOpen(false);
@@ -289,7 +239,7 @@ const Header: React.FC = () => {
 					today.getMonth() === lastLoginDate.getMonth() &&
 					today.getDate() === lastLoginDate.getDate()
 				);
-			})()
+		  })()
 		: false;
 
 	useEffect(() => {
@@ -364,8 +314,8 @@ const Header: React.FC = () => {
 						</div>
 					</div>
 
-					<Link
-						to="/community"
+					<Link 
+						to="/community" 
 						className={isActive('/community') ? 'active' : ''}
 						onClick={handleCommunityClick}
 					>
@@ -534,7 +484,8 @@ const Header: React.FC = () => {
 									onClick={() => setIsNotifOpen(!isNotifOpen)}
 									aria-label="Thông báo"
 								>
-									<FiBell />
+                                    {}
+									<FiBell className={unreadCount > 0 ? 'bell-shake' : ''} />
 									{unreadCount > 0 && (
 										<span className="notification-badge">
 											{unreadCount > 99 ? '99+' : unreadCount}
@@ -549,7 +500,7 @@ const Header: React.FC = () => {
 											{unreadCount > 0 && (
 												<button
 													className="mark-all-read"
-													onClick={handleMarkAllRead}
+													onClick={markAllAsRead}
 												>
 													Đánh dấu tất cả đã đọc
 												</button>
@@ -702,8 +653,8 @@ const Header: React.FC = () => {
 						Đọc Online
 					</Link>
 
-					<Link
-						to="/community"
+					<Link 
+						to="/community" 
 						onClick={(e) => {
 							handleCommunityClick(e);
 							if (currentUser) toggleMenu();
