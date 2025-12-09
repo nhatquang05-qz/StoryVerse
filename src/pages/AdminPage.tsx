@@ -22,6 +22,7 @@ import OrderManagement from '../components/admin/OrderManagement';
 import ContactManagement from '../components/admin/ContactManagement';
 import ReportManagement from '../components/admin/ReportManagement';
 import ComplaintManagement from '../components/admin/ComplaintManagement';
+import NewsletterManagement from '../components/admin/NewsletterManagement';
 
 import '../assets/styles/AdminPage.css';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
@@ -44,7 +45,8 @@ export type AdminView =
 	| 'orders'
 	| 'contact'
 	| 'reports'
-	| 'complaints';
+	| 'complaints'
+	| 'newsletter';
 
 const AdminPage: React.FC = () => {
 	const { currentUser } = useAuth();
@@ -240,6 +242,8 @@ const AdminPage: React.FC = () => {
 				return <GiftCodeManagement />;
 			case 'flash-sales':
 				return <FlashSaleManagement />;
+			case 'newsletter':
+				return <NewsletterManagement />;
 
 			case 'orders':
 				return <OrderManagement />;

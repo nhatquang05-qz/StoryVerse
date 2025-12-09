@@ -1,10 +1,9 @@
 const { getConnection } = require('../db/connection');
 
 const GiftCode = {
-  // ... (Giữ nguyên các hàm findByCode, checkUsage, recordUsage, incrementUsedCount, updateUserRewards cũ) ...
   findByCode: async (code) => {
     const connection = await getConnection();
-    const [rows] = await connection.query('SELECT * FROM giftcodes WHERE code = ?', [code]); // Bỏ check isActive ở đây để Admin còn tìm được
+    const [rows] = await connection.query('SELECT * FROM giftcodes WHERE code = ?', [code]); 
     return rows[0];
   },
 
@@ -28,7 +27,7 @@ const GiftCode = {
     const updates = [];
     
     if (coin > 0) {
-      updates.push('coinBalance = coinBalance + ?'); // Lưu ý: Check lại tên cột trong DB là coin hay coinBalance, code cũ bạn dùng coinBalance ở FE nhưng update coin ở BE. Tôi dùng coinBalance cho khớp userModel.
+      updates.push('coinBalance = coinBalance + ?');  
       params.push(coin);
     }
     if (exp > 0) {
@@ -43,25 +42,25 @@ const GiftCode = {
     await connection.query(query, params);
   },
 
-  // --- SỬA LOGIC VOUCHER: Kiểm tra xem user đã có voucher này chưa ---
+   
   addVoucherToUser: async (userId, voucherId, connection) => {
     if (!voucherId) return;
     
-    // Kiểm tra xem user đã sở hữu voucher này chưa (bất kể đã dùng hay chưa)
+     
     const [existing] = await connection.query(
         'SELECT id FROM user_vouchers WHERE userId = ? AND voucherId = ?', 
         [userId, voucherId]
     );
 
     if (existing.length > 0) {
-        // User đã có voucher này rồi -> Không cộng thêm nữa (đúng yêu cầu mỗi tk chỉ xài 1 lần/sở hữu 1 cái)
+         
         return; 
     }
 
     await connection.query('INSERT INTO user_vouchers (userId, voucherId, isUsed) VALUES (?, ?, 0)', [userId, voucherId]);
   },
 
-  // --- CÁC HÀM CHO ADMIN ---
+   
   getAll: async () => {
     const connection = await getConnection();
     const [rows] = await connection.query('SELECT * FROM giftcodes ORDER BY id DESC');

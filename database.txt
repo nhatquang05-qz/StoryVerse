@@ -150,18 +150,23 @@ CREATE TABLE `payment_transactions` (
 CREATE TABLE `reviews` (
    `id` int NOT NULL AUTO_INCREMENT,
    `userId` int NOT NULL,
+   `orderId` int DEFAULT NULL,
    `comicId` int NOT NULL,
    `rating` int DEFAULT NULL,
    `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
    `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
    `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   `images` json DEFAULT NULL COMMENT 'Lưu mảng URL ảnh',
+   `video` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Lưu URL video',
    PRIMARY KEY (`id`),
-   UNIQUE KEY `idx_user_comic_review` (`userId`,`comicId`),
+   UNIQUE KEY `unique_order_review` (`userId`,`comicId`,`orderId`),
    KEY `comicId` (`comicId`),
+   KEY `fk_reviews_order_new` (`orderId`),
+   CONSTRAINT `fk_reviews_order_new` FOREIGN KEY (`orderId`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
    CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
    CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`comicId`) REFERENCES `comics` (`id`) ON DELETE CASCADE,
    CONSTRAINT `reviews_chk_1` CHECK (((`rating` >= 1) and (`rating` <= 5)))
- ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
 CREATE TABLE `user_bookmarks` (
    `userId` int NOT NULL,
@@ -480,23 +485,21 @@ ALTER TABLE `users`
 ADD COLUMN `role` ENUM('user', 'admin') DEFAULT 'user' AFTER `email`;
 
 -- 1. Tạo bảng khiếu nại (Complaints)
-CREATE TABLE IF NOT EXISTS `complaints` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `user_id` INT NOT NULL,
-  `order_id` INT NOT NULL,
-  `description` TEXT NOT NULL,
-  `images` JSON NULL DEFAULT NULL COMMENT 'Lưu mảng URL ảnh, tối đa 5',
-  `video` VARCHAR(255) NULL DEFAULT NULL COMMENT 'URL video',
-  `status` ENUM('pending', 'resolved', 'rejected') DEFAULT 'pending',
-  `admin_reply` TEXT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+CREATE TABLE `complaints` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `orderId` int NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `images` json DEFAULT NULL COMMENT 'Lưu mảng URL ảnh',
+  `video` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('PENDING','RESOLVED','REJECTED') COLLATE utf8mb4_unicode_ci DEFAULT 'PENDING',
+  `adminReply` text COLLATE utf8mb4_unicode_ci,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `userId` (`userId`),
+  KEY `orderId` (`orderId`),
+  CONSTRAINT `complaints_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `complaints_ibfk_2` FOREIGN KEY (`orderId`) REFERENCES `orders` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
-
-ALTER TABLE `reviews`
-ADD COLUMN `order_id` INT NULL AFTER `userId`, -- Sửa user_id thành userId
-ADD CONSTRAINT `fk_reviews_order` FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE;

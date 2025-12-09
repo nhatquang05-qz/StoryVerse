@@ -1,11 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaFacebookF, FaDiscord, FaYoutube, FaTiktok } from 'react-icons/fa';
+import axios from 'axios';
+import { useToast } from '../contexts/ToastContext';
 import '../assets/styles/Footer.css';
 import logoLightMode from '../assets/images/logo_dark.avif';
 import logoDarkMode from '../assets/images/logo.avif';
 
 const Footer: React.FC = () => {
+	const [email, setEmail] = useState('');
+	const [loading, setLoading] = useState(false);
+
+	const { showToast } = useToast();
+
+	const handleSubscribe = async () => {
+		if (!email) {
+			showToast('Vui lòng nhập địa chỉ email của bạn!', 'warning');
+			return;
+		}
+
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			showToast('Địa chỉ email không hợp lệ.', 'warning');
+			return;
+		}
+
+		setLoading(true);
+		try {
+			const res = await axios.post('http://localhost:3000/api/newsletter/subscribe', {
+				email,
+			});
+			showToast(res.data.message || 'Đăng ký nhận tin thành công!', 'success');
+			setEmail('');
+		} catch (error: any) {
+			console.error(error);
+			const errorMessage =
+				error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại sau.';
+			showToast(errorMessage, 'error');
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	return (
 		<footer className="footer">
 			<div className="footer-container">
@@ -73,7 +109,6 @@ const Footer: React.FC = () => {
 							target="_blank"
 							rel="noreferrer"
 							className="social-item discord"
-							aria-label="Discord"
 						>
 							<FaDiscord />
 						</a>
@@ -82,7 +117,6 @@ const Footer: React.FC = () => {
 							target="_blank"
 							rel="noreferrer"
 							className="social-item facebook"
-							aria-label="Facebook"
 						>
 							<FaFacebookF />
 						</a>
@@ -91,7 +125,6 @@ const Footer: React.FC = () => {
 							target="_blank"
 							rel="noreferrer"
 							className="social-item youtube"
-							aria-label="YouTube"
 						>
 							<FaYoutube />
 						</a>
@@ -100,15 +133,31 @@ const Footer: React.FC = () => {
 							target="_blank"
 							rel="noreferrer"
 							className="social-item tiktok"
-							aria-label="TikTok"
 						>
 							<FaTiktok />
 						</a>
 					</div>
 
 					<div className="newsletter-box">
-						<input type="email" placeholder="Nhập email nhận tin..." />
-						<button aria-label="Đăng ký">➜</button>
+						<input
+							type="email"
+							placeholder="Nhập email nhận tin..."
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							disabled={loading}
+							onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
+						/>
+						<button
+							aria-label="Đăng ký"
+							onClick={handleSubscribe}
+							disabled={loading}
+							style={{
+								cursor: loading ? 'not-allowed' : 'pointer',
+								opacity: loading ? 0.7 : 1,
+							}}
+						>
+							{loading ? '...' : '➜'}
+						</button>
 					</div>
 				</div>
 			</div>

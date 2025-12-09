@@ -54,7 +54,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 			icon: FiUsers,
 			view: 'users',
 		},
-
 		{
 			id: 'support',
 			label: 'Trung tâm hỗ trợ',
@@ -82,13 +81,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 				{ id: 'vouchers', label: 'Mã giảm giá', view: 'vouchers' },
 				{ id: 'giftcodes', label: 'Giftcode', view: 'giftcodes' },
 				{ id: 'flash-sales', label: 'Flash Sale', view: 'flash-sales' },
+				{ id: 'newsletter', label: 'Trạm Phát Tin', view: 'newsletter' },
 			],
 		},
 	];
 
 	return (
 		<nav className="admin-sidebar-container">
-			{}
 			<div className="admin-sidebar-header">
 				<h3 className="admin-brand">STORYVERSE</h3>
 				<h4 className="admin-subtitle">Admin Portal</h4>

@@ -184,7 +184,6 @@ const ComplaintManagement: React.FC = () => {
 							style={{ maxHeight: '70vh', overflowY: 'auto' }}
 						>
 							<div className="detail-row">
-								{/* [SỬA] Hiển thị transactionCode trong modal */}
 								<strong>Mã đơn hàng:</strong>
 								<span
 									style={{ marginLeft: 8, fontWeight: 'bold', color: '#2563eb' }}

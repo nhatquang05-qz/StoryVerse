@@ -24,7 +24,9 @@ const rankingRoutes = require('./rankingRoutes');
 const giftCodeRoutes = require('./giftCodeRoutes');
 const complaintRoutes = require('./complaintRoutes');
 const reviewRoutes = require('./reviewRoutes');
+const newsletterRoutes = require('./newsletterRoutes');
 
+router.use('/newsletter', newsletterRoutes);
 router.use('/rankings', rankingRoutes);
 router.use('/minigame', minigameRoutes);
 router.use('/auth', authRoutes);
