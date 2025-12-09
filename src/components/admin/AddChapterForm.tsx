@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
@@ -10,7 +10,7 @@ interface AddChapterFormProps {
 }
 
 const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, comicTitle, onSuccess }) => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [chapterNumber, setChapterNumber] = useState('');
 	const [chapterTitle, setChapterTitle] = useState('');
 	const [chapterImageFiles, setChapterImageFiles] = useState<FileList | null>(null);
@@ -30,7 +30,7 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, comicTitle, on
 		if (!chapterImageFiles || chapterImageFiles.length === 0) return;
 
 		if (!chapterNumber) {
-			showNotification('Vui lòng nhập số chương trước khi upload ảnh!', 'warning');
+			showToast('Vui lòng nhập số chương trước khi upload ảnh!', 'warning');
 			return;
 		}
 
@@ -61,10 +61,10 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, comicTitle, on
 				setUploadProgress(((i + 1) / totalFiles) * 100);
 			}
 			setChapterImageUrls(uploadedUrls);
-			showNotification(`Upload ${uploadedUrls.length} ảnh chương thành công!`, 'success');
+			showToast(`Upload ${uploadedUrls.length} ảnh chương thành công!`, 'success');
 		} catch (error: any) {
 			console.error('Upload chapter images error:', error);
-			showNotification(`Lỗi upload ảnh chương: ${error.message}`, 'error');
+			showToast(`Lỗi upload ảnh chương: ${error.message}`, 'error');
 			setChapterImageUrls([]);
 			setUploadProgress(0);
 		} finally {
@@ -75,7 +75,7 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, comicTitle, on
 	const handleSubmitChapter = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!comicId || !chapterNumber || chapterImageUrls.length === 0) {
-			showNotification('Vui lòng nhập ID truyện, số chương và upload ảnh.', 'warning');
+			showToast('Vui lòng nhập ID truyện, số chương và upload ảnh.', 'warning');
 			return;
 		}
 		setIsSubmitting(true);
@@ -97,7 +97,7 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, comicTitle, on
 			});
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Failed to add chapter');
-			showNotification(`Thêm chương ${chapterNumber} thành công!`, 'success');
+			showToast(`Thêm chương ${chapterNumber} thành công!`, 'success');
 			setChapterNumber('');
 			setChapterTitle('');
 			setChapterImageFiles(null);
@@ -107,7 +107,7 @@ const AddChapterForm: React.FC<AddChapterFormProps> = ({ comicId, comicTitle, on
 			onSuccess();
 		} catch (error: any) {
 			console.error('Submit chapter error:', error);
-			showNotification(`Lỗi thêm chương: ${error.message}`, 'error');
+			showToast(`Lỗi thêm chương: ${error.message}`, 'error');
 		} finally {
 			setIsSubmitting(false);
 		}

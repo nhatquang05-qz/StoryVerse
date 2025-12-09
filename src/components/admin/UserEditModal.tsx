@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import { FiX, FiSave, FiLoader } from 'react-icons/fi';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -24,7 +24,7 @@ interface UserEditModalProps {
 const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onSave, token }) => {
 	const [formData, setFormData] = useState(user);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value, type } = e.target;
@@ -52,10 +52,10 @@ const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onSave, to
 			});
 			const data = await response.json();
 			if (!response.ok) throw new Error(data.error || 'Cập nhật thất bại');
-			showNotification('Cập nhật người dùng thành công!', 'success');
+			showToast('Cập nhật người dùng thành công!', 'success');
 			onSave(formData);
 		} catch (error: any) {
-			showNotification(`Lỗi cập nhật: ${error.message}`, 'error');
+			showToast(`Lỗi cập nhật: ${error.message}`, 'error');
 		} finally {
 			setIsSubmitting(false);
 		}

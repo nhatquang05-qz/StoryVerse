@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaReply, FaCheckCircle, FaPaperclip, FaTimes, FaPaperPlane } from 'react-icons/fa';
 import '../../assets/styles/ContactManagement.css';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ContactMessage {
 	id: number;
@@ -24,7 +24,7 @@ const ContactManagement: React.FC = () => {
 	const [replyImage, setReplyImage] = useState<File | null>(null);
 	const [isSending, setIsSending] = useState(false);
 
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const fetchMessages = async () => {
 		try {
@@ -80,7 +80,7 @@ const ContactManagement: React.FC = () => {
 			});
 
 			if (res.ok) {
-				showNotification('Đã gửi phản hồi thành công!', 'success');
+				showToast('Đã gửi phản hồi thành công!', 'success');
 				setMessages((prev) =>
 					prev.map((m) =>
 						m.id === selectedMsg.id
@@ -90,11 +90,11 @@ const ContactManagement: React.FC = () => {
 				);
 				handleCloseModal();
 			} else {
-				showNotification('Lỗi khi gửi mail.', 'error');
+				showToast('Lỗi khi gửi mail.', 'error');
 			}
 		} catch (error) {
 			console.error(error);
-			showNotification('Lỗi kết nối server.', 'error');
+			showToast('Lỗi kết nối server.', 'error');
 		} finally {
 			setIsSending(false);
 		}
