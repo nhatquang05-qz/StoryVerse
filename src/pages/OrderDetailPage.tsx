@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
 	FiArrowLeft,
 	FiMapPin,
@@ -22,8 +22,9 @@ import axios from 'axios';
 import '../assets/styles/OrderDetailPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+
 const getImageUrl = (url: string) => {
-	if (!url) return 'https://via.placeholder.com/150';
+	if (!url) return '';
 	if (url.startsWith('http')) return url;
 	const baseUrl = API_URL.replace('/api', '');
 	return `${baseUrl}/${url}`;
@@ -109,56 +110,48 @@ const OrderDetailPage: React.FC = () => {
 		setShowReviewModal(true);
 	};
 
+	const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+		e.currentTarget.style.display = 'none';
+	};
+
 	const renderStatusBadge = (status: string) => {
 		let badgeClass = 'status-badge ';
 		let icon = <FiAlertCircle />;
 		let text = status;
-		let style = {};
 
 		switch (status) {
 			case 'PENDING':
 				badgeClass += 'pending';
 				icon = <FiClock />;
 				text = 'Chờ thanh toán';
-				style = {
-					backgroundColor: 'var(--clr-warning-bg)',
-					color: 'var(--clr-warning-text)',
-				};
 				break;
 			case 'PAID':
 			case 'PROCESSING':
 				badgeClass += 'processing';
 				icon = <FiBox />;
 				text = 'Đang xử lý';
-				style = { backgroundColor: 'var(--clr-info-bg)', color: 'var(--clr-info-text)' };
 				break;
 			case 'SHIPPING':
 				badgeClass += 'shipping';
 				icon = <FiTruck />;
 				text = 'Đang giao hàng';
-				style = { backgroundColor: 'var(--clr-info-bg)', color: 'var(--clr-info-text)' };
 				break;
 			case 'COMPLETED':
 			case 'SUCCESS':
 				badgeClass += 'completed';
 				icon = <FiCheckCircle />;
 				text = 'Hoàn thành';
-				style = {
-					backgroundColor: 'var(--clr-success-bg)',
-					color: 'var(--clr-success-text)',
-				};
 				break;
 			case 'CANCELLED':
 				badgeClass += 'cancelled';
 				icon = <FiXCircle />;
 				text = 'Đã hủy';
-				style = { backgroundColor: 'var(--clr-error-bg)', color: 'var(--clr-error-text)' };
 				break;
 			default:
-				style = { backgroundColor: 'var(--clr-card-bg)', color: 'var(--clr-text)' };
+				badgeClass += 'default';
 		}
 		return (
-			<span className={badgeClass} style={style}>
+			<span className={badgeClass}>
 				{icon} {text}
 			</span>
 		);
@@ -250,53 +243,23 @@ const OrderDetailPage: React.FC = () => {
 									src={getImageUrl(item.coverImageUrl)}
 									alt={item.title}
 									className="item-image"
-									onError={(e) => {
-										(e.target as HTMLImageElement).src =
-											'https://via.placeholder.com/60x90?text=Error';
-									}}
+									onError={handleImageError}
 								/>
 								<div className="item-details">
 									<h5 className="item-title">{item.title}</h5>
 									<p className="item-quantity">Số lượng: x{item.quantity}</p>
 
-									{/* LOGIC HIỂN THỊ NÚT ĐÁNH GIÁ:
-                                        Chỉ hiện khi đơn hoàn thành VÀ sản phẩm chưa được đánh giá (isReviewed == 0) 
-                                    */}
 									{isCompleted && !item.isReviewed && (
 										<button
 											className="btn-review-item"
 											onClick={() => handleOpenReview(item)}
-											style={{
-												marginTop: '8px',
-												padding: '6px 12px',
-												fontSize: '0.85rem',
-												backgroundColor: 'var(--clr-primary)',
-												color: '#fff',
-												border: 'none',
-												borderRadius: '4px',
-												cursor: 'pointer',
-												display: 'flex',
-												alignItems: 'center',
-												gap: '5px',
-												width: 'fit-content',
-											}}
 										>
-											<FiStar /> Đánh giá ngay
+											<FiStar /> Đánh giá
 										</button>
 									)}
 
-									{}
 									{isCompleted && !!item.isReviewed && (
-										<div
-											style={{
-												marginTop: '8px',
-												color: 'var(--clr-success-text)',
-												fontSize: '0.85rem',
-												display: 'flex',
-												alignItems: 'center',
-												gap: '4px',
-											}}
-										>
+										<div className="reviewed-badge">
 											<FiCheckCircle /> Đã đánh giá
 										</div>
 									)}
@@ -316,54 +279,23 @@ const OrderDetailPage: React.FC = () => {
 					</div>
 				</div>
 
-				{}
 				{isCompleted && (
-					<div
-						className="od-actions"
-						style={{
-							display: 'flex',
-							justifyContent: 'flex-end',
-							marginTop: '30px',
-							paddingTop: '20px',
-							borderTop: '1px solid var(--clr-border-light)',
-						}}
-					>
+					<div className="od-actions">
 						<button
-							className="btn-complaint-action"
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '10px',
-								padding: '12px 30px',
-								fontSize: '1rem',
-								fontWeight: 700,
-								borderRadius: '8px',
-								cursor: 'pointer',
-								backgroundColor: complaint
-									? 'var(--clr-info-bg)'
-									: 'var(--clr-error-bg)',
-								color: complaint ? 'var(--clr-info-text)' : 'var(--clr-error-text)',
-								border: complaint
-									? '1px solid var(--clr-info-border)'
-									: '1px solid var(--clr-error-border)',
-								transition: 'all 0.2s ease',
-								minWidth: '200px',
-							}}
+							className={`btn-complaint-action ${complaint ? 'complaint-active' : 'complaint-inactive'}`}
 							onClick={() => setShowComplaintModal(true)}
 						>
 							<FiMessageSquare size={20} />
 							{complaint
 								? complaint.status === 'PENDING'
-									? 'ĐANG CHỜ XỬ LÝ KHIẾU NẠI'
-									: 'XEM KẾT QUẢ KHIẾU NẠI'
-								: 'BÁO CÁO / KHIẾU NẠI ĐƠN HÀNG'}
+									? 'ĐANG KHIẾU NẠI (Chi tiết)'
+									: 'KẾT QUẢ KHIẾU NẠI'
+								: 'GỬI KHIẾU NẠI'}
 						</button>
 					</div>
 				)}
 			</div>
 
-			{}
 			<ComplaintModal
 				isOpen={showComplaintModal}
 				onClose={() => setShowComplaintModal(false)}
@@ -373,7 +305,6 @@ const OrderDetailPage: React.FC = () => {
 				onSuccess={fetchOrderData}
 			/>
 
-			{}
 			{selectedItem && (
 				<ReviewModal
 					isOpen={showReviewModal}
@@ -385,6 +316,15 @@ const OrderDetailPage: React.FC = () => {
 					item={selectedItem}
 					token={token || ''}
 					onSuccess={() => {
+						setOrder((prev) => {
+							if (!prev) return null;
+							return {
+								...prev,
+								items: prev.items.map((it) =>
+									it.id === selectedItem.id ? { ...it, isReviewed: 1 } : it,
+								),
+							};
+						});
 						fetchOrderData();
 					}}
 				/>

@@ -1,5 +1,5 @@
 .orders-page-container {
-	max-width: 62.5rem; /* 1000px */
+	max-width: 62.5rem;
 	margin: 0 auto;
 	padding: 2rem 1rem;
 	min-height: 80vh;
@@ -19,7 +19,6 @@
 	gap: 0.625rem;
 }
 
-/* --- TABS --- */
 .orders-tabs {
 	display: flex;
 	gap: 1rem;
@@ -53,7 +52,7 @@
 .tab-btn.active::after {
 	content: '';
 	position: absolute;
-	bottom: -0.6rem; /* Align with container border */
+	bottom: -0.6rem;
 	left: 0;
 	width: 100%;
 	height: 3px;
@@ -61,7 +60,6 @@
 	border-radius: 3px 3px 0 0;
 }
 
-/* --- STATES --- */
 .loading-state,
 .empty-state {
 	text-align: center;
@@ -153,7 +151,6 @@
 	gap: 0.375rem;
 }
 
-/* Status Badges */
 .status-badge {
 	padding: 0.375rem 0.75rem;
 	border-radius: 1.25rem;
@@ -266,7 +263,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	margin-top: 0.5rem;
 }
 
-/* FOOTER & ACTIONS */
 .order-footer {
 	padding: 1rem 1.5rem;
 	border-top: 1px solid var(--clr-border-light);
@@ -297,7 +293,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	gap: 0.75rem;
 }
 
-/* GENERAL BUTTON STYLES (Detail, Review, Receive) */
 .btn-detail,
 .btn-action {
 	padding: 0.6rem 1.25rem;
@@ -312,7 +307,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	justify-content: center;
 }
 
-/* Detail Button */
 .btn-detail {
 	border: 1px solid var(--clr-border);
 	color: var(--clr-text);
@@ -323,7 +317,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	color: var(--clr-primary);
 }
 
-/* Review Button */
 .btn-review {
 	border: 1px solid var(--clr-primary);
 	background-color: transparent;
@@ -334,10 +327,9 @@ html[data-theme='night'] .status-badge.cancelled {
 	color: white;
 }
 
-/* Receive Button */
 .btn-receive {
 	border: none;
-	background-color: #52c41a; /* Green */
+	background-color: #52c41a;
 	color: white;
 	box-shadow: 0 2px 4px rgba(82, 196, 26, 0.2);
 }
@@ -346,7 +338,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	transform: translateY(-1px);
 }
 
-/* --- REVIEW MODAL --- */
 .review-modal-overlay {
 	position: fixed;
 	top: 0;
@@ -440,7 +431,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	font-family: inherit;
 }
 
-/* Media Upload */
 .media-upload-section {
 	display: flex;
 	gap: 1rem;
@@ -531,7 +521,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	background-color: var(--clr-primary-dark);
 }
 
-/* Animation Keyframes */
 @keyframes fadeIn {
 	from {
 		opacity: 0;
@@ -552,7 +541,6 @@ html[data-theme='night'] .status-badge.cancelled {
 	}
 }
 
-/* RESPONSIVE */
 @media (max-width: 37.5rem) {
 	.order-header,
 	.order-footer {

@@ -8,10 +8,6 @@ import {
 	FiXCircle,
 	FiTruck,
 	FiAlertCircle,
-	FiStar,
-	FiX,
-	FiVideo,
-	FiImage,
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -46,14 +42,6 @@ const OrdersPage: React.FC = () => {
 	const [orders, setOrders] = useState<Order[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState<TabType>('ALL');
-
-	const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-	const [selectedOrderForReview, setSelectedOrderForReview] = useState<Order | null>(null);
-	const [reviewRating, setReviewRating] = useState(5);
-	const [reviewComment, setReviewComment] = useState('');
-	const [reviewImages, setReviewImages] = useState<File[]>([]);
-	const [reviewVideo, setReviewVideo] = useState<File | null>(null);
-	const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
 	useEffect(() => {
 		fetchOrders();
@@ -111,79 +99,6 @@ const OrdersPage: React.FC = () => {
 			}
 		} catch (error) {
 			showToast('Lỗi kết nối.', 'error');
-		}
-	};
-
-	const openReviewModal = (order: Order) => {
-		setSelectedOrderForReview(order);
-		setReviewRating(5);
-		setReviewComment('');
-		setReviewImages([]);
-		setReviewVideo(null);
-		setIsReviewModalOpen(true);
-	};
-
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			const filesArray = Array.from(e.target.files);
-			if (reviewImages.length + filesArray.length > 3) {
-				showToast('Chỉ được chọn tối đa 3 ảnh.', 'warning');
-				return;
-			}
-			setReviewImages((prev) => [...prev, ...filesArray]);
-		}
-	};
-
-	const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files && e.target.files[0]) {
-			const file = e.target.files[0];
-			if (file.size > 50 * 1024 * 1024) {
-				showToast('Video không được quá 50MB.', 'warning');
-				return;
-			}
-			setReviewVideo(file);
-		}
-	};
-
-	const removeImage = (index: number) => {
-		setReviewImages((prev) => prev.filter((_, i) => i !== index));
-	};
-
-	const handleSubmitReview = async () => {
-		if (!selectedOrderForReview) return;
-		if (reviewComment.trim().length < 10) {
-			showToast('Nội dung đánh giá phải có ít nhất 10 ký tự.', 'warning');
-			return;
-		}
-
-		setIsSubmittingReview(true);
-		try {
-			for (const item of selectedOrderForReview.items) {
-				const formData = new FormData();
-				formData.append('rating', reviewRating.toString());
-				formData.append('comment', reviewComment);
-
-				reviewImages.forEach((img) => formData.append('images', img));
-				if (reviewVideo) formData.append('video', reviewVideo);
-
-				const res = await fetch(`${API_URL}/comics/${item.comicId}/reviews`, {
-					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-					body: formData,
-				});
-
-				if (!res.ok) throw new Error('Review failed');
-			}
-
-			showToast('Đánh giá thành công!', 'success');
-			setIsReviewModalOpen(false);
-		} catch (error) {
-			console.error(error);
-			showToast('Lỗi khi gửi đánh giá. Vui lòng thử lại.', 'error');
-		} finally {
-			setIsSubmittingReview(false);
 		}
 	};
 
@@ -396,128 +311,10 @@ const OrdersPage: React.FC = () => {
 											Đã nhận hàng
 										</button>
 									)}
-
-									{order.status === 'COMPLETED' && (
-										<button
-											className="btn-action btn-review"
-											onClick={() => openReviewModal(order)}
-										>
-											Đánh giá
-										</button>
-									)}
 								</div>
 							</div>
 						</div>
 					))}
-				</div>
-			)}
-
-			{isReviewModalOpen && selectedOrderForReview && (
-				<div className="review-modal-overlay">
-					<div className="review-modal">
-						<button
-							className="close-modal-btn"
-							onClick={() => setIsReviewModalOpen(false)}
-						>
-							<FiX />
-						</button>
-						<h3>Đánh giá sản phẩm</h3>
-						<p className="review-order-ref">
-							Đơn hàng:{' '}
-							{selectedOrderForReview.transactionCode ||
-								`#${selectedOrderForReview.id}`}
-						</p>
-
-						<div className="rating-input-group">
-							<p>Chất lượng sản phẩm:</p>
-							<div className="star-rating-input">
-								{[1, 2, 3, 4, 5].map((star) => (
-									<FiStar
-										key={star}
-										size={24}
-										className={
-											star <= reviewRating ? 'star-filled' : 'star-empty'
-										}
-										onClick={() => setReviewRating(star)}
-									/>
-								))}
-							</div>
-						</div>
-
-						<textarea
-							className="review-textarea"
-							placeholder="Hãy chia sẻ nhận xét của bạn về sản phẩm này..."
-							value={reviewComment}
-							onChange={(e) => setReviewComment(e.target.value)}
-						/>
-
-						<div className="media-upload-section">
-							<div className="upload-btn-wrapper">
-								<label htmlFor="img-upload" className="upload-label">
-									<FiImage /> Thêm Ảnh ({reviewImages.length}/3)
-								</label>
-								<input
-									id="img-upload"
-									type="file"
-									accept="image/*"
-									multiple
-									onChange={handleImageChange}
-									hidden
-									disabled={reviewImages.length >= 3}
-								/>
-							</div>
-
-							<div className="upload-btn-wrapper">
-								<label
-									htmlFor="vid-upload"
-									className={`upload-label ${reviewVideo ? 'disabled' : ''}`}
-								>
-									<FiVideo /> Thêm Video (Max 1)
-								</label>
-								<input
-									id="vid-upload"
-									type="file"
-									accept="video/*"
-									onChange={handleVideoChange}
-									hidden
-									disabled={!!reviewVideo}
-								/>
-							</div>
-						</div>
-
-						<div className="media-preview-container">
-							{reviewImages.map((file, idx) => (
-								<div key={idx} className="media-preview-item">
-									<img src={URL.createObjectURL(file)} alt="preview" />
-									<button
-										className="remove-media-btn"
-										onClick={() => removeImage(idx)}
-									>
-										×
-									</button>
-								</div>
-							))}
-							{reviewVideo && (
-								<div className="media-preview-item">
-									<video src={URL.createObjectURL(reviewVideo)} controls />
-									<button
-										className="remove-media-btn"
-										onClick={() => setReviewVideo(null)}
-									>
-										×
-									</button>
-								</div>
-							)}
-						</div>
-
-						<button
-							className="submit-review-btn-modal"
-							onClick={handleSubmitReview}
-							disabled={isSubmittingReview}
-						>
-							{isSubmittingReview ? 'Đang gửi...' : 'Gửi Đánh Giá'}
-						</button>
-					</div>
 				</div>
 			)}
 		</div>
