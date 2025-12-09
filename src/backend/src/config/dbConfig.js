@@ -3,7 +3,11 @@ const dbConfig = {
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '', 
   database: process.env.DB_NAME || 'storyverse_db',
-  port: process.env.DB_PORT || 3306
+  port: process.env.DB_PORT || 3306,
+  ssl: {
+    minVersion: 'TLSv1.2',
+    rejectUnauthorized: true
+  }
 };
 
 module.exports = dbConfig;

@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { type ComicSummary } from '../types/comicTypes';
 import { useAuth } from './AuthContext';
-import { useNotification } from './NotificationContext';
+import { useToast } from './ToastContext';
 
 interface WishlistContextType {
 	wishlistItems: ComicSummary[];
@@ -25,7 +25,7 @@ const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const { currentUser } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [wishlistItems, setWishlistItems] = useState<ComicSummary[]>([]);
 	const [, setIsLoading] = useState(true);
 
@@ -67,13 +67,13 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
 
 	const toggleWishlist = async (comic: ComicSummary) => {
 		if (!currentUser) {
-			showNotification('Vui lòng đăng nhập để thêm vào danh sách yêu thích.', 'warning');
+			showToast('Vui lòng đăng nhập để thêm vào danh sách yêu thích.', 'warning');
 			return;
 		}
 
 		const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 		if (!token) {
-			showNotification('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
+			showToast('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
 			return;
 		}
 
@@ -105,7 +105,7 @@ export const WishlistProvider: React.FC<{ children: ReactNode }> = ({ children }
 			}
 		} catch (error: any) {
 			console.error('Toggle wishlist API error:', error);
-			showNotification(error.message || 'Lỗi khi cập nhật danh sách yêu thích.', 'error');
+			showToast(error.message || 'Lỗi khi cập nhật danh sách yêu thích.', 'error');
 			setWishlistItems(originalItems);
 		}
 	};

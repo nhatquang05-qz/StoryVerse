@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useNotification } from '../../../contexts/NotificationContext';
+import { useToast } from '../../../contexts/ToastContext';
 import ChatMessage, { type ChatMessageData } from './ChatMessage';
 import { FiSend, FiImage, FiSmile, FiX, FiClock } from 'react-icons/fi';
 import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
@@ -27,7 +27,7 @@ interface ChapterChatProps {
 
 const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 	const { currentUser } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [messages, setMessages] = useState<ChatMessageData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [newMessage, setNewMessage] = useState('');
@@ -168,13 +168,13 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 			setMessages((prev) => [...prev, newMsgData]);
 		} catch (error: any) {
 			console.error('Error posting message:', error);
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		}
 	};
 
 	const handleSendMessage = async (sticker?: Sticker) => {
 		if (!currentUser) {
-			showNotification('Bạn cần đăng nhập để bình luận', 'warning');
+			showToast('Bạn cần đăng nhập để bình luận', 'warning');
 			return;
 		}
 
@@ -183,7 +183,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 		const now = Date.now();
 		if (currentBanStatus.banExpiry && currentBanStatus.banExpiry > now) {
 			const timeLeft = formatRemainingTime(currentBanStatus.banExpiry);
-			showNotification(`Bạn đang bị cấm chat. Thời gian còn lại: ${timeLeft}`, 'error');
+			showToast(`Bạn đang bị cấm chat. Thời gian còn lại: ${timeLeft}`, 'error');
 			setRemainingBanTime(timeLeft);
 			return;
 		}
@@ -233,7 +233,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 
 			setBanInfo(currentUser.id, newBanInfo);
 			setCurrentBanInfo(newBanInfo);
-			showNotification(banMessage, banDurationMinutes > 0 ? 'error' : 'warning');
+			showToast(banMessage, banDurationMinutes > 0 ? 'error' : 'warning');
 			resetInputs();
 			setIsSending(false);
 			return;
@@ -266,7 +266,7 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 			resetInputs();
 		} catch (error: any) {
 			console.error('Error sending message:', error);
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		} finally {
 			setIsSending(false);
 		}
@@ -321,11 +321,11 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 				if (!response.ok) throw new Error('Like request failed');
 			} catch (error) {
 				console.error('Error liking message:', error);
-				showNotification('Lỗi khi thích tin nhắn.', 'error');
+				showToast('Lỗi khi thích tin nhắn.', 'error');
 				setMessages(originalMessages);
 			}
 		},
-		[currentUser, messages, showNotification],
+		[currentUser, messages, showToast],
 	);
 
 	const handleReplyMessage = useCallback(
@@ -340,14 +340,14 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 	const handleReportClick = useCallback(
 		(messageId: number) => {
 			if (!currentUser) {
-				showNotification('Bạn cần đăng nhập để báo cáo', 'warning');
+				showToast('Bạn cần đăng nhập để báo cáo', 'warning');
 				return;
 			}
 			setReportMessageId(messageId);
 			setReportReason('Spam');
 			setShowReportModal(true);
 		},
-		[currentUser, showNotification],
+		[currentUser, showToast],
 	);
 
 	const handleSubmitReport = async () => {
@@ -371,11 +371,11 @@ const ChapterChat: React.FC<ChapterChatProps> = ({ comicId, chapterId }) => {
 				throw new Error('Gửi báo cáo thất bại');
 			}
 
-			showNotification('Báo cáo đã được gửi thành công!', 'success');
+			showToast('Báo cáo đã được gửi thành công!', 'success');
 			setShowReportModal(false);
 		} catch (error) {
 			console.error('Lỗi khi gửi báo cáo:', error);
-			showNotification('Có lỗi xảy ra khi gửi báo cáo.', 'error');
+			showToast('Có lỗi xảy ra khi gửi báo cáo.', 'error');
 		}
 	};
 

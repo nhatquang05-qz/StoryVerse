@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import { type ComicDetail, type ChapterSummary, type ChapterContent } from '../types/comicTypes';
 import { FiChevronLeft, FiChevronRight, FiChevronDown, FiHome, FiLock } from 'react-icons/fi';
 import ChapterChat from '../components/common/Chat/ChapterChat';
@@ -19,7 +19,7 @@ const ReaderPage: React.FC = () => {
 	}>();
 	const navigate = useNavigate();
 	const { currentUser, unlockChapter } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const [comic, setComic] = useState<ComicDetail | null>(null);
 	const [allChapters, setAllChapters] = useState<ChapterSummary[]>([]);
@@ -195,7 +195,7 @@ const ReaderPage: React.FC = () => {
 				})
 				.catch((err) => {
 					console.error('Lỗi tải ảnh chương (fetch/catch):', err);
-					showNotification(err.message, 'error');
+					showToast(err.message, 'error');
 					setChapterImages([]);
 					setDisplayedImages([]);
 				})
@@ -209,7 +209,7 @@ const ReaderPage: React.FC = () => {
 			setIsLoading(false);
 			window.scrollTo(0, 0);
 		}
-	}, [chapterNumParam, allChapters, comicId, unlockedChapters, navigate, showNotification]);
+	}, [chapterNumParam, allChapters, comicId, unlockedChapters, navigate, showToast]);
 
 	const isUnlocked = useMemo(() => {
 		if (!currentChapterData) return false;
@@ -264,11 +264,11 @@ const ReaderPage: React.FC = () => {
 
 	const handleUnlockChapter = async (chapterToUnlock: ChapterSummary) => {
 		if (!currentUser || !chapterToUnlock || !comic) {
-			showNotification('Vui lòng đăng nhập để mở khóa chương.', 'warning');
+			showToast('Vui lòng đăng nhập để mở khóa chương.', 'warning');
 			return false;
 		}
 		if (currentUser.coinBalance < chapterToUnlock.price) {
-			showNotification('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
+			showToast('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
 			navigate('/recharge');
 			return false;
 		}
@@ -277,7 +277,7 @@ const ReaderPage: React.FC = () => {
 			const result = await unlockChapter(chapterToUnlock.id);
 			if (result) {
 				setUnlockedChapters((prev) => new Set(prev).add(chapterToUnlock.id));
-				showNotification(
+				showToast(
 					`Đã mở khóa Chương ${chapterToUnlock.chapterNumber} với ${chapterToUnlock.price} Xu!`,
 					'success',
 				);
@@ -285,7 +285,7 @@ const ReaderPage: React.FC = () => {
 			}
 			return false;
 		} catch (e: any) {
-			showNotification(e.message || 'Lỗi khi mở khóa chương.', 'error');
+			showToast(e.message || 'Lỗi khi mở khóa chương.', 'error');
 			return false;
 		}
 	};

@@ -4,7 +4,7 @@ import { FiShoppingCart, FiHeart } from 'react-icons/fi';
 import { type ComicSummary } from '../../types/comicTypes';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishListContext';
-import { useNotification } from '../../contexts/NotificationContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useAuth } from '../../contexts/AuthContext';
 import StarRating from './StarRating';
 import '../../assets/styles/ProductCard.css';
@@ -19,7 +19,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) => {
 	const { addToCart } = useCart();
 	const { isWishlisted, toggleWishlist } = useWishlist();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const { currentUser, openLoginRequest } = useAuth();
 	const imgRef = useRef<HTMLImageElement>(null);
 
@@ -72,7 +72,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ comic, isCarousel = false }) 
 			return;
 		}
 		toggleWishlist(comicData);
-		showNotification(
+		showToast(
 			isFavorite
 				? `Đã xóa ${comicData.title} khỏi Yêu thích.`
 				: `Đã thêm ${comicData.title} vào Yêu thích.`,

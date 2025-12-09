@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import '../../../assets/styles/ChatLog.css';
 import ChatMessage, { type ChatMessageData } from './ChatMessage';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useNotification } from '../../../contexts/NotificationContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { FiSend, FiImage, FiSmile, FiX, FiClock } from 'react-icons/fi';
 import ProfanityWarningPopup from '../../popups/ProfanityWarningPopup';
 import { isProfane } from '../../../utils/profanityList';
@@ -33,7 +33,7 @@ interface TopMember {
 
 const ChatLog: React.FC = () => {
 	const { currentUser } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const [messages, setMessages] = useState<ChatMessageData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -142,11 +142,11 @@ const ChatLog: React.FC = () => {
 			setMessages(data);
 		} catch (error: any) {
 			console.error('Error loading global chat messages:', error);
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		} finally {
 			setIsLoading(false);
 		}
-	}, [showNotification]);
+	}, [showToast]);
 
 	useEffect(() => {
 		fetchMessages();
@@ -255,13 +255,13 @@ const ChatLog: React.FC = () => {
 			});
 		} catch (error: any) {
 			console.error('Error posting message:', error);
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		}
 	};
 
 	const handleSendMessage = async (sticker?: Sticker) => {
 		if (!currentUser) {
-			showNotification('Bạn cần đăng nhập để nói chuyện', 'warning');
+			showToast('Bạn cần đăng nhập để nói chuyện', 'warning');
 			return;
 		}
 
@@ -270,7 +270,7 @@ const ChatLog: React.FC = () => {
 		const now = Date.now();
 		if (currentBanStatus.banExpiry && currentBanStatus.banExpiry > now) {
 			const timeLeft = formatRemainingTime(currentBanStatus.banExpiry);
-			showNotification(`Bạn đang bị cấm chat. Thời gian còn lại: ${timeLeft}`, 'error');
+			showToast(`Bạn đang bị cấm chat. Thời gian còn lại: ${timeLeft}`, 'error');
 			setRemainingBanTime(timeLeft);
 			return;
 		}
@@ -320,7 +320,7 @@ const ChatLog: React.FC = () => {
 
 			setBanInfo(currentUser.id, newBanInfo);
 			setCurrentBanInfo(newBanInfo);
-			showNotification(banMessage, banDurationMinutes > 0 ? 'error' : 'warning');
+			showToast(banMessage, banDurationMinutes > 0 ? 'error' : 'warning');
 			resetInputs();
 			setIsSending(false);
 			return;
@@ -354,7 +354,7 @@ const ChatLog: React.FC = () => {
 			resetInputs();
 		} catch (error: any) {
 			console.error('Error sending message:', error);
-			showNotification(error.message, 'error');
+			showToast(error.message, 'error');
 		} finally {
 			setIsSending(false);
 		}
@@ -407,10 +407,10 @@ const ChatLog: React.FC = () => {
 				if (!response.ok) throw new Error('Like request failed');
 			} catch (error) {
 				console.error('Error liking message:', error);
-				showNotification('Lỗi khi thích tin nhắn.', 'error');
+				showToast('Lỗi khi thích tin nhắn.', 'error');
 			}
 		},
-		[currentUser, showNotification],
+		[currentUser, showToast],
 	);
 
 	const handleReplyMessage = useCallback(
@@ -425,14 +425,14 @@ const ChatLog: React.FC = () => {
 	const handleReportClick = useCallback(
 		(messageId: number) => {
 			if (!currentUser) {
-				showNotification('Bạn cần đăng nhập để báo cáo', 'warning');
+				showToast('Bạn cần đăng nhập để báo cáo', 'warning');
 				return;
 			}
 			setReportMessageId(messageId);
 			setReportReason('Spam');
 			setShowReportModal(true);
 		},
-		[currentUser, showNotification],
+		[currentUser, showToast],
 	);
 
 	const handleSubmitReport = async () => {
@@ -456,11 +456,11 @@ const ChatLog: React.FC = () => {
 				throw new Error('Gửi báo cáo thất bại');
 			}
 
-			showNotification('Báo cáo đã được gửi thành công!', 'success');
+			showToast('Báo cáo đã được gửi thành công!', 'success');
 			setShowReportModal(false);
 		} catch (error) {
 			console.error('Lỗi khi gửi báo cáo:', error);
-			showNotification('Có lỗi xảy ra khi gửi báo cáo.', 'error');
+			showToast('Có lỗi xảy ra khi gửi báo cáo.', 'error');
 		}
 	};
 

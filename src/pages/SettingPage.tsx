@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiArrowLeft, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import { useFont } from '../contexts/FontContext';
 import { useSnowfall } from '../contexts/SnowfallContext';
 import '../assets/styles/SettingPage.css';
@@ -76,7 +76,7 @@ const applyCursorStyles = (packId: string) => {
 };
 
 const SettingsPage: React.FC = () => {
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const { selectedFont, selectFont, fontOptions } = useFont();
 	const { isSnowfallEnabled, toggleSnowfall } = useSnowfall();
 
@@ -98,7 +98,7 @@ const SettingsPage: React.FC = () => {
 
 	const handleCursorPackSelect = (packId: string) => {
 		setSelectedCursorPackId(packId);
-		showNotification(
+		showToast(
 			`Đã đổi bộ con trỏ mặc định sang ${CURSOR_PACKS.find((opt) => opt.id === packId)?.name}`,
 			'success',
 		);
@@ -107,12 +107,12 @@ const SettingsPage: React.FC = () => {
 	const handleFontSelect = (fontId: string) => {
 		selectFont(fontId);
 		const fontName = fontOptions.find((f) => f.id === fontId)?.name || 'font';
-		showNotification(`Đã đổi font chữ thành ${fontName}`, 'success');
+		showToast(`Đã đổi font chữ thành ${fontName}`, 'success');
 	};
 
 	const handleSnowfallToggle = () => {
 		toggleSnowfall();
-		showNotification(`Đã ${!isSnowfallEnabled ? 'bật' : 'tắt'} hiệu ứng tuyết rơi`, 'success');
+		showToast(`Đã ${!isSnowfallEnabled ? 'bật' : 'tắt'} hiệu ứng tuyết rơi`, 'success');
 	};
 
 	return (
