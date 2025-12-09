@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom'; 
 import '../../../assets/styles/Hero.css';
 import bgSlide1 from '../../../assets/images/Hero/bg-slide1.avif';
 import bgSlide2 from '../../../assets/images/Hero/bg-slide2.avif';
@@ -28,32 +29,38 @@ const sections = [
 		title: 'NHẬT BẢN',
 		backgroundImage: bgSlide1,
 		images: [mb11, mb12, mb13],
+		path: '/genres/Manga', 
 	},
 	{
 		title: 'DC COMICS',
 		backgroundImage: bgSlide2,
 		images: [mb21, mb22, mb23],
+		path: '/genres/DC Comics',
 	},
 	{
 		title: 'HÀN QUỐC',
 		backgroundImage: bgSlide3,
 		images: [mb31, mb32, mb33],
+		path: '/genres/Manhwa',
 	},
 	{
 		title: 'MARVEL COMICS',
 		backgroundImage: bgSlide4,
 		images: [mb41, mb42, mb43],
+		path: '/genres/Marvel Comics',
 	},
 	{
 		title: 'TRUNG QUỐC',
 		backgroundImage: bgSlide5,
 		images: [mb51, mb52, mb53],
+		path: '/genres/Manhua',
 	},
 ];
 
 const Hero: React.FC = () => {
 	const [index, setIndex] = useState(0);
 	const [resetTimer, setResetTimer] = useState(0);
+	const navigate = useNavigate(); 
 
 	const AUTO_SLIDE_TIME = 5000;
 
@@ -77,6 +84,12 @@ const Hero: React.FC = () => {
 	};
 
 	const current = sections[index];
+
+	const handleHeroClick = () => {
+		if (current.path) {
+			navigate(current.path);
+		}
+	};
 
 	return (
 		<section
@@ -112,7 +125,11 @@ const Hero: React.FC = () => {
 				/>
 			</AnimatePresence>
 
-			<div className="hero-info">
+			<div 
+				className="hero-info" 
+				onClick={handleHeroClick} 
+				style={{ cursor: 'pointer', zIndex: 10 }}
+			>
 				<h3>TRUYỆN</h3>
 				<h1>{current.title}</h1>
 			</div>
@@ -124,7 +141,11 @@ const Hero: React.FC = () => {
 				<FiChevronRight />
 			</button>
 
-			<div className="hero-images">
+			<div 
+				className="hero-images" 
+				onClick={handleHeroClick} 
+				style={{ cursor: 'pointer', zIndex: 10 }}
+			>
 				<AnimatePresence mode="wait">
 					<motion.div
 						key={index}
