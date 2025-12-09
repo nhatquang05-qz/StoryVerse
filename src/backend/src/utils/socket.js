@@ -4,12 +4,11 @@ let io;
 
 module.exports = {
   init: (httpServer) => {
-    const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+    const corsOrigin = process.env.CORS_ORIGIN || ['http://localhost:5173', 'https://localhost:5173'];
 
     io = new Server(httpServer, {
       cors: {
-        origin: corsOrigin, 
-
+        origin: corsOrigin,
         methods: ['GET', 'POST'],
         credentials: true
       }
