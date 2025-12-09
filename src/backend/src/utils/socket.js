@@ -1,28 +1,24 @@
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
 
 let io;
 
 module.exports = {
   init: (httpServer) => {
+    const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+
     io = new Server(httpServer, {
       cors: {
-        origin: [
-            "http://localhost:5173", 
-            "http://127.0.0.1:5173",
-            "https://localhost:5173", 
-        ],
-        methods: ["GET", "POST"],
-        allowedHeaders: ["Authorization"],
-        credentials: true 
-      },
-      transports: ['websocket', 'polling'] 
+        origin: corsOrigin, 
+
+        methods: ['GET', 'POST'],
+        credentials: true
+      }
     });
-    
     return io;
   },
   getIO: () => {
     if (!io) {
-      throw new Error('Socket.io chưa được khởi tạo!');
+      throw new Error('Socket.io not initialized!');
     }
     return io;
   }
