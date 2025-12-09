@@ -16,6 +16,8 @@ import ComicManagementList from '../components/admin/ComicManagementList';
 import AdminFilterBar, { type SortOrder } from '../components/admin/AdminFilterBar';
 import PackManagement from '../components/admin/PackManagement';
 import FlashSaleManagement from '../components/admin/FlashSaleManagement';
+import GiftCodeManagement from '../components/admin/GiftCodeManagement';
+import VoucherManagement from '../components/admin/VoucherManagement';
 import OrderManagement from '../components/admin/OrderManagement';
 import ContactManagement from '../components/admin/ContactManagement';
 import ReportManagement from '../components/admin/ReportManagement';
@@ -35,6 +37,8 @@ export type AdminView =
 	| 'edit'
 	| 'chapters'
 	| 'packs'
+	| 'vouchers'
+	| 'giftcodes'
 	| 'flash-sales'
 	| 'orders'
 	| 'contact'
@@ -70,6 +74,8 @@ const AdminPage: React.FC = () => {
 			activeView === 'users' ||
 			activeView === 'avatars' ||
 			activeView === 'packs' ||
+			activeView === 'vouchers' ||
+			activeView === 'giftcodes' ||
 			activeView === 'flash-sales' ||
 			activeView === 'orders' ||
 			activeView === 'contact' ||
@@ -223,10 +229,16 @@ const AdminPage: React.FC = () => {
 				return <UserManagement />;
 			case 'avatars':
 				return <AvatarApprovalManagement />;
+
 			case 'packs':
 				return <PackManagement />;
+			case 'vouchers':
+				return <VoucherManagement />;
+			case 'giftcodes':
+				return <GiftCodeManagement />;
 			case 'flash-sales':
 				return <FlashSaleManagement />;
+
 			case 'orders':
 				return <OrderManagement />;
 			case 'contact':
