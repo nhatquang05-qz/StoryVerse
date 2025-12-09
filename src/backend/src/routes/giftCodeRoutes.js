@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const giftCodeController = require('../controllers/giftcodeController');
+const giftCodeController = require('../controllers/giftCodeController');
 const authMiddleware = require('../middleware/authMiddleware'); 
 
 // User Route
