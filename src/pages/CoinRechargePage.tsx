@@ -127,10 +127,7 @@ const CoinRechargePage: React.FC = () => {
 			}
 		} catch (error: any) {
 			console.error('Lỗi khi nạp xu:', error);
-			showToast(
-				error.message || 'Khởi tạo thanh toán thất bại. Vui lòng thử lại.',
-				'error',
-			);
+			showToast(error.message || 'Khởi tạo thanh toán thất bại. Vui lòng thử lại.', 'error');
 		} finally {
 			setIsProcessing(false);
 			setSelectedPack(null);

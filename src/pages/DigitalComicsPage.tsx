@@ -5,7 +5,7 @@ import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
 import logoImage from '../assets/images/logo.avif';
-import { FiSearch } from 'react-icons/fi'; 
+import { FiSearch } from 'react-icons/fi';
 
 import '../assets/styles/ComicsPage.css';
 import '../assets/styles/FilterSidebar.css';
@@ -96,11 +96,11 @@ const DigitalComicsPage: React.FC = () => {
 
 	const currentComics = useMemo(() => {
 		let result = [...allComics];
-		
+
 		if (searchTerm.trim() !== '') {
 			const lowerTerm = searchTerm.toLowerCase().trim();
 			result = result.filter((c) => c.title.toLowerCase().includes(lowerTerm));
-		}		
+		}
 
 		if (filters.authors.length > 0) {
 			result = result.filter((c) => c.author && filters.authors.includes(c.author));
@@ -179,7 +179,7 @@ const DigitalComicsPage: React.FC = () => {
 		});
 
 		return result;
-	}, [allComics, filters, sortState, sortPriority, searchTerm]); 
+	}, [allComics, filters, sortState, sortPriority, searchTerm]);
 
 	const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
 	const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
@@ -224,7 +224,7 @@ const DigitalComicsPage: React.FC = () => {
 								value={searchTerm}
 								onChange={(e) => {
 									setSearchTerm(e.target.value);
-									setCurrentPage(1); 
+									setCurrentPage(1);
 								}}
 							/>
 						</div>

@@ -17,7 +17,7 @@ import {
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { useNotification, type Notification } from '../contexts/NotificationContext'; 
+import { useNotification, type Notification } from '../contexts/NotificationContext';
 import { type ComicSummary, type Genre } from '../types/comicTypes';
 import ThemeToggleButton from './common/ThemeToggleButton';
 import DailyRewardModal from './common/DailyRewardModal';
@@ -55,13 +55,12 @@ const Header: React.FC = () => {
 	const [isSearchFocused, setIsSearchFocused] = useState(false);
 	const [isLoadingSearch, setIsLoadingSearch] = useState(false);
 	const [allGenres, setAllGenres] = useState<Genre[]>([]);
-	
-    const { cartCount, setCartIconRect } = useCart();
+
+	const { cartCount, setCartIconRect } = useCart();
 	const { currentUser, logout } = useAuth();
 	const { showToast } = useToast();
-	
-    
-    const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
+
+	const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
 
 	const cartIconRef = useRef<HTMLAnchorElement>(null);
 	const navigate = useNavigate();
@@ -69,8 +68,8 @@ const Header: React.FC = () => {
 	const searchTimeoutRef = useRef<number | null>(null);
 	const location = useLocation();
 	const isReaderPage = location.pathname.startsWith('/read/');
-	
-    const [isNotifOpen, setIsNotifOpen] = useState(false);
+
+	const [isNotifOpen, setIsNotifOpen] = useState(false);
 	const notifRef = useRef<HTMLDivElement>(null);
 
 	const getAvatarSrc = (url: string | null | undefined) => {
@@ -90,12 +89,9 @@ const Header: React.FC = () => {
 		}
 	};
 
-    
-
 	const handleNotificationClick = async (notif: Notification) => {
 		if (notif.isRead === 0) {
-            
-            await markAsRead(notif.id);
+			await markAsRead(notif.id);
 		}
 
 		setIsNotifOpen(false);
@@ -239,7 +235,7 @@ const Header: React.FC = () => {
 					today.getMonth() === lastLoginDate.getMonth() &&
 					today.getDate() === lastLoginDate.getDate()
 				);
-		  })()
+			})()
 		: false;
 
 	useEffect(() => {
@@ -314,8 +310,8 @@ const Header: React.FC = () => {
 						</div>
 					</div>
 
-					<Link 
-						to="/community" 
+					<Link
+						to="/community"
 						className={isActive('/community') ? 'active' : ''}
 						onClick={handleCommunityClick}
 					>
@@ -484,7 +480,7 @@ const Header: React.FC = () => {
 									onClick={() => setIsNotifOpen(!isNotifOpen)}
 									aria-label="Thông báo"
 								>
-                                    {}
+									{}
 									<FiBell className={unreadCount > 0 ? 'bell-shake' : ''} />
 									{unreadCount > 0 && (
 										<span className="notification-badge">
@@ -653,8 +649,8 @@ const Header: React.FC = () => {
 						Đọc Online
 					</Link>
 
-					<Link 
-						to="/community" 
+					<Link
+						to="/community"
 						onClick={(e) => {
 							handleCommunityClick(e);
 							if (currentUser) toggleMenu();

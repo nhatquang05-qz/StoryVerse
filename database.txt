@@ -478,3 +478,25 @@ ADD COLUMN `otpExpires` DATETIME NULL DEFAULT NULL;
 
 ALTER TABLE `users`
 ADD COLUMN `role` ENUM('user', 'admin') DEFAULT 'user' AFTER `email`;
+
+-- 1. Tạo bảng khiếu nại (Complaints)
+CREATE TABLE IF NOT EXISTS `complaints` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `order_id` INT NOT NULL,
+  `description` TEXT NOT NULL,
+  `images` JSON NULL DEFAULT NULL COMMENT 'Lưu mảng URL ảnh, tối đa 5',
+  `video` VARCHAR(255) NULL DEFAULT NULL COMMENT 'URL video',
+  `status` ENUM('pending', 'resolved', 'rejected') DEFAULT 'pending',
+  `admin_reply` TEXT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+ALTER TABLE `reviews`
+ADD COLUMN `order_id` INT NULL AFTER `userId`, -- Sửa user_id thành userId
+ADD CONSTRAINT `fk_reviews_order` FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE;

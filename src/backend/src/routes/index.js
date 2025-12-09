@@ -22,7 +22,8 @@ const reportRoutes = require('./reportRoutes');
 const communityRoutes = require('./communityRoutes');
 const rankingRoutes = require('./rankingRoutes');
 const giftCodeRoutes = require('./giftCodeRoutes');
-
+const complaintRoutes = require('./complaintRoutes');
+const reviewRoutes = require('./reviewRoutes');
 
 router.use('/rankings', rankingRoutes);
 router.use('/minigame', minigameRoutes);
@@ -45,5 +46,7 @@ router.use('/reports', reportRoutes);
 router.use('/contact', contactRoutes);
 router.use('/community', communityRoutes);
 router.use('/giftcode', giftCodeRoutes);
+router.use('/complaints', complaintRoutes); 
+router.use('/reviews', reviewRoutes);
 
 module.exports = router;

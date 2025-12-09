@@ -4,7 +4,7 @@ import { type ComicSummary } from '../types/comicTypes';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
-import { FiSearch } from 'react-icons/fi'; 
+import { FiSearch } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.avif';
 
 import '../assets/styles/ComicsPage.css';
