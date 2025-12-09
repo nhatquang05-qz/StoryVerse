@@ -17,7 +17,6 @@ const getGlobalMessagesRaw = async () => {
     const [rows] = await connection.execute(`
         ${getMessagesQuery}
         WHERE m.comicId IS NULL AND m.chapterId IS NULL
-        GROUP BY m.id
         ORDER BY m.createdAt DESC
         LIMIT 30
     `);
@@ -29,7 +28,6 @@ const getChapterMessagesRaw = async (comicId, chapterId) => {
     const [rows] = await connection.execute(`
         ${getMessagesQuery}
         WHERE m.comicId = ? AND m.chapterId = ?
-        GROUP BY m.id
         ORDER BY m.createdAt ASC
     `, [comicId, chapterId]);
     return rows;
@@ -49,7 +47,6 @@ const getMessageByIdRaw = async (messageId) => {
     const [rows] = await connection.execute(`
         ${getMessagesQuery}
         WHERE m.id = ?
-        GROUP BY m.id
     `, [messageId]);
     return rows.length > 0 ? rows[0] : null;
 };
