@@ -24,7 +24,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 			startPage = Math.max(1, totalPages - maxPagesToShow + 1);
 		}
 
-		// Thêm "..." ở đầu
 		if (startPage > 1) {
 			pages.push(1);
 			if (startPage > 2) {
@@ -32,12 +31,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 			}
 		}
 
-		// Thêm các số trang
 		for (let i = startPage; i <= endPage; i++) {
 			pages.push(i);
 		}
 
-		// Thêm "..." ở cuối
 		if (endPage < totalPages) {
 			if (endPage < totalPages - 1) {
 				pages.push('...');
@@ -52,16 +49,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
 	return (
 		<div className="pagination-container">
-			{/* Nút Trang trước (Previous) */}
 			<button
 				onClick={() => onPageChange(currentPage - 1)}
 				disabled={currentPage === 1}
 				className="pagination-button arrow"
 			>
-				&lt; {/* Ký tự mũi tên trái */}
+				&lt;
 			</button>
 
-			{/* Các nút số trang */}
 			{pageNumbers.map((page, index) =>
 				typeof page === 'number' ? (
 					<button
@@ -78,13 +73,12 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 				),
 			)}
 
-			{/* Nút Trang sau (Next) */}
 			<button
 				onClick={() => onPageChange(currentPage + 1)}
 				disabled={currentPage === totalPages}
 				className="pagination-button arrow"
 			>
-				&gt; {/* Ký tự mũi tên phải */}
+				&gt;
 			</button>
 		</div>
 	);

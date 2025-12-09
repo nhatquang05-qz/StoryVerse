@@ -4,7 +4,8 @@ import { getBotResponse, type ChatHistory } from './ChatbotLogic';
 import chatbotIcon from '../../assets/images/chatbot-icon.avif';
 import '../../assets/styles/Chatbot.css';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNotification } from '../../contexts/NotificationContext';
+
+import { useToast } from '../../contexts/ToastContext';
 
 const SUGGESTION_QUESTIONS = [
 	'Làm sao để nạp xu?',
@@ -30,7 +31,8 @@ const ChatbotUI: React.FC = () => {
 	const chatEndRef = useRef<HTMLDivElement>(null);
 
 	const { currentUser } = useAuth();
-	const { showNotification } = useNotification();
+
+	const { showToast } = useToast();
 
 	useEffect(() => {
 		chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -46,13 +48,13 @@ const ChatbotUI: React.FC = () => {
 		if (!messageText.trim() || isLoading) return;
 
 		if (!currentUser) {
-			showNotification('Vui lòng đăng nhập để sử dụng chatbot.', 'warning');
+			showToast('Vui lòng đăng nhập để sử dụng chatbot.', 'warning');
 			return;
 		}
 
 		const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 		if (!token) {
-			showNotification('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
+			showToast('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
 			return;
 		}
 
@@ -187,17 +189,15 @@ const ChatbotUI: React.FC = () => {
 							<input
 								type="text"
 								className="chatbot-input"
-								placeholder={
-									currentUser ? 'Nhập tin nhắn...' : 'Đăng nhập để chat...'
-								}
+								placeholder="Nhập tin nhắn..."
 								value={input}
 								onChange={(e) => setInput(e.target.value)}
-								disabled={isLoading || !currentUser}
+								disabled={isLoading}
 							/>
 							<button
 								type="submit"
 								className="send-btn"
-								disabled={isLoading || !input.trim() || !currentUser}
+								disabled={isLoading || !input.trim()}
 							>
 								{isLoading ? (
 									<Loader2 size={20} className="animate-spin" />
