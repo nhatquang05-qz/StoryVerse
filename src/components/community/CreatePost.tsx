@@ -1,87 +1,111 @@
-import React from 'react';
-import { FaCamera, FaSmile } from 'react-icons/fa';
-import closeBtnIcon from '../../assets/images/close-btn.avif';
-import defaultAvatar from '../../assets/images/defaultAvatar.webp';
+import React, { useRef } from 'react';
+import { type User } from '../../types/userTypes';
+import { FiImage, FiSmile, FiSend, FiX } from 'react-icons/fi';
 import '../../assets/styles/CreatePost.css';
 
 interface CreatePostProps {
-	currentUser: any;
-	content: string;
-	setContent: (val: string) => void;
-	image: string | null;
-	setImage: (val: string | null) => void;
-	isUploading: boolean;
-	onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-	onSubmit: () => void;
-	onShowStickerNotification: () => void;
+    currentUser: User;
+    content: string;
+    setContent: (content: string) => void;
+    image: string | null;
+    setImage: (image: string | null) => void;
+    isUploading: boolean;
+    onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: () => void;
+    onShowStickerToast?: () => void; 
 }
 
-const getAvatarSrc = (url: string | null | undefined) => {
-	if (!url || url === 'defaultAvatar.webp') return defaultAvatar;
-	return url;
+const CreatePost: React.FC<CreatePostProps> = ({
+    currentUser,
+    content,
+    setContent,
+    image,
+    setImage,
+    isUploading,
+    onUpload,
+    onSubmit,
+    onShowStickerToast,
+}) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            onSubmit();
+        }
+    };
+
+    return (
+        <div className="create-post-card">
+            <div className="cp-header">
+                <img
+                    src={currentUser.avatarUrl || 'https://via.placeholder.com/150'}
+                    alt="User Avatar"
+                    className="cp-avatar"
+                />
+                <div className="cp-input-wrapper">
+                    <textarea
+                        className="cp-textarea"
+                        placeholder={`Bạn đang nghĩ gì, ${currentUser.fullName}?`}
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        rows={1}
+                        style={{ height: 'auto', minHeight: '40px' }}
+                        onInput={(e) => {
+                            e.currentTarget.style.height = 'auto';
+                            e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                        }}
+                    />
+                </div>
+            </div>
+
+            {image && (
+                <div className="cp-image-preview">
+                    <img src={image} alt="Preview" />
+                    <button className="cp-remove-img" onClick={() => setImage(null)}>
+                        <FiX />
+                    </button>
+                </div>
+            )}
+
+            <div className="cp-footer">
+                <div className="cp-actions">
+                    <button
+                        className="cp-action-btn"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                    >
+                        <FiImage className="cp-icon" />
+                        <span>Ảnh/Video</span>
+                    </button>
+                    <input
+                        type="file"
+                        hidden
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={onUpload}
+                    />
+
+                    <button 
+                        className="cp-action-btn"
+                        onClick={onShowStickerToast} 
+                    >
+                        <FiSmile className="cp-icon" />
+                        <span>Cảm xúc</span>
+                    </button>
+                </div>
+
+                <button
+                    className="cp-submit-btn"
+                    onClick={onSubmit}
+                    disabled={(!content.trim() && !image) || isUploading}
+                >
+                    <FiSend /> Đăng
+                </button>
+            </div>
+        </div>
+    );
 };
 
-const CreatePost: React.FC<CreatePostProps> = ({
-	currentUser,
-	content,
-	setContent,
-	image,
-	setImage,
-	isUploading,
-	onUpload,
-	onSubmit,
-	onShowStickerNotification,
-}) => {
-	return (
-		<div className="create-post-card">
-			<div className="create-post-top">
-				<img
-					src={getAvatarSrc(currentUser?.avatarUrl)}
-					className="current-user-avatar"
-					alt="me"
-				/>
-				<input
-					className="post-input-trigger"
-					placeholder={`Bạn đang nghĩ gì, ${currentUser?.fullName}?`}
-					value={content}
-					onChange={(e) => setContent(e.target.value)}
-				/>
-			</div>
-			{isUploading ? (
-				<div className="uploading-preview">⏳ Đang tải ảnh lên...</div>
-			) : (
-				image && (
-					<div className="image-upload-preview-container">
-						<img src={image} alt="Preview" className="preview-img-upload" />
-						<button className="btn-remove-img" onClick={() => setImage(null)}>
-							<img src={closeBtnIcon} alt="Xóa" />
-						</button>
-					</div>
-				)
-			)}
-			<div className="create-post-actions">
-				<label className={`action-btn ${isUploading ? 'disabled' : ''}`}>
-					<FaCamera className="icon photo-icon" /> Ảnh/Video
-					<input
-						type="file"
-						hidden
-						accept="image/*"
-						onChange={onUpload}
-						disabled={isUploading}
-					/>
-				</label>
-				<div className="action-btn" onClick={onShowStickerNotification}>
-					<FaSmile className="icon sticker-icon" /> Cảm xúc
-				</div>
-				<button
-					className="btn-submit-post"
-					onClick={onSubmit}
-					disabled={(!content.trim() && !image) || isUploading}
-				>
-					Đăng
-				</button>
-			</div>
-		</div>
-	);
-};
 export default CreatePost;

@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fi';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import '../assets/styles/CartPage.css';
 
 const CartPage: React.FC = () => {
@@ -26,7 +26,7 @@ const CartPage: React.FC = () => {
 	} = useCart();
 
 	const { currentUser } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const navigate = useNavigate();
 
 	const [couponCode, setCouponCode] = useState('');
@@ -58,7 +58,7 @@ const CartPage: React.FC = () => {
 		setIsApplying(false);
 
 		if (result.success) {
-			showNotification(result.message, 'success');
+			showToast(result.message, 'success');
 			setCouponCode('');
 		} else {
 			setVoucherError(result.message);
@@ -68,7 +68,7 @@ const CartPage: React.FC = () => {
 	const handleRemoveVoucher = () => {
 		removeVoucher();
 		setVoucherError('');
-		showNotification('Đã gỡ bỏ mã giảm giá', 'info');
+		showToast('Đã gỡ bỏ mã giảm giá', 'info');
 	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,13 +78,13 @@ const CartPage: React.FC = () => {
 
 	const handleCheckout = () => {
 		if (!currentUser) {
-			showNotification('Vui lòng đăng nhập để tiến hành thanh toán.', 'warning');
+			showToast('Vui lòng đăng nhập để tiến hành thanh toán.', 'warning');
 			navigate('/login');
 			return;
 		}
 
 		if (cartItems.length === 0) {
-			showNotification('Giỏ hàng trống. Vui lòng thêm sản phẩm.', 'warning');
+			showToast('Giỏ hàng trống. Vui lòng thêm sản phẩm.', 'warning');
 			return;
 		}
 

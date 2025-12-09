@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import { History, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import coinImg from '../assets/images/coin.avif';
 import '../assets/styles/AuthPage.css';
@@ -30,7 +30,7 @@ interface Transaction {
 
 const CoinRechargePage: React.FC = () => {
 	const { currentUser, token } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [selectedPack, setSelectedPack] = useState<number | null>(null);
 	const [showHistory, setShowHistory] = useState(false);
@@ -84,12 +84,12 @@ const CoinRechargePage: React.FC = () => {
 
 	const handleRecharge = async (packId: number) => {
 		if (!currentUser) {
-			showNotification('Vui lòng đăng nhập để nạp xu.', 'warning');
+			showToast('Vui lòng đăng nhập để nạp xu.', 'warning');
 			return;
 		}
 
 		if (!token) {
-			showNotification('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.', 'error');
+			showToast('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.', 'error');
 			return;
 		}
 
@@ -120,14 +120,14 @@ const CoinRechargePage: React.FC = () => {
 				window.location.href = data.paymentUrl;
 			} else {
 				if (response.status === 401) {
-					showNotification('Phiên đăng nhập hết hạn hoặc không hợp lệ.', 'error');
+					showToast('Phiên đăng nhập hết hạn hoặc không hợp lệ.', 'error');
 				} else {
 					throw new Error(data.message || 'Không thể tạo giao dịch');
 				}
 			}
 		} catch (error: any) {
 			console.error('Lỗi khi nạp xu:', error);
-			showNotification(
+			showToast(
 				error.message || 'Khởi tạo thanh toán thất bại. Vui lòng thử lại.',
 				'error',
 			);

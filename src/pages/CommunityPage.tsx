@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import CreatePost from '../components/community/CreatePost';
 import PostItem from '../components/community/PostItem';
 import CommentSection from '../components/community/CommentSection';
@@ -15,7 +15,7 @@ import '../assets/styles/CommunityModern.css';
 
 const CommunityPage: React.FC = () => {
 	const { currentUser, token, openLoginRequest } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 	const [posts, setPosts] = useState<Post[]>([]);
@@ -102,12 +102,12 @@ const CommunityPage: React.FC = () => {
 				return data.imageUrl;
 			} else {
 				const errorData = await res.json();
-				showNotification(errorData.error || 'Upload ảnh thất bại', 'error');
+				showToast(errorData.error || 'Upload ảnh thất bại', 'error');
 				return null;
 			}
 		} catch (error) {
 			console.error(error);
-			showNotification('Lỗi kết nối khi upload', 'error');
+			showToast('Lỗi kết nối khi upload', 'error');
 			return null;
 		}
 	};
@@ -135,7 +135,7 @@ const CommunityPage: React.FC = () => {
 	const handleCreatePost = async () => {
 		if (!newPostContent.trim() && !newPostImage) return;
 		if (isUploadingPostImg) {
-			showNotification('Đang tải ảnh lên, vui lòng chờ...', 'warning');
+			showToast('Đang tải ảnh lên, vui lòng chờ...', 'warning');
 			return;
 		}
 		try {
@@ -152,12 +152,12 @@ const CommunityPage: React.FC = () => {
 				setPosts([newPost, ...posts]);
 				setNewPostContent('');
 				setNewPostImage(null);
-				showNotification('Đăng bài thành công!', 'success');
+				showToast('Đăng bài thành công!', 'success');
 			} else {
-				showNotification('Đăng bài thất bại', 'error');
+				showToast('Đăng bài thất bại', 'error');
 			}
 		} catch (error) {
-			showNotification('Lỗi kết nối', 'error');
+			showToast('Lỗi kết nối', 'error');
 		}
 	};
 
@@ -209,9 +209,9 @@ const CommunityPage: React.FC = () => {
 				});
 				if (res.ok) {
 					setPosts(posts.filter((p) => p.id !== id));
-					showNotification('Đã xoá bài viết', 'success');
+					showToast('Đã xoá bài viết', 'success');
 				} else {
-					showNotification('Không thể xoá bài viết', 'error');
+					showToast('Không thể xoá bài viết', 'error');
 				}
 			} else if (type === 'comment' && parentId) {
 				const res = await fetch(`${API_URL}/posts/comments/${id}`, {
@@ -231,13 +231,13 @@ const CommunityPage: React.FC = () => {
 							return p;
 						}),
 					);
-					showNotification('Đã xoá bình luận', 'success');
+					showToast('Đã xoá bình luận', 'success');
 				} else {
-					showNotification('Không thể xoá bình luận', 'error');
+					showToast('Không thể xoá bình luận', 'error');
 				}
 			}
 		} catch (e) {
-			showNotification('Lỗi khi xóa', 'error');
+			showToast('Lỗi khi xóa', 'error');
 		}
 		setDeleteTarget(null);
 	};
@@ -314,7 +314,7 @@ const CommunityPage: React.FC = () => {
 				setReplyingToCommentId(null);
 			}
 		} catch (error) {
-			showNotification('Lỗi gửi bình luận', 'error');
+			showToast('Lỗi gửi bình luận', 'error');
 		}
 	};
 
@@ -376,14 +376,14 @@ const CommunityPage: React.FC = () => {
 				body: JSON.stringify({ reason: reportReason }),
 			});
 			if (res.ok) {
-				showNotification('Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét.', 'success');
+				showToast('Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét.', 'success');
 				setShowReportModal(false);
 				setReportTarget(null);
 			} else {
-				showNotification('Gửi báo cáo thất bại', 'error');
+				showToast('Gửi báo cáo thất bại', 'error');
 			}
 		} catch (error) {
-			showNotification('Lỗi kết nối', 'error');
+			showToast('Lỗi kết nối', 'error');
 		}
 	};
 
@@ -430,8 +430,8 @@ const CommunityPage: React.FC = () => {
 						isUploading={isUploadingPostImg}
 						onUpload={(e) => handleFileUpload(e, 'post')}
 						onSubmit={handleCreatePost}
-						onShowStickerNotification={() =>
-							showNotification('Tính năng sticker cho bài đăng sắp ra mắt!', 'info')
+						onShowStickerToast={() =>
+							showToast('Tính năng sticker cho bài đăng sắp ra mắt!', 'info')
 						}
 					/>
 				)}

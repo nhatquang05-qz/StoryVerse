@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import '../assets/styles/AuthPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -10,7 +10,7 @@ const ForgotPasswordPage: React.FC = () => {
 	const [message, setMessage] = useState('');
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -34,12 +34,12 @@ const ForgotPasswordPage: React.FC = () => {
 			}
 
 			setMessage(data.message);
-			showNotification(data.message, 'success');
+			showToast(data.message, 'success');
 			setEmail('');
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Đã xảy ra lỗi.';
 			setError(errorMessage);
-			showNotification(errorMessage, 'error');
+			showToast(errorMessage, 'error');
 		} finally {
 			setIsLoading(false);
 		}

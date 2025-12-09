@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import '../assets/styles/AuthPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -14,7 +14,7 @@ const ResetPasswordPage: React.FC = () => {
 
 	const { token } = useParams<{ token: string }>();
 	const navigate = useNavigate();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -49,7 +49,7 @@ const ResetPasswordPage: React.FC = () => {
 			}
 
 			setMessage(data.message);
-			showNotification(data.message, 'success');
+			showToast(data.message, 'success');
 
 			setTimeout(() => {
 				navigate('/login');
@@ -58,7 +58,7 @@ const ResetPasswordPage: React.FC = () => {
 			const errorMessage =
 				err instanceof Error ? err.message : 'Token không hợp lệ hoặc đã hết hạn.';
 			setError(errorMessage);
-			showNotification(errorMessage, 'error');
+			showToast(errorMessage, 'error');
 		} finally {
 			setIsLoading(false);
 		}

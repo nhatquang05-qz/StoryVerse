@@ -17,7 +17,7 @@ import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishListContext';
 import ReviewSection from '../components/common/ReviewSection';
 import StarRating from '../components/common/StarRating';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ComicDetailPage.css';
 import flashSaleBadgeIcon from '../assets/images/fs.avif';
@@ -97,7 +97,7 @@ const ComicDetailPage: React.FC = () => {
 	const [quantity, setQuantity] = useState(1);
 	const { addToCart } = useCart();
 	const { isWishlisted, toggleWishlist } = useWishlist();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const { currentUser, unlockChapter, openLoginRequest } = useAuth();
 	const navigate = useNavigate();
 	const { comicId } = useParams<{ comicId: string }>();
@@ -302,7 +302,7 @@ const ComicDetailPage: React.FC = () => {
 		}
 		if (comic) {
 			toggleWishlist(comic as any);
-			showNotification(
+			showToast(
 				isFavorite
 					? `Đã xóa ${comic.title} khỏi Yêu thích.`
 					: `Đã thêm ${comic.title} vào Yêu thích.`,
@@ -326,18 +326,18 @@ const ComicDetailPage: React.FC = () => {
 
 		if (Number(chapter.chapterNumber) !== nextExpectedChapterNum) {
 			if (nextChapterInSequence) {
-				showNotification(
+				showToast(
 					`Vui lòng mở khóa Chương ${nextChapterInSequence.chapterNumber} trước.`,
 					'warning',
 				);
 			} else {
-				showNotification(`Vui lòng mở khóa chương tiếp theo trong chuỗi.`, 'warning');
+				showToast(`Vui lòng mở khóa chương tiếp theo trong chuỗi.`, 'warning');
 			}
 			return;
 		}
 
 		if (currentUser.coinBalance < chapter.price) {
-			showNotification('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
+			showToast('Số dư Xu không đủ. Vui lòng nạp thêm Xu.', 'error');
 			navigate('/recharge');
 			return;
 		}
@@ -346,7 +346,7 @@ const ComicDetailPage: React.FC = () => {
 			const result = await unlockChapter(chapter.id);
 
 			if (result) {
-				showNotification(
+				showToast(
 					`Đã mở khóa Chương ${chapter.chapterNumber} với ${chapter.price} Xu!`,
 					'success',
 				);
@@ -356,7 +356,7 @@ const ComicDetailPage: React.FC = () => {
 				throw new Error('Kết quả trả về không hợp lệ');
 			}
 		} catch (e: any) {
-			showNotification(e.message || 'Lỗi khi mở khóa chương.', 'error');
+			showToast(e.message || 'Lỗi khi mở khóa chương.', 'error');
 		}
 	};
 

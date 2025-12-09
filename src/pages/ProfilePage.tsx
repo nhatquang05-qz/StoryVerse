@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import ProfileSideBar from '../components/common/ProfileSideBar';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiUpload, FiLoader } from 'react-icons/fi';
 import '../assets/styles/ProfilePage.css';
@@ -37,7 +37,7 @@ const ProfilePage: React.FC = () => {
 		logout,
 		token,
 	} = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -103,7 +103,7 @@ const ProfilePage: React.FC = () => {
 	const handleLevelSystemChange = async (newSystemKey: string) => {
 		try {
 			if (!token) {
-				showNotification('Bạn chưa đăng nhập hoặc phiên làm việc hết hạn.', 'error');
+				showToast('Bạn chưa đăng nhập hoặc phiên làm việc hết hạn.', 'error');
 				return;
 			}
 			const response = await fetch(`${apiUrl}/users/level-system`, {
@@ -123,17 +123,17 @@ const ProfilePage: React.FC = () => {
 				}
 			}
 			updateSelectedSystemKey(newSystemKey);
-			showNotification(`Đã đổi hệ thống cấp bậc thành ${newSystemKey}`, 'success');
+			showToast(`Đã đổi hệ thống cấp bậc thành ${newSystemKey}`, 'success');
 		} catch (error: any) {
 			console.error('Lỗi cập nhật level system:', error);
-			showNotification(error.message || 'Không thể lưu thay đổi hệ thống cấp bậc.', 'error');
+			showToast(error.message || 'Không thể lưu thay đổi hệ thống cấp bậc.', 'error');
 		}
 	};
 
 	const handleSave = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!formData.fullName || !formData.phone) {
-			showNotification('Vui lòng điền đầy đủ Họ tên và Số điện thoại.', 'warning');
+			showToast('Vui lòng điền đầy đủ Họ tên và Số điện thoại.', 'warning');
 			return;
 		}
 		setIsSaving(true);
@@ -160,7 +160,7 @@ const ProfilePage: React.FC = () => {
 
 	const handleAvatarUpdate = async () => {
 		if (!avatarFile) {
-			showNotification('Bạn chưa chọn ảnh mới.', 'warning');
+			showToast('Bạn chưa chọn ảnh mới.', 'warning');
 			return;
 		}
 
@@ -192,7 +192,7 @@ const ProfilePage: React.FC = () => {
 
 			if (newAvatarUrl) {
 				await updateAvatar(newAvatarUrl);
-				showNotification('Cập nhật avatar thành công!', 'success');
+				showToast('Cập nhật avatar thành công!', 'success');
 				setAvatarFile(null);
 				setAvatarPreview(newAvatarUrl);
 			} else {
@@ -201,7 +201,7 @@ const ProfilePage: React.FC = () => {
 		} catch (error) {
 			console.error('Lỗi khi cập nhật avatar:', error);
 			const errorMessage = error instanceof Error ? error.message : String(error);
-			showNotification(`Lỗi cập nhật avatar: ${errorMessage}`, 'error');
+			showToast(`Lỗi cập nhật avatar: ${errorMessage}`, 'error');
 			setAvatarPreview(currentUser.avatarUrl);
 			setAvatarFile(null);
 		} finally {

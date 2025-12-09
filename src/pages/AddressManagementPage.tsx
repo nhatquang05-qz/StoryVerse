@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import '../assets/styles/ProfilePage.css';
 import '../assets/styles/AddressManagementPage.css';
 import { FiMapPin, FiTrash2, FiSave, FiEdit } from 'react-icons/fi';
@@ -254,7 +254,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ initialData, onSave, onCancel
 
 const AddressManagementPage: React.FC = () => {
 	const { currentUser, updateAddresses } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const [addresses, setAddresses] = useState<Address[]>([]);
 	const [isFormOpen, setIsFormOpen] = useState(false);
 	const [editingAddress, setEditingAddress] = useState<Address | null>(null);
@@ -274,10 +274,10 @@ const AddressManagementPage: React.FC = () => {
 			setIsFormOpen(false);
 			setEditingAddress(null);
 
-			showNotification('Cập nhật địa chỉ thành công!', 'success');
+			showToast('Cập nhật địa chỉ thành công!', 'success');
 		} catch (error) {
 			console.error(error);
-			showNotification('Cập nhật địa chỉ thất bại.', 'error');
+			showToast('Cập nhật địa chỉ thất bại.', 'error');
 		} finally {
 			setIsSaving(false);
 		}
@@ -317,7 +317,7 @@ const AddressManagementPage: React.FC = () => {
 
 	const handleRemoveAddress = (id: string) => {
 		if (addresses.length === 1) {
-			showNotification('Không thể xóa địa chỉ cuối cùng.', 'warning');
+			showToast('Không thể xóa địa chỉ cuối cùng.', 'warning');
 			return;
 		}
 		if (!window.confirm('Bạn có chắc chắn muốn xóa địa chỉ này?')) return;

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNotification } from '../contexts/NotificationContext';
+import { useToast } from '../contexts/ToastContext';
 import '../assets/styles/CheckoutPage.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -11,7 +11,7 @@ const CheckoutPage: React.FC = () => {
 	const { cartItems, clearCart, appliedVoucher, discount } = useCart();
 
 	const { currentUser, token } = useAuth();
-	const { showNotification } = useNotification();
+	const { showToast } = useToast();
 	const navigate = useNavigate();
 
 	const [paymentMethod, setPaymentMethod] = useState<'COD' | 'VNPAY'>('COD');
@@ -42,11 +42,11 @@ const CheckoutPage: React.FC = () => {
 
 	const handlePlaceOrder = async () => {
 		if (cartItems.length === 0) {
-			showNotification('Giỏ hàng trống', 'warning');
+			showToast('Giỏ hàng trống', 'warning');
 			return;
 		}
 		if (!shippingInfo.address || !shippingInfo.phone) {
-			showNotification('Vui lòng nhập đầy đủ thông tin giao hàng', 'warning');
+			showToast('Vui lòng nhập đầy đủ thông tin giao hàng', 'warning');
 			return;
 		}
 
@@ -54,7 +54,7 @@ const CheckoutPage: React.FC = () => {
 
 		try {
 			if (!token) {
-				showNotification('Vui lòng đăng nhập để đặt hàng', 'error');
+				showToast('Vui lòng đăng nhập để đặt hàng', 'error');
 				setIsProcessing(false);
 				return;
 			}
@@ -86,7 +86,7 @@ const CheckoutPage: React.FC = () => {
 
 			if (paymentMethod === 'COD') {
 				clearCart();
-				showNotification('Đặt hàng thành công!', 'success');
+				showToast('Đặt hàng thành công!', 'success');
 				navigate(`/order-success/${realOrderId}`);
 			} else if (paymentMethod === 'VNPAY') {
 				const response = await fetch(`${API_URL}/payment/create_payment_url`, {
@@ -112,7 +112,7 @@ const CheckoutPage: React.FC = () => {
 			}
 		} catch (error: any) {
 			console.error('Checkout Error:', error);
-			showNotification(error.message || 'Đặt hàng thất bại', 'error');
+			showToast(error.message || 'Đặt hàng thất bại', 'error');
 			setIsProcessing(false);
 		}
 	};
