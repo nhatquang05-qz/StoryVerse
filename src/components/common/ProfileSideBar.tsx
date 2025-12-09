@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiUser, FiBook, FiMapPin, FiClock, FiLogOut } from 'react-icons/fi';
+import { FiUser, FiBook, FiMapPin, FiClock, FiLogOut, FiLock } from 'react-icons/fi';
 import '../../assets/styles/ProfileSideBar.css';
 
 interface SidebarProps {
@@ -49,6 +49,14 @@ const ProfileSideBar: React.FC<SidebarProps> = ({ activeTab, onLogout }) => {
 				>
 					<FiBook className="sidebar-icon" />
 					<span>Thư viện số</span>
+				</button>
+
+				<button
+					className={`sidebar-item ${activeTab === 'password' ? 'active' : ''}`}
+					onClick={() => handleProfileTabClick('password')}
+				>
+					<FiLock className="sidebar-icon" />
+					<span>Đổi mật khẩu</span>
 				</button>
 
 				<button className="sidebar-item logout" onClick={onLogout}>

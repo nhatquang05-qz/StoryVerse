@@ -44,7 +44,7 @@
 	padding: 0.5rem 0.75rem;
 	background: none;
 	border: none;
-	
+
 	color: var(--clr-text-secondary);
 	font-weight: 500;
 	white-space: nowrap;
@@ -78,7 +78,7 @@
 	height: auto;
 	max-height: 3.125rem;
 	object-fit: contain;
-	
+
 	border-radius: 0.25rem;
 	transition:
 		transform 0.1s ease,

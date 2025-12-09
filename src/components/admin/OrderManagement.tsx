@@ -127,12 +127,15 @@ const OrderManagement: React.FC = () => {
 					<span className="ordermgmt-badge ordermgmt-badge--warning">Chờ thanh toán</span>
 				);
 			case 'SHIPPING':
-				return (
-					<span className="ordermgmt-badge ordermgmt-badge--info">Đang giao</span>
-				);
+				return <span className="ordermgmt-badge ordermgmt-badge--info">Đang giao</span>;
 			case 'DELIVERED':
 				return (
-					<span className="ordermgmt-badge" style={{backgroundColor: '#d9f7be', color: '#389e0d'}}>Đã tới nơi</span>
+					<span
+						className="ordermgmt-badge"
+						style={{ backgroundColor: '#d9f7be', color: '#389e0d' }}
+					>
+						Đã tới nơi
+					</span>
 				);
 			case 'CANCELLED':
 				return <span className="ordermgmt-badge ordermgmt-badge--danger">Đã hủy</span>;
@@ -213,7 +216,7 @@ const OrderManagement: React.FC = () => {
 													handleStatusUpdateClick(order.id, 'DELIVERED')
 												}
 												className="ordermgmt-btn-icon"
-												style={{color: '#1890ff'}}
+												style={{ color: '#1890ff' }}
 												title="Xác nhận hàng đã tới nơi (Chờ khách nhận)"
 											>
 												<FaTruck />
@@ -238,7 +241,7 @@ const OrderManagement: React.FC = () => {
 											)}
 
 										{order.status !== 'CANCELLED' &&
-											order.status !== 'COMPLETED' && 
+											order.status !== 'COMPLETED' &&
 											order.status !== 'DELIVERED' && (
 												<button
 													onClick={() =>

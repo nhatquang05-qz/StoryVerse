@@ -635,11 +635,7 @@ const ComicDetailPage: React.FC = () => {
 			{renderChapterList()}
 
 			<div className="review-section-wrapper">
-				<ReviewSection 
-                    comicId={comic.id} 
-                    comicTitle={comic.title} 
-                    isDigital={isDigital}
-                />
+				<ReviewSection comicId={comic.id} comicTitle={comic.title} isDigital={isDigital} />
 			</div>
 
 			{}

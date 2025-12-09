@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken } = require('../middleware/authMiddleware');
+
 const { 
   register, 
   login, 
@@ -7,7 +9,10 @@ const {
   facebookLogin,
   forgotPassword, 
   resetPassword,
-  sendOtp 
+  sendOtp,
+  changePassword,      
+  sendOtpLoggedIn,    
+  resetPasswordWithOtp  
 } = require('../controllers/authController');
 
 router.post('/register', register);
@@ -17,5 +22,8 @@ router.post('/google-login', googleLogin);
 router.post('/facebook-login', facebookLogin);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
+router.put('/change-password', authenticateToken, changePassword);
+router.post('/send-otp-logged-in', authenticateToken, sendOtpLoggedIn);
+router.post('/reset-password-otp', authenticateToken, resetPasswordWithOtp);
 
 module.exports = router;

@@ -27,8 +27,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 	const [reviews, setReviews] = useState<ExtendedReview[]>([]);
 	const [newComment, setNewComment] = useState('');
 	const [newRating, setNewRating] = useState(5);
-	
-	
+
 	const [reviewImages, setReviewImages] = useState<File[]>([]);
 	const [reviewVideo, setReviewVideo] = useState<File | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -141,9 +140,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 		setIsSubmitting(true);
 		try {
 			const formData = new FormData();
-            formData.append('rating', newRating.toString());
-            formData.append('comment', newComment.trim());
-			
+			formData.append('rating', newRating.toString());
+			formData.append('comment', newComment.trim());
+
 			// Append media if user selected (for digital comics quick review)
 			reviewImages.forEach((img) => formData.append('images', img));
 			if (reviewVideo) formData.append('video', reviewVideo);
@@ -219,15 +218,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 						<p className="review-text">{review.comment}</p>
 
 						{/* Media Gallery */}
-						{(review.images && review.images.length > 0 || review.video) && (
+						{((review.images && review.images.length > 0) || review.video) && (
 							<div className="review-media-gallery">
 								{review.images?.map((img, idx) => (
-									<img 
-										key={idx} 
-										src={img} 
-										alt="review-img" 
-										className="review-img-thumb" 
-										onClick={() => window.open(img, '_blank')} 
+									<img
+										key={idx}
+										src={img}
+										alt="review-img"
+										className="review-img-thumb"
+										onClick={() => window.open(img, '_blank')}
 									/>
 								))}
 								{review.video && (
@@ -247,9 +246,15 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 					{currentUser ? (
 						<form onSubmit={handleSubmitReview}>
 							<div
-								style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}
+								style={{
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+								}}
 							>
-								<span style={{ marginRight: '1rem', fontWeight: 500 }}>Chấm điểm:</span>
+								<span style={{ marginRight: '1rem', fontWeight: 500 }}>
+									Chấm điểm:
+								</span>
 								<div className="star-rating">
 									{Array.from({ length: 5 }, (_, index) => {
 										const starValue = index + 1;
@@ -258,9 +263,13 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 											<FiStar
 												key={index}
 												className="star-icon"
-												fill={starValue <= ratingToRender ? '#ffc107' : 'none'}
+												fill={
+													starValue <= ratingToRender ? '#ffc107' : 'none'
+												}
 												stroke={
-													starValue <= ratingToRender ? '#ffc107' : '#e0e0e0'
+													starValue <= ratingToRender
+														? '#ffc107'
+														: '#e0e0e0'
 												}
 												onClick={() => setNewRating(starValue)}
 												style={{ cursor: 'pointer', margin: '0 0.1rem' }}
@@ -293,9 +302,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 										disabled={reviewImages.length >= 3}
 									/>
 								</div>
-								
+
 								<div className="upload-btn-wrapper">
-									<label htmlFor="digi-vid-upload" className={`upload-label ${reviewVideo ? 'disabled' : ''}`}>
+									<label
+										htmlFor="digi-vid-upload"
+										className={`upload-label ${reviewVideo ? 'disabled' : ''}`}
+									>
 										<FiVideo /> Thêm Video (Max 1)
 									</label>
 									<input
@@ -314,13 +326,28 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 									{reviewImages.map((file, idx) => (
 										<div key={idx} className="media-preview-item">
 											<img src={URL.createObjectURL(file)} alt="preview" />
-											<button type="button" className="remove-media-btn" onClick={() => removeImage(idx)}>×</button>
+											<button
+												type="button"
+												className="remove-media-btn"
+												onClick={() => removeImage(idx)}
+											>
+												×
+											</button>
 										</div>
 									))}
 									{reviewVideo && (
 										<div className="media-preview-item">
-											<video src={URL.createObjectURL(reviewVideo)} controls />
-											<button type="button" className="remove-media-btn" onClick={() => setReviewVideo(null)}>×</button>
+											<video
+												src={URL.createObjectURL(reviewVideo)}
+												controls
+											/>
+											<button
+												type="button"
+												className="remove-media-btn"
+												onClick={() => setReviewVideo(null)}
+											>
+												×
+											</button>
 										</div>
 									)}
 								</div>
@@ -329,7 +356,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 							<button
 								type="submit"
 								className="submit-review-btn"
-								disabled={newComment.trim().length < MIN_COMMENT_LENGTH || isSubmitting}
+								disabled={
+									newComment.trim().length < MIN_COMMENT_LENGTH || isSubmitting
+								}
 							>
 								{isSubmitting ? 'Đang gửi...' : 'Gửi Đánh Giá'}
 							</button>
@@ -349,7 +378,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ comicId, comicTitle, isDi
 				</div>
 			) : (
 				<div className="review-notice-box">
-					<p>Đối với truyện giấy, bạn vui lòng mua hàng và đánh giá tại mục <b>Lịch sử đơn hàng</b> để đảm bảo tính xác thực.</p>
+					<p>
+						Đối với truyện giấy, bạn vui lòng mua hàng và đánh giá tại mục{' '}
+						<b>Lịch sử đơn hàng</b> để đảm bảo tính xác thực.
+					</p>
 				</div>
 			)}
 		</div>

@@ -6,6 +6,8 @@ const { OAuth2Client } = require('google-auth-library');
 const axios = require('axios'); 
 const userModel = require('../models/userModel'); 
 
+const { getConnection } = require('../db/connection'); 
+
 const { 
   JWT_SECRET, 
   GOOGLE_CLIENT_ID,
@@ -27,6 +29,8 @@ const emailTransporter = nodemailer.createTransport({
     pass: EMAIL_PASS,
   },
 });
+
+
 
 const registerService = async ({ email, password }) => {
   if (!email || !password) throw { status: 400, error: 'Email and password are required' };
@@ -108,15 +112,12 @@ const facebookLoginService = async ({ accessToken }) => {
   if (!accessToken) throw { status: 400, error: 'Facebook access token is required' };
 
   const { data } = await axios.get(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`);
-  console.log("=== DỮ LIỆU FACEBOOK TRẢ VỀ ===");
-  console.log(data); 
-  console.log("===============================");
   const { email, name, picture } = data;
  
   if (!email) {
       throw { 
           status: 400, 
-          error: 'Tài khoản Facebook này không có email hoặc bạn chưa cấp quyền truy cập email. Vui lòng kiểm tra lại cài đặt Facebook hoặc đăng ký bằng cách khác.' 
+          error: 'Tài khoản Facebook này không có email hoặc bạn chưa cấp quyền truy cập email.' 
       };
   }
 
@@ -158,7 +159,7 @@ const forgotPasswordService = async ({ email }) => {
 
   if (user) {
     const token = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 3600000); // 1 hour
+    const expires = new Date(Date.now() + 3600000); 
 
     await userModel.updateResetToken(user.id, token, expires);
 
@@ -167,10 +168,7 @@ const forgotPasswordService = async ({ email }) => {
       from: `"StoryVerse" <${EMAIL_USER}>`,
       to: user.email,
       subject: 'Yêu cầu đặt lại mật khẩu StoryVerse',
-      text: `Bạn nhận được email này vì bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu cho tài khoản của bạn.\n\n` +
-            `Vui lòng nhấp vào liên kết sau hoặc dán vào trình duyệt của bạn để hoàn tất quy trình:\n\n` +
-            `${resetUrl}\n\n` +
-            `Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này và mật khẩu của bạn sẽ không thay đổi.\n`
+      text: `Nhấp vào link sau để đặt lại mật khẩu:\n\n${resetUrl}\n\n`
     };
 
     await emailTransporter.sendMail(mailOptions);
@@ -198,13 +196,61 @@ const resetPasswordService = async ({ token, password }) => {
     from: `"StoryVerse" <${EMAIL_USER}>`,
     to: user.email,
     subject: 'Mật khẩu của bạn đã được thay đổi',
-    text: `Xin chào,\n\n` +
-          `Đây là email xác nhận mật khẩu cho tài khoản ${user.email} của bạn vừa được thay đổi.\n`
+    text: `Mật khẩu tài khoản ${user.email} vừa được thay đổi.\n`
   };
 
   await emailTransporter.sendMail(mailOptions);
 
   return { message: 'Password has been reset successfully', status: 200 };
+};
+
+
+
+const verifyOldPassword = async (userId, oldPassword) => {
+    const connection = getConnection(); 
+    const [rows] = await connection.execute('SELECT password FROM users WHERE id = ?', [userId]);
+    if (rows.length === 0) return false;
+    
+    return await bcrypt.compare(oldPassword, rows[0].password);
+};
+
+const updatePasswordService = async (userId, newPassword) => {
+    const connection = getConnection();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    
+    await connection.execute(
+        'UPDATE users SET password = ?, otpCode = NULL, otpExpires = NULL WHERE id = ?', 
+        [hashedPassword, userId]
+    );
+};
+
+const saveOtpService = async (userId, otp) => {
+    const connection = getConnection();
+    const expires = new Date(Date.now() + 5 * 60 * 1000); 
+    
+    await connection.execute(
+        'UPDATE users SET otpCode = ?, otpExpires = ? WHERE id = ?',
+        [otp, expires, userId]
+    );
+};
+
+const verifyOtpService = async (userId, otp) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+        'SELECT otpCode, otpExpires FROM users WHERE id = ?', 
+        [userId]
+    );
+    
+    if (rows.length === 0) return false;
+    const user = rows[0];
+    
+    if (!user.otpCode || user.otpCode !== otp) return false;
+    
+    if (new Date() > new Date(user.otpExpires)) return false;
+    
+    return true;
 };
 
 module.exports = { 
@@ -213,5 +259,10 @@ module.exports = {
     googleLoginService, 
     facebookLoginService, 
     forgotPasswordService, 
-    resetPasswordService 
+    resetPasswordService,
+    
+    verifyOldPassword,
+    updatePasswordService,
+    saveOtpService,
+    verifyOtpService
 };

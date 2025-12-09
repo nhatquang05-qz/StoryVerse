@@ -164,29 +164,107 @@
 	gap: 0.375rem;
 }
 
-.status-badge.pending { background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-.status-badge.processing { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
-.status-badge.shipping { background-color: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
-.status-badge.completed { background-color: #ecfdf5; color: #047857; border: 1px solid #d1fae5; }
-.status-badge.cancelled { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
-.status-badge.delivered { background-color: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+.status-badge.pending {
+	background-color: #fff7ed;
+	color: #c2410c;
+	border: 1px solid #ffedd5;
+}
+.status-badge.processing {
+	background-color: #eff6ff;
+	color: #1d4ed8;
+	border: 1px solid #dbeafe;
+}
+.status-badge.shipping {
+	background-color: #f0fdf4;
+	color: #15803d;
+	border: 1px solid #dcfce7;
+}
+.status-badge.completed {
+	background-color: #ecfdf5;
+	color: #047857;
+	border: 1px solid #d1fae5;
+}
+.status-badge.cancelled {
+	background-color: #fef2f2;
+	color: #b91c1c;
+	border: 1px solid #fee2e2;
+}
+.status-badge.delivered {
+	background-color: #f6ffed;
+	color: #389e0d;
+	border: 1px solid #b7eb8f;
+}
 
-html[data-theme='night'] .status-badge.pending { background-color: rgba(194, 65, 12, 0.2); border-color: rgba(194, 65, 12, 0.3); color: #fdba74; }
-html[data-theme='night'] .status-badge.processing { background-color: rgba(29, 78, 216, 0.2); border-color: rgba(29, 78, 216, 0.3); color: #93c5fd; }
+html[data-theme='night'] .status-badge.pending {
+	background-color: rgba(194, 65, 12, 0.2);
+	border-color: rgba(194, 65, 12, 0.3);
+	color: #fdba74;
+}
+html[data-theme='night'] .status-badge.processing {
+	background-color: rgba(29, 78, 216, 0.2);
+	border-color: rgba(29, 78, 216, 0.3);
+	color: #93c5fd;
+}
 html[data-theme='night'] .status-badge.shipping,
 html[data-theme='night'] .status-badge.completed,
-html[data-theme='night'] .status-badge.delivered { background-color: rgba(4, 120, 87, 0.2); border-color: rgba(4, 120, 87, 0.3); color: #6ee7b7; }
-html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 28, 28, 0.2); border-color: rgba(185, 28, 28, 0.3); color: #fca5a5; }
+html[data-theme='night'] .status-badge.delivered {
+	background-color: rgba(4, 120, 87, 0.2);
+	border-color: rgba(4, 120, 87, 0.3);
+	color: #6ee7b7;
+}
+html[data-theme='night'] .status-badge.cancelled {
+	background-color: rgba(185, 28, 28, 0.2);
+	border-color: rgba(185, 28, 28, 0.3);
+	color: #fca5a5;
+}
 
-.order-body { padding: 1.5rem; }
-.order-items-preview { display: flex; flex-direction: column; gap: 1rem; }
-.item-row { display: flex; align-items: center; gap: 1rem; }
-.item-thumb { width: 3.75rem; height: 5.625rem; object-fit: cover; border-radius: 0.5rem; border: 1px solid var(--clr-border-light); }
-.item-info { flex: 1; }
-.item-name { font-weight: 600; color: var(--clr-text); margin: 0 0 0.25rem 0; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-.item-meta { color: var(--clr-text-secondary); font-size: 0.9rem; }
-.item-price { font-weight: 600; color: var(--clr-text); }
-.more-items-text { font-size: 0.85rem; color: var(--clr-text-secondary); font-style: italic; margin-top: 0.5rem; }
+.order-body {
+	padding: 1.5rem;
+}
+.order-items-preview {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+.item-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+.item-thumb {
+	width: 3.75rem;
+	height: 5.625rem;
+	object-fit: cover;
+	border-radius: 0.5rem;
+	border: 1px solid var(--clr-border-light);
+}
+.item-info {
+	flex: 1;
+}
+.item-name {
+	font-weight: 600;
+	color: var(--clr-text);
+	margin: 0 0 0.25rem 0;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+.item-meta {
+	color: var(--clr-text-secondary);
+	font-size: 0.9rem;
+}
+.item-price {
+	font-weight: 600;
+	color: var(--clr-text);
+}
+.more-items-text {
+	font-size: 0.85rem;
+	color: var(--clr-text-secondary);
+	font-style: italic;
+	margin-top: 0.5rem;
+}
 
 /* FOOTER & ACTIONS */
 .order-footer {
@@ -199,9 +277,20 @@ html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 2
 	gap: 1rem;
 }
 
-.total-section { display: flex; align-items: baseline; gap: 0.5rem; }
-.label-total { color: var(--clr-text); font-size: 0.95rem; }
-.value-total { font-size: 1.3rem; font-weight: 700; color: var(--clr-primary); }
+.total-section {
+	display: flex;
+	align-items: baseline;
+	gap: 0.5rem;
+}
+.label-total {
+	color: var(--clr-text);
+	font-size: 0.95rem;
+}
+.value-total {
+	font-size: 1.3rem;
+	font-weight: 700;
+	color: var(--clr-primary);
+}
 
 .order-actions {
 	display: flex;
@@ -209,7 +298,8 @@ html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 2
 }
 
 /* GENERAL BUTTON STYLES (Detail, Review, Receive) */
-.btn-detail, .btn-action {
+.btn-detail,
+.btn-action {
 	padding: 0.6rem 1.25rem;
 	border-radius: 0.5rem;
 	font-weight: 600;
@@ -397,7 +487,7 @@ html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 2
 	border: 1px solid var(--clr-border-light);
 }
 
-.media-preview-item img, 
+.media-preview-item img,
 .media-preview-item video {
 	width: 100%;
 	height: 100%;
@@ -408,7 +498,7 @@ html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 2
 	position: absolute;
 	top: 0;
 	right: 0;
-	background: rgba(0,0,0,0.5);
+	background: rgba(0, 0, 0, 0.5);
 	color: white;
 	border: none;
 	width: 20px;
@@ -443,13 +533,23 @@ html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 2
 
 /* Animation Keyframes */
 @keyframes fadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes slideUp {
-	from { transform: translateY(20px); opacity: 0; }
-	to { transform: translateY(0); opacity: 1; }
+	from {
+		transform: translateY(20px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
 }
 
 /* RESPONSIVE */
@@ -467,13 +567,14 @@ html[data-theme='night'] .status-badge.cancelled { background-color: rgba(185, 2
 	.order-footer {
 		align-items: stretch;
 	}
-	
+
 	.order-actions {
 		width: 100%;
 		flex-direction: column;
 	}
 
-	.btn-detail, .btn-action {
+	.btn-detail,
+	.btn-action {
 		width: 100%;
 		text-align: center;
 	}

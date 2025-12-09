@@ -47,7 +47,6 @@ const OrdersPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState<TabType>('ALL');
 
-	
 	const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 	const [selectedOrderForReview, setSelectedOrderForReview] = useState<Order | null>(null);
 	const [reviewRating, setReviewRating] = useState(5);
@@ -78,7 +77,6 @@ const OrdersPage: React.FC = () => {
 		}
 	};
 
-	
 	const getFilteredOrders = () => {
 		if (activeTab === 'ALL') return orders;
 		if (activeTab === 'PENDING') {
@@ -92,7 +90,6 @@ const OrdersPage: React.FC = () => {
 
 	const filteredOrders = getFilteredOrders();
 
-	
 	const handleReceiveOrder = async (orderId: number) => {
 		if (!confirm('Xác nhận bạn đã nhận được hàng và hàng nguyên vẹn?')) return;
 
@@ -108,7 +105,7 @@ const OrdersPage: React.FC = () => {
 
 			if (response.ok) {
 				showToast('Xác nhận nhận hàng thành công!', 'success');
-				fetchOrders(); 
+				fetchOrders();
 			} else {
 				showToast('Có lỗi xảy ra.', 'error');
 			}
@@ -141,7 +138,6 @@ const OrdersPage: React.FC = () => {
 		if (e.target.files && e.target.files[0]) {
 			const file = e.target.files[0];
 			if (file.size > 50 * 1024 * 1024) {
-				
 				showToast('Video không được quá 50MB.', 'warning');
 				return;
 			}
@@ -162,16 +158,11 @@ const OrdersPage: React.FC = () => {
 
 		setIsSubmittingReview(true);
 		try {
-			
-			
-			
-			
-			
 			for (const item of selectedOrderForReview.items) {
 				const formData = new FormData();
 				formData.append('rating', reviewRating.toString());
 				formData.append('comment', reviewComment);
-				
+
 				reviewImages.forEach((img) => formData.append('images', img));
 				if (reviewVideo) formData.append('video', reviewVideo);
 
@@ -182,8 +173,8 @@ const OrdersPage: React.FC = () => {
 					},
 					body: formData,
 				});
-                
-                if(!res.ok) throw new Error('Review failed');
+
+				if (!res.ok) throw new Error('Review failed');
 			}
 
 			showToast('Đánh giá thành công!', 'success');
@@ -196,7 +187,6 @@ const OrdersPage: React.FC = () => {
 		}
 	};
 
-	
 	const formatPrice = (price: number) =>
 		new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
@@ -238,7 +228,10 @@ const OrdersPage: React.FC = () => {
 				);
 			case 'DELIVERED':
 				return (
-					<span className="status-badge delivered" style={{backgroundColor: '#d9f7be', color: '#389e0d'}}>
+					<span
+						className="status-badge delivered"
+						style={{ backgroundColor: '#d9f7be', color: '#389e0d' }}
+					>
 						<FiBox /> Đã đến nơi
 					</span>
 				);
@@ -267,7 +260,12 @@ const OrdersPage: React.FC = () => {
 		return (
 			<div className="orders-page-container">
 				<div className="loading-state">
-					<div className="animate-spin" style={{ display: 'inline-block', marginBottom: '10px' }}>⏳</div>
+					<div
+						className="animate-spin"
+						style={{ display: 'inline-block', marginBottom: '10px' }}
+					>
+						⏳
+					</div>
 					<p>Đang tải lịch sử đơn hàng...</p>
 				</div>
 			</div>
@@ -337,7 +335,9 @@ const OrdersPage: React.FC = () => {
 								<div className="order-date">
 									<FiCalendar size={14} /> {formatDate(order.createdAt)}
 								</div>
-								<div className="order-status">{renderStatusBadge(order.status)}</div>
+								<div className="order-status">
+									{renderStatusBadge(order.status)}
+								</div>
 							</div>
 
 							{order.items && order.items.length > 0 && (
@@ -382,7 +382,7 @@ const OrdersPage: React.FC = () => {
 										{formatPrice(order.totalAmount)}
 									</span>
 								</div>
-								
+
 								<div className="order-actions">
 									<Link to={`/orders/${order.id}`} className="btn-detail">
 										Chi Tiết
@@ -423,7 +423,9 @@ const OrdersPage: React.FC = () => {
 						</button>
 						<h3>Đánh giá sản phẩm</h3>
 						<p className="review-order-ref">
-							Đơn hàng: {selectedOrderForReview.transactionCode || `#${selectedOrderForReview.id}`}
+							Đơn hàng:{' '}
+							{selectedOrderForReview.transactionCode ||
+								`#${selectedOrderForReview.id}`}
 						</p>
 
 						<div className="rating-input-group">
@@ -433,7 +435,9 @@ const OrdersPage: React.FC = () => {
 									<FiStar
 										key={star}
 										size={24}
-										className={star <= reviewRating ? 'star-filled' : 'star-empty'}
+										className={
+											star <= reviewRating ? 'star-filled' : 'star-empty'
+										}
 										onClick={() => setReviewRating(star)}
 									/>
 								))}
@@ -462,9 +466,12 @@ const OrdersPage: React.FC = () => {
 									disabled={reviewImages.length >= 3}
 								/>
 							</div>
-							
+
 							<div className="upload-btn-wrapper">
-								<label htmlFor="vid-upload" className={`upload-label ${reviewVideo ? 'disabled' : ''}`}>
+								<label
+									htmlFor="vid-upload"
+									className={`upload-label ${reviewVideo ? 'disabled' : ''}`}
+								>
 									<FiVideo /> Thêm Video (Max 1)
 								</label>
 								<input
@@ -482,13 +489,23 @@ const OrdersPage: React.FC = () => {
 							{reviewImages.map((file, idx) => (
 								<div key={idx} className="media-preview-item">
 									<img src={URL.createObjectURL(file)} alt="preview" />
-									<button className="remove-media-btn" onClick={() => removeImage(idx)}>×</button>
+									<button
+										className="remove-media-btn"
+										onClick={() => removeImage(idx)}
+									>
+										×
+									</button>
 								</div>
 							))}
 							{reviewVideo && (
 								<div className="media-preview-item">
 									<video src={URL.createObjectURL(reviewVideo)} controls />
-									<button className="remove-media-btn" onClick={() => setReviewVideo(null)}>×</button>
+									<button
+										className="remove-media-btn"
+										onClick={() => setReviewVideo(null)}
+									>
+										×
+									</button>
 								</div>
 							)}
 						</div>

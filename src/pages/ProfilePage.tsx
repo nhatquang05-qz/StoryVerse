@@ -11,6 +11,7 @@ import AddressManagementPage from './AddressManagementPage';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
 import { getTextColorForBackground } from '../utils/authUtils';
 import MyLibraryPage from './MyLibraryPage';
+import ChangePasswordTab from '../components/common/ChangePasswordTab';
 
 interface LevelSelectorProps {
 	currentUserLevel: number;
@@ -47,7 +48,11 @@ const ProfilePage: React.FC = () => {
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
 		const tabParam = params.get('tab');
-		if (tabParam && ['info', 'history', 'addresses', 'my-library'].includes(tabParam)) {
+
+		if (
+			tabParam &&
+			['info', 'history', 'addresses', 'my-library', 'password'].includes(tabParam)
+		) {
 			setActiveTab(tabParam);
 		} else {
 			setActiveTab('info');
@@ -163,7 +168,6 @@ const ProfilePage: React.FC = () => {
 
 		const formDataUpload = new FormData();
 		formDataUpload.append('image', avatarFile);
-
 		formDataUpload.append('uploadType', 'user_avatar');
 
 		const userId = currentUser.id;
@@ -229,6 +233,7 @@ const ProfilePage: React.FC = () => {
 						<h1>Thông Tin Hồ Sơ</h1>
 
 						<div className="profile-info-card profile-avatar-card">
+							{}
 							<h3>Ảnh Đại Diện</h3>
 							<div className="avatar-display-section">
 								<img
@@ -282,6 +287,7 @@ const ProfilePage: React.FC = () => {
 						</div>
 
 						<div className="profile-info-card level-exp-card">
+							{}
 							<h3>Cấp Độ & Kinh Nghiệm</h3>
 							<div className="level-display">
 								<span
@@ -328,6 +334,7 @@ const ProfilePage: React.FC = () => {
 								/>
 							</React.Suspense>
 						</div>
+
 						<form onSubmit={handleSave}>
 							<div className="profile-info-card">
 								<h3>Thông Tin Cá Nhân</h3>
@@ -388,6 +395,9 @@ const ProfilePage: React.FC = () => {
 				{activeTab === 'addresses' && <AddressManagementPage />}
 				{activeTab === 'history' && <TransactionHistory />}
 				{activeTab === 'my-library' && <MyLibraryPage />}
+
+				{}
+				{activeTab === 'password' && <ChangePasswordTab />}
 			</div>
 		</div>
 	);

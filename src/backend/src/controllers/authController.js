@@ -208,4 +208,87 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, googleLogin, facebookLogin, forgotPassword, resetPassword, sendOtp };
+const changePassword = async (req, res) => {
+    const { userId } = req;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ error: 'Vui lòng nhập đầy đủ thông tin.' });
+    }
+
+    try {
+        
+        const isMatch = await authService.verifyOldPassword(userId, oldPassword);
+        if (!isMatch) {
+            return res.status(400).json({ error: 'Mật khẩu cũ không chính xác.' });
+        }
+
+        
+        if (oldPassword === newPassword) {
+            return res.status(400).json({ error: 'Mật khẩu mới không được trùng với mật khẩu cũ.' });
+        }
+
+        
+        await authService.updatePasswordService(userId, newPassword);
+        res.json({ message: 'Đổi mật khẩu thành công.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi server.' });
+    }
+};
+
+const sendOtpLoggedIn = async (req, res) => {
+    const { userId } = req;
+    try {
+        
+        const user = await userModel.findUserById(userId, false);
+        if (!user) return res.status(404).json({ error: 'User not found' });        
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();               
+        await authService.saveOtpService(userId, otp);        
+        const mailOptions = {
+            from: 'StoryVerse Support',
+            to: user.email,
+            subject: 'Mã xác thực đổi mật khẩu - StoryVerse',
+            text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn sau 5 phút.`
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.json({ message: 'Mã OTP đã được gửi đến email của bạn.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Gửi OTP thất bại.' });    }
+};
+
+const resetPasswordWithOtp = async (req, res) => {
+    const { userId } = req;
+    const { otp, newPassword } = req.body;
+
+    try {
+        const isValid = await authService.verifyOtpService(userId, otp);
+        if (!isValid) {
+            return res.status(400).json({ error: 'Mã OTP không đúng hoặc đã hết hạn.' });
+        }
+
+        await authService.updatePasswordService(userId, newPassword);
+        res.json({ message: 'Đổi mật khẩu thành công.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi server.' });
+    }
+};
+
+module.exports = { 
+  register, 
+  login, 
+  googleLogin, 
+  facebookLogin, 
+  forgotPassword, 
+  resetPassword, 
+  sendOtp,
+  changePassword,
+  sendOtpLoggedIn,
+  resetPasswordWithOtp
+};
