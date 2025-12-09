@@ -53,22 +53,21 @@ const CountdownTimer: React.FC = () => {
 const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) => {
 	const { currentUser, claimDailyReward } = useAuth();
 
-	if (!isOpen || !currentUser) {
-		return null;
-	}
-
-	const { consecutiveLoginDays, coinBalance, lastDailyLogin } = currentUser;
+	const consecutiveLoginDays = currentUser?.consecutiveLoginDays || 0;
+	const coinBalance = currentUser?.coinBalance || 0;
+	const lastDailyLogin = currentUser?.lastDailyLogin || new Date().toISOString();
 
 	const today = useMemo(() => new Date(), []);
 	const lastLoginDate = useMemo(() => new Date(lastDailyLogin), [lastDailyLogin]);
 
 	const isTodayClaimed = useMemo(() => {
+		if (!currentUser) return false;
 		return (
 			today.getFullYear() === lastLoginDate.getFullYear() &&
 			today.getMonth() === lastLoginDate.getMonth() &&
 			today.getDate() === lastLoginDate.getDate()
 		);
-	}, [today, lastLoginDate]);
+	}, [today, lastLoginDate, currentUser]);
 
 	const currentStreak = consecutiveLoginDays;
 
@@ -106,6 +105,10 @@ const DailyRewardModal: React.FC<DailyRewardModalProps> = ({ isOpen, onClose }) 
 				};
 			});
 	}, [currentStreak, isTodayClaimed, todayRewardIndex]);
+
+	if (!isOpen || !currentUser) {
+		return null;
+	}
 
 	const handleClaim = async () => {
 		if (!isTodayClaimed) {
