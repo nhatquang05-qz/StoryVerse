@@ -97,8 +97,7 @@ const checkComicExists = async (comicId) => {
 const getAllUsersRaw = async () => {
     const connection = getConnection();
     const [rows] = await connection.execute(
-        'SELECT id, fullName, email, coinBalance, level, exp, isBanned FROM users'
-    );
+        'SELECT id, fullName, email, coinBalance, level, exp, isBanned, role FROM users'    );
     return rows;
 };
 

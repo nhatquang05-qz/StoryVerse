@@ -14,7 +14,7 @@ const Notification = {
     getByUserId: async (userId, limit = 20, offset = 0) => {
         const db = getConnection(); 
         const sql = `SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT ? OFFSET ?`;
-        const [rows] = await db.execute(sql, [userId, String(limit), String(offset)]);
+        const [rows] = await db.query(sql, [userId, Number(limit), Number(offset)]);
         return rows;
     },
 
