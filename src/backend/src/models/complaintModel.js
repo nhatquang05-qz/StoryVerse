@@ -45,9 +45,26 @@ const getAllComplaintsRaw = async () => {
     return rows;
 };
 
+const getComplaintByIdRaw = async (id) => {
+    const connection = getConnection();
+    const [rows] = await connection.execute(`
+        SELECT 
+            c.userId, 
+            c.orderId, 
+            t.transactionCode 
+        FROM complaints c
+        JOIN orders o ON c.orderId = o.id
+        LEFT JOIN payment_transactions t 
+            ON CAST(o.id AS CHAR) COLLATE utf8mb4_unicode_ci = t.orderId COLLATE utf8mb4_unicode_ci
+        WHERE c.id = ?
+    `, [id]);
+    return rows[0] || null;
+};
+
 module.exports = {
     createComplaintRaw,
     getComplaintByOrderRaw,
     updateComplaintStatusRaw,
-    getAllComplaintsRaw
+    getAllComplaintsRaw,
+    getComplaintByIdRaw
 };

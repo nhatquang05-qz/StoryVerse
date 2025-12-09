@@ -1,5 +1,5 @@
 const complaintModel = require('../models/complaintModel');
-const Notification = require('../models/notificationModel');
+const Notification = require('../models/notificationModel');  
 
 const createComplaint = async (req, res) => {
     try {
@@ -29,19 +29,6 @@ const getComplaintByOrder = async (req, res) => {
     }
 };
 
-const adminReplyComplaint = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { adminReply, status } = req.body;
-
-        await complaintModel.updateComplaintStatusRaw(id, adminReply, status);
-
-        res.json({ message: 'Đã xử lý khiếu nại' });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server' });
-    }
-};
-
 const getAllComplaints = async (req, res) => {
     try {
         const complaints = await complaintModel.getAllComplaintsRaw();
@@ -52,9 +39,46 @@ const getAllComplaints = async (req, res) => {
     }
 };
 
+ 
+const adminReplyComplaint = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { adminReply, status } = req.body;
+
+         
+        await complaintModel.updateComplaintStatusRaw(id, adminReply, status);
+
+         
+         
+        const complaintInfo = await complaintModel.getComplaintByIdRaw(id);
+
+        if (complaintInfo) {
+            const codeDisplay = complaintInfo.transactionCode || `#${complaintInfo.orderId}`;
+            const title = "Kết quả khiếu nại";
+            const message = `Đã có kết quả khiếu nại của đơn hàng ${codeDisplay}. Nhấn để xem chi tiết.`;
+
+             
+            await Notification.create({
+                userId: complaintInfo.userId,
+                type: 'ORDER',
+                title: title,
+                message: message,
+                referenceId: complaintInfo.orderId,
+                referenceType: 'ORDER',
+                imageUrl: null
+            });
+        }
+
+        res.json({ message: 'Đã xử lý khiếu nại và gửi thông báo' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi server' });
+    }
+};
+
 module.exports = {
     createComplaint,
     getComplaintByOrder,
     adminReplyComplaint,
-    getAllComplaints 
+    getAllComplaints
 };
