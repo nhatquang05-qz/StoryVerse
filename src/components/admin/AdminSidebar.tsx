@@ -5,9 +5,9 @@ import {
 	FiClipboard,
 	FiUsers,
 	FiShield,
-	FiMail,
 	FiGift,
 	FiChevronRight,
+	FiLifeBuoy,
 } from 'react-icons/fi';
 import { type AdminView } from '../../pages/AdminPage';
 import '../../assets/styles/AdminSidebar.css';
@@ -54,6 +54,16 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 			icon: FiUsers,
 			view: 'users',
 		},
+
+		{
+			id: 'support',
+			label: 'Trung tâm hỗ trợ',
+			icon: FiLifeBuoy,
+			children: [
+				{ id: 'contact', label: 'Hộp thư góp ý', view: 'contact' },
+				{ id: 'complaints', label: 'Giải quyết khiếu nại', view: 'complaints' },
+			],
+		},
 		{
 			id: 'moderation',
 			label: 'Kiểm duyệt',
@@ -64,19 +74,13 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 			],
 		},
 		{
-			id: 'contact',
-			label: 'Liên hệ và góp ý',
-			icon: FiMail,
-			view: 'contact',
-		},
-		{
 			id: 'marketing',
 			label: 'Marketing & Ưu đãi',
 			icon: FiGift,
 			children: [
 				{ id: 'packs', label: 'Gói nạp Xu', view: 'packs' },
-				{ id: 'vouchers', label: 'Mã giảm giá (Voucher)', view: 'vouchers' },
-				{ id: 'giftcodes', label: 'Giftcode (Quà tặng)', view: 'giftcodes' },
+				{ id: 'vouchers', label: 'Mã giảm giá', view: 'vouchers' },
+				{ id: 'giftcodes', label: 'Giftcode', view: 'giftcodes' },
 				{ id: 'flash-sales', label: 'Flash Sale', view: 'flash-sales' },
 			],
 		},
@@ -84,6 +88,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeView, onNavigate }) =
 
 	return (
 		<nav className="admin-sidebar-container">
+			{}
 			<div className="admin-sidebar-header">
 				<h3 className="admin-brand">STORYVERSE</h3>
 				<h4 className="admin-subtitle">Admin Portal</h4>

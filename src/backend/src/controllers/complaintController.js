@@ -42,8 +42,19 @@ const adminReplyComplaint = async (req, res) => {
     }
 };
 
+const getAllComplaints = async (req, res) => {
+    try {
+        const complaints = await complaintModel.getAllComplaintsRaw();
+        res.json(complaints);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Lỗi server khi tải danh sách khiếu nại' });
+    }
+};
+
 module.exports = {
     createComplaint,
     getComplaintByOrder,
-    adminReplyComplaint
+    adminReplyComplaint,
+    getAllComplaints 
 };

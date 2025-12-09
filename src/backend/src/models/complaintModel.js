@@ -29,11 +29,18 @@ const updateComplaintStatusRaw = async (id, adminReply, status) => {
 const getAllComplaintsRaw = async () => {
     const connection = getConnection();
     const [rows] = await connection.execute(`
-        SELECT c.*, u.fullName, u.email, o.id as orderDisplayId 
+        SELECT 
+            c.*, 
+            u.fullName, 
+            u.email, 
+            o.id as orderDisplayId, 
+            t.transactionCode 
         FROM complaints c
-        JOIN users u ON c.userId = u.id
-        JOIN orders o ON c.orderId = o.id
-        ORDER BY c.createdAt DESC
+        JOIN users u ON c.userId = u.id   -- Sửa user_id -> userId
+        JOIN orders o ON c.orderId = o.id -- Sửa order_id -> orderId
+        LEFT JOIN payment_transactions t 
+            ON CAST(o.id AS CHAR) COLLATE utf8mb4_unicode_ci = t.orderId COLLATE utf8mb4_unicode_ci
+        ORDER BY c.createdAt DESC         -- Sửa created_at -> createdAt
     `);
     return rows;
 };

@@ -6,5 +6,6 @@ const { authenticateToken, authenticateAdmin } = require('../middleware/authMidd
 router.post('/create', authenticateToken, complaintController.createComplaint);
 router.get('/order/:orderId', authenticateToken, complaintController.getComplaintByOrder);
 router.put('/reply/:id', authenticateAdmin, complaintController.adminReplyComplaint);
+router.get('/all', authenticateAdmin, complaintController.getAllComplaints)
 
 module.exports = router;

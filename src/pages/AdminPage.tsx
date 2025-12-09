@@ -21,6 +21,7 @@ import VoucherManagement from '../components/admin/VoucherManagement';
 import OrderManagement from '../components/admin/OrderManagement';
 import ContactManagement from '../components/admin/ContactManagement';
 import ReportManagement from '../components/admin/ReportManagement';
+import ComplaintManagement from '../components/admin/ComplaintManagement';
 
 import '../assets/styles/AdminPage.css';
 import defaultAvatarImg from '../assets/images/defaultAvatar.webp';
@@ -42,7 +43,8 @@ export type AdminView =
 	| 'flash-sales'
 	| 'orders'
 	| 'contact'
-	| 'reports';
+	| 'reports'
+	| 'complaints';
 
 const AdminPage: React.FC = () => {
 	const { currentUser } = useAuth();
@@ -243,6 +245,8 @@ const AdminPage: React.FC = () => {
 				return <OrderManagement />;
 			case 'contact':
 				return <ContactManagement />;
+			case 'complaints':
+				return <ComplaintManagement />;
 			case 'reports':
 				return <ReportManagement />;
 			case 'add':
