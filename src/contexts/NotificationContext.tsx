@@ -37,7 +37,7 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http:localhost:3000/api';
 const SOCKET_URL = API_URL.replace('/api', ''); 
 
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -46,7 +46,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const [unreadCount, setUnreadCount] = useState(0);
-	const [loading, setLoading] = useState(false);
+	const [loading] = useState(false);
 
 	
 	const socketRef = useRef<Socket | null>(null);

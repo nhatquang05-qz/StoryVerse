@@ -6,11 +6,10 @@ import mkcert from 'vite-plugin-mkcert'
 export default defineConfig({
   plugins: [
     react(),
-    mkcert() // Tạo chứng chỉ HTTPS ảo
+    mkcert() 
   ],
   server: {
     proxy: {
-      // Chuyển mọi request bắt đầu bằng /api sang Backend ở cổng 3000
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,

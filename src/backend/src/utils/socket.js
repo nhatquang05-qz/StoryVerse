@@ -7,7 +7,9 @@ module.exports = {
     io = new Server(httpServer, {
       cors: {
         origin: [
-            "https://localhost:5173",
+            "http://localhost:5173", 
+            "http://127.0.0.1:5173",
+            "https://localhost:5173", 
         ],
         methods: ["GET", "POST"],
         allowedHeaders: ["Authorization"],
@@ -15,6 +17,7 @@ module.exports = {
       },
       transports: ['websocket', 'polling'] 
     });
+    
     return io;
   },
   getIO: () => {
