@@ -267,11 +267,12 @@ const getOrderById = async (req, res) => {
         const order = rows[0];
 
         const [items] = await connection.execute(
-            `SELECT oi.id, oi.quantity, oi.price, oi.comicId, c.title, c.coverImageUrl 
+            `SELECT oi.id, oi.quantity, oi.price, oi.comicId, c.title, c.coverImageUrl,
+             (SELECT COUNT(*) FROM reviews r WHERE r.orderId = oi.orderId AND r.comicId = oi.comicId AND r.userId = ?) as isReviewed
              FROM order_items oi
              JOIN comics c ON oi.comicId = c.id
              WHERE oi.orderId = ?`,
-            [id]
+            [userId, id]
         );
 
         res.json({ 
