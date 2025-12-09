@@ -4,9 +4,12 @@ import { type ComicSummary } from '../types/comicTypes';
 import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
+import { FiSearch } from 'react-icons/fi'; 
+import logoImage from '../assets/images/logo.avif';
+
 import '../assets/styles/ComicsPage.css';
 import '../assets/styles/FilterSidebar.css';
-import logoImage from '../assets/images/logo.avif';
+
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 const ITEMS_PER_PAGE = 20;
@@ -27,6 +30,8 @@ const PhysicalComicsPage: React.FC = () => {
 	const [categoryDescription] = useState(
 		'Sở hữu những ấn phẩm truyện tranh độc quyền, chất lượng giấy cao cấp dành cho nhà sưu tầm.',
 	);
+
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const [sortState, setSortState] = useState<SortState>({
 		time: null,
@@ -91,6 +96,11 @@ const PhysicalComicsPage: React.FC = () => {
 
 	const currentComics = useMemo(() => {
 		let result = [...allComics];
+
+		if (searchTerm.trim() !== '') {
+			const lowerTerm = searchTerm.toLowerCase().trim();
+			result = result.filter((c) => c.title.toLowerCase().includes(lowerTerm));
+		}
 
 		if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
 			const min = filters.minPrice !== undefined ? Number(filters.minPrice) : 0;
@@ -178,7 +188,7 @@ const PhysicalComicsPage: React.FC = () => {
 		});
 
 		return result;
-	}, [allComics, filters, sortState, sortPriority]);
+	}, [allComics, filters, sortState, sortPriority, searchTerm]);
 
 	const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
 	const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
@@ -194,15 +204,12 @@ const PhysicalComicsPage: React.FC = () => {
 
 	return (
 		<div className="comics-page-wrapper">
-			{}
 			<section className="comics-hero">
 				<h1 className="hero-title">{categoryTitle}</h1>
 				<p className="hero-desc">{categoryDescription}</p>
 			</section>
 
-			{}
 			<div className="comics-layout">
-				{}
 				<aside className="filter-sidebar-wrapper">
 					<FilterSidebar
 						filters={filters}
@@ -216,8 +223,22 @@ const PhysicalComicsPage: React.FC = () => {
 					/>
 				</aside>
 
-				{}
 				<main className="main-content-area">
+					<div className="search-bar-container">
+						<div className="search-input-wrapper">
+							<FiSearch className="search-icon" />
+							<input
+								type="text"
+								placeholder="Tìm kiếm truyện theo tên..."
+								value={searchTerm}
+								onChange={(e) => {
+									setSearchTerm(e.target.value);
+									setCurrentPage(1);
+								}}
+							/>
+						</div>
+					</div>
+
 					{currentItems.length > 0 ? (
 						<>
 							<div className="results-count">

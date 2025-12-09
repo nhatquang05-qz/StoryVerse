@@ -5,9 +5,9 @@ import LoadingPage from '../components/common/Loading/LoadingScreen';
 import Pagination from '../components/common/Pagination';
 import FilterSidebar, { type SortState } from '../components/common/FilterSidebar';
 import logoImage from '../assets/images/logo.avif';
+import { FiSearch } from 'react-icons/fi'; 
 
 import '../assets/styles/ComicsPage.css';
-
 import '../assets/styles/FilterSidebar.css';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
@@ -30,6 +30,8 @@ const DigitalComicsPage: React.FC = () => {
 	const [categoryDescription] = useState(
 		'Khám phá đa vũ trụ truyện tranh online chất lượng cao, sắc nét trên mọi thiết bị của bạn.',
 	);
+
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const [sortState, setSortState] = useState<SortState>({
 		time: null,
@@ -94,6 +96,11 @@ const DigitalComicsPage: React.FC = () => {
 
 	const currentComics = useMemo(() => {
 		let result = [...allComics];
+		
+		if (searchTerm.trim() !== '') {
+			const lowerTerm = searchTerm.toLowerCase().trim();
+			result = result.filter((c) => c.title.toLowerCase().includes(lowerTerm));
+		}		
 
 		if (filters.authors.length > 0) {
 			result = result.filter((c) => c.author && filters.authors.includes(c.author));
@@ -172,7 +179,7 @@ const DigitalComicsPage: React.FC = () => {
 		});
 
 		return result;
-	}, [allComics, filters, sortState, sortPriority]);
+	}, [allComics, filters, sortState, sortPriority, searchTerm]); 
 
 	const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
 	const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
@@ -188,15 +195,12 @@ const DigitalComicsPage: React.FC = () => {
 
 	return (
 		<div className="comics-page-wrapper">
-			{}
 			<section className="comics-hero">
 				<h1 className="hero-title">{categoryTitle}</h1>
 				<p className="hero-desc">{categoryDescription}</p>
 			</section>
 
-			{}
 			<div className="comics-layout">
-				{}
 				<aside className="filter-sidebar-wrapper">
 					<FilterSidebar
 						filters={filters}
@@ -210,8 +214,22 @@ const DigitalComicsPage: React.FC = () => {
 					/>
 				</aside>
 
-				{}
 				<main className="main-content-area">
+					<div className="search-bar-container">
+						<div className="search-input-wrapper">
+							<FiSearch className="search-icon" />
+							<input
+								type="text"
+								placeholder="Tìm kiếm tên truyện..."
+								value={searchTerm}
+								onChange={(e) => {
+									setSearchTerm(e.target.value);
+									setCurrentPage(1); 
+								}}
+							/>
+						</div>
+					</div>
+
 					{currentItems.length > 0 ? (
 						<>
 							<div className="results-count">
