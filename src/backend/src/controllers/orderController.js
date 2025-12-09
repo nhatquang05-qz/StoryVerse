@@ -267,7 +267,7 @@ const getOrderById = async (req, res) => {
         const order = rows[0];
 
         const [items] = await connection.execute(
-            `SELECT oi.id, oi.quantity, oi.price, c.title, c.coverImageUrl 
+            `SELECT oi.id, oi.quantity, oi.price, oi.comicId, c.title, c.coverImageUrl 
              FROM order_items oi
              JOIN comics c ON oi.comicId = c.id
              WHERE oi.orderId = ?`,
