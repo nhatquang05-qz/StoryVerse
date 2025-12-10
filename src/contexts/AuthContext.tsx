@@ -32,11 +32,11 @@ interface AuthContextType {
 	token: string | null;
 	fetchUser: () => Promise<void>;
 	showLevelUpPopup: (newLevel: number) => void;
-	login: (email: string, pass: string) => Promise<void>;
+	login: (email: string, pass: string) => Promise<User | null>;
 	register: (email: string, pass: string) => Promise<void>;
 	logout: () => Promise<void>;
-	loginWithGoogle: (credentialResponse: CredentialResponse) => Promise<void>;
-	loginWithFacebook: (accessToken: string) => Promise<void>;
+	loginWithGoogle: (credentialResponse: CredentialResponse) => Promise<User | null>;
+	loginWithFacebook: (accessToken: string) => Promise<User | null>;
 	updateProfile: (profileData: Partial<User>) => Promise<User | null>;
 	updateAvatar: (avatarUrl: string) => Promise<User | null>;
 	updateAddresses: (addresses: Address[]) => Promise<void>;
@@ -188,7 +188,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		setIsLoginRequestOpen(true);
 	}, []);
 
-	const login = async (email: string, pass: string) => {
+	const login = async (email: string, pass: string): Promise<User | null> => {
 		setLoading(true);
 		try {
 			const response = await fetch(`${API_URL}/auth/login`, {
@@ -200,7 +200,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			if (!response.ok) throw new Error(data.error || 'Email hoặc mật khẩu không đúng.');
 			if (data.user && data.user.isBanned === 1) {
 				showLoginError('Đăng nhập không thành công', 'Tài khoản đã bị cấm!');
-				return;
+				return null;
 			}
 
 			localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
@@ -210,6 +210,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 			setUsernameToDisplay(email.split('@')[0] || 'Người dùng');
 			setIsLoginSuccessPopupOpen(true);
+			return userData;
 		} catch (error: any) {
 			showLoginError(
 				'Đăng nhập không thành công',
@@ -221,7 +222,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		}
 	};
 
-	const loginWithGoogle = async (credentialResponse: CredentialResponse) => {
+	const loginWithGoogle = async (
+		credentialResponse: CredentialResponse,
+	): Promise<User | null> => {
 		if (!credentialResponse.credential) {
 			throw new Error('Không nhận được thông tin xác thực từ Google.');
 		}
@@ -237,7 +240,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 			if (data.user && data.user.isBanned === 1) {
 				showLoginError('Đăng nhập không thành công', 'Tài khoản đã bị cấm!');
-				return;
+				return null;
 			}
 
 			localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
@@ -246,6 +249,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			setCurrentUser(userData);
 			setUsernameToDisplay(userData.fullName || userData.email.split('@')[0] || 'Người dùng');
 			setIsLoginSuccessPopupOpen(true);
+			return userData;
 		} catch (error: any) {
 			showLoginError('Lỗi đăng nhập Google', 'Đăng nhập Google thất bại.');
 			throw error;
@@ -254,7 +258,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		}
 	};
 
-	const loginWithFacebook = async (accessToken: string) => {
+	const loginWithFacebook = async (accessToken: string): Promise<User | null> => {
 		setLoading(true);
 		try {
 			const response = await fetch(`${API_URL}/auth/facebook-login`, {
@@ -267,7 +271,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 			if (data.user && data.user.isBanned === 1) {
 				showLoginError('Đăng nhập không thành công', 'Tài khoản đã bị cấm!');
-				return;
+				return null;
 			}
 
 			localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
@@ -276,6 +280,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			setCurrentUser(userData);
 			setUsernameToDisplay(userData.fullName || userData.email.split('@')[0] || 'Người dùng');
 			setIsLoginSuccessPopupOpen(true);
+			return userData;
 		} catch (error: any) {
 			showLoginError(
 				'Lỗi đăng nhập Facebook',
@@ -561,10 +566,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		setLevelUpInfo(null);
 	}, []);
 
+	// Sửa ở đây: Chỉ đóng popup, không navigate
 	const closeLoginSuccessPopup = useCallback(() => {
 		setIsLoginSuccessPopupOpen(false);
-		navigate('/', { replace: true });
-	}, [navigate]);
+	}, []);
 
 	if (loading) {
 		return <LoadingPage />;

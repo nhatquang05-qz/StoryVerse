@@ -367,17 +367,17 @@
 
 .strength-bar.active[data-score='1'],
 .strength-bar.active[data-score='2'] {
-	background: #ff4d4d; 
+	background: #ff4d4d;
 	box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
 }
 
 .strength-bar.active[data-score='3'] {
-	background: #ffcc00; 
+	background: #ffcc00;
 	box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
 }
 
 .strength-bar.active[data-score='4'] {
-	background: #00e676; 
+	background: #00e676;
 	box-shadow: 0 0 5px rgba(0, 230, 118, 0.5);
 }
 

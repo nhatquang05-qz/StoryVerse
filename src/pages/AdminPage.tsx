@@ -67,6 +67,20 @@ const AdminPage: React.FC = () => {
 
 	const isAdmin = currentUser?.email === 'admin@123';
 
+	useEffect(() => {
+		const html = document.documentElement;
+		const prevTheme = html.getAttribute('data-theme');
+		html.setAttribute('data-theme', 'light');
+
+		return () => {
+			if (prevTheme) {
+				html.setAttribute('data-theme', prevTheme);
+			} else {
+				html.removeAttribute('data-theme');
+			}
+		};
+	}, []);
+
 	const getAvatarSrc = (url: string | null | undefined) => {
 		if (!url || url === 'defaultAvatar.webp') return defaultAvatarImg;
 		return url;

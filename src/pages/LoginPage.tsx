@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import { FaFacebook } from 'react-icons/fa';
@@ -13,32 +13,56 @@ const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID || '';
 const LoginPage: React.FC = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const { login, isLoginSuccessPopupOpen, loginWithGoogle, loginWithFacebook, showLoginError } =
-		useAuth();
+	const {
+		login,
+		isLoginSuccessPopupOpen,
+		loginWithGoogle,
+		loginWithFacebook,
+		showLoginError,
+		closeLoginSuccessPopup,
+	} = useAuth();
 	const { showToast } = useToast();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!FACEBOOK_APP_ID) {
 			console.error('Thiếu VITE_FACEBOOK_APP_ID trong file .env');
-			showToast('Thiếu cấu hình Facebook App ID!', 'warning');
 		}
 	}, [showToast]);
+
+	const checkRoleAndRedirect = (user: any) => {
+		if (user && user.role === 'admin') {
+			navigate('/admin');
+		} else {
+			navigate('/');
+		}
+	};
+
+	const handlePostLogin = (user: any) => {
+		if (user) {
+			setTimeout(() => {
+				closeLoginSuccessPopup();
+				checkRoleAndRedirect(user);
+			}, 3000);
+		}
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (isLoginSuccessPopupOpen) return;
 		try {
-			await login(email, password);
+			const user = await login(email, password);
+			handlePostLogin(user);
 		} catch (err) {
 			console.error('Lỗi đăng nhập:', err);
-			showToast('Đăng nhập thất bại. Vui lòng kiểm tra lại.', 'error');
 		}
 	};
 
 	const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
 		if (isLoginSuccessPopupOpen) return;
 		try {
-			await loginWithGoogle(credentialResponse);
+			const user = await loginWithGoogle(credentialResponse);
+			handlePostLogin(user);
 		} catch (err) {
 			console.error('Lỗi đăng nhập Google:', err);
 			showToast('Lỗi kết nối hoặc xử lý đăng nhập Google.', 'error');
@@ -53,7 +77,8 @@ const LoginPage: React.FC = () => {
 		if (isLoginSuccessPopupOpen) return;
 		if (response.accessToken) {
 			try {
-				await loginWithFacebook(response.accessToken);
+				const user = await loginWithFacebook(response.accessToken);
+				handlePostLogin(user);
 			} catch (err) {
 				console.error('Lỗi xử lý đăng nhập Facebook:', err);
 				showToast('Lỗi kết nối khi đăng nhập Facebook.', 'error');
@@ -110,7 +135,7 @@ const LoginPage: React.FC = () => {
 						className="auth-button"
 						disabled={isLoginSuccessPopupOpen}
 					>
-						{isLoginSuccessPopupOpen ? 'Đang xử lý...' : 'Đăng Nhập'}
+						{isLoginSuccessPopupOpen ? 'Đang đăng nhập...' : 'Đăng Nhập'}
 					</button>
 				</form>
 
