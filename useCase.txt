@@ -1,0 +1,114 @@
+    ]
+   
+   
+     module :  Admin Module  
+     useCases :  
+       
+         id :  UC3.01  
+         name :  Quản lí truyện  
+         description :  Thêm  sửa  xóa truyện và chương.  
+         actors :   Admin    Cloudinary  
+         priority :  High  
+         trigger :  Vào trang Quản lý truyện.  
+         preConditions :  Quyền Admin.  
+         postConditions :  Dữ liệu truyện cập nhật.  
+         basicFlow :  
+           1. Admin thêm/sửa thông tin truyện.  
+           2. Upload ảnh bìa.  
+           3. Lưu thay đổi. 
+         
+         alternativeFlow :   
+         exceptionFlow :   
+         businessRules :  Không xóa truyện đã có người mua (chỉ ẩn). 
+       
+       
+         id :  UC3.02  
+         name :  Quản lí đơn hàng  
+         description :  Cập nhật trạng thái đơn hàng.  
+         actors :   Admin  
+         priority :  High  
+         trigger :  Vào trang Đơn hàng.  
+         preConditions :  Quyền Admin.  
+         postConditions :  Trạng thái đơn hàng thay đổi.  
+         basicFlow :  
+           1. Xem danh sách đơn.  
+           2. Cập nhật trạng thái (Giao hàng/Hủy).  
+           3. Lưu. 
+         
+         alternativeFlow :   
+         exceptionFlow :   
+         businessRules :  Không. 
+       
+       
+         id :  UC3.03  
+         name :  Xem thống kê  
+         description :  Xem báo cáo doanh thu  người dùng.  
+         actors :   Admin  
+         priority :  Medium  
+         trigger :  Vào Dashboard.  
+         preConditions :  Quyền Admin.  
+         postConditions :  Hiển thị biểu đồ.  
+         basicFlow :  
+           1. Hệ thống tính toán số liệu.  
+           2. Hiển thị biểu đồ doanh thu  user mới. 
+         
+         alternativeFlow :   
+         exceptionFlow :   
+         businessRules :  Không. 
+       
+       
+         id :  UC3.04  
+         name :  Kiểm duyệt  
+         description :  Duyệt bài viết/bình luận bị báo cáo.  
+         actors :   Admin  
+         priority :  Medium  
+         trigger :  Vào trang Kiểm duyệt.  
+         preConditions :  Có nội dung bị report.  
+         postConditions :  Nội dung bị xóa hoặc giữ.  
+         basicFlow :  
+           1. Xem nội dung bị báo cáo.  
+           2. Quyết định Xóa hoặc Bỏ qua. 
+         
+         alternativeFlow :   
+         exceptionFlow :   
+         businessRules :  Không. 
+       
+       
+         id :  UC3.05  
+         name :  Quản lí marketing và ưu đãi  
+         description :  Tạo mã giảm giá  gửi email marketing.  
+         actors :   Admin    Email System  
+         priority :  Medium  
+         trigger :  Vào trang Marketing.  
+         preConditions :  Quyền Admin.  
+         postConditions :  Mã giảm giá được tạo.  
+         basicFlow :  
+           1. Tạo mã code mới.  
+           2. Thiết lập mức giảm  hạn dùng.  
+           3. Lưu và kích hoạt. 
+         
+         alternativeFlow :   
+         exceptionFlow :   
+         businessRules :  Không. 
+       
+       
+         id :  UC3.06  
+         name :  Hỗ trợ người dùng  
+         description :  Phản hồi khiếu nại.  
+         actors :   Admin    Email System  
+         priority :  Low  
+         trigger :  Nhận ticket hỗ trợ.  
+         preConditions :  Quyền Admin.  
+         postConditions :  Ticket được giải quyết.  
+         basicFlow :  
+           1. Xem chi tiết khiếu nại.  
+           2. Phản hồi user.  
+           3. Đóng ticket. 
+         
+         alternativeFlow :   
+         exceptionFlow :   
+         businessRules :  Không. 
+      }
+    ]
+  }
+]

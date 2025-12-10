@@ -19,6 +19,25 @@ const RegisterPage: React.FC = () => {
 	const [error, setError] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	const calculateStrength = (pwd: string) => {
+		let score = 0;
+		if (!pwd) return 0;
+		if (pwd.length >= 8) score += 1;
+		if (/[a-z]/.test(pwd)) score += 1;
+		if (/[A-Z]/.test(pwd)) score += 1;
+		if (/[0-9!@#$%^&*]/.test(pwd)) score += 1;
+		return score;
+	};
+
+	const getStrengthLabel = (score: number) => {
+		if (score === 0) return '';
+		if (score < 3) return 'Yếu';
+		if (score === 3) return 'Trung bình';
+		return 'Mạnh';
+	};
+
+	const strengthScore = calculateStrength(password);
+
 	const handleSendOtp = async () => {
 		setError('');
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -51,6 +70,15 @@ const RegisterPage: React.FC = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError('');
+
+		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+		if (!passwordRegex.test(password)) {
+			const msg = 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm cả chữ hoa và chữ thường.';
+			setError(msg);
+			showToast(msg, 'warning');
+			return;
+		}
 
 		if (password !== confirmPassword) {
 			setError('Mật khẩu nhập lại không khớp.');
@@ -153,10 +181,26 @@ const RegisterPage: React.FC = () => {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									required
-									placeholder="Tạo mật khẩu (ít nhất 6 ký tự)"
-									minLength={6}
+									placeholder="Mật khẩu (Ít nhất 8 ký tự, có chữ Hoa & thường)"
+									minLength={8}
 									disabled={isSubmitting}
 								/>
+								{password && (
+									<div className="password-strength-container">
+										<div className="strength-bars">
+											{[1, 2, 3, 4].map((level) => (
+												<div
+													key={level}
+													className={`strength-bar ${strengthScore >= level ? 'active' : ''}`}
+													data-score={strengthScore}
+												></div>
+											))}
+										</div>
+										<span className="strength-label" data-score={strengthScore}>
+											{getStrengthLabel(strengthScore)}
+										</span>
+									</div>
+								)}
 							</div>
 
 							<div className="form-group">

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryVerse Sitemap - Phân Tách User & Admin</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #06b6d4;
+            --admin-color: #dc2626;
+            --user-color: #16a34a;
+            --bg: #f8fafc;
+            --line: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            padding: 40px;
+            color: #334155;
+            margin: 0;
+        }
+
+        /* Vùng chứa nội dung để chụp ảnh */
+        #capture-area {
+            background-color: var(--bg);
+            padding: 20px;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #cbd5e1;
+            display: inline-block;
+            left: 50%;
+            position: relative;
+            transform: translateX(-50%);
+        }
+
+        /* Tree Logic */
+        .tree, .tree ul, .tree li {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .tree {
+            margin: 0 auto;
+            text-align: center;
+            /* overflow-x: auto; Bỏ overflow khi chụp ảnh để không bị cắt */
+        }
+
+        .tree ul {
+            display: inline-flex;
+            padding-top: 20px;
+        }
+
+        .tree li {
+            align-items: center;
+            padding: 20px 5px 0 5px;
+            position: relative;
+        }
+
+        /* Connectors */
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid var(--line);
+            width: 50%;
+            height: 20px;
+        }
+
+        .tree li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid var(--line);
+        }
+
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+
+        .tree li:only-child {
+            padding-top: 0;
+        }
+
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+
+        .tree li:last-child::before {
+            border-right: 2px solid var(--line);
+            border-radius: 0 5px 0 0;
+        }
+
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+
+        .tree ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid var(--line);
+            width: 0;
+            height: 20px;
+        }
+
+        /* Boxes */
+        .tree div.node {
+            border: 1px solid #e2e8f0;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: #475569;
+            background-color: #fff;
+            font-size: 14px;
+            display: inline-block;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-weight: 500;
+            min-width: 120px;
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Specific Colors */
+        .tree div.root-client { background: #1e293b; color: #fff; border: none; }
+        .tree div.root-admin { background: #991b1b; color: #fff; border: none; }
+        
+        .tree div.public { border-left: 4px solid var(--primary); }
+        .tree div.user { border-left: 4px solid var(--user-color); }
+        .tree div.event { border-left: 4px solid var(--secondary); }
+        .tree div.admin { border-left: 4px solid var(--admin-color); }
+
+        .note {
+            font-size: 11px;
+            color: #94a3b8;
+            display: block;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        .tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            margin-left: 5px;
+            color: #64748b;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+        /* Nút Download */
+        .download-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Icon tải xuống đơn giản bằng CSS */
+        .icon-download {
+            width: 16px;
+            height: 16px;
+            border-bottom: 2px solid white;
+            border-right: 2px solid white;
+            transform: rotate(45deg);
+            margin-bottom: 3px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <button class="download-btn" onclick="downloadSitemap()">
+        <div style="width: 2px; height: 10px; background: white; position: absolute; left: 36px; top: 18px;"></div>
+        <div class="icon-download"></div>
+        Tải Ảnh Sitemap
+    </button>
+
+    <div id="capture-area">
+        <h1>StoryVerse Project Sitemap</h1>
+        
+        <div class="legend">
+            <div class="legend-item"><span class="dot" style="background: var(--primary)"></span> Khách (Public)</div>
+            <div class="legend-item"><span class="dot" style="background: var(--user-color)"></span> Thành viên (User)</div>
+            <div class="legend-item"><span class="dot" style="background: var(--secondary)"></span> Sự kiện (Event)</div>
+            <div class="legend-item"><span class="dot" style="background: var(--admin-color)"></span> Quản trị (Admin)</div>
+        </div>
+
+        <h2 style="color: var(--primary);">1. Website Người Dùng (Client Site)</h2>
+        <div class="tree">
+            <ul>
+                <li>
+                    <div class="node root-client">Trang Chủ<br><span class="note">/ (HomePage)</span></div>
+                    <ul>
+                        <li>
+                            <div class="node public">Thông Tin & Auth</div>
+                            <ul>
+                                <li>
+                                    <div class="node public">Tài khoản</div>
+                                    <ul>
+                                        <li><div class="node public">Đăng nhập</div></li>
+                                        <li><div class="node public">Đăng ký</div></li>
+                                        <li><div class="node public">Quên mật khẩu</div></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="node public">Thông tin tĩnh</div>
+                                    <ul>
+                                        <li><div class="node public">Giới thiệu</div></li>
+                                        <li><div class="node public">Liên hệ</div></li>
+                                        <li><div class="node public">FAQ / Chính sách</div></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <div class="node public">Kho Truyện</div>
+                            <ul>
+                                <li>
+                                    <div class="node public">Danh sách truyện</div>
+                                    <ul>
+                                        <li><div class="node public">Truyện Tranh (Digital)</div></li>
+                                        <li><div class="node public">Truyện Giấy (Physical)</div></li>
+                                        <li><div class="node public">Bảng Xếp Hạng</div></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="node public">Chi tiết Truyện<br><span class="tag">/comic/:id</span></div>
+                                    <ul>
+                                        <li>
+                                            <div class="node user">Trình Đọc (Reader)<br><span class="tag">/reader/:id</span></div>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <div class="node user">Khu Vực Cá Nhân</div>
+                            <ul>
+                                <li>
+                                    <div class="node user">Hồ Sơ (Profile)</div>
+                                    <ul>
+                                        <li><div class="node user">Tủ truyện cá nhân</div></li>
+                                        <li><div class="node user">Danh sách yêu thích</div></li>
+                                        <li><div class="node user">Nạp Xu / Giftcode</div></li>
+                                        <li><div class="node user">Cài đặt tài khoản</div></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="node user">Mua Sắm</div>
+                                    <ul>
+                                        <li><div class="node user">Giỏ hàng</div></li>
+                                        <li><div class="node user">Thanh toán (Checkout)</div></li>
+                                        <li><div class="node user">Quản lý Đơn hàng</div></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <div class="node event">Tương Tác</div>
+                            <ul>
+                                <li>
+                                    <div class="node public">Cộng đồng<br><span class="tag">/community</span></div>
+                                    <ul>
+                                        <li><div class="node user">Đăng bài / Bình luận</div></li>
+                                        <li><div class="node user">Báo cáo vi phạm</div></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="node event">Sự kiện Noel<br><span class="tag">/minigame</span></div>
+                                    <ul>
+                                        <li><div class="node event">Vòng quay may mắn</div></li>
+                                        <li><div class="node event">Cây thông nguyện ước</div></li>
+                                        <li><div class="node event">Điểm danh nhận quà</div></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <h2 style="color: var(--admin-color);">2. Trang Quản Trị (Admin Site)</h2>
+        <div class="tree">
+            <ul>
+                <li>
+                    <div class="node root-admin">Admin Dashboard<br><span class="note">/admin (AdminPage)</span></div>
+                    <ul>
+                        <li>
+                            <div class="node admin">Quản Lý Nội Dung</div>
+                            <ul>
+                                <li>
+                                    <div class="node admin">Truyện (Comics)</div>
+                                    <ul>
+                                        <li><div class="node admin">Thêm mới / Sửa</div></li>
+                                        <li><div class="node admin">Quản lý Chương</div></li>
+                                    </ul>
+                                </li>
+                                <li><div class="node admin">Người dùng (Users)</div></li>
+                                <li><div class="node admin">Phê duyệt Avatar</div></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <div class="node admin">Quản Lý Bán Hàng</div>
+                            <ul>
+                                <li>
+                                    <div class="node admin">Đơn hàng (Orders)</div>
+                                    <ul>
+                                        <li><div class="node admin">Cập nhật trạng thái</div></li>
+                                        <li><div class="node admin">Xử lý khiếu nại</div></li>
+                                    </ul>
+                                </li>
+                                <li><div class="node admin">Gói nạp Xu (Packs)</div></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <div class="node admin">Marketing & System</div>
+                            <ul>
+                                <li>
+                                    <div class="node admin">Khuyến mãi</div>
+                                    <ul>
+                                        <li><div class="node admin">Flash Sale</div></li>
+                                        <li><div class="node admin">Mã giảm giá (Voucher)</div></li>
+                                        <li><div class="node admin">Giftcode</div></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <div class="node admin">Tương tác</div>
+                                    <ul>
+                                        <li><div class="node admin">Báo cáo vi phạm (Reports)</div></li>
+                                        <li><div class="node admin">Tin tức (Newsletter)</div></li>
+                                        <li><div class="node admin">Liên hệ (Contacts)</div></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function downloadSitemap() {
+            const element = document.getElementById('capture-area');
+            const btn = document.querySelector('.download-btn');
+            
+            // Đổi text nút để báo đang xử lý
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Đang tạo ảnh...';
+            btn.style.opacity = '0.7';
+
+            html2canvas(element, {
+                scale: 2, // Tăng độ phân giải ảnh lên 2 lần cho nét
+                backgroundColor: "#f8fafc", // Màu nền
+                useCORS: true // Hỗ trợ tải ảnh từ nguồn khác nếu có
+            }).then(canvas => {
+                // Tạo link tải ảo
+                const link = document.createElement('a');
+                link.download = 'storyverse_sitemap.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                // Trả lại trạng thái nút
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+            }).catch(err => {
+                console.error("Lỗi khi tạo ảnh:", err);
+                alert("Có lỗi xảy ra khi tạo ảnh. Vui lòng thử lại.");
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+            });
+        }
+    </script>
+
+</body>
+</html>

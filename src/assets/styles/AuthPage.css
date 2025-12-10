@@ -343,3 +343,60 @@
 	cursor: not-allowed;
 	box-shadow: none;
 }
+
+.password-strength-container {
+	margin-top: 0.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.strength-bars {
+	display: flex;
+	gap: 4px;
+	height: 4px;
+	width: 100%;
+}
+
+.strength-bar {
+	flex: 1;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 2px;
+	transition: all 0.3s ease;
+}
+
+.strength-bar.active[data-score='1'],
+.strength-bar.active[data-score='2'] {
+	background: #ff4d4d; 
+	box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
+}
+
+.strength-bar.active[data-score='3'] {
+	background: #ffcc00; 
+	box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+}
+
+.strength-bar.active[data-score='4'] {
+	background: #00e676; 
+	box-shadow: 0 0 5px rgba(0, 230, 118, 0.5);
+}
+
+.strength-label {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-align: right;
+	transition: color 0.3s ease;
+}
+
+.strength-label[data-score='1'],
+.strength-label[data-score='2'] {
+	color: #ff4d4d;
+}
+
+.strength-label[data-score='3'] {
+	color: #ffcc00;
+}
+
+.strength-label[data-score='4'] {
+	color: #00e676;
+}
