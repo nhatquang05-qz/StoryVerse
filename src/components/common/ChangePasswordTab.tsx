@@ -131,7 +131,7 @@ const ChangePasswordTab: React.FC = () => {
 			<div className="cp-content">
 				{mode === 'STANDARD' ? (
 					<form onSubmit={handleStandardChange} className="cp-form">
-						<div className="form-group">
+						<div className="cp-form-group">
 							<label>Mật khẩu cũ</label>
 							<div className="input-wrapper">
 								<FiKey className="prefix-icon" />
@@ -144,7 +144,7 @@ const ChangePasswordTab: React.FC = () => {
 								/>
 							</div>
 						</div>
-						<div className="form-group">
+						<div className="cp-form-group">
 							<label>Mật khẩu mới</label>
 							<div className="input-wrapper">
 								<FiLock className="prefix-icon" />
@@ -157,7 +157,7 @@ const ChangePasswordTab: React.FC = () => {
 								/>
 							</div>
 						</div>
-						<div className="form-group">
+						<div className="cp-form-group">
 							<label>Nhập lại mật khẩu mới</label>
 							<div className="input-wrapper">
 								<FiCheck className="prefix-icon" />
@@ -197,7 +197,7 @@ const ChangePasswordTab: React.FC = () => {
 								<p className="otp-sent-msg">
 									Mã OTP đã được gửi. Vui lòng kiểm tra email.
 								</p>
-								<div className="form-group">
+								<div className="cp-form-group">
 									<label>Mã OTP</label>
 									<div className="input-wrapper">
 										<FiMail className="prefix-icon" />
@@ -210,7 +210,7 @@ const ChangePasswordTab: React.FC = () => {
 										/>
 									</div>
 								</div>
-								<div className="form-group">
+								<div className="cp-form-group">
 									<label>Mật khẩu mới</label>
 									<div className="input-wrapper">
 										<FiLock className="prefix-icon" />
@@ -223,7 +223,7 @@ const ChangePasswordTab: React.FC = () => {
 										/>
 									</div>
 								</div>
-								<div className="form-group">
+								<div className="cp-form-group">
 									<label>Nhập lại mật khẩu mới</label>
 									<div className="input-wrapper">
 										<FiCheck className="prefix-icon" />
