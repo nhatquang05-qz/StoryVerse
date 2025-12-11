@@ -1,13 +1,30 @@
+.homepage-wrapper {
+	width: 100%;
+	max-width: 100%;
+	overflow-x: hidden;
+	box-sizing: border-box;
+	position: relative;
+}
+
+.homepage-wrapper *,
+.homepage-wrapper *::before,
+.homepage-wrapper *::after {
+	box-sizing: border-box;
+}
+
 .top-and-chat-section {
 	display: flex;
 	gap: 2rem;
 	align-items: flex-start;
 	margin-bottom: 4rem;
+	width: 100%;
+	max-width: 100%;
 }
 
 .chat-column {
 	flex: 3 1 43.75rem;
 	min-width: 0;
+	max-width: 100%;
 }
 
 .top-comics-column {
@@ -15,6 +32,7 @@
 	min-width: 17.5rem;
 	position: sticky;
 	top: calc(var(--header-height, 4.375rem) + 2rem);
+	max-width: 100%;
 }
 
 .chat-column .chat-room-container {
@@ -34,6 +52,7 @@
 		margin-bottom: 2rem;
 		flex-basis: auto;
 		width: 100%;
+		min-width: 0;
 	}
 	.chat-column {
 		flex-basis: auto;
@@ -54,6 +73,7 @@
 	border: 1px solid var(--clr-border-light);
 	padding: 1.5rem;
 	animation: pulse 1.5s infinite ease-in-out;
+	width: 100%;
 }
 
 @keyframes pulse {

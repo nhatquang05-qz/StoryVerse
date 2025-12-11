@@ -163,7 +163,7 @@
 }
 
 .quantity-selector input {
-	width: 2.5rem;
+	width: 3rem;
 	text-align: center;
 	border: none;
 	border-left: 1px solid var(--clr-border-light);

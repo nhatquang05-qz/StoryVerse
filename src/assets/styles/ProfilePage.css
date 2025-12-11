@@ -602,9 +602,14 @@ button:disabled {
 		padding: 1.5rem;
 	}
 
-	.profile-content {
-		padding: 0;
+	.profile-side-bar {
 		width: 100%;
+		margin-bottom: 2rem;
+	}
+
+	.profile-content {
+		width: 100%;
+		padding: 0;
 	}
 }
 
@@ -615,41 +620,64 @@ button:disabled {
 
 	.system-selector-form-inline {
 		grid-template-columns: 1fr;
-		gap: 0.75rem;
+		height: auto;
 	}
 
-	.system-selector-form-inline label {
-		grid-column: 1 / -1;
-	}
-
-	.system-selector-form-inline .select-wrapper {
-		grid-column: 1 / -1;
-	}
-
+	.system-selector-form-inline select,
 	.system-selector-form-inline .save-btn,
 	.system-selector-form-inline .cancel-btn-inline {
-		grid-column: auto;
 		width: 100%;
+		height: 2.5rem;
 	}
 
-	.profile-actions {
-		flex-direction: column;
+	.orders-table {
+		display: block;
+		border: none;
+		background: transparent;
+		box-shadow: none;
 	}
 
-	.profile-actions button {
-		width: 100%;
+	.orders-table thead {
+		display: none;
 	}
 
-	.system-display {
-		flex-direction: column;
-		align-items: flex-start;
+	.orders-table tbody {
+		display: block;
 	}
 
-	.system-name-display {
-		margin: 0 0 0.5rem 0;
+	.orders-table tr {
+		display: block;
+		background-color: var(--clr-card-bg);
+		border: 1px solid var(--clr-border-light);
+		border-radius: var(--border-radius);
+		margin-bottom: 1rem;
+		padding: 1rem;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 	}
 
-	.equivalent-level-display {
-		margin-left: 0;
+	.orders-table td {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		text-align: right;
+		padding: 0.5rem 0;
+		border-bottom: 1px dashed var(--clr-border-light);
+	}
+
+	.orders-table td:last-child {
+		border-bottom: none;
+		justify-content: flex-end;
+		padding-top: 1rem;
+	}
+
+	.orders-table td::before {
+		content: attr(data-label);
+		font-weight: 600;
+		text-align: left;
+		margin-right: 1rem;
+		color: var(--clr-text-secondary);
+		position: static;
+		width: auto;
+		transform: none;
 	}
 }

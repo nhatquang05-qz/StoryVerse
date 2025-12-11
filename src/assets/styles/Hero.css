@@ -7,6 +7,8 @@
 	color: var(--clr-hero-text);
 	position: relative;
 	overflow: hidden;
+	width: 100%;
+	max-width: 100vw;
 }
 
 .hero-info,

@@ -110,6 +110,7 @@ const HomeSection: React.FC<HomeSectionProps> = ({
 					style={{
 						height: '500px',
 						width: '100%',
+						boxSizing: 'border-box',
 						animation: 'pulse 1.5s infinite ease-in-out',
 					}}
 				></div>
@@ -223,7 +224,7 @@ const HomePage: React.FC = () => {
 	}
 
 	return (
-		<React.Fragment>
+		<div className="homepage-wrapper">
 			<Hero />
 
 			<div
@@ -255,9 +256,9 @@ const HomePage: React.FC = () => {
 					onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
 				/>
 			</div>
-			{}
 
 			<FlashSaleSection />
+
 			<div style={{ marginTop: '3rem' }}>
 				<HomeSection
 					title="Mới Phát Hành"
@@ -291,7 +292,6 @@ const HomePage: React.FC = () => {
 				showTabs={false}
 			/>
 
-			{}
 			{showLeftBanner && (
 				<div className="side-banner left-banner" ref={leftBannerRef}>
 					<button className="close-banner-btn" onClick={() => setShowLeftBanner(false)}>
@@ -309,7 +309,7 @@ const HomePage: React.FC = () => {
 					<img src={demonSlayerBanner} alt="Demon Slayer" />
 				</div>
 			)}
-		</React.Fragment>
+		</div>
 	);
 };
 

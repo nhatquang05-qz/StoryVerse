@@ -10,6 +10,8 @@ import {
 	FiArrowDown,
 	FiArrowUp,
 	FiShoppingCart,
+	FiClock,
+	FiEye,
 } from 'react-icons/fi';
 import { type ComicDetail, type ChapterSummary, type ComicSummary } from '../types/comicTypes';
 import { loadOrders } from '../data/mockData';
@@ -27,7 +29,10 @@ const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
 const TOKEN_STORAGE_KEY = 'storyverse_token';
 
 const ComicDetailSkeleton: React.FC = () => (
-	<div className="detail-skeleton-wrapper">
+	<div
+		className="detail-skeleton-wrapper"
+		style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}
+	>
 		<div className="detail-image-wrapper">
 			<div className="detail-skeleton-image skeleton-block"></div>
 		</div>
@@ -470,18 +475,19 @@ const ComicDetailPage: React.FC = () => {
 					<div className="chapter-search-box">
 						<input
 							type="text"
-							placeholder="Tìm kiếm"
+							placeholder="Tìm kiếm chương..."
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 						/>
 						<FiSearch />
 					</div>
 
-					<div className="chapter-header-col justify-center">Ngày cập nhật</div>
-
-					<div className="chapter-header-col justify-center">Lượt xem</div>
-
-					<div className="chapter-header-col justify-end"></div>
+					{}
+					<div className="chapter-header-col justify-center desktop-only">
+						Ngày cập nhật
+					</div>
+					<div className="chapter-header-col justify-center desktop-only">Lượt xem</div>
+					<div className="chapter-header-col justify-end desktop-only"></div>
 				</div>
 
 				<ul className="chapter-list">
@@ -513,10 +519,12 @@ const ComicDetailPage: React.FC = () => {
 									<div className="chapter-title">{chapter.title}</div>
 
 									<div className="chapter-update">
+										<FiClock className="mobile-icon" />
 										{new Date(chapter.createdAt).toLocaleDateString('vi-VN')}
 									</div>
 
 									<div className="chapter-views">
+										<FiEye className="mobile-icon" />
 										{formatViews(chapter.viewCount || 0)}
 									</div>
 

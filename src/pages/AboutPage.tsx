@@ -292,37 +292,40 @@ const AboutPage: React.FC = () => {
 			<Marquee />
 
 			<div className="main-content-wrapper">
-				<section className="story-section section-container">
-					<div className="story-grid">
-						<InViewAnimation direction="left" className="story-content-box">
-							<h2 className="section-heading">
-								Câu Chuyện <br />{' '}
-								<span className="text-primary">Của Chúng Tôi</span>
-							</h2>
-							<div className="story-divider"></div>
-							<p className="story-text">
-								<strong>StoryVerse</strong> không chỉ là một website, đó là{' '}
-								<span className="text-highlight">giấc mơ</span> của những con người
-								yêu truyện tranh. Khởi đầu từ niềm tin rằng truyện tranh Việt cần
-								một vị thế xứng đáng trên bản đồ thế giới.
-							</p>
-							<p className="story-text">
-								Chúng tôi kiến tạo một không gian nơi bản quyền được tôn trọng, tác
-								giả được vinh danh, và độc giả được đắm chìm trong những trải nghiệm
-								đọc mượt mà nhất.
-							</p>
-						</InViewAnimation>
+				{}
+				<section className="story-section">
+					<div className="section-container">
+						<div className="story-grid">
+							<InViewAnimation direction="left" className="story-content-box">
+								<h2 className="section-heading">
+									Câu Chuyện <br />{' '}
+									<span className="text-primary">Của Chúng Tôi</span>
+								</h2>
+								<div className="story-divider"></div>
+								<p className="story-text">
+									<strong>StoryVerse</strong> không chỉ là một website, đó là{' '}
+									<span className="text-highlight">giấc mơ</span> của những con
+									người yêu truyện tranh. Khởi đầu từ niềm tin rằng truyện tranh
+									Việt cần một vị thế xứng đáng trên bản đồ thế giới.
+								</p>
+								<p className="story-text">
+									Chúng tôi kiến tạo một không gian nơi bản quyền được tôn trọng,
+									tác giả được vinh danh, và độc giả được đắm chìm trong những
+									trải nghiệm đọc mượt mà nhất.
+								</p>
+							</InViewAnimation>
 
-						<InViewAnimation direction="right" delay={0.2}>
-							<div className="story-image-container">
-								<div className="story-image-glow-bg"></div>
-								<img
-									src={aboutusImage}
-									alt="Comic Workspace"
-									className="story-image"
-								/>
-							</div>
-						</InViewAnimation>
+							<InViewAnimation direction="right" delay={0.2}>
+								<div className="story-image-container">
+									<div className="story-image-glow-bg"></div>
+									<img
+										src={aboutusImage}
+										alt="Comic Workspace"
+										className="story-image"
+									/>
+								</div>
+							</InViewAnimation>
+						</div>
 					</div>
 				</section>
 
@@ -346,62 +349,70 @@ const AboutPage: React.FC = () => {
 					</div>
 				</section>
 
-				<section className="founder-section section-container">
+				{}
+				<section className="founder-section">
 					<div className="founder-bg-blur blur-blue"></div>
 					<div className="founder-bg-blur blur-purple"></div>
 
-					<div
-						className="founder-card"
-						style={{
-							backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8)), url(${galaxyGif})`,
-						}}
-					>
-						<InViewAnimation>
-							<div className="founder-header">
-								<span className="founder-eyebrow">The Visionary</span>
-								<h2 className="founder-title">Nhà Sáng Lập</h2>
-							</div>
-						</InViewAnimation>
-
-						<div className="founder-content-wrapper">
-							<InViewAnimation
-								direction="right"
-								delay={0.2}
-								className="founder-image-area"
-							>
-								<TiltCard>
-									<div className="founder-image-wrapper">
-										<div className="founder-image-glow"></div>
-										<img src={avatar} alt="Founder" className="founder-image" />
-										<div className="founder-badge">CEO</div>
-									</div>
-								</TiltCard>
-							</InViewAnimation>
-
-							<InViewAnimation
-								direction="left"
-								delay={0.4}
-								className="founder-info-area"
-							>
-								<h3 className="founder-name">Dương Nguyễn Nhật Quang</h3>
-								<p className="founder-role">CEO & Lead Developer</p>
-								<div className="founder-quote-box">
-									<p className="founder-quote">
-										"Tôi tạo ra StoryVerse không chỉ để bán truyện tranh, mà để
-										tạo ra một vũ trụ nơi trí tưởng tượng được tôn vinh. Mỗi
-										dòng code là một viên gạch xây dựng nên giấc mơ này."
-									</p>
+					<div className="section-container">
+						<div
+							className="founder-card"
+							style={{
+								backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8)), url(${galaxyGif})`,
+							}}
+						>
+							<InViewAnimation>
+								<div className="founder-header">
+									<span className="founder-eyebrow">The Visionary</span>
+									<h2 className="founder-title">Nhà Sáng Lập</h2>
 								</div>
-								<a
-									href="https://www.facebook.com/nhtqug.05/"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="founder-contact-btn"
-								>
-									<span>Kết nối với tôi</span>
-									<div className="btn-glow"></div>
-								</a>
 							</InViewAnimation>
+
+							<div className="founder-content-wrapper">
+								<InViewAnimation
+									direction="right"
+									delay={0.2}
+									className="founder-image-area"
+								>
+									<TiltCard>
+										<div className="founder-image-wrapper">
+											<div className="founder-image-glow"></div>
+											<img
+												src={avatar}
+												alt="Founder"
+												className="founder-image"
+											/>
+											<div className="founder-badge">CEO</div>
+										</div>
+									</TiltCard>
+								</InViewAnimation>
+
+								<InViewAnimation
+									direction="left"
+									delay={0.4}
+									className="founder-info-area"
+								>
+									<h3 className="founder-name">Dương Nguyễn Nhật Quang</h3>
+									<p className="founder-role">CEO & Lead Developer</p>
+									<div className="founder-quote-box">
+										<p className="founder-quote">
+											"Tôi tạo ra StoryVerse không chỉ để bán truyện tranh, mà
+											để tạo ra một vũ trụ nơi trí tưởng tượng được tôn vinh.
+											Mỗi dòng code là một viên gạch xây dựng nên giấc mơ
+											này."
+										</p>
+									</div>
+									<a
+										href="https://www.facebook.com/nhtqug.05/"
+										target="_blank"
+										rel="noopener noreferrer"
+										className="founder-contact-btn"
+									>
+										<span>Kết nối với tôi</span>
+										<div className="btn-glow"></div>
+									</a>
+								</InViewAnimation>
+							</div>
 						</div>
 					</div>
 				</section>
@@ -429,25 +440,28 @@ const AboutPage: React.FC = () => {
 					</div>
 				</section>
 
-				<section className="cta-section section-container">
-					<InViewAnimation>
-						<div
-							className="cta-box group"
-							style={{ backgroundImage: `url(${bgDiscover})` }}
-						>
-							<div className="cta-overlay"></div>
-							<div className="cta-content">
-								<h2 className="cta-title">Sẵn sàng khám phá thế giới mới?</h2>
-								<p className="cta-subtitle">
-									Tham gia cộng đồng StoryVerse ngay hôm nay để mở khóa hàng ngàn
-									bộ truyện tranh độc quyền.
-								</p>
-								<Link to="/" className="cta-button">
-									Khám Phá Ngay
-								</Link>
+				{}
+				<section className="cta-section">
+					<div className="section-container">
+						<InViewAnimation>
+							<div
+								className="cta-box group"
+								style={{ backgroundImage: `url(${bgDiscover})` }}
+							>
+								<div className="cta-overlay"></div>
+								<div className="cta-content">
+									<h2 className="cta-title">Sẵn sàng khám phá thế giới mới?</h2>
+									<p className="cta-subtitle">
+										Tham gia cộng đồng StoryVerse ngay hôm nay để mở khóa hàng
+										ngàn bộ truyện tranh độc quyền.
+									</p>
+									<Link to="/" className="cta-button">
+										Khám Phá Ngay
+									</Link>
+								</div>
 							</div>
-						</div>
-					</InViewAnimation>
+						</InViewAnimation>
+					</div>
 				</section>
 			</div>
 		</div>
