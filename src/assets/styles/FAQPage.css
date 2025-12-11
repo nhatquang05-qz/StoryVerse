@@ -231,3 +231,60 @@
 	transform: translateY(-0.125rem);
 	color: white;
 }
+
+@media (max-width: 64rem) {
+	.faq-hero {
+		padding: 3rem 1rem 4rem 1rem;
+	}
+
+	.faq-hero h1 {
+		font-size: 2rem;
+	}
+}
+
+@media (max-width: 48rem) {
+	.faq-hero {
+		padding: 2.5rem 1rem 3.5rem 1rem;
+		border-bottom-left-radius: 1.25rem;
+		border-bottom-right-radius: 1.25rem;
+	}
+
+	.faq-hero h1 {
+		font-size: 1.75rem;
+	}
+
+	.faq-hero-desc {
+		font-size: 0.95rem;
+		padding: 0 1rem;
+	}
+
+	.faq-search-input {
+		padding: 0.8rem 2.5rem 0.8rem 1.25rem;
+		font-size: 0.9rem;
+	}
+
+	.faq-categories {
+		gap: 0.5rem;
+	}
+
+	.category-btn {
+		padding: 0.5rem 1rem;
+		font-size: 0.85rem;
+	}
+
+	.faq-question {
+		font-size: 0.95rem;
+		padding: 1rem;
+	}
+
+	.faq-answer-content {
+		padding: 1rem;
+		font-size: 0.9rem;
+	}
+
+	.contact-btn {
+		width: 100%;
+		box-sizing: border-box;
+		text-align: center;
+	}
+}

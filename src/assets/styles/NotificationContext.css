@@ -54,3 +54,13 @@
 html[data-theme='light'] .toast-notification.warning {
 	color: #333;
 }
+
+@media (max-width: 48rem) {
+	.notification-toast-container {
+		top: 1rem;
+		right: 1rem;
+		left: 1rem;
+		width: auto;
+		max-width: none;
+	}
+}

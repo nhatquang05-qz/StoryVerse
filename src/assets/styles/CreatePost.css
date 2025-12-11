@@ -165,23 +165,51 @@
 	cursor: not-allowed;
 }
 
+@media (max-width: 48rem) {
+	.crp-header {
+		padding-bottom: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.crp-textarea {
+		width: 100%;
+		box-sizing: border-box;
+	}
+}
+
 @media (max-width: 31.25rem) {
+	.create-post-card {
+		padding: 0.75rem;
+		border-radius: 0;
+		border-left: none;
+		border-right: none;
+	}
+
+	.crp-header {
+		flex-direction: row;
+		align-items: center;
+	}
+
 	.crp-footer {
 		flex-direction: column;
-		align-items: stretch;
-		gap: 0.75rem;
+		gap: 1rem;
 	}
 
 	.crp-actions {
+		width: 100%;
 		justify-content: space-between;
 	}
 
 	.crp-action-btn {
 		flex: 1;
+		justify-content: center;
+		padding: 0.6rem;
+		font-size: 0.85rem;
 	}
 
 	.crp-submit-btn {
-		justify-content: center;
 		width: 100%;
+		justify-content: center;
+		padding: 0.75rem;
 	}
 }

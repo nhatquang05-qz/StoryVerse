@@ -152,3 +152,36 @@
 	height: 0.1875rem;
 	background: var(--primary-color);
 }
+
+@media (max-width: 64rem) {
+	.community-container {
+		padding: 1.5rem;
+	}
+
+	.community-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+}
+
+@media (max-width: 48rem) {
+	.community-container {
+		padding: 1rem;
+	}
+
+	.community-tabs {
+		overflow-x: auto;
+		white-space: nowrap;
+		width: 100%;
+		padding-bottom: 0.5rem;
+	}
+
+	.post-list {
+		gap: 1rem;
+	}
+
+	.community-sidebar {
+		display: none;
+	}
+}

@@ -124,19 +124,39 @@
 	color: var(--clr-text-secondary);
 }
 
-@media (max-width: 62rem) {
+@media (max-width: 64rem) {
 	.search-container {
 		grid-template-columns: 1fr;
 	}
-	.sidebar-wrapper {
-		display: none;
-	}
+
 	.search-page-layout {
-		margin-top: 3.75rem;
-		padding: 0.625rem;
+		padding: 1rem;
 	}
+}
+
+@media (max-width: 48rem) {
 	.category-header {
 		flex-direction: column;
 		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.search-header-left {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.search-tabs {
+		width: 100%;
+		overflow-x: auto;
+	}
+
+	.search-tab-btn {
+		white-space: nowrap;
+	}
+
+	.sidebar-wrapper {
+		display: none;
 	}
 }

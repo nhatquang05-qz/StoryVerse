@@ -182,34 +182,6 @@
 	}
 }
 
-@media (max-width: 1024px) {
-	.comics-layout {
-		flex-direction: column;
-	}
-
-	.filter-sidebar-wrapper {
-		position: relative;
-		top: 0;
-		width: 100%;
-		flex: none;
-		margin-bottom: 2rem;
-	}
-}
-
-@media (max-width: 768px) {
-	.hero-title {
-		font-size: 2.2rem;
-	}
-
-	.comics-hero {
-		padding: 4rem 1rem 2rem;
-	}
-
-	.comics-layout {
-		padding: 0 1rem;
-	}
-}
-
 html[data-theme='night'] .comics-page-wrapper {
 	background-color: transparent;
 }
@@ -251,4 +223,41 @@ html[data-theme='night'] .comics-page-wrapper {
 	color: var(--clr-text-secondary, #a0aec0);
 	font-size: 1.2rem;
 	pointer-events: none;
+}
+
+@media (max-width: 64rem) {
+	.comics-layout {
+		flex-direction: column;
+		padding: 0 1.5rem;
+	}
+
+	.filter-sidebar-wrapper {
+		width: 100%;
+		position: static;
+		margin-bottom: 2rem;
+	}
+}
+
+@media (max-width: 48rem) {
+	.comics-hero {
+		padding: 3rem 1rem;
+	}
+
+	.hero-title {
+		font-size: 2rem;
+	}
+
+	.hero-desc {
+		font-size: 1rem;
+	}
+
+	.comics-layout {
+		padding: 0 1rem;
+	}
+
+	.results-count {
+		width: 100%;
+		justify-content: center;
+		box-sizing: border-box;
+	}
 }

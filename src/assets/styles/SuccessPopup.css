@@ -156,28 +156,29 @@
 	transform: translateY(0);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 30rem) {
 	.popup-content {
-		max-width: 95%;
-		padding: 2rem 1.5rem;
+		width: 85%;
+		padding: 1.5rem;
 	}
+
 	.popup-icon {
 		font-size: 3.5rem;
+		margin-bottom: 1rem;
 	}
+
 	.popup-title {
-		font-size: 1.6rem;
-	}
-	.popup-message {
-		font-size: 0.95rem;
-	}
-	.popup-action-btn {
-		padding: 0.8rem 1.8rem;
-		font-size: 1rem;
-		max-width: 11.25rem;
-	}
-	.popup-close-btn {
 		font-size: 1.5rem;
-		top: 0.625rem;
-		right: 0.625rem;
+	}
+
+	.popup-message {
+		font-size: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.popup-action-btn {
+		width: 100%;
+		max-width: none;
+		padding: 0.8rem;
 	}
 }

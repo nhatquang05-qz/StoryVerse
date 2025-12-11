@@ -62,39 +62,28 @@
 	color: #c53030;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 64rem) {
 	.profile-sidebar {
 		width: 100%;
-		padding: 0.625rem;
-		display: flex;
-		overflow-x: auto;
+		margin-bottom: 1.5rem;
 	}
 
 	.sidebar-menu {
 		flex-direction: row;
-		width: 100%;
-		gap: 0.3125rem;
+		overflow-x: auto;
+		padding-bottom: 0.5rem;
 	}
 
 	.sidebar-item {
-		flex-grow: 1;
-		justify-content: center;
-		padding: 0.625rem;
+		width: auto;
 		white-space: nowrap;
-	}
-
-	.sidebar-item span {
-		display: none;
-	}
-
-	.sidebar-item.active span {
-		display: inline-block;
 	}
 
 	.sidebar-item.logout {
 		border-top: none;
-		margin-top: 0;
-		padding-top: 0.625rem;
 		border-left: 1px solid var(--clr-border-light);
+		margin-top: 0;
+		padding-top: 0.75rem;
+		padding-left: 1rem;
 	}
 }

@@ -43,7 +43,6 @@
 	color: var(--clr-text);
 }
 
-/* Form Styles */
 .form-group {
 	margin-bottom: 1.25rem;
 }
@@ -372,12 +371,43 @@
 	color: var(--clr-text);
 }
 
-@media (max-width: 62rem) {
+@media (max-width: 64rem) {
 	.checkout-grid {
 		grid-template-columns: 1fr;
+		gap: 1.5rem;
 	}
 
 	.order-summary-container {
 		position: static;
+		order: -1;
+	}
+
+	.checkout-title {
+		font-size: 2rem;
+	}
+}
+
+@media (max-width: 30rem) {
+	.checkout-container {
+		padding: 1.5rem 0.5rem;
+	}
+
+	.checkout-card {
+		padding: 1rem;
+	}
+
+	.total-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.summary-item {
+		flex-direction: column;
+	}
+
+	.item-total-col {
+		align-self: flex-end;
+		margin-top: 0.5rem;
 	}
 }

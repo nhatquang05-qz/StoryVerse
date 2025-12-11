@@ -89,3 +89,12 @@
 	transform: scale(1.1);
 	background-color: rgba(128, 128, 128, 0.1);
 }
+
+@media (max-width: 48rem) {
+	.sticker-picker {
+		width: 100%;
+		max-width: 20rem;
+		bottom: 100%;
+		margin-bottom: 0.625rem;
+	}
+}

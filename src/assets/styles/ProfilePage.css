@@ -595,9 +595,61 @@ button:disabled {
 	opacity: 0.6;
 	cursor: not-allowed;
 }
+
+@media (max-width: 64rem) {
+	.profile-page-container {
+		flex-direction: column;
+		padding: 1.5rem;
+	}
+
+	.profile-content {
+		padding: 0;
+		width: 100%;
+	}
+}
+
 @media (max-width: 48rem) {
-	.profile-avatar-img {
-		width: 7.5rem;
-		height: 7.5rem;
+	.profile-page-container {
+		padding: 1rem;
+	}
+
+	.system-selector-form-inline {
+		grid-template-columns: 1fr;
+		gap: 0.75rem;
+	}
+
+	.system-selector-form-inline label {
+		grid-column: 1 / -1;
+	}
+
+	.system-selector-form-inline .select-wrapper {
+		grid-column: 1 / -1;
+	}
+
+	.system-selector-form-inline .save-btn,
+	.system-selector-form-inline .cancel-btn-inline {
+		grid-column: auto;
+		width: 100%;
+	}
+
+	.profile-actions {
+		flex-direction: column;
+	}
+
+	.profile-actions button {
+		width: 100%;
+	}
+
+	.system-display {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.system-name-display {
+		margin: 0 0 0.5rem 0;
+	}
+
+	.equivalent-level-display {
+		margin-left: 0;
 	}
 }

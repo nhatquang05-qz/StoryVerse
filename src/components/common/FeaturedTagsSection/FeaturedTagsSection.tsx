@@ -27,7 +27,6 @@ const FeaturedTagsSection: React.FC = () => {
 		<div className="featured-tags-section">
 			<h2 className="section-title">TAGS NỔI BẬT</h2>
 			<p className="section-subtitle">Các tags tại StoryVerse</p>
-
 			<div className="tags-container">
 				{featuredTagsData.map((tag) => (
 					<Link to={tag.link} key={tag.name} className="tag-card-link">

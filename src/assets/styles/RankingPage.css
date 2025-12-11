@@ -640,43 +640,44 @@
 	border-top: 1px dashed var(--clr-border-light);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
 	.rp-hero {
-		height: 250px;
+		height: 200px;
 	}
+
 	.rp-main-title {
-		font-size: 2.5rem;
+		font-size: 1.8rem;
+	}
+
+	.rp-subtitle {
+		font-size: 0.9rem;
+		padding: 0 1rem;
+	}
+
+	.rp-tabs {
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.rp-tab-btn {
+		padding: 0.5rem 1rem;
+		font-size: 0.8rem;
 	}
 
 	.rp-podium {
-		flex-wrap: wrap;
-		gap: 10px;
+		flex-direction: column;
+		align-items: center;
 	}
-	.rp-podium-card {
-		width: 100%;
-		max-width: 300px;
-	}
-	.rp-podium-card.rp-rank-1 {
-		order: -1;
-		width: 100%;
-		max-width: 320px;
-	}
+
+	.rp-podium-card.rp-rank-1,
 	.rp-podium-card.rp-rank-2,
 	.rp-podium-card.rp-rank-3 {
-		width: 48%;
+		width: 100%;
 		order: unset;
+		margin-bottom: 1rem;
 	}
 
 	.rp-grid {
 		grid-template-columns: 1fr;
-	}
-
-	.rp-podium-img-container {
-		margin-bottom: 10px;
-	}
-	.rp-podium-badge {
-		width: 50px;
-		height: 50px;
-		bottom: -10px;
 	}
 }

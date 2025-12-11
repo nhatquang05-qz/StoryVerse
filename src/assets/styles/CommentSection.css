@@ -306,9 +306,29 @@
 	color: var(--clr-error-text);
 }
 
-@media (max-width: 31.25rem) {
+@media (max-width: 30rem) {
+	.comments-section {
+		padding: 0.5rem;
+	}
+
+	.comment-item {
+		gap: 0.5rem;
+	}
+
+	.comment-replies {
+		margin-left: 1rem;
+		padding-left: 0.5rem;
+	}
+
 	.comment-actions-text {
-		gap: 0.625rem;
-		font-size: 0.7rem;
+		margin-left: 0;
+		margin-top: 0.5rem;
+		gap: 0.75rem;
+	}
+
+	.sticker-popover {
+		width: 100%;
+		right: 0;
+		left: 0;
 	}
 }

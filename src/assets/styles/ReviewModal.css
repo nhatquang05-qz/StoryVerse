@@ -284,3 +284,27 @@
 	transform: none;
 	box-shadow: none;
 }
+
+@media (max-width: 30rem) {
+	.rm-container {
+		width: 95%;
+		max-height: 85vh;
+	}
+
+	.rm-content {
+		padding: 15px;
+	}
+
+	.rm-upload-buttons {
+		flex-direction: column;
+	}
+
+	.rm-footer {
+		padding: 12px 15px;
+	}
+
+	.rm-btn {
+		padding: 10px 15px;
+		font-size: 0.9rem;
+	}
+}

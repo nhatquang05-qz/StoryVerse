@@ -7,7 +7,6 @@ import React, {
 	useEffect,
 } from 'react';
 import { useToast } from './ToastContext';
-import { useNavigate } from 'react-router-dom';
 import type { CredentialResponse } from '@react-oauth/google';
 import LevelUpPopup from '../components/popups/LevelUpPopup';
 import LoginSuccessPopup from '../components/popups/LoginSuccessPopup';
@@ -81,7 +80,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 	const [loading, setLoading] = useState(true);
 	const [token, setToken] = useState<string | null>(getToken());
 	const { showToast } = useToast();
-	const navigate = useNavigate();
 
 	const [selectedSystemKey, setSelectedSystemKey] = useState<string>(() => {
 		return localStorage.getItem(LEVEL_SYSTEM_STORAGE_KEY) || 'Bình Thường';

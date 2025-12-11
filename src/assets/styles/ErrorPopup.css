@@ -107,16 +107,27 @@
 @media (max-width: 30rem) {
 	.popup-content {
 		padding: 1.5rem;
-		max-width: 90%;
+		width: 85%;
+		border-radius: 1rem;
 	}
+
+	.popup-icon {
+		font-size: 3rem;
+		margin-bottom: 0.75rem;
+	}
+
 	.popup-title {
-		font-size: 1.3rem;
+		font-size: 1.25rem;
 	}
+
 	.popup-message {
 		font-size: 0.9rem;
+		margin-bottom: 1.25rem;
 	}
+
 	.popup-action-btn {
-		padding: 0.6rem 1.2rem;
-		font-size: 0.9rem;
+		width: 100%;
+		box-sizing: border-box;
+		padding: 0.8rem;
 	}
 }

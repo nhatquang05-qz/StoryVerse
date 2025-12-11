@@ -12,3 +12,10 @@
 		transform 0.6s ease;
 	background-color: var(--clr-card-bg);
 }
+
+@media (max-width: 48rem) {
+	.flying-img {
+		width: 3.75rem !important;
+		height: 3.75rem !important;
+	}
+}

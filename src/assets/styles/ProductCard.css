@@ -284,3 +284,32 @@
 	color: var(--clr-text-secondary);
 	font-weight: 400;
 }
+
+@media (max-width: 48rem) {
+	.card-action-button {
+		display: none;
+	}
+
+	.card-image-overlay {
+		display: none;
+	}
+
+	.card-info {
+		padding: 0.5rem;
+	}
+
+	.card-title {
+		font-size: 0.9rem;
+	}
+
+	.fs-badge-left {
+		width: 4rem;
+		left: -0.5rem;
+		top: -0.5rem;
+	}
+
+	.fs-badge-right {
+		font-size: 0.7rem;
+		padding: 0.2rem 0.4rem;
+	}
+}

@@ -110,3 +110,25 @@
 [data-theme='dark'] .pagination-ellipsis {
 	color: var(--clr-text-secondary-dark, #888);
 }
+
+@media (max-width: 30rem) {
+	.pagination-container {
+		gap: 0.25rem;
+	}
+
+	.pagination-button {
+		width: 2rem;
+		height: 2rem;
+		font-size: 0.9rem;
+	}
+
+	.pagination-button.arrow {
+		font-size: 1rem;
+	}
+
+	.pagination-ellipsis {
+		width: 2rem;
+		height: 2rem;
+		font-size: 0.9rem;
+	}
+}

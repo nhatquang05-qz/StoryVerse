@@ -420,3 +420,39 @@ html[data-theme='night'] .comm-empty-state {
 .comm-nav-btn svg {
 	font-size: 1.1rem;
 }
+
+@media (max-width: 64rem) {
+	.comm-layout {
+		grid-template-columns: 1fr;
+		padding: 1rem;
+	}
+
+	.comm-sidebar-wrapper {
+		display: none;
+	}
+}
+
+@media (max-width: 30rem) {
+	.comm-card {
+		padding: 1rem;
+	}
+
+	.comm-profile-header {
+		flex-direction: row;
+		text-align: left;
+		gap: 1rem;
+	}
+
+	.comm-avatar-container {
+		margin-bottom: 0;
+	}
+
+	.comm-avatar {
+		width: 4rem;
+		height: 4rem;
+	}
+
+	.comm-stats-row {
+		margin-top: 1rem;
+	}
+}

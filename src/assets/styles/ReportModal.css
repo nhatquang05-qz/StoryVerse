@@ -65,3 +65,20 @@
 .btn-confirm:hover {
 	background: rgb(255, 1, 1);
 }
+
+@media (max-width: 30rem) {
+	.report-modal {
+		width: 95%;
+		padding: 1rem;
+	}
+
+	.modal-actions {
+		flex-direction: column;
+	}
+
+	.btn-cancel,
+	.btn-confirm {
+		width: 100%;
+		justify-content: center;
+	}
+}

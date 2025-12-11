@@ -77,3 +77,28 @@
 	padding: 1.875rem 0;
 	font-style: italic;
 }
+
+@media (max-width: 30rem) {
+	.history-modal-content {
+		width: 95%;
+		padding: 1rem;
+		max-height: 80vh;
+	}
+
+	.history-header {
+		font-size: 1.2rem;
+		margin-bottom: 1rem;
+	}
+
+	.history-table th,
+	.history-table td {
+		padding: 0.5rem;
+		font-size: 0.8rem;
+	}
+
+	.source-wish,
+	.source-box {
+		padding: 0.15rem 0.3rem;
+		font-size: 0.65rem;
+	}
+}

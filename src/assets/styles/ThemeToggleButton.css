@@ -178,3 +178,9 @@ body {
 		var(--x) var(--y) var(--spread) var(--offset) rgb(0 0 0 / 0.25),
 		inset var(--x) var(--y) var(--spread) var(--offset) rgb(255 255 255 / 0.35) !important;
 }
+
+@media (max-width: 20rem) {
+	.theme-toggle-button-wrapper {
+		transform: scale(0.8);
+	}
+}

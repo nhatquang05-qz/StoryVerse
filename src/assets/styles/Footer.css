@@ -273,7 +273,8 @@ html[data-theme='night'] .logo-for-dark-theme {
 	}
 	.brand-col {
 		align-items: flex-start;
-		grid-column: span 1;
+		grid-column: span 2;
+		align-items: center;
 	}
 	.footer-logo {
 		height: 7.5rem;
@@ -287,6 +288,7 @@ html[data-theme='night'] .logo-for-dark-theme {
 		gap: 2.5rem;
 	}
 	.brand-col {
+		grid-column: span 1;
 		align-items: center;
 		text-align: center;
 	}

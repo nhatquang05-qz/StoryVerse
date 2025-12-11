@@ -52,3 +52,10 @@
 		opacity: 0.8;
 	}
 }
+
+@media (max-width: 48rem) {
+	.snowflake img {
+		width: 80%;
+		height: 80%;
+	}
+}

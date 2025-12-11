@@ -118,3 +118,30 @@
 html[data-theme='night'] .gcp-overlay {
 	background-color: rgba(0, 0, 0, 0.7);
 }
+
+@media (max-width: 48rem) {
+	.gcp-wrapper {
+		padding: 1rem;
+		align-items: flex-start;
+		padding-top: 4rem;
+	}
+
+	.gcp-card {
+		padding: 2rem 1.5rem;
+	}
+
+	.gcp-title {
+		font-size: 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.gcp-input {
+		padding: 12px;
+		font-size: 1rem;
+	}
+
+	.gcp-btn {
+		padding: 12px;
+		font-size: 1rem;
+	}
+}

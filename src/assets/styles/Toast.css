@@ -138,3 +138,18 @@
 		width: 0%;
 	}
 }
+
+@media (max-width: 30rem) {
+	.toast-container {
+		top: 10px;
+		right: 10px;
+		left: 10px;
+		width: auto;
+	}
+
+	.toast-item {
+		min-width: 0;
+		width: 100%;
+		box-sizing: border-box;
+	}
+}

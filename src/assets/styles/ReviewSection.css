@@ -21,6 +21,7 @@
 	margin-bottom: 2rem;
 	padding-bottom: 1.5rem;
 	border-bottom: 1px solid var(--clr-border-light);
+	flex-wrap: wrap;
 }
 
 .average-rating {
@@ -130,6 +131,7 @@
 	width: 1.5rem;
 	height: 1.5rem;
 	transition: transform 0.2s;
+	cursor: pointer;
 }
 
 .star-icon:hover {
@@ -147,6 +149,7 @@
 	resize: vertical;
 	min-height: 6rem;
 	font-family: inherit;
+	box-sizing: border-box;
 }
 
 .comment-box:focus {
@@ -193,6 +196,7 @@
 	display: flex;
 	gap: 1rem;
 	margin-bottom: 1rem;
+	flex-wrap: wrap;
 }
 
 .upload-label {
@@ -206,6 +210,7 @@
 	font-size: 0.85rem;
 	color: var(--clr-text-secondary);
 	transition: all 0.2s;
+	user-select: none;
 }
 
 .upload-label:hover {
@@ -258,7 +263,22 @@
 	justify-content: center;
 }
 
+@media (max-width: 64rem) {
+	.review-section {
+		padding: 1.5rem;
+	}
+	.rating-summary {
+		flex-direction: row;
+		align-items: center;
+	}
+}
+
 @media (max-width: 48rem) {
+	.review-section {
+		padding: 1rem;
+		margin-top: 1rem;
+	}
+
 	.review-header {
 		flex-direction: column;
 		gap: 0.25rem;
@@ -268,5 +288,24 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 0.5rem;
+	}
+
+	.review-form-container {
+		padding: 1rem;
+	}
+
+	.submit-review-btn {
+		width: 100%;
+	}
+
+	.media-upload-section {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.upload-label {
+		width: 100%;
+		justify-content: center;
+		box-sizing: border-box;
 	}
 }

@@ -276,18 +276,6 @@
 	box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
 }
 
-@media (max-width: 48rem) {
-	.contact-page-container {
-		align-items: center;
-		padding: 2rem 1rem;
-		height: auto;
-		min-height: 100vh;
-	}
-	.contact-title {
-		font-size: 1.8rem;
-	}
-}
-
 [data-theme='day'] .contact-page-container {
 	background-color: #f1f5f9;
 }
@@ -367,5 +355,31 @@
 	100% {
 		opacity: 1;
 		transform: translateX(0) scale(1);
+	}
+}
+
+@media (max-width: 64rem) {
+	.contact-grid {
+		grid-template-columns: 1fr;
+		gap: 2rem;
+	}
+}
+
+@media (max-width: 48rem) {
+	.contact-page-container {
+		padding: 2rem 1rem;
+	}
+
+	.contact-title {
+		font-size: 1.8rem;
+	}
+
+	.contact-form-card,
+	.info-card {
+		padding: 1.25rem;
+	}
+
+	.submit-btn {
+		width: 100%;
 	}
 }

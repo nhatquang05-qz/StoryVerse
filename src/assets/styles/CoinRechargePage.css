@@ -293,7 +293,6 @@ html[data-theme='night'] .cr-pack-bonus-badge {
 	color: var(--clr-text-secondary);
 }
 
-/* Modal Styles */
 .cr-modal-overlay {
 	position: fixed;
 	top: 0;
@@ -362,7 +361,6 @@ html[data-theme='night'] .cr-pack-bonus-badge {
 	padding: 1rem;
 }
 
-/* Override styles for TransactionHistory inside Modal */
 .cr-modal-body .profile-section {
 	box-shadow: none;
 	border: none;
@@ -370,7 +368,7 @@ html[data-theme='night'] .cr-pack-bonus-badge {
 	background: transparent;
 }
 .cr-modal-body .section-title {
-	display: none; /* Hide default title of component */
+	display: none;
 }
 
 @keyframes fadeIn {
@@ -393,7 +391,7 @@ html[data-theme='night'] .cr-pack-bonus-badge {
 	}
 }
 
-@media (max-width: 768px) {
+@media (max-width: 64rem) {
 	.cr-content-wrapper {
 		padding: 1.5rem;
 	}
@@ -401,25 +399,46 @@ html[data-theme='night'] .cr-pack-bonus-badge {
 	.cr-header-section {
 		flex-direction: column;
 		align-items: stretch;
+		gap: 1rem;
 	}
 
 	.cr-history-btn {
-		justify-content: center;
+		align-self: flex-start;
 	}
 
 	.cr-balance-card {
-		padding: 1.5rem;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1rem;
 	}
 
-	.cr-balance-amount {
-		font-size: 2.2rem;
-	}
-
-	.cr-packs-grid {
-		grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	.cr-balance-icon {
+		position: absolute;
+		right: 1.5rem;
+		top: 50%;
+		transform: translateY(-50%) !important;
 	}
 }
 
+@media (max-width: 30rem) {
+	.cr-page-title {
+		font-size: 1.8rem;
+	}
+
+	.cr-balance-amount {
+		font-size: 2.5rem;
+	}
+
+	.cr-packs-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.cr-modal-container {
+		max-height: 100vh;
+		height: 100vh;
+		border-radius: 0;
+	}
+}
 .custom-scrollbar::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;

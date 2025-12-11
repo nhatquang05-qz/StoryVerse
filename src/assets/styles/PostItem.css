@@ -153,3 +153,33 @@
 .menu-item.delete {
 	color: var(--clr-error-text);
 }
+
+@media (max-width: 30rem) {
+	.post-header {
+		padding: 0 0.75rem 0.5rem;
+	}
+
+	.post-avatar {
+		width: 2rem;
+		height: 2rem;
+	}
+
+	.post-content {
+		padding: 0.25rem 0.75rem 0.75rem;
+		font-size: 0.9rem;
+	}
+
+	.post-stats {
+		padding: 0.5rem 0.75rem;
+		font-size: 0.8rem;
+	}
+
+	.post-action-btn {
+		font-size: 0.8rem;
+		padding: 0.4rem;
+	}
+
+	.post-action-btn span {
+		margin-left: 0.25rem;
+	}
+}

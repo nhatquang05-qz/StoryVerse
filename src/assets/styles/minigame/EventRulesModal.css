@@ -106,3 +106,23 @@
 		opacity: 1;
 	}
 }
+
+@media (max-width: 30rem) {
+	.rules-modal-content {
+		width: 95%;
+		padding: 1.25rem 1rem;
+		max-height: 85vh;
+	}
+
+	.rules-header {
+		font-size: 1.3rem;
+	}
+
+	.rules-body {
+		font-size: 0.85rem;
+	}
+
+	.rules-section-title {
+		font-size: 1rem;
+	}
+}

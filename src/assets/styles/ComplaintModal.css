@@ -245,3 +245,25 @@
 	opacity: 0.6;
 	cursor: not-allowed;
 }
+
+@media (max-width: 30rem) {
+	.complaint-modal-content {
+		width: 95%;
+		padding: 1.25rem;
+		max-height: 90vh;
+	}
+
+	.complaint-modal-header h2 {
+		font-size: 1.25rem;
+	}
+
+	.complaint-modal-actions {
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.complaint-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}

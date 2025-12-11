@@ -7,12 +7,13 @@
 
 .chat-column {
 	flex: 3 1 43.75rem;
-	min-width: 28.125rem;
+	min-width: 0;
 }
 
 .top-comics-column {
 	flex: 1 1 18.75rem;
 	min-width: 17.5rem;
+	position: sticky;
 	top: calc(var(--header-height, 4.375rem) + 2rem);
 }
 
@@ -26,16 +27,19 @@
 	.top-and-chat-section {
 		flex-direction: column;
 		align-items: stretch;
+		gap: 1.5rem;
 	}
 	.top-comics-column {
 		position: static;
 		margin-bottom: 2rem;
 		flex-basis: auto;
+		width: 100%;
 	}
 	.chat-column {
 		flex-basis: auto;
 		order: -1;
-		margin-bottom: 2rem;
+		margin-bottom: 1rem;
+		min-width: 100%;
 	}
 	.chat-column .chat-room-container {
 		height: 25rem;
@@ -86,6 +90,12 @@
 	flex-grow: 1;
 	justify-content: flex-start;
 	margin-left: 1rem;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.home-section-tabs::-webkit-scrollbar {
+	display: none;
 }
 
 .home-section-tabs .tab-button {
@@ -100,6 +110,7 @@
 	transition:
 		color 0.2s ease,
 		border-color 0.2s ease;
+	white-space: nowrap;
 }
 
 .home-section-tabs .tab-button:hover {
@@ -123,16 +134,19 @@
 	.home-section-header {
 		flex-direction: column;
 		align-items: flex-start;
+		gap: 0.5rem;
 	}
 	.home-section-tabs {
 		margin-left: 0;
 		width: 100%;
 		border-bottom: 1px solid var(--clr-border-light);
+		padding-bottom: 0.5rem;
 	}
 	.home-section-pagination {
 		margin-left: 0;
 		width: 100%;
 		justify-content: space-between;
+		margin-top: 0.5rem;
 	}
 }
 
@@ -187,7 +201,7 @@
 	border-color: var(--clr-primary, #e74c3c);
 }
 
-@media (max-width: 87.5rem) {
+@media (max-width: 90rem) {
 	.side-banner {
 		display: none;
 	}

@@ -541,35 +541,44 @@ html[data-theme='night'] .status-badge.cancelled {
 	}
 }
 
-@media (max-width: 37.5rem) {
-	.order-header,
-	.order-footer {
+@media (max-width: 64rem) {
+	.orders-container {
+		padding: 1rem;
+	}
+
+	.orders-filter-tabs {
+		overflow-x: auto;
+		white-space: nowrap;
+		padding-bottom: 0.5rem;
+		justify-content: flex-start;
+	}
+
+	.order-card-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.order-card-footer {
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 1rem;
+	}
+
+	.order-card-actions {
+		width: 100%;
+		justify-content: space-between;
+	}
+}
+
+@media (max-width: 30rem) {
+	.order-item-row {
 		flex-direction: column;
 		align-items: flex-start;
 	}
 
-	.status-badge {
-		align-self: flex-start;
-	}
-
-	.order-footer {
-		align-items: stretch;
-	}
-
-	.order-actions {
-		width: 100%;
-		flex-direction: column;
-	}
-
-	.btn-detail,
-	.btn-action {
-		width: 100%;
-		text-align: center;
-	}
-
-	.total-section {
-		width: 100%;
-		justify-content: space-between;
-		margin-bottom: 0.625rem;
+	.order-item-image {
+		width: 4rem;
+		height: 4rem;
 	}
 }

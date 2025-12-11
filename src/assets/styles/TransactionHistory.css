@@ -113,15 +113,19 @@
 	border-color: var(--clr-error-border);
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 64rem) {
 	.transaction-table th,
 	.transaction-table td {
 		padding: 0.75rem;
 	}
+}
 
-	.transaction-badge {
-		padding: 0.25rem 0.625rem;
-		min-width: 5rem;
-		font-size: 0.7rem;
+@media (max-width: 30rem) {
+	.transaction-table {
+		min-width: 30rem;
+	}
+
+	.col-desc {
+		min-width: 10rem;
 	}
 }

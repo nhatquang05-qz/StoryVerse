@@ -244,3 +244,19 @@ html[data-theme='night'] .chat-messages-list::-webkit-scrollbar-thumb:hover {
 .cancel-image-btn:hover {
 	background: rgba(255, 0, 0, 0.8);
 }
+
+@media (max-width: 48rem) {
+	.chat-room-container {
+		margin: 0.5rem;
+		max-width: none;
+		height: calc(100vh - 120px);
+	}
+
+	.chat-messages-list {
+		max-height: none;
+	}
+
+	.chat-input-form input[type='text'] {
+		font-size: 16px;
+	}
+}

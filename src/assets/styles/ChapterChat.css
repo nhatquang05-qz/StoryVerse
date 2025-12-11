@@ -244,3 +244,35 @@ html[data-theme='night']
 .cancel-image-btn:hover {
 	background: rgba(255, 0, 0, 0.8);
 }
+
+@media (max-width: 64rem) {
+	.chapter-chat-container {
+		margin: 1rem;
+		height: calc(100vh - 150px);
+	}
+
+	.chapter-chat-container .chat-messages-list {
+		max-height: none;
+	}
+}
+
+@media (max-width: 48rem) {
+	.chapter-chat-container {
+		margin: 0.5rem;
+		padding: 0.5rem;
+		height: 70vh;
+	}
+
+	.chapter-chat-container .chat-input-form {
+		gap: 5px;
+	}
+
+	.chapter-chat-container .chat-input-form input[type='text'] {
+		font-size: 16px;
+	}
+
+	.chapter-chat-container .send-btn {
+		width: 36px;
+		height: 36px;
+	}
+}

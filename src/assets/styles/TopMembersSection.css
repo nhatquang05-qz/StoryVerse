@@ -165,3 +165,26 @@
 	vertical-align: middle;
 	animation: glowing-flame 2s infinite ease-in-out;
 }
+
+@media (max-width: 30rem) {
+	.top-members-section {
+		padding: 1rem;
+	}
+
+	.top-member-item {
+		gap: 0.75rem;
+	}
+
+	.member-avatar {
+		width: 2.5rem;
+		height: 2.5rem;
+	}
+
+	.member-info {
+		gap: 0.1rem;
+	}
+
+	.member-stats {
+		flex-wrap: wrap;
+	}
+}

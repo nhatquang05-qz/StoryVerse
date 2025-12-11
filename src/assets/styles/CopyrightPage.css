@@ -170,18 +170,27 @@
 }
 
 @media (max-width: 48rem) {
+	.copyright-header h1 {
+		font-size: 1.8rem;
+	}
+
 	.copyright-grid {
 		grid-template-columns: 1fr;
+		gap: 1.5rem;
 	}
 
 	.report-section {
 		flex-direction: column;
 		text-align: center;
+		padding: 1.5rem;
 		gap: 1.25rem;
 	}
 
 	.report-content {
 		flex-direction: column;
-		gap: 0.625rem;
+	}
+
+	.report-btn {
+		width: 100%;
 	}
 }

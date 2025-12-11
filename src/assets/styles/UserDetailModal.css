@@ -292,3 +292,37 @@
 	color: #9ca3af;
 	font-style: italic;
 }
+
+@media (max-width: 48rem) {
+	.modal-content {
+		width: 95%;
+		max-height: 95vh;
+	}
+
+	.modal-header {
+		padding: 1rem;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.close-btn {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+	}
+
+	.info-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.stats-summary-box {
+		flex-direction: column;
+	}
+
+	.detail-table th,
+	.detail-table td {
+		padding: 8px;
+		font-size: 0.85rem;
+	}
+}

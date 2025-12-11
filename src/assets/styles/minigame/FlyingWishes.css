@@ -43,3 +43,21 @@
 		transform: translateX(-100%);
 	}
 }
+
+@media (max-width: 48rem) {
+	.flying-wishes-zone {
+		top: 15%;
+		height: 40%;
+	}
+
+	.flying-wish {
+		font-size: 0.85rem;
+		padding: 0.3rem 0.8rem;
+		gap: 0.4rem;
+	}
+
+	.flying-wish img {
+		width: 1.4rem;
+		height: 1.4rem;
+	}
+}

@@ -164,3 +164,31 @@
 	color: var(--clr-text-secondary);
 	opacity: 0.3;
 }
+
+@media (max-width: 48rem) {
+	.user-detail-modal {
+		width: 95%;
+		padding: 1rem;
+		max-height: 90vh;
+	}
+
+	.profile-header-section {
+		padding-bottom: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.profile-avatar-large img {
+		width: 5rem;
+		height: 5rem;
+	}
+
+	.profile-fullname {
+		font-size: 1.25rem;
+	}
+
+	.profile-meta {
+		flex-direction: column;
+		gap: 0.5rem;
+		align-items: center;
+	}
+}
