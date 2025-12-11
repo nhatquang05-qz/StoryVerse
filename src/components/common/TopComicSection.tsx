@@ -130,14 +130,16 @@ const TopComicsSection: React.FC = () => {
 
 					return (
 						<Link to={`/comic/${comic.id}`} key={comic.id} className="top-comic-item">
-							{rankDisplay}
+							<div className="rank-container">{rankDisplay}</div>
 							<img
 								src={comic.coverImageUrl}
 								alt={comic.title}
 								className="comic-thumbnail"
 							/>
 							<div className="comic-info">
-								<h3 className="comic-title">{comic.title}</h3>
+								<h3 className="comic-title" title={comic.title}>
+									{comic.title}
+								</h3>
 								<div className="comic-meta">
 									<StarRating rating={displayRating} />
 									<span className="view-count">
