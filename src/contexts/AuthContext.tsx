@@ -13,6 +13,7 @@ import LoginSuccessPopup from '../components/popups/LoginSuccessPopup';
 import ErrorPopup from '../components/popups/ErrorPopup';
 import RegisterSuccessPopup from '../components/popups/RegisterSuccessPopup';
 import LoginRequiredPopup from '../components/popups/LoginRequiredPopup';
+import SessionExpiredPopup from '../components/popups/SessionExpiredPopup';
 import type { User, Address } from '../types/userTypes';
 import {
 	getLevelColor,
@@ -100,12 +101,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 	const [isRegisterSuccessPopupOpen, setIsRegisterSuccessPopupOpen] = useState(false);
 	const [isLoginRequestOpen, setIsLoginRequestOpen] = useState(false);
 
+	const [isSessionExpiredOpen, setIsSessionExpiredOpen] = useState(false);
+
 	useEffect(() => {
 		if (currentUser && currentUser.levelSystem) {
 			setSelectedSystemKey(currentUser.levelSystem);
 			localStorage.setItem(LEVEL_SYSTEM_STORAGE_KEY, currentUser.levelSystem);
 		}
 	}, [currentUser]);
+
+	const handleSessionExpired = useCallback(() => {
+		localStorage.removeItem(TOKEN_STORAGE_KEY);
+		setToken(null);
+		setCurrentUser(null);
+		setIsSessionExpiredOpen(true);
+	}, []);
 
 	const fetchUser = useCallback(async () => {
 		const storedToken = getToken();
@@ -121,6 +131,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 					const rawUserData = await resUser.json();
 					const userData = ensureUserDataTypes(rawUserData);
 					setCurrentUser(userData);
+				} else if (resUser.status === 401 || resUser.status === 403) {
+					handleSessionExpired();
 				} else {
 					localStorage.removeItem(TOKEN_STORAGE_KEY);
 					setToken(null);
@@ -138,7 +150,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			setToken(null);
 			setCurrentUser(null);
 		}
-	}, []);
+	}, [handleSessionExpired]);
 
 	useEffect(() => {
 		fetchUser();
@@ -321,6 +333,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			const token = getToken();
 			if (!token) {
 				showToast('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.', 'error');
+				handleSessionExpired();
 				return null;
 			}
 
@@ -333,6 +346,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 					},
 					body: JSON.stringify(profileData),
 				});
+
+				if (response.status === 401) {
+					handleSessionExpired();
+					return null;
+				}
 
 				if (!response.ok) {
 					throw new Error('Cập nhật hồ sơ thất bại');
@@ -351,7 +369,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				return null;
 			}
 		},
-		[showToast],
+		[showToast, handleSessionExpired],
 	);
 
 	const updateAvatar = useCallback(
@@ -372,6 +390,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 					body: JSON.stringify({ avatarUrl }),
 				});
 
+				if (response.status === 401) {
+					handleSessionExpired();
+					return null;
+				}
+
 				if (!response.ok) {
 					throw new Error('Cập nhật ảnh đại diện thất bại');
 				}
@@ -383,7 +406,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				return null;
 			}
 		},
-		[currentUser, showToast],
+		[currentUser, showToast, handleSessionExpired],
 	);
 
 	const updateAddresses = async (addresses: Address[]) => {
@@ -401,6 +424,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				},
 				body: JSON.stringify({ addresses }),
 			});
+
+			if (response.status === 401) {
+				handleSessionExpired();
+				return;
+			}
 
 			if (!response.ok) {
 				throw new Error('Cập nhật địa chỉ thất bại');
@@ -427,6 +455,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				method: 'POST',
 				headers: { Authorization: `Bearer ${token}` },
 			});
+
+			if (response.status === 401) {
+				handleSessionExpired();
+				return;
+			}
+
 			const data = await response.json();
 			if (!response.ok) throw new Error('Nhận thưởng thất bại');
 
@@ -475,6 +509,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 					body: JSON.stringify({ amount, source, coinIncrease }),
 				});
 
+				if (response.status === 401) {
+					handleSessionExpired();
+					return null;
+				}
+
 				const data = await response.json();
 				if (!response.ok) throw new Error('Lỗi khi cộng EXP');
 
@@ -501,7 +540,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				return null;
 			}
 		},
-		[currentUser, getEquivalentLevelTitle, showToast],
+		[currentUser, getEquivalentLevelTitle, showToast, handleSessionExpired],
 	);
 
 	const unlockChapter = useCallback(
@@ -528,6 +567,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 					},
 					body: JSON.stringify({ chapterId }),
 				});
+
+				if (response.status === 401) {
+					handleSessionExpired();
+					return null;
+				}
 
 				const data = await response.json();
 				if (!response.ok) throw new Error('Lỗi khi mở khóa chương');
@@ -556,7 +600,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				throw error;
 			}
 		},
-		[currentUser, getEquivalentLevelTitle, showToast],
+		[currentUser, getEquivalentLevelTitle, showToast, handleSessionExpired],
 	);
 
 	const closeLevelUpPopup = useCallback(() => {
@@ -564,7 +608,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 		setLevelUpInfo(null);
 	}, []);
 
-	// Sửa ở đây: Chỉ đóng popup, không navigate
 	const closeLoginSuccessPopup = useCallback(() => {
 		setIsLoginSuccessPopupOpen(false);
 	}, []);
@@ -640,6 +683,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			<LoginRequiredPopup
 				isOpen={isLoginRequestOpen}
 				onClose={() => setIsLoginRequestOpen(false)}
+			/>
+
+			{}
+			<SessionExpiredPopup
+				isOpen={isSessionExpiredOpen}
+				onClose={() => setIsSessionExpiredOpen(false)}
 			/>
 		</AuthContext.Provider>
 	);
