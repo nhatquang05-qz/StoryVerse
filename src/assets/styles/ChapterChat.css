@@ -247,8 +247,7 @@ html[data-theme='night']
 
 @media (max-width: 64rem) {
 	.chapter-chat-container {
-		margin: 1rem;
-		height: calc(100vh - 150px);
+		height: calc(50vh - 150px);
 	}
 
 	.chapter-chat-container .chat-messages-list {

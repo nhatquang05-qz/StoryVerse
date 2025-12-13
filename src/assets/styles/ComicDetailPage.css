@@ -795,6 +795,14 @@
 }
 
 @media (max-width: 64rem) {
+	.add-to-cart-btn,
+	.wishlist-btn-detail {
+		margin-left: 50%;
+		margin-right: 0;
+		width: 100%;
+		align-self: center !important;
+		justify-content: center;
+	}
 	.detail-main-card {
 		grid-template-columns: 1fr;
 		gap: 2rem;
@@ -828,6 +836,10 @@
 }
 
 @media (max-width: 48rem) {
+	.heart {
+		align-self: center;
+	}
+
 	.detail-page-container {
 		padding: 1.5rem 0;
 	}
@@ -856,7 +868,9 @@
 	.quantity-selector,
 	.add-to-cart-btn,
 	.wishlist-btn-detail {
+		margin-right: 0;
 		width: 100%;
+		align-self: center !important;
 		justify-content: center;
 	}
 

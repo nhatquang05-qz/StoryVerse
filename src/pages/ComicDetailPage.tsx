@@ -374,7 +374,7 @@ const ComicDetailPage: React.FC = () => {
 					isFavorite ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'
 				}
 			>
-				<FiHeart style={{ marginRight: '0.5rem' }} />
+				<FiHeart className='heart' style={{ marginRight: '0.5rem' }} />
 				{isFavorite ? 'Đã yêu thích' : 'Thêm vào Yêu thích'}
 			</button>
 		);

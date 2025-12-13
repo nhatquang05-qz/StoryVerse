@@ -692,10 +692,7 @@ const Header: React.FC = () => {
 						))}
 					</div>
 
-					<div className="nav-mobile-separator"></div>
-					<div style={{ padding: '0 2rem', marginBottom: '1rem' }}>
-						<ThemeToggleButton />
-					</div>
+					<div className="nav-mobile-separator"></div>					
 					<Link to="/wishlist" onClick={toggleMenu} className="nav-mobile-action">
 						<FiHeart /> <span>Yêu Thích</span>
 					</Link>
@@ -772,7 +769,7 @@ const Header: React.FC = () => {
 									handleLogout();
 									toggleMenu();
 								}}
-								className="logout-btn-mobile"
+								className="mobile-logout-btn"
 							>
 								Đăng Xuất
 							</button>
