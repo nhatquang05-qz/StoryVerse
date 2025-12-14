@@ -272,10 +272,10 @@ html[data-theme='night'] .logo-for-dark-theme {
 		text-align: left;
 	}
 	.brand-col {
-		align-items: flex-start; 
-		grid-column: span 1; 
+		align-items: flex-start;
+		grid-column: span 1;
 		display: flex;
-	}	
+	}
 }
 
 @media (max-width: 37.5rem) {

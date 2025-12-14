@@ -692,7 +692,7 @@ const Header: React.FC = () => {
 						))}
 					</div>
 
-					<div className="nav-mobile-separator"></div>					
+					<div className="nav-mobile-separator"></div>
 					<Link to="/wishlist" onClick={toggleMenu} className="nav-mobile-action">
 						<FiHeart /> <span>Yêu Thích</span>
 					</Link>

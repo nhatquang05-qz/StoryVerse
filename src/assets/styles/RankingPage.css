@@ -1,15 +1,9 @@
 .rp-wrapper {
 	--clr-rank-highlight: var(--clr-primary);
 	--clr-rank-highlight-glow: rgba(100, 108, 255, 0.5);
-
-	--bg-top-1: url('https://w.wallhaven.cc/full/l8/wallhaven-l83o92.jpg');
-	--bg-top-2: url('https://w.wallhaven.cc/full/zy/wallhaven-zygejv.jpg');
-	--bg-top-3: url('https://w.wallhaven.cc/full/kx/wallhaven-kxm9l7.jpg');
-
 	padding-top: 0;
 	padding-bottom: 80px;
 	min-height: 100vh;
-	background-color: var(--clr-background);
 	color: var(--clr-text);
 	font-family: var(--font-family-base);
 }

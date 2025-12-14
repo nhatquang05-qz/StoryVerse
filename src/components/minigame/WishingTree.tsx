@@ -10,8 +10,6 @@ const noDragStyle: React.CSSProperties = {
 	userSelect: 'none',
 	WebkitUserSelect: 'none',
 	WebkitUserDrag: 'none',
-	width: '100%',
-	height: '100%',
 } as React.CSSProperties;
 
 const WishingTree: React.FC<Props> = ({ wishes }) => {
@@ -25,8 +23,6 @@ const WishingTree: React.FC<Props> = ({ wishes }) => {
 				onContextMenu={(e) => e.preventDefault()}
 				style={{
 					...noDragStyle,
-					width: '130%',
-					height: '130%',
 					objectFit: 'contain',
 				}}
 			/>
@@ -46,7 +42,7 @@ const WishingTree: React.FC<Props> = ({ wishes }) => {
 						alt="decor"
 						draggable={false}
 						onContextMenu={(e) => e.preventDefault()}
-						style={noDragStyle}
+						style={{ ...noDragStyle, width: '100%', height: '100%' }}
 					/>
 
 					<div className="decor-tooltip">

@@ -83,7 +83,6 @@ const FAQPage: React.FC = () => {
 
 	return (
 		<div className="faq-page-wrapper">
-			{/* Hero Section */}
 			<section className="faq-hero">
 				<h1 className="faq-title">Câu hỏi thường gặp</h1>
 				<p className="faq-hero-desc">
@@ -100,7 +99,6 @@ const FAQPage: React.FC = () => {
 					/>
 					<div className="faq-search-icon">
 						<svg
-							xmlns="http://www.w3.org/2000/svg"
 							width="24"
 							height="24"
 							fill="none"
@@ -119,7 +117,6 @@ const FAQPage: React.FC = () => {
 			</section>
 
 			<div className="faq-content-container">
-				{/* Category Filter */}
 				<div className="faq-categories">
 					{CATEGORIES.map((cat) => (
 						<button
@@ -132,7 +129,6 @@ const FAQPage: React.FC = () => {
 					))}
 				</div>
 
-				{/* FAQ List */}
 				<div className="faq-list">
 					{filteredFAQs.length > 0 ? (
 						filteredFAQs.map((item) => (
@@ -174,7 +170,6 @@ const FAQPage: React.FC = () => {
 					)}
 				</div>
 
-				{/* Contact Support */}
 				<div className="faq-contact-box">
 					<h3>Bạn vẫn cần hỗ trợ?</h3>
 					<p>Đội ngũ của chúng tôi luôn sẵn sàng giải đáp thắc mắc của bạn.</p>

@@ -9,7 +9,6 @@
 	--clr-card-bg: rgba(30, 41, 59, 0.4);
 	--font-heading: 'Be Vietnam Pro', sans-serif;
 	--font-family-base: 'Be Vietnam Pro', sans-serif;
-
 	width: 100%;
 	min-height: 100vh;
 	color: #ffffff;
@@ -136,12 +135,12 @@ body.about-page-active .theme-controller {
 }
 
 .hero-subtitle {
+	margin-top: 0 !important;
 	font-size: 1.2rem;
 	color: #cbd5e1;
 	max-width: 41rem;
 	font-weight: 400;
 	line-height: 1.6;
-	padding: 0 1rem;
 	animation: fadeInUp 1s ease-out 0.6s backwards;
 }
 

@@ -20,7 +20,6 @@
 	position: relative;
 	display: flex;
 	justify-content: center;
-
 	align-items: flex-start;
 	padding: 4vh 1.5rem;
 	box-sizing: border-box;
@@ -56,14 +55,12 @@
 }
 
 .contact-title {
-	font-size: 2.2rem;
+	font-size: 3rem;
 	font-weight: 800;
-	margin-bottom: 0.25rem;
-	background: linear-gradient(135deg, #747bff 0%, #3b82f6 100%);
+	margin-bottom: 0.5rem;
 	-webkit-background-clip: text;
 	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: #ffffff;
+	color: #747bff;
 	line-height: 1.2;
 }
 
@@ -255,7 +252,7 @@
 .submit-btn {
 	width: 100%;
 	padding: 0.85rem;
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: #747bff;
 	color: white !important;
 	font-weight: 700;
 	border: none;
