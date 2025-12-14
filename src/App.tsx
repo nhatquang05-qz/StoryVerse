@@ -55,6 +55,7 @@ function App() {
 	const location = useLocation();
 	const { isSnowfallEnabled } = useSnowfall();
 
+	const isGiftCodePage = location.pathname.startsWith('/giftcode');
 	const isReaderPage = location.pathname.startsWith('/read/');
 	const isAdminPage = location.pathname.startsWith('/admin');
 	const isAboutPage = location.pathname === '/about-us';
@@ -135,7 +136,8 @@ function App() {
 						isDCPage ||
 						isSearchPage ||
 						isCopyrightPage ||
-						isRankingPage
+						isRankingPage ||
+						isGiftCodePage
 							? '0'
 							: undefined,
 				}}
