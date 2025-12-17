@@ -229,6 +229,22 @@ const ContactPage = () => {
 						</form>
 					</div>
 				</div>
+
+				<div className="contact-map-section">
+					<h3 className="info-title">Bản Đồ Chỉ Dẫn</h3>
+					<div className="map-frame">
+						<iframe
+							title="Google Map KTX Khu B"
+							src="https://maps.google.com/maps?q=K%C3%BD%20t%C3%BAc%20x%C3%A1%20Khu%20B%20%C4%90HQG%20TPHCM&t=&z=16&ie=UTF8&iwloc=&output=embed"
+							width="100%"
+							height="450"
+							style={{ border: 0, borderRadius: '0.75rem' }}
+							allowFullScreen={true}
+							loading="lazy"
+							referrerPolicy="no-referrer-when-downgrade"
+						></iframe>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
