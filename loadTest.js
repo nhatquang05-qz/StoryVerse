@@ -14,7 +14,7 @@ export const options = {
 
 export default function () {
   // 1. Dán Token bạn vừa copy từ Postman vào đây
-  const myToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwMDAwMDksImVtYWlsIjoiZHVvbmduZ3V5ZW5uaGF0cXVhbmdAZ21haWwuY29tIiwiaWF0IjoxNzY0NzUxNzE2LCJleHAiOjE3NjQ3NTUzMTZ9.UQemjATKmVhN_RX_5ROsZH7YIWTjjc4XnCG5inem2XI"; 
+  const myToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAwMDAwMTEsImVtYWlsIjoiZHVvbmduZ3V5ZW5uaGF0cXVhbmdAZ21haWwuY29tIiwiaWF0IjoxNzY1NzQ1MzczLCJleHAiOjE3NjU3NDg5NzN9.FYzfGtaP4Nei1AzGdPP5sRWC_Z_UPvK3yQgb3dyNYGg"; 
 
   // 2. Tạo Header chứa Token (Giống hệt cách bạn làm trong Postman)
   const params = {

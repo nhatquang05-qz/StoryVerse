@@ -1048,3 +1048,38 @@
 .notification-list::-webkit-scrollbar-thumb:hover {
 	background-color: var(--clr-text-secondary);
 }
+
+.suggestion-section {
+    padding-bottom: 0.5rem;
+}
+
+.suggestion-section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--clr-text-secondary);
+    background-color: var(--clr-bg-secondary); 
+    padding: 0.5rem 1rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.suggestion-divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--clr-border-light);
+    margin: 0.5rem 0;
+}
+
+.suggestion-author {
+    font-size: 0.75rem;
+    color: var(--clr-text-secondary);
+    margin: 0.2rem 0 0 0;
+    line-height: 1.2;
+}
+
+.suggestion-price {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0.2rem 0 0 0;
+}
