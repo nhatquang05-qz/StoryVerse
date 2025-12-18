@@ -188,7 +188,7 @@ const ChristmasEventPage: React.FC = () => {
 
 					<div className="user-header-info">
 						<div className="user-details">
-							<span className="user-name">{currentUser.fullName}</span>
+							<span className="c-user-name">{currentUser.fullName}</span>
 							<span className="user-coins">
 								<img src={IMAGES.coin} className="coin-icon" alt="xu" />{' '}
 								{currentUser.coinBalance?.toLocaleString()}

@@ -73,13 +73,14 @@
 	line-height: 1.2;
 }
 
-.user-name {
+.c-user-name {
 	font-weight: bold;
 	font-size: 0.9rem;
 	max-width: 8rem;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	color: #fff !important;
 }
 
 .user-coins {
