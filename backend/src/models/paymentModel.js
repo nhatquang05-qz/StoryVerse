@@ -3,7 +3,6 @@ const { getConnection } = require('../db/connection');
 const createTransactionRaw = async (userId, orderId, amount, status, type, description, transactionCode) => {
     const connection = getConnection();
     
-    // Cập nhật câu lệnh SQL thêm cột transactionCode
     const [result] = await connection.execute(
         'INSERT INTO payment_transactions (userId, orderId, amount, status, type, description, transactionCode) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [userId, orderId, amount, status, type, description, transactionCode]

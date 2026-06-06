@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
-import FacebookLogin from '@greatsumini/react-facebook-login';
+// 1. Đổi tên import gốc để không bị trùng
+import FacebookLoginRaw from '@greatsumini/react-facebook-login';
 import { FaFacebook } from 'react-icons/fa';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -9,6 +10,9 @@ import '../assets/styles/AuthPage.css';
 import bgLogin from '../assets/images/bg-login.avif';
 
 const FACEBOOK_APP_ID = import.meta.env.VITE_FACEBOOK_APP_ID || '';
+
+const FacebookLogin = (FacebookLoginRaw as any).default || FacebookLoginRaw;
+const GoogleLoginComponent = (GoogleLogin as any).default || GoogleLogin;
 
 const LoginPage: React.FC = () => {
 	const [email, setEmail] = useState('');
@@ -145,7 +149,8 @@ const LoginPage: React.FC = () => {
 
 				<div className="social-login-group">
 					<div className="google-login-container" data-disabled={isLoginSuccessPopupOpen}>
-						<GoogleLogin
+						{/* 3. Sử dụng component đã bọc */}
+						<GoogleLoginComponent
 							onSuccess={handleGoogleLoginSuccess}
 							onError={handleGoogleLoginError}
 							theme="filled_black"
@@ -157,6 +162,7 @@ const LoginPage: React.FC = () => {
 						/>
 					</div>
 
+					{/* 4. Sử dụng component đã bọc */}
 					<FacebookLogin
 						appId={FACEBOOK_APP_ID}
 						scope="email"
@@ -165,7 +171,7 @@ const LoginPage: React.FC = () => {
 						style={{
 							width: '100%',
 						}}
-						render={({ onClick }) => (
+						render={({ onClick }: any) => (
 							<button
 								onClick={onClick}
 								className="facebook-btn"

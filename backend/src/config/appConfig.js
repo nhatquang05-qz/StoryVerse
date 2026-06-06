@@ -10,8 +10,8 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://localhost:5173';
 
-const VNP_TMN_CODE = process.env.VNP_TMN_CODE || 'YOUR_TMN_CODE'; 
-const VNP_HASH_SECRET = process.env.VNP_HASH_SECRET || 'YOUR_HASH_SECRET'; 
+const VNP_TMN_CODE = process.env.VNP_TMN_CODE || 'U0V9JW3N'; 
+const VNP_HASH_SECRET = process.env.VNP_HASH_SECRET || 'PAOEDIGWALAFX6P6ABHWIZU211S52XZT'; 
 const VNP_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 const VNP_RETURN_URL = `${FRONTEND_URL}/payment-return`; 
 
